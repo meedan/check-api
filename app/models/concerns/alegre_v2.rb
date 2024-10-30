@@ -549,20 +549,20 @@ module AlegreV2
 
     def process_alegre_callback(params)
       redis = Redis.new(REDIS_CONFIG)
-      project_media = ProjectMedia.find(params.dig('data', 'item', 'raw', 'context', 'project_media_id')) rescue nil
+      project_media = ProjectMedia.find(params.dig('data', 'raw', 'context', 'project_media_id')) rescue nil
       should_relate = true
       if project_media.nil?
         project_media = TemporaryProjectMedia.new
-        project_media.text = params.dig('data', 'item', 'raw', 'text')
-        project_media.url = params.dig('data', 'item', 'raw', 'url')
-        project_media.id = params.dig('data', 'item', 'raw', 'context', 'project_media_id')
-        project_media.team_id = params.dig('data', 'item', 'raw', 'context', 'team_id')
-        project_media.field = params.dig('data', 'item', 'raw', 'context', 'field')
+        project_media.text = params.dig('data', 'raw', 'text')
+        project_media.url = params.dig('data', 'raw', 'url')
+        project_media.id = params.dig('data', 'raw', 'context', 'project_media_id')
+        project_media.team_id = params.dig('data', 'raw', 'context', 'team_id')
+        project_media.field = params.dig('data', 'raw', 'context', 'field')
         project_media.type = params['model_type']
         should_relate = false
       end
-      confirmed = params.dig('data', 'item', 'raw', 'confirmed')
-      field = params.dig('data', 'item', 'raw', 'context', 'field')
+      confirmed = params.dig('data', 'raw', 'confirmed')
+      field = params.dig('data', 'raw', 'context', 'field')
       access_key = confirmed ? :confirmed_results : :suggested_or_confirmed_results
       key = get_required_keys(project_media, field)[access_key]
       response = cache_items_via_callback(project_media, field, confirmed, params.dig('data', 'results', 'result').dup) #dup so we can better debug when playing with this in a repl

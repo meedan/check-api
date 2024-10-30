@@ -870,29 +870,27 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     params = {
         "model_type": "image",
         "data": {
-            "item": {
-                "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
-                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                "text": nil,
-                "raw": {
-                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                    "context": {
-                        "team_id": pm1.team_id,
-                        "project_media_id": pm1.id,
-                        "has_custom_id": true,
-                        "temporary_media": false,
-                    },
-                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                    "threshold": 0.73,
-                    "confirmed": true,
-                    "created_at": "2024-03-14T22:05:47.588975",
-                    "limit": 200,
-                    "requires_callback": true,
-                    "final_task": "search"
+            "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+            "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+            "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+            "text": nil,
+            "raw": {
+                "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                "context": {
+                    "team_id": pm1.team_id,
+                    "project_media_id": pm1.id,
+                    "has_custom_id": true,
+                    "temporary_media": false,
                 },
-                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "threshold": 0.73,
+                "confirmed": true,
+                "created_at": "2024-03-14T22:05:47.588975",
+                "limit": 200,
+                "requires_callback": true,
+                "final_task": "search"
             },
+            "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
             "results": {
                 "result": [
                     {
@@ -918,29 +916,27 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     unconfirmed_params = {
         "model_type": "image",
         "data": {
-            "item": {
-                "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
-                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                "text": nil,
-                "raw": {
-                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                    "context": {
-                        "team_id": pm1.team_id,
-                        "project_media_id": pm1.id,
-                        "has_custom_id": true,
-                        "temporary_media": false,
-                    },
-                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                    "threshold": 0.63,
-                    "confirmed": false,
-                    "created_at": "2024-03-14T22:05:47.588975",
-                    "limit": 200,
-                    "requires_callback": true,
-                    "final_task": "search"
+            "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+            "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+            "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+            "text": nil,
+            "raw": {
+                "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                "context": {
+                    "team_id": pm1.team_id,
+                    "project_media_id": pm1.id,
+                    "has_custom_id": true,
+                    "temporary_media": false,
                 },
-                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "threshold": 0.63,
+                "confirmed": false,
+                "created_at": "2024-03-14T22:05:47.588975",
+                "limit": 200,
+                "requires_callback": true,
+                "final_task": "search"
             },
+            "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
             "results": {
                 "result": [
                     {
@@ -982,28 +978,26 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "model_type": "image",
         "data": {
             "is_shortcircuited_search_result_callback": true,
-            "item": {
-                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
-                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                "text": nil,
-                "raw": {
-                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                    "context": {
-                        "team_id": pm1.team_id,
-                        "project_media_id": pm1.id,
-                        "has_custom_id": true,
-                        "temporary_media": false,
-                    },
-                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                    "threshold": 0.85,
-                    "confirmed": true,
-                    "created_at": "2024-03-14T22:05:47.588975",
-                    "limit": 200,
-                    "requires_callback": true,
-                    "final_task": "search"
+            "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+            "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+            "text": nil,
+            "raw": {
+                "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                "context": {
+                    "team_id": pm1.team_id,
+                    "project_media_id": pm1.id,
+                    "has_custom_id": true,
+                    "temporary_media": false,
                 },
-                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "threshold": 0.85,
+                "confirmed": true,
+                "created_at": "2024-03-14T22:05:47.588975",
+                "limit": 200,
+                "requires_callback": true,
+                "final_task": "search"
             },
+            "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
             "results": {
                 "result": [
                     {
@@ -1030,28 +1024,26 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         "model_type": "image",
         "data": {
             "is_shortcircuited_search_result_callback": true,
-            "item": {
-                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
-                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                "text": nil,
-                "raw": {
-                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                    "context": {
-                        "team_id": pm1.team_id,
-                        "project_media_id": pm1.id,
-                        "has_custom_id": true,
-                        "temporary_media": false,
-                    },
-                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                    "threshold": 0.73,
-                    "confirmed": false,
-                    "created_at": "2024-03-14T22:05:47.588975",
-                    "limit": 200,
-                    "requires_callback": true,
-                    "final_task": "search"
+            "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+            "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+            "text": nil,
+            "raw": {
+                "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                "context": {
+                    "team_id": pm1.team_id,
+                    "project_media_id": pm1.id,
+                    "has_custom_id": true,
+                    "temporary_media": false,
                 },
-                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "threshold": 0.73,
+                "confirmed": false,
+                "created_at": "2024-03-14T22:05:47.588975",
+                "limit": 200,
+                "requires_callback": true,
+                "final_task": "search"
             },
+            "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
             "results": {
                 "result": [
                     {
@@ -1092,29 +1084,27 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     params = {
         "model_type": "image",
         "data": {
-            "item": {
-                "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                "callback_url": "http://alegre:3100/presto/receive/add_item/image",
-                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                "text": nil,
-                "raw": {
-                    "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
-                    "context": {
-                        "team_id": pm1.team_id,
-                        "project_media_id": 123456789,
-                        "has_custom_id": true,
-                        "temporary_media": true,
-                    },
-                    "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
-                    "threshold": 0.73,
-                    "confirmed": true,
-                    "created_at": "2024-03-14T22:05:47.588975",
-                    "limit": 200,
-                    "requires_callback": true,
-                    "final_task": "search"
+            "id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+            "callback_url": "http://alegre:3100/presto/receive/add_item/image",
+            "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+            "text": nil,
+            "raw": {
+                "doc_id": "Y2hlY2stcHJvamVjdF9tZWRpYS0yMTQt",
+                "context": {
+                    "team_id": pm1.team_id,
+                    "project_media_id": 123456789,
+                    "has_custom_id": true,
+                    "temporary_media": true,
                 },
-                "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010"
+                "url": "http://minio:9000/check-api-dev/uploads/uploaded_image/55/09572dedf610aad68090214303c14829.png",
+                "threshold": 0.73,
+                "confirmed": true,
+                "created_at": "2024-03-14T22:05:47.588975",
+                "limit": 200,
+                "requires_callback": true,
+                "final_task": "search"
             },
+            "hash_value": "1110101010001011110100000011110010101000000010110101101010100101101111110101101001011010100001011111110101011010010000101010010110101101010110100000001010100101101010111110101000010101011100001110101010101111100001010101001011101010101011010001010101010010",
             "results": {
                 "result": [
                     {

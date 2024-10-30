@@ -249,7 +249,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
   test "should process Alegre callback webhook with is_shortcircuited_search_result_callback" do
     id = random_number
-    payload = { 'action' => 'audio', 'data' => {'is_shortcircuited_search_result_callback' => true, 'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
+    payload = { 'action' => 'audio', 'data' => {'is_shortcircuited_search_result_callback' => true, 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s} }
     Bot::Alegre.stubs(:process_alegre_callback).returns({})
     post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }, body: payload.to_json
     assert_equal '200', response.code
@@ -258,7 +258,7 @@ class WebhooksControllerTest < ActionController::TestCase
 
   test "should process Alegre callback webhook with is_search_result_callback" do
     id = random_number
-    payload = { 'action' => 'audio', 'data' => {'is_search_result_callback' => true, 'item' => { 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s }} }
+    payload = { 'action' => 'audio', 'data' => {'is_search_result_callback' => true, 'callback_url' => '/presto/receive/add_item', 'id' => id.to_s} }
     Bot::Alegre.stubs(:process_alegre_callback).returns({})
     post :index, params: { name: :alegre, token: CheckConfig.get('alegre_token') }, body: payload.to_json
     assert_equal '200', response.code

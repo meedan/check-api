@@ -24,9 +24,9 @@ module AlegreWebhooks
       redis = Redis.new(REDIS_CONFIG)
       doc_id = body.dig('data', 'requested', 'id')
       # search for doc_id on completed full-circuit callbacks
-      doc_id = body.dig('data', 'item', 'id') if doc_id.nil?
+      doc_id = body.dig('data', 'id') if doc_id.nil?
       # search for doc_id on completed short-circuit callbacks (i.e. items already known to Alegre but added context TODO make these the same structure)
-      doc_id = body.dig('data', 'item', 'raw', 'doc_id') if doc_id.nil?
+      doc_id = body.dig('data', 'raw', 'doc_id') if doc_id.nil?
       if doc_id.blank?
         CheckSentry.notify(AlegreCallbackError.new('Unexpected params format from Alegre'), params: {alegre_response: request.params, body: body})
       end
