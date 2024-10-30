@@ -11,7 +11,7 @@ class GraphqlCrudOperations
     begin
       obj.save_with_version!
     rescue RuntimeError => e
-      if e.message.include?("This item already exists") &&
+      if e.message.include?("\"code\":9") &&
       obj.is_a?(ProjectMedia) &&
       obj.set_fact_check.present? &&
       obj.set_original_claim.present?
