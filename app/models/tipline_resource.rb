@@ -47,7 +47,6 @@ class TiplineResource < ApplicationRecord
         rescue StandardError => e
           CheckSentry.notify(e, bot: 'Smooch', context: 'Google Civic API')
           response = 'Some error happened. Please try again later.'
-          response = e.message
         end
       end
     end
