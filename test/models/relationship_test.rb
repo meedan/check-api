@@ -378,4 +378,23 @@ class RelationshipTest < ActiveSupport::TestCase
       assert_match /violates check constraint "source_target_must_be_different"/, e.message
     end
   end
+
+  test "should move similar items when export item" do
+    t = create_team
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm_1 = create_project_media team: t
+    pm_2 = create_project_media team: t
+    pm2_1 = create_project_media team: t
+    # Add pm_1 & pm_2 as a similar item to pm
+    create_relationship source_id: pm.id, target_id: pm_1.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: pm.id, target_id: pm_2.id, relationship_type: Relationship.suggested_type
+    # Add pm_1 & pm2_1 as a similar item to pm2
+    create_relationship source_id: pm2.id, target_id: pm_1.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: pm.id, target_id: pm2_1.id, relationship_type: Relationship.suggested_type
+    # Expose pm to pm2
+    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    assert_equal 3, Relationship.where(source_id: pm.id, relationship_type: Relationship.suggested_type).count
+    assert_equal 0, Relationship.where(source_id: pm2.id, relationship_type: Relationship.suggested_type).count
+  end
 end

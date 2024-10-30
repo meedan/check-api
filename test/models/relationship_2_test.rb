@@ -54,11 +54,11 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should destroy relationships when project media is destroyed" do
-    pm = create_project_media project: @project
-    pm2 = create_project_media project: @project
-    pm3 = create_project_media project: @project
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
+    pm3 = create_project_media team: @team
     create_relationship source_id: pm.id, target_id: pm2.id
-    create_relationship target_id: pm.id, source_id: pm3.id
+    create_relationship source_id: pm.id, target_id: pm3.id
     assert_difference 'Relationship.count', -2 do
       pm.destroy
     end
