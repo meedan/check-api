@@ -449,8 +449,8 @@ module SmoochMessages
     def relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, relationship_type)
       message['_id'] = SecureRandom.hex
       message['type'] = 'text'
-      message['request_body'] = message['text']
       message['text'] = message['caption'] unless message['caption'].nil?
+      message['request_body'] = message['text']
       message.delete('caption')
       message.delete('mediaUrl')
       target = self.create_project_media_from_message(message)
