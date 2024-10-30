@@ -408,6 +408,20 @@ class Bot::Smooch < BotUser
     when 'add_more_details'
       self.bundle_message(message)
       self.go_to_state_and_ask_if_ready_to_submit(uid, language, workflow)
+    when 'resource_waiting_for_user_input'
+      resource_id = Rails.cache.read("smooch_resource_waiting_for_user_input:#{uid}")
+      resource = TiplineResource.where(team_id: self.config['team_id'].to_i, id: resource_id.to_i).last
+      if resource.nil?
+        self.send_message_to_user(uid, 'Sorry, this request has expired. Please start again.') # FIXME: Localize this
+        self.clear_user_bundled_messages(uid)
+      else
+        response = resource.handle_user_input(message)
+        self.send_message_to_user(uid, response) unless response.blank?
+        self.bundle_message(message)
+        self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
+      end
+      sm.reset
+      Rails.cache.delete("smooch_resource_waiting_for_user_input:#{uid}")
     end
   end
 
@@ -518,7 +532,8 @@ class Bot::Smooch < BotUser
       sm.reset
       resource = self.send_resource_to_user(uid, workflow, option['smooch_menu_custom_resource_id'].to_s, language)
       self.bundle_message(message)
-      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
+      reset_state = (resource.content_type != 'dynamic')
+      self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource, false, nil, reset_state)
     elsif value == 'subscription_confirmation'
       self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)
     elsif value == 'search_result_is_not_relevant'

@@ -9,7 +9,11 @@ module SmoochResources
       resource = TiplineResource.where(uuid: resource_uuid, team_id: self.config['team_id'].to_i, language: language).last
       unless resource.nil?
         message = resource.format_as_tipline_message.to_s
-        if ['image', 'audio', 'video'].include?(resource.header_type)
+        if resource.content_type == 'dynamic'
+          self.send_message_to_user(uid, message, {}, false, false, 'resource')
+          CheckStateMachine.new(uid).go_to_resource_waiting_for_user_input
+          Rails.cache.write("smooch_resource_waiting_for_user_input:#{uid}", resource.id, expires_in: 15.minutes)
+        elsif ['image', 'audio', 'video'].include?(resource.header_type)
           type = resource.header_type
           type = 'video' if type == 'audio' # Audio gets converted to video with a cover
           type = 'file' if type == 'video' && RequestStore.store[:smooch_bot_provider] == 'ZENDESK' # Smooch doesn't support video
