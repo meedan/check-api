@@ -30,7 +30,7 @@ class TiplineResource < ApplicationRecord
   def handle_user_input(message)
     response = nil
     if self.content_type == 'dynamic'
-      # FIXME: Here, it currently just supports Google Civic API, but, if it becomes a feature, it should support different external APIs
+      # FIXME: Here, it currently just supports Google Civic API, but, if it becomes a feature, it should support different external APIs. Since it's just a prototype, I didn't bother to localize the strings.
       return 'This does not look like a valid address. Please try again later with a valid one.' if message['text'].to_s.size < 5 # At least a ZIP code
       if CheckConfig.get('google_api_key')
         begin
