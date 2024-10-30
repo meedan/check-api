@@ -967,4 +967,34 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
     assert_not_nil Rails.cache.read("smooch:user_search_results:#{@uid}")
   end
+
+  test "should get dynamic resource on tipline bot v2" do
+    WebMock.stub_request(:get, /googleapis\.com\/civicinfo/).to_return(body: { pollingLocations: [{ address: {} }], earlyVoteSites: [{ address: {} }] }.to_json)
+    @resource.content_type = 'dynamic'
+    @resource.save!
+    send_message 'hello', '1', '4'
+    assert_state 'resource_waiting_for_user_input'
+    send_message '972 Mission St San Francisco CA'
+    assert_state 'waiting_for_message'
+  end
+
+  test "should not get dynamic resource on tipline bot v2 if resource is not available anymore" do
+    @resource.content_type = 'dynamic'
+    @resource.save!
+    send_message 'hello', '1', '4'
+    assert_state 'resource_waiting_for_user_input'
+    @resource.delete
+    send_message '972 Mission St San Francisco CA'
+    assert_state 'waiting_for_message'
+  end
+
+  test "should not get dynamic resource on tipline bot v2 if external API returns an error" do
+    WebMock.stub_request(:get, /googleapis\.com\/civicinfo/).to_return(body: { pollingLocations: 'Some error' }.to_json)
+    @resource.content_type = 'dynamic'
+    @resource.save!
+    send_message 'hello', '1', '4'
+    assert_state 'resource_waiting_for_user_input'
+    send_message '972 Mission St San Francisco CA'
+    assert_state 'waiting_for_message'
+  end
 end
