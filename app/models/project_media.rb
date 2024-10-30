@@ -432,22 +432,22 @@ class ProjectMedia < ApplicationRecord
 
   def self.handle_fact_check_for_existing_claim(existing_pm,new_pm)
     if existing_pm.fact_check.blank?
-      existing_pm.appended_fact_check_from(new_pm)
+      existing_pm.append_fact_check_from(new_pm)
     elsif existing_pm.fact_check.present?
       if existing_pm.fact_check.language != new_pm.set_fact_check['language']
-        new_pm.replaced_with_blank_media
+        new_pm.replace_with_blank_media
       end
     end
   end
 
-  def appended_fact_check_from(new_pm)
+  def append_fact_check_from(new_pm)
     self.set_claim_description = new_pm.set_claim_description
     self.set_fact_check = new_pm.set_fact_check
     self.create_claim_description_and_fact_check
     self
   end
 
-  def replaced_with_blank_media
+  def replace_with_blank_media
     m = Blank.create!
     self.set_original_claim = nil
     self.media_id = m.id
