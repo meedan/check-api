@@ -272,8 +272,8 @@ module ProjectMediaCachedFields
           model: Tag,
           affected_ids: proc { |t| [t.annotated_id.to_i] },
           events: {
-            save: :cached_field_project_media_tags_as_sentence_save,
-            destroy: :cached_field_project_media_tags_as_sentence_destroy,
+            save: :recalculate,
+            destroy: :recalculate,
           }
         }
       ]
@@ -720,11 +720,11 @@ module ProjectMediaCachedFields
       self.user && self.user == BotUser.alegre_user ? 'Check' : self.user&.name
     end
 
-    def cached_field_project_media_added_as_similar_by_name_destroy(_target)
+    def self.cached_field_project_media_added_as_similar_by_name_destroy(_target)
       nil
     end
 
-    def cached_field_project_media_confirmed_as_similar_by_name_destroy(_target)
+    def self.cached_field_project_media_confirmed_as_similar_by_name_destroy(_target)
       nil
     end
   end
@@ -742,16 +742,6 @@ module ProjectMediaCachedFields
   Project.class_eval do
     def cached_field_project_media_folder_save(_target)
       self.title
-    end
-  end
-
-  Tag.class_eval do
-    def cached_field_project_media_tags_as_sentence_save(target)
-      target.tags_as_sentence.split(', ').concat([self.tag_text]).uniq.join(', ')
-    end
-
-    def cached_field_project_media_tags_as_sentence_destroy(target)
-      target.tags_as_sentence.split(', ').reject{ |tt| tt == self.tag_text }.uniq.join(', ')
     end
   end
 end

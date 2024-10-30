@@ -47,7 +47,7 @@ module CheckCachedFields
         klass = self
         update_on[:events].each do |event, callback|
           model.send "after_#{event}", ->(obj) do
-            klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options)
+            klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options, event)
           end
         end
       end
@@ -121,7 +121,7 @@ module CheckCachedFields
       self.index_cached_field(options, value, name, obj) unless Rails.env == 'test'
     end
 
-    def update_cached_field(name, obj, condition, ids, callback, options)
+    def update_cached_field(name, obj, condition, ids, callback, options, event)
       return if self.skip_cached_field_update?
       condition ||= proc { true }
       return unless condition.call(obj)
@@ -137,11 +137,12 @@ module CheckCachedFields
           pg_field_name: options[:pg_field_name],
           recalculate: options[:recalculate],
         }
-        self.delay_for(1.second).update_cached_field_bg(name, obj, ids, callback, index_options)
+        self.delay_for(1.second).update_cached_field_bg(name, ids, callback, index_options, obj.class.name, obj.id, event)
       end
     end
 
-    def update_cached_field_bg(name, obj, ids, callback, options)
+    def update_cached_field_bg(name, ids, callback, options, klass, id, event)
+      obj = event == 'destroy' ? klass.constantize : klass.constantize.find_by_id(id)
       recalculate = options[:recalculate]
       self.where(id: ids).each do |target|
         value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
