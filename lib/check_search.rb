@@ -272,18 +272,11 @@ class CheckSearch
   end
 
   def should_include_related_items?
-    @options['show_similar'] || show_parent?
-  end
-
-  def show_parent?
-    search_keys = ['verification_status', 'tags', 'rules', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'channels', 'report_status']
-    !@options['projects'].blank? && !@options['keyword'].blank? && (search_keys & @options.keys).blank?
+    @options['show_similar']
   end
 
   def get_search_field
-    field = 'annotated_id'
-    field = 'parent_id' if !@options['show_similar'] && show_parent?
-    field
+    @options['show_similar'] ? 'annotated_id' : 'parent_id'
   end
 
   def medias_query(include_related_items = self.should_include_related_items?)
