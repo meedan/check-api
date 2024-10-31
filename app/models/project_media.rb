@@ -430,6 +430,31 @@ class ProjectMedia < ApplicationRecord
     self.team.apply_rules_and_actions(self, rule_ids)
   end
 
+  def self.handle_fact_check_for_existing_claim(existing_pm,new_pm)
+    if existing_pm.fact_check.blank?
+      existing_pm.append_fact_check_from(new_pm)
+      return existing_pm
+    elsif existing_pm.fact_check.present?
+      if existing_pm.fact_check.language != new_pm.set_fact_check['language']
+        new_pm.replace_with_blank_media
+        return new_pm
+      end
+    end
+  end
+
+  def append_fact_check_from(new_pm)
+    self.set_claim_description = new_pm.set_claim_description
+    self.set_fact_check = new_pm.set_fact_check
+    self.create_claim_description_and_fact_check
+  end
+
+  def replace_with_blank_media
+    m = Blank.create!
+    self.set_original_claim = nil
+    self.media_id = m.id
+    self.save!
+  end
+
   protected
 
   def add_extra_elasticsearch_data(ms)
