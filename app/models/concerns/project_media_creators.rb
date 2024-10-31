@@ -260,9 +260,8 @@ module ProjectMediaCreators
 
   def create_tags_in_background
     if self.set_tags.is_a?(Array)
-      project_media_id = self.id
-      tags_json = self.set_tags.to_json
-      Tag.run_later_in(1.second, 'create_project_media_tags', project_media_id, tags_json, user_id: self.user_id)
+      tags = self.set_tags.reject { |t| t.blank? }
+      Tag.run_later_in(1.second, 'create_project_media_tags', self.id, tags.to_json, user_id: self.user_id) unless tags.empty?
     end
   end
 end
