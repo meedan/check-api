@@ -412,11 +412,14 @@ class Bot::Smooch < BotUser
       resource_id = Rails.cache.read("smooch_resource_waiting_for_user_input:#{uid}")
       resource = TiplineResource.where(team_id: self.config['team_id'].to_i, id: resource_id.to_i).last
       if resource.nil?
-        self.send_message_to_user(uid, 'Sorry, this request has expired. Please start again.') # FIXME: Localize this
+        self.send_message_to_user_with_main_menu_appended(uid, 'Sorry, this request has expired. Please start again.', workflow, language)
         self.clear_user_bundled_messages(uid)
       else
         response = resource.handle_user_input(message)
-        self.send_message_to_user(uid, response) unless response.blank?
+        unless response.blank?
+          self.send_message_to_user(uid, response)
+          self.send_message_to_user_with_main_menu_appended(uid, 'Use the buttons to navigate.', workflow, language)
+        end
         self.bundle_message(message)
         self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource)
       end
