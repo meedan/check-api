@@ -30,20 +30,46 @@ class TiplineResource < ApplicationRecord
   def handle_user_input(message)
     response = nil
     if self.content_type == 'dynamic'
+
       # FIXME: Here, it currently just supports Google Civic API, but, if it becomes a feature, it should support different external APIs. Since it's just a prototype, I didn't bother to localize the strings.
       return 'This does not look like a valid address. Please try again later with a valid one.' if message['text'].to_s.size < 5 # At least a ZIP code
+
       if CheckConfig.get('google_api_key')
         begin
+          location_template = <<-TEXT.gsub(/^[\s\t]*/, '')
+            *%{name}*
+            📍 %{line} - %{city}, %{state} - %{zip}
+            📅 %{date}
+            🕒 %{hours}
+          TEXT
+
+          format_location = proc { |location|
+            (location_template.strip % {
+              name: location.dig('address', 'locationName').to_s.titleize,
+              line: location.dig('address', 'line1').to_s.titleize,
+              city: location.dig('address', 'city').to_s.titleize,
+              state: location.dig('address', 'state').to_s.upcase,
+              zip: location.dig('address', 'zip').to_s,
+              date: [location['startDate'].to_s, location['endDate'].to_s].uniq.map{ |date| Date.parse(date).strftime("%b %d, %Y") }.join(' - '),
+              hours: location['pollingHours'].to_s.split("\n").select{ |date| date =~ /#{Time.now.strftime("%b")}/ }.join(' / ')
+            }).strip + "\n"
+          }
+
           url = "https://www.googleapis.com/civicinfo/v2/voterinfo?key=#{CheckConfig.get('google_api_key')}&address=#{ERB::Util.url_encode(message['text'].to_s.gsub(/\s+/, ' ').gsub(',', ''))}&electionId=9000"
           data = JSON.parse(Net::HTTP.get(URI(url)))
           return 'Nothing found. Please try again later with this same address or another address.' unless data.has_key?('pollingLocations')
-          output = ['Here are some polling locations and some early vote sites:', '', '*POLLING LOCATIONS*', '']
-          top_polling_locations = data.dig('pollingLocations').first(5)
-          top_polling_locations.each { |location| output << location['address'].values.reject{ |value| value.blank? }.map(&:titleize).join("\n") + "\n" }
-          output.concat(['', '*EARLY VOTE SITES*', ''])
+
+          output = ['Here are some polling locations and some early vote sites:', '']
+          output.concat(['*EARLY VOTE SITES*', ''])
           top_early_vote_sites = data.dig('earlyVoteSites').to_a.first(5)
-          top_early_vote_sites.each { |location| output << location['address'].values.reject{ |value| value.blank? }.map(&:titleize).join("\n") + "\n" }
+          top_early_vote_sites.each { |location| output << format_location.call(location) }
+          output << "Early vote sites not available.\n" if top_early_vote_sites.blank?
+
+          output.concat(['*POLLING LOCATIONS*', ''])
+          top_polling_locations = data.dig('pollingLocations').first(5)
+          top_polling_locations.each { |location| output << format_location.call(location) }
           response = output.join("\n")
+
         rescue StandardError => e
           CheckSentry.notify(e, bot: 'Smooch', context: 'Google Civic API')
           response = 'Some error happened. Please try again later.'
