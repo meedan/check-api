@@ -185,13 +185,16 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
+    ProjectMedia.stubs(:recalculate_last_seen).returns({
+      Time.now - 2.months
+    })
     assert_difference 'Relationship.count' do
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
     r = Relationship.last
     assert_equal Relationship.confirmed_type, r.relationship_type
     r.destroy
-    pm1.last_seen = Time.now - 2.months
+    pm1.created_at = Time.now - 2.months
     pm1.save!
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
     tbi.set_date_similarity_threshold_enabled = true
@@ -203,6 +206,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal Relationship.suggested_type, r.relationship_type
     Bot::Alegre.unstub(:request)
+    ProjectMedia.unstub(:recalculate_last_seen)
   end
 
   test "should index report data" do
