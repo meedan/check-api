@@ -190,13 +190,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     end
     r = Relationship.last
     assert_equal Relationship.confirmed_type, r.relationship_type
-    pm1.created_at = Time.now - 2.months
+    r.destroy
+    pm1.last_seen = Time.now - 2.months
     pm1.save!
     tbi = Bot::Alegre.get_alegre_tbi(@team.id)
     tbi.set_date_similarity_threshold_enabled = true
     tbi.set_similarity_date_threshold("1")
     tbi.save!
-    r.destroy
     assert_difference 'Relationship.count' do
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
