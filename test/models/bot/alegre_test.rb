@@ -185,9 +185,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
-    ProjectMedia.stubs(:recalculate_last_seen).returns({
-      Time.now - 2.months
-    })
+    ProjectMedia.stubs(:recalculate_last_seen).returns(Time.now - 2.months)
     assert_difference 'Relationship.count' do
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
