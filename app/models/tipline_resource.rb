@@ -59,7 +59,7 @@ class TiplineResource < ApplicationRecord
           data = JSON.parse(Net::HTTP.get(URI(url)))
           return 'Nothing found. Please try again later with this same address or another address.' unless data.has_key?('pollingLocations')
 
-          output = ['Here are some polling locations and some early vote sites:', '']
+          output = ['Here are some early vote sites, polling locations and drop-off locations:', '']
           output.concat(['*EARLY VOTE SITES*', ''])
           top_early_vote_sites = data.dig('earlyVoteSites').to_a.first(5)
           top_early_vote_sites.each { |location| output << format_location.call(location) }
@@ -68,6 +68,13 @@ class TiplineResource < ApplicationRecord
           output.concat(['*POLLING LOCATIONS*', ''])
           top_polling_locations = data.dig('pollingLocations').first(5)
           top_polling_locations.each { |location| output << format_location.call(location) }
+          output << "Top polling locations not available.\n" if top_polling_locations.blank?
+
+          output.concat(['*DROP-OFF LOCATIONS*', ''])
+          top_dropoff_locations = data.dig('dropOffLocations').first(5)
+          top_dropoff_locations.each { |location| output << format_location.call(location) }
+          output << "Drop-off locations not available.\n" if top_dropoff_locations.blank?
+
           response = output.join("\n")
 
         rescue StandardError => e
