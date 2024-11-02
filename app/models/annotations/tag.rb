@@ -93,14 +93,15 @@ class Tag < ApplicationRecord
   end
 
   def self.create_project_media_tags(project_media_id, tags_json)
-    project_media = ProjectMedia.find_by_id(project_media_id)
-
-    if !project_media.nil?
-      tags = JSON.parse(tags_json)
-      clean_tags(tags).each { |tag| Tag.create annotated: project_media, tag: tag.strip, skip_check_ability: true }
-    else
-      error = StandardError.new("[ProjectMedia] Exception creating project media's tags in background. Project media is nil.")
-      CheckSentry.notify(error, project_media_id: project_media_id)
+    tags = JSON.parse(tags_json).reject { |t| t.blank? }
+    unless tags.empty?
+      project_media = ProjectMedia.find_by_id(project_media_id)
+      if !project_media.nil?
+        clean_tags(tags).each { |tag| Tag.create annotated: project_media, tag: tag.strip, skip_check_ability: true }
+      else
+        error = StandardError.new("[ProjectMedia] Exception creating project media's tags in background. Project media is nil.")
+        CheckSentry.notify(error, project_media_id: project_media_id)
+      end
     end
   end
 
