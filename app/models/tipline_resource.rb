@@ -57,7 +57,7 @@ class TiplineResource < ApplicationRecord
 
           url = "https://www.googleapis.com/civicinfo/v2/voterinfo?key=#{CheckConfig.get('google_api_key')}&address=#{ERB::Util.url_encode(message['text'].to_s.gsub(/\s+/, ' ').gsub(',', ''))}&electionId=9000"
           data = JSON.parse(Net::HTTP.get(URI(url)))
-          return 'Nothing found. Please try again later with this same address or another address.' unless data.has_key?('pollingLocations')
+          return 'Nothing found. Please try again later with this same address or another address. You can also access state lookups from https://turbovote.org/where-to-vote.' unless data.has_key?('pollingLocations')
 
           output = ['Here are some early vote sites, polling locations and drop-off locations:', '']
           output.concat(['*EARLY VOTE SITES*', ''])
@@ -66,12 +66,12 @@ class TiplineResource < ApplicationRecord
           output << "Early vote sites not available.\n" if top_early_vote_sites.blank?
 
           output.concat(['*POLLING LOCATIONS*', ''])
-          top_polling_locations = data.dig('pollingLocations').first(5)
+          top_polling_locations = data.dig('pollingLocations').to_a.first(5)
           top_polling_locations.each { |location| output << format_location.call(location) }
           output << "Top polling locations not available.\n" if top_polling_locations.blank?
 
           output.concat(['*DROP-OFF LOCATIONS*', ''])
-          top_dropoff_locations = data.dig('dropOffLocations').first(5)
+          top_dropoff_locations = data.dig('dropOffLocations').to_a.first(5)
           top_dropoff_locations.each { |location| output << format_location.call(location) }
           output << "Drop-off locations not available.\n" if top_dropoff_locations.blank?
 
