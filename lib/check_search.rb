@@ -241,7 +241,6 @@ class CheckSearch
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
     core_conditions.merge!({ archived: @options['archived'] })
-    core_conditions.merge!({ sources_count: 0 }) unless should_include_related_items?
     range_filter(:pg, custom_conditions)
     relation = ProjectMedia
     if @options['operator'].upcase == 'OR'
@@ -271,15 +270,11 @@ class CheckSearch
     results.blank? ? [0] : results.keys
   end
 
-  def should_include_related_items?
-    @options['show_similar']
-  end
-
   def get_search_field
     @options['show_similar'] ? 'annotated_id' : 'parent_id'
   end
 
-  def medias_query(include_related_items = self.should_include_related_items?)
+  def medias_query
     core_conditions = []
     custom_conditions = []
     core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
@@ -287,7 +282,6 @@ class CheckSearch
     core_conditions << { terms: { archived: @options['archived'] } }
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
-    core_conditions << { term: { sources_count: 0 } } unless include_related_items
     custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
     custom_conditions.concat keyword_conditions
     custom_conditions.concat tags_conditions
