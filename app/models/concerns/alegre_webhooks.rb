@@ -25,6 +25,8 @@ module AlegreWebhooks
       doc_id = body.dig('data', 'requested', 'id')
       # search for doc_id on completed full-circuit callbacks
       doc_id = body.dig('data', 'item', 'id') if doc_id.nil?
+      # search for doc_id on indexed-but-not-searched callbacks
+      doc_id = body.dig('data', 'item', 'doc_id') if doc_id.nil?
       # search for doc_id on completed short-circuit callbacks (i.e. items already known to Alegre but added context TODO make these the same structure)
       doc_id = body.dig('data', 'item', 'raw', 'doc_id') if doc_id.nil?
       if doc_id.blank?

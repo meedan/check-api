@@ -67,4 +67,52 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     assert_equal 'Claim', pm_claim.media.type
     assert_equal 'This is a claim.', pm_claim.media.quote
   end
+
+  test "should not create duplicate media from original claim URL as Link" do
+    setup_elasticsearch
+
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    link_response = {
+      type: 'media',
+      data: {
+        url: link_url,
+        type: 'item'
+      }
+    }.to_json
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+
+    t = create_team
+    create_project team: t
+
+    assert_raise RuntimeError do
+      2.times { create_project_media(team: t, set_original_claim: link_url) }
+    end
+  end
+
+  test "should create duplicate media from original claim URL as UploadedImage" do
+    Tempfile.create(['test_image', '.jpg']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
+      file.rewind
+      image_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, image_url).to_return(body: file.read, headers: { 'Content-Type' => 'image/jpeg' })
+
+      t = create_team
+      create_project team: t
+
+      assert_difference 'ProjectMedia.count', 2 do
+        2.times { create_project_media(team: t, set_original_claim: image_url) }
+      end
+    end
+  end
+
+  test "should create duplicate media from original claim URL as Claim" do
+    t = create_team
+    create_project team: t
+
+    assert_difference 'ProjectMedia.count', 2 do
+      2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
+    end
+  end
 end
