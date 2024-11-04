@@ -693,11 +693,17 @@ class Bot::Alegre < BotUser
     settings = tbi.nil? ? {} : tbi.alegre_settings
     date_threshold = Time.now - settings['similarity_date_threshold'].to_i.months unless settings['similarity_date_threshold'].blank?
     relationship_type = pm_id_scores[parent.id][:relationship_type]
-    if settings['date_similarity_threshold_enabled'] && !date_threshold.blank? && parent.created_at.to_i < date_threshold.to_i
-      relationship_type = Relationship.suggested_type
-    else
-      length_threshold = settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
-      relationship_type = Relationship.suggested_type if self.is_text_too_short?(pm, length_threshold)
+    if relationship_type != Relationship.suggested_type
+      if settings['date_similarity_threshold_enabled'] && !date_threshold.blank? && parent.last_seen.to_i < date_threshold.to_i
+        Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 6/6] Downgrading to suggestion due to parent age")
+        relationship_type = Relationship.suggested_type
+      else
+        length_threshold = settings.blank? ? CheckConfig.get('text_length_matching_threshold').to_f : settings['text_length_matching_threshold'].to_f
+        if self.is_text_too_short?(pm, length_threshold)
+          Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 6/6] Downgrading to suggestion due short text")
+          relationship_type = Relationship.suggested_type
+        end
+      end
     end
     relationship_type
   end

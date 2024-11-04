@@ -185,24 +185,32 @@ class Bot::AlegreTest < ActiveSupport::TestCase
         }
       ]
     })
+    # Set the TeamBotInstallation (tbi) for Alegre so that a query
+    # matched to an item seen more than 1 month ago is downgraded to suggestion
+    tbi = Bot::Alegre.get_alegre_tbi(@team.id)
+    tbi.set_date_similarity_threshold_enabled = true
+    tbi.set_similarity_date_threshold("1")
+    tbi.save!
+
+    # First verify a confirmed_type relationship is not downgraded.
+    # because last_seen will be now and not more than one month ago.
     assert_difference 'Relationship.count' do
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
     r = Relationship.last
     assert_equal Relationship.confirmed_type, r.relationship_type
-    pm1.created_at = Time.now - 2.months
-    pm1.save!
-    tbi = Bot::Alegre.get_alegre_tbi(@team.id)
-    tbi.set_date_similarity_threshold_enabled = true
-    tbi.set_similarity_date_threshold("1")
-    tbi.save!
-    r.destroy
+    r.destroy!
+
+    # Now stub last_seen so that confirmed_type is downgraded to suggest_type
+    # because it is more than tbi.similarity_date_threshold months old
+    ProjectMedia.any_instance.stubs(:last_seen).returns(Time.now - 2.months)
     assert_difference 'Relationship.count' do
       result = Bot::Alegre.relate_project_media_to_similar_items(pm2)
     end
     r = Relationship.last
     assert_equal Relationship.suggested_type, r.relationship_type
     Bot::Alegre.unstub(:request)
+    ProjectMedia.any_instance.unstub(:last_seen)
   end
 
   test "should index report data" do
