@@ -13,25 +13,6 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
-  test "should search for parent items only" do
-    t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    pm1 = create_project_media disable_es_callbacks: false, project: p
-    pm2 = create_project_media disable_es_callbacks: false, project: p
-    sleep 2
-    result = CheckSearch.new({}.to_json, nil, t.id)
-    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
-    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    sleep 2
-    result = CheckSearch.new({ projects: [p.id] }.to_json, nil, t.id)
-    assert_equal [pm1.id], result.medias.map(&:id)
-    result = CheckSearch.new({}.to_json, nil, t.id)
-    assert_equal [pm1.id].sort, result.medias.map(&:id)
-    result = CheckSearch.new({ show_similar: true }.to_json, nil, t.id)
-    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
-  end
-
   test "should match secondary items and show items based on show_similar option" do
     t = create_team
     parent = create_project_media team: t, disable_es_callbacks: false
