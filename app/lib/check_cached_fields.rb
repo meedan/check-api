@@ -143,12 +143,14 @@ module CheckCachedFields
 
     def update_cached_field_bg(name, ids, callback, options, klass, id, event)
       obj = event == 'destroy' ? klass.constantize : klass.constantize.find_by_id(id)
-      recalculate = options[:recalculate]
-      self.where(id: ids).each do |target|
-        value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
-        Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: self.cached_field_expiration(options))
-        # Update ES index and PG, if needed
-        self.index_and_pg_cached_field(options, value, name, target)
+      unless obj.nil?
+        recalculate = options[:recalculate]
+        self.where(id: ids).each do |target|
+          value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
+          Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: self.cached_field_expiration(options))
+          # Update ES index and PG, if needed
+          self.index_and_pg_cached_field(options, value, name, target)
+        end
       end
     end
   end
