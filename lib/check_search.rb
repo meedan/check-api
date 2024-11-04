@@ -241,6 +241,7 @@ class CheckSearch
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
     core_conditions.merge!({ archived: @options['archived'] })
+    # Use sources_count condition for PG query to get either parent or child based on show_similar option
     core_conditions.merge!({ sources_count: 0 }) unless @options['show_similar']
     range_filter(:pg, custom_conditions)
     relation = ProjectMedia
