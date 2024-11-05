@@ -57,4 +57,10 @@ class CheckConfigTest < ActiveSupport::TestCase
     ENV.delete('test_other_env_key')
   end
 
+  test "should handle json value " do
+    stub_configs({ 'test_json_key' => '{"lang":{"en":"default.html"}}', 'test_invalid_json_key' => 'invalid_json_value' }) do
+      assert_equal 'default.html', CheckConfig.get('test_json_key', nil, :json)
+      assert_equal 'invalid_json_value', CheckConfig.get('test_invalid_json_key', nil, :json)
+    end
+  end
 end

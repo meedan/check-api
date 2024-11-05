@@ -413,6 +413,8 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     sleep 2 # Wait for ElasticSearch to index content
 
     assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id]).to_a.map(&:id)
+    # Calling wiht skip_cache true
+    assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id], nil, nil, nil, true).to_a.map(&:id)
   end
 
   test "should store media" do
