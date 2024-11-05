@@ -73,7 +73,7 @@ class TeamStatistics
       item = ProjectMedia.find(pm_id)
       data[item.fact_check_title || item.title] = demand
     end
-    data
+    data.sort_by{ |_key, value| value }.reverse.to_h
   end
 
   def top_articles_tags
@@ -98,7 +98,7 @@ class TeamStatistics
     result.each do |row|
       data[row['tag']] = row['tag_count'].to_i
     end
-    data.sort.reverse.to_h
+    data.sort_by{ |_key, value| value }.reverse.to_h
   end
 
   # For tiplines
@@ -191,7 +191,7 @@ class TeamStatistics
       item = ProjectMedia.find(pm_id)
       data[item.title] = demand
     end
-    data
+    data.sort_by{ |_key, value| value }.reverse.to_h
   end
 
   # FIXME: The "demand" is across languages and platforms
@@ -231,9 +231,9 @@ class TeamStatistics
       past_3_months: 3.months,
       past_6_months: 6.months
     }[@period.to_sym]
-    from = Time.now.ago(ago).beginning_of_day unless ago.nil?
+    from = Time.now.ago(ago) unless ago.nil?
     from = Time.now.beginning_of_year if @period.to_s == 'year_to_date'
-    from.to_datetime..Time.now.end_of_day.to_datetime
+    from.to_datetime.beginning_of_day..Time.now.to_datetime.end_of_day
   end
 
   def fact_checks_base_query(timestamp_field = :created_at, group_by_day = false)
