@@ -231,9 +231,9 @@ class TeamStatistics
       past_3_months: 3.months,
       past_6_months: 6.months
     }[@period.to_sym]
-    from = Time.now.ago(ago) unless ago.nil?
+    from = Time.now.ago(ago).beginning_of_day unless ago.nil?
     from = Time.now.beginning_of_year if @period.to_s == 'year_to_date'
-    from.to_datetime..Time.now.to_datetime
+    from.to_datetime..Time.now.end_of_day.to_datetime
   end
 
   def fact_checks_base_query(timestamp_field = :created_at, group_by_day = false)
