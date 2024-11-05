@@ -15,7 +15,7 @@ class TeamStatistics
     end
 
     range = time_range.to_a
-    @start_date, @end_date = range.first, range.last
+    @start_date, @end_date = range.first.to_datetime.beginning_of_day, range.last.to_datetime.end_of_day
     @start_date_str, @end_date_str = @start_date.strftime('%Y-%m-%d'), @end_date.strftime('%Y-%m-%d')
 
     @platform = platform
