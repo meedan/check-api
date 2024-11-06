@@ -127,8 +127,8 @@ class CheckDataPoints
 
     def parse_start_end_dates(start_date, end_date)
       # date format is `2023-08-23`
-      start_date = Time.parse(start_date)
-      end_date = Time.parse(end_date)
+      start_date = Time.parse(start_date).beginning_of_day
+      end_date = Time.parse(end_date).end_of_day
       raise 'End date should be greater than start date' if start_date > end_date
       return start_date, end_date
     end
