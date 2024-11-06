@@ -67,13 +67,14 @@ class TeamStatistics
 
   # FIXME: Only fact-checks for now (need to add explainers) and the "demand" is across languages and platforms
   def top_articles_sent
-    data = {}
+    data = []
     clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'fc_language')
     clusters.each do |pm_id, demand|
       item = ProjectMedia.find(pm_id)
-      data[item.fact_check_title || item.title] = demand
+      title = item.fact_check_title || item.title
+      data << { id: item.id, label: title, value: demand }
     end
-    data.sort_by{ |_key, value| value }.reverse.to_h
+    data.sort_by{ |object| object[:value] }.reverse
   end
 
   def top_articles_tags
@@ -94,11 +95,11 @@ class TeamStatistics
 
     language = @language ? [@language] : @all_languages
     result = ActiveRecord::Base.connection.execute(ApplicationRecord.sanitize_sql_for_assignment([sql, team_id: @team.id, start_date: @start_date, end_date: @end_date, language: language]))
-    data = {}
+    data = []
     result.each do |row|
-      data[row['tag']] = row['tag_count'].to_i
+      data << { id: row['tag'], label: row['tag'], value: row['tag_count'].to_i }
     end
-    data.sort_by{ |_key, value| value }.reverse.to_h
+    data.sort_by{ |object| object[:value] }.reverse
   end
 
   # For tiplines
@@ -185,27 +186,29 @@ class TeamStatistics
 
   # FIXME: The "demand" is across languages and platforms
   def top_requested_media_clusters
-    data = {}
+    data = []
     clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'request_language', @platform)
     clusters.each do |pm_id, demand|
       item = ProjectMedia.find(pm_id)
-      data[item.title] = demand
+      data << { id: item.id, label: item.title, value: demand }
     end
-    data.sort_by{ |_key, value| value }.reverse.to_h
+    data.sort_by{ |object| object[:value] }.reverse
   end
 
   # FIXME: The "demand" is across languages and platforms
   def top_media_tags
-    data = {}
+    tags = {}
     clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'language', @platform)
     clusters.each do |pm_id, demand|
       item = ProjectMedia.find(pm_id)
       item.tags_as_sentence.split(',').map(&:strip).each do |tag|
-        data[tag] ||= 0
-        data[tag] += demand
+        tags[tag] ||= 0
+        tags[tag] += demand
       end
     end
-    data.sort_by{ |_key, value| value }.reverse.first(5).to_h
+    data = []
+    tags.each { |tag, value| data << { id: tag, label: tag, value: value } }
+    data.sort_by{ |object| object[:value] }.reverse
   end
 
   # For both articles and tiplines
