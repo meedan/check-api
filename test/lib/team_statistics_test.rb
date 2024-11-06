@@ -76,7 +76,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       assert_equal 2, object.number_of_fact_checks_created
       assert_equal 1, object.number_of_published_fact_checks
       assert_equal({ 'false' => 1, 'verified' => 1 }, object.number_of_fact_checks_by_rating)
-      assert_equal({ 'foo' => 3, 'bar' => 2 }, object.top_articles_tags)
+      assert_equal([{ id: 'foo', label: 'foo', value: 3 }, { id: 'bar', label: 'bar', value: 2 }], object.top_articles_tags)
     end
   end
 
@@ -96,7 +96,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     sleep 2
 
     object = TeamStatistics.new(@team, 'past_week', 'en')
-    expected = { 'Foo' => 2, 'Bar' => 1 }
+    expected = [{ id: pm2.id, label: 'Foo', value: 2 }, { id: pm1.id, label: 'Bar', value: 1 }]
     assert_equal expected, object.top_articles_sent
   end
 
@@ -168,7 +168,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       sleep 3
 
       object = TeamStatistics.new(@team, 'past_week', 'en', 'whatsapp')
-      expected = { 'Foo' => 2, 'Bar' => 1 }
+      expected = [{ id: pm2.id, label: 'Foo', value: 2 }, { id: pm1.id, label: 'Bar', value: 1 }]
       assert_equal expected, object.top_requested_media_clusters
     end
   end
@@ -204,7 +204,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       sleep 3
 
       object = TeamStatistics.new(@team, 'past_week', 'en', 'whatsapp')
-      expected = { 'foo' => 3, 'test' => 2, 'bar' => 1 }
+      expected = [{ id: 'foo', label: 'foo', value: 3 }, { id: 'test', label: 'test', value: 2 }, { id: 'bar', label: 'bar', value: 1 }]
       assert_equal expected, object.top_media_tags
     end
   end
