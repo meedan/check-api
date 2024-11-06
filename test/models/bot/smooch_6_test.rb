@@ -969,7 +969,8 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
   end
 
   test "should get dynamic resource on tipline bot v2" do
-    WebMock.stub_request(:get, /googleapis\.com\/civicinfo/).to_return(body: { pollingLocations: [{ address: {} }], earlyVoteSites: [{ address: {} }] }.to_json)
+    civic_api_mocked_data = { pollingLocations: [{ address: {}, startDate: '2024-11-01', endDate: '2024-11-05', pollingHours: '7am - 5pm' }], earlyVoteSites: [{ address: {}, startDate: '2024-11-01', endDate: '2024-11-05', pollingHours: '7am - 5pm' }] }
+    WebMock.stub_request(:get, /googleapis\.com\/civicinfo/).to_return(body: civic_api_mocked_data.to_json)
     stub_configs({ 'google_api_key' => random_string }) do
       @resource.content_type = 'dynamic'
       @resource.save!
