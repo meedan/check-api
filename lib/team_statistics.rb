@@ -208,7 +208,7 @@ class TeamStatistics
     end
     data = []
     tags.each { |tag, value| data << { id: tag, label: tag, value: value } }
-    data.sort_by{ |object| object[:value] }.reverse
+    data.sort_by{ |object| object[:value] }.reverse.first(5)
   end
 
   # For both articles and tiplines
