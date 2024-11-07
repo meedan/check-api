@@ -397,6 +397,7 @@ class TeamType < DefaultObject
   end
 
   def statistics(period:, language: nil, platform: nil)
+    raise CheckPermissions::AccessDenied.new("You don't have access to this field.") unless User.current&.is_admin
     TeamStatistics.new(object, period, language, platform)
   end
 end
