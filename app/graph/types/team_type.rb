@@ -397,6 +397,7 @@ class TeamType < DefaultObject
   end
 
   def statistics(period:, language: nil, platform: nil)
+    return nil unless User.current&.is_admin
     TeamStatistics.new(object, period, language, platform)
   end
 end

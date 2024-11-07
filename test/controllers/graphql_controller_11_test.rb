@@ -201,8 +201,8 @@ class GraphqlController11Test < ActionController::TestCase
     end
   end
 
-  test "should get team statistics" do
-    user = create_user
+  test "should get team statistics if super admin" do
+    user = create_user is_admin: true
     team = create_team
     create_team_user user: user, team: team, role: 'admin'
 
@@ -244,6 +244,28 @@ class GraphqlController11Test < ActionController::TestCase
 
     post :create, params: { query: query }
     assert_response :success
+    assert_not_nil JSON.parse(@response.body).dig('data', 'team', 'statistics')
+  end
+
+  test "should not get team statistics if not super admin" do
+    user = create_user is_admin: false
+    team = create_team
+    create_team_user user: user, team: team, role: 'admin'
+
+    authenticate_with_user(user)
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{team.slug}") {
+          statistics(period: "past_week", platform: "whatsapp", language: "en") {
+            number_of_articles_created_by_date
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query }
+    assert_response :success
+    assert_nil JSON.parse(@response.body).dig('data', 'team', 'statistics')
   end
 
   test "should not get requests if interval is more than one month" do
