@@ -13,22 +13,40 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
-  test "should match secondary items and show items based on show_similar option" do
+  test "should search for parent items only" do
     t = create_team
-    parent = create_project_media team: t, disable_es_callbacks: false
-    child_1 = create_project_media team: t, quote: 'child_media a', disable_es_callbacks: false
-    child_2 = create_project_media team: t, quote: 'child_media b', disable_es_callbacks: false
-    create_relationship source_id: parent.id, target_id: child_1.id, relationship_type: Relationship.confirmed_type
-    create_relationship source_id: parent.id, target_id: child_2.id, relationship_type: Relationship.confirmed_type
+    p = create_project team: t
+    p2 = create_project team: t
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    pm2 = create_project_media disable_es_callbacks: false, project: p
     sleep 2
     result = CheckSearch.new({}.to_json, nil, t.id)
-    assert_equal [parent.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({show_similar: true}.to_json, nil, t.id)
-    assert_equal [parent.id, child_1.id, child_2.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({ keyword: 'child_media' }.to_json, nil, t.id)
-    assert_equal [parent.id], result.medias.map(&:id)
-    result = CheckSearch.new({ keyword: 'child_media', show_similar: true }.to_json, nil, t.id)
-    assert_equal [child_1.id, child_2.id], result.medias.map(&:id).sort
+    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    sleep 2
+    result = CheckSearch.new({ projects: [p.id] }.to_json, nil, t.id)
+    assert_equal [pm1.id], result.medias.map(&:id)
+    result = CheckSearch.new({}.to_json, nil, t.id)
+    assert_equal [pm1.id].sort, result.medias.map(&:id)
+    result = CheckSearch.new({ show_similar: true }.to_json, nil, t.id)
+    assert_equal [pm1.id, pm2.id].sort, result.medias.map(&:id).sort
+  end
+
+  test "should match secondary items but surface the main ones" do
+    # This case only happen when browsing a list and seach by keyword
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media disable_es_callbacks: false, project: p
+    pm1 = create_project_media disable_es_callbacks: false, project: p
+    pm2 = create_project_media quote: 'target_media', disable_es_callbacks: false, project: p
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    sleep 2
+    result = CheckSearch.new({ projects: [p.id] }.to_json, nil, t.id)
+    assert_equal [pm.id, pm1.id], result.medias.map(&:id).sort
+    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media' }.to_json, nil, t.id)
+    assert_equal [pm1.id], result.medias.map(&:id)
+    result = CheckSearch.new({ projects: [p.id], keyword: 'target_media', tags: ['test'] }.to_json, nil, t.id)
+    assert_empty result.medias.map(&:id)
   end
 
   test "should reindex data" do
