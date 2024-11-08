@@ -177,7 +177,7 @@ class Relationship < ApplicationRecord
     end
     if r.nil?
       Rails.logger.error("[Relationship::create_unless_exists] returning nil: source_id #{source_id}, target_id #{target_id}, relationship_type #{relationship_type}.")
-      error_msg = StandardError.new('Unable to create new relationship as requested.')
+      error_msg = StandardError.new("Unable to create new relationship as requested: #{exception_message}")
       CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options, exception_message: exception_message, exception_class: exception_class)
     end
     r
