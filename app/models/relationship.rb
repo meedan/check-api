@@ -156,6 +156,8 @@ class Relationship < ApplicationRecord
 
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
     r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
+    exception_message = nil
+    exception_class = nil
     if r.nil?
       begin
         r = Relationship.new
@@ -170,12 +172,14 @@ class Relationship < ApplicationRecord
       rescue StandardError => e
         CheckSentry.notify(e, source_id: source_id, target_id: target_id, relationship_type: relationship_type)
         r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
+        exception_message = e.message
+        exception_class = e.class.name
       end
     end
     if r.nil?
       Rails.logger.error("[Relationship::create_unless_exists] returning nil: source_id #{source_id}, target_id #{target_id}, relationship_type #{relationship_type}.")
       error_msg = StandardError.new('Unable to create new relationship as requested.')
-      CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options)
+      CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options, exception_message: exception_message, exception_class: exception_class)
     end
     r
   end
