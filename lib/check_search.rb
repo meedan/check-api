@@ -282,6 +282,7 @@ class CheckSearch
     core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
     core_conditions << { terms: { team_id: [@options['team_id']].flatten } } if @options['team_id'].is_a?(Array)
     core_conditions << { terms: { archived: @options['archived'] } }
+    core_conditions << { term: { sources_count: 0 } } unless @options['show_similar']
     custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
     custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
     custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
