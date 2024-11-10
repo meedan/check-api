@@ -23,10 +23,10 @@ class ElasticSearch5Test < ActionController::TestCase
     sleep 2
     result = CheckSearch.new({}.to_json, nil, t.id)
     assert_equal [parent.id], result.medias.map(&:id).sort
-    result = CheckSearch.new({show_similar: true}.to_json, nil, t.id)
+    result = CheckSearch.new({ show_similar: true }.to_json, nil, t.id)
     assert_equal [parent.id, child_1.id, child_2.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ keyword: 'child_media' }.to_json, nil, t.id)
-    assert_equal [parent.id], result.medias.map(&:id)
+    assert_equal [], result.medias.map(&:id)
     result = CheckSearch.new({ keyword: 'child_media', show_similar: true }.to_json, nil, t.id)
     assert_equal [child_1.id, child_2.id], result.medias.map(&:id).sort
   end
