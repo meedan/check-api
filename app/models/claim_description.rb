@@ -69,7 +69,7 @@ class ClaimDescription < ApplicationRecord
     end
   end
 
-  # Pause and update eport when claim/fact-check is removed
+  # Pause and update report when claim/fact-check is removed
   def update_report
     if self.project_media_id.nil? && !self.project_media_id_before_last_save.nil?
       # Update report status
