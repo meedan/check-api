@@ -2,7 +2,7 @@ class CheckSearch
   include SearchHelper
 
   def initialize(options, file = nil, team_id = Team.current&.id)
-    # Options include keywords, projects, tags, status, report status
+    # Options include search filters
     options = begin JSON.parse(options) rescue {} end
     @options = options.to_h.clone.with_indifferent_access
     @options['input'] = options.clone
@@ -22,9 +22,6 @@ class CheckSearch
     @options['esoffset'] ||= 0
     adjust_es_window_size
 
-    # Check for non project
-    @options['none_project'] = @options['projects'].include?('-1') unless @options['projects'].blank?
-    adjust_project_filter
     adjust_channel_filter
     adjust_numeric_range_filter
     adjust_archived_filter
@@ -235,9 +232,7 @@ class CheckSearch
     core_conditions = {}
     core_conditions['team_id'] = @options['team_id'] if @options['team_id'].is_a?(Array)
     # Add custom conditions for array values
-    {
-      'project_id' => 'projects', 'user_id' => 'users', 'source_id' => 'sources', 'read' => 'read', 'unmatched' => 'unmatched'
-    }.each do |k, v|
+    { 'user_id' => 'users', 'source_id' => 'sources', 'read' => 'read', 'unmatched' => 'unmatched'}.each do |k, v|
       custom_conditions[k] = [@options[v]].flatten if @options.has_key?(v)
     end
     core_conditions.merge!({ archived: @options['archived'] })
@@ -304,15 +299,19 @@ class CheckSearch
     custom_conditions.concat report_language_conditions
     custom_conditions.concat team_tasks_conditions
     feed_conditions = build_feed_conditions
-    conditions = []
+    and_conditions = core_conditions
+    or_conditions = feed_conditions
+    not_conditions = []
     if @options['operator'].upcase == 'OR'
-      and_conditions = { bool: { must: core_conditions } }
-      or_conditions = { bool: { should: custom_conditions } }
-      conditions = [and_conditions, or_conditions, feed_conditions]
+      or_conditions.concat(custom_conditions)
+      not_conditions << { term: { associated_type: { value: "Blank" } } }
     else
-      conditions = [{ bool: { must: (core_conditions + custom_conditions) } }, feed_conditions]
+      and_conditions.concat(custom_conditions)
     end
-    { bool: { must: conditions.reject{ |c| c.blank? } } }
+    query = { must: and_conditions }
+    query[:should] = or_conditions unless or_conditions.blank?
+    query[:must_not] = not_conditions unless not_conditions.blank?
+    { bool: query }
   end
 
   def medias_get_search_result(query)
@@ -406,25 +405,6 @@ class CheckSearch
     window_size = 10000
     current_size = @options['esoffset'].to_i + @options['eslimit'].to_i
     @options['eslimit'] = window_size - @options['esoffset'].to_i if current_size > window_size
-  end
-
-  def adjust_project_filter
-    team_id = [@options['team_id']].flatten.first
-    project_group_ids = [@options['project_group_id']].flatten.reject{ |pgid| pgid.blank? }.map(&:to_i)
-    unless project_group_ids.empty?
-      project_ids = @options['projects'].to_a.map(&:to_i)
-      project_groups_project_ids = Project.where(project_group_id: project_group_ids, team_id: team_id).map(&:id)
-
-      project_ids = project_ids.blank? ? project_groups_project_ids : (project_ids & project_groups_project_ids)
-
-      # Invalidate the search if empty... otherwise, adjust the projects filter
-      @options['projects'] = project_ids.empty? ? [0] : project_ids
-    end
-    if Team.current && !feed_query? && [@options['team_id']].flatten.size == 1
-      t = Team.find(team_id)
-      @options['projects'] = @options['projects'].blank? ? (Project.where(team_id: t.id).map(&:id) + [nil]) : Project.where(id: @options['projects'], team_id: t.id).map(&:id)
-    end
-    @options['projects'] += [nil] if @options['none_project']
   end
 
   def adjust_channel_filter
@@ -690,7 +670,7 @@ class CheckSearch
       doc_c << { terms: { 'associated_type': types } }
     end
 
-    fields = { 'project_id' => 'projects', 'user_id' => 'users' }
+    fields = { 'user_id' => 'users' }
     status_search_fields.each do |field|
       fields[field] = field
     end
@@ -770,12 +750,12 @@ class CheckSearch
   end
 
   def build_feed_conditions
-    return {} unless feed_query?
+    return [] unless feed_query?
     conditions = []
     @feed.get_team_filters(@options['feed_team_ids']).each do |filters|
       team_id = filters['team_id'].to_i
       conditions << CheckSearch.new(filters.merge({ show_similar: !!@options['show_similar'] }).to_json, nil, team_id).medias_query
     end
-    { bool: { should: conditions } }
+    conditions
   end
 end
