@@ -72,7 +72,7 @@ class ClaimDescription < ApplicationRecord
   # Pause and update report when claim/fact-check is removed
   def update_report
     if self.project_media_id.nil? && !self.project_media_id_before_last_save.nil?
-      # Update report status
+      # Update report status and text fields
       pm = ProjectMedia.find(self.project_media_id_before_last_save)
       report = Annotation.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: pm.id).last
       unless report.nil?
