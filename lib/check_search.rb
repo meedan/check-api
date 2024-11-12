@@ -38,8 +38,6 @@ class CheckSearch
     # Apply feed filters
     @feed_view = @options['feed_view'] || :fact_check
     @options.merge!(@feed.get_feed_filters(@feed_view)) if feed_query?
-
-    (Project.current ||= Project.where(id: @options['projects'].last).last) if @options['projects'].to_a.size == 1
     @file = file
   end
 
