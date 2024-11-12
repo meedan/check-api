@@ -250,6 +250,7 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should propagate change if source and target are swapped" do
+    Sidekiq::Testing.inline!
     u = create_user is_admin: true
     t = create_team
     with_current_user_and_team(u, t) do
