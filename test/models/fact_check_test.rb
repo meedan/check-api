@@ -690,4 +690,28 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_equal 'unstarted', pm.reload.status
     end
   end
+
+  test "should reset report when fact-check is detached" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_report_design_annotation_type
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      cd = create_claim_description(project_media: pm)
+      fc = create_fact_check claim_description: cd, title: 'Foo'
+      r = pm.get_dynamic_annotation('report_design')
+      publish_report(pm, {}, r)
+      assert_equal 'published', pm.reload.report_status
+      assert_equal 'Foo', pm.reload.report_text_title
+
+      cd.project_media = nil # Remove the claim/fact-check from the item
+      cd.save!
+      assert_equal 'paused', pm.reload.report_status
+      assert_equal '', pm.reload.report_text_title
+
+      cd.project_media = pm # Re-add the claim/fact-check to the item
+      cd.save!
+      assert_equal 'paused', pm.reload.report_status
+      assert_equal 'Foo', pm.reload.report_text_title
+    end
+  end
 end
