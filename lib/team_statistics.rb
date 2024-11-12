@@ -72,7 +72,7 @@ class TeamStatistics
     clusters.each do |pm_id, demand|
       item = ProjectMedia.find(pm_id)
       title = item.fact_check_title || item.title
-      data << { id: item.id, label: title, value: demand }
+      data << { id: item.fact_check_id, label: title, value: demand }
     end
     data.sort_by{ |object| object[:value] }.reverse
   end
