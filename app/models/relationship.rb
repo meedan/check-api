@@ -12,6 +12,7 @@ class Relationship < ApplicationRecord
 
   before_validation :set_user, on: :create
   before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
+  before_validation :move_fact_check_and_report_to_main, on: :create
   validate :relationship_type_is_valid, :items_are_from_the_same_team
   validate :target_not_published_report, on: :create
   validate :similar_item_exists, on: :create, if: proc { |r| r.is_suggested? }
@@ -365,5 +366,33 @@ class Relationship < ApplicationRecord
 
   def cant_be_related_to_itself
     errors.add(:base, I18n.t(:item_cant_be_related_to_itself)) if self.source_id == self.target_id
+  end
+
+  def move_fact_check_and_report_to_main
+    Relationship.transaction do
+      source = self.source
+      target = self.target
+      if source && target && source.team_id == target.team_id # Must verify since this method runs before the validation
+        target_report = target.get_annotations('report_design').to_a.map(&:load).last
+
+        # If the child item has a claim/fact-check and published report but the parent item doesn't, then move the claim/fact-check/report from the child to the parent
+        if !source.claim_description && target.claim_description && target_report && target_report.get_field_value('state') == 'published'
+          # Move report
+          target_report.annotated_id = source.id
+          target_report.save!
+
+          # Move claim/fact-check
+          claim_description = target.claim_description
+          claim_description.project_media = source
+          claim_description.save!
+
+          # Clear caches
+          source.clear_cached_fields
+          target.clear_cached_fields
+          source.reload
+          target.reload
+        end
+      end
+    end
   end
 end
