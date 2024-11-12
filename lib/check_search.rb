@@ -272,31 +272,35 @@ class CheckSearch
   def medias_query
     core_conditions = []
     custom_conditions = []
-    core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
-    core_conditions << { terms: { team_id: [@options['team_id']].flatten } } if @options['team_id'].is_a?(Array)
-    core_conditions << { terms: { archived: @options['archived'] } }
-    custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
-    custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
-    custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
-    custom_conditions.concat keyword_conditions
-    custom_conditions.concat tags_conditions
-    custom_conditions.concat report_status_conditions
-    custom_conditions.concat published_by_conditions
-    custom_conditions.concat annotated_by_conditions
-    custom_conditions.concat integer_terms_query('assigned_user_ids', 'assigned_to')
-    custom_conditions.concat integer_terms_query('channel', 'channels')
-    custom_conditions.concat integer_terms_query('source_id', 'sources')
-    custom_conditions.concat doc_conditions
-    custom_conditions.concat has_claim_conditions
-    custom_conditions.concat file_filter
-    custom_conditions.concat range_filter(:es)
-    custom_conditions.concat numeric_range_filter
-    custom_conditions.concat language_conditions
-    custom_conditions.concat fact_check_language_conditions unless feed_query?
-    custom_conditions.concat request_language_conditions
-    custom_conditions.concat report_language_conditions
-    custom_conditions.concat team_tasks_conditions
-    feed_conditions = build_feed_conditions
+    feed_conditions = []
+    unless feed_query?
+      core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
+      core_conditions << { terms: { team_id: [@options['team_id']].flatten } } if @options['team_id'].is_a?(Array)
+      core_conditions << { terms: { archived: @options['archived'] } }
+      custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
+      custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
+      custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
+      custom_conditions.concat keyword_conditions
+      custom_conditions.concat tags_conditions
+      custom_conditions.concat report_status_conditions
+      custom_conditions.concat published_by_conditions
+      custom_conditions.concat annotated_by_conditions
+      custom_conditions.concat integer_terms_query('assigned_user_ids', 'assigned_to')
+      custom_conditions.concat integer_terms_query('channel', 'channels')
+      custom_conditions.concat integer_terms_query('source_id', 'sources')
+      custom_conditions.concat doc_conditions
+      custom_conditions.concat has_claim_conditions
+      custom_conditions.concat file_filter
+      custom_conditions.concat range_filter(:es)
+      custom_conditions.concat numeric_range_filter
+      custom_conditions.concat language_conditions
+      custom_conditions.concat fact_check_language_conditions
+      custom_conditions.concat request_language_conditions
+      custom_conditions.concat report_language_conditions
+      custom_conditions.concat team_tasks_conditions
+    else
+      feed_conditions = build_feed_conditions
+    end
     and_conditions = core_conditions
     or_conditions = feed_conditions
     not_conditions = []
@@ -306,7 +310,8 @@ class CheckSearch
     else
       and_conditions.concat(custom_conditions)
     end
-    query = { must: and_conditions }
+    query = {}
+    query[:must] = and_conditions unless and_conditions.blank?
     query[:should] = or_conditions unless or_conditions.blank?
     query[:must_not] = not_conditions unless not_conditions.blank?
     { bool: query }

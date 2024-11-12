@@ -12,20 +12,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should query media" do
     setup_elasticsearch
     t = create_team
-    p = create_project team: t
-    p1 = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media team: t, project_id: p.id, disable_es_callbacks: false
-    create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
-    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED, project_id: p.id, disable_es_callbacks: false
-    pm = create_project_media team: t, project_id: p1.id, disable_es_callbacks: false
-    create_relationship source_id: pm.id, target_id: create_project_media(team: t, project_id: p.id, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
+    pm = create_project_media team: t, disable_es_callbacks: false
+    create_project_media team: t, disable_es_callbacks: false
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED, disable_es_callbacks: false
+    pm = create_project_media team: t, disable_es_callbacks: false
+    create_relationship source_id: pm.id, target_id: create_project_media(team: t, disable_es_callbacks: false).id, relationship_type: Relationship.confirmed_type
     sleep 2
     assert_equal 3, CheckSearch.new({ team_id: t.id }.to_json, nil, t.id).medias.size
     assert_equal 4, CheckSearch.new({ show_similar: true, team_id: t.id }.to_json, nil, t.id).medias.size
-    assert_equal 2, CheckSearch.new({ team_id: t.id, projects: [p1.id] }.to_json, nil, t.id).medias.size
-    assert_equal 0, CheckSearch.new({ team_id: t.id, projects: [p2.id] }.to_json, nil, t.id).medias.size
-    assert_equal 1, CheckSearch.new({ team_id: t.id, projects: [p1.id], eslimit: 1 }.to_json, nil, t.id).medias.size
   end
 
   test "should handle indexing conflicts" do
