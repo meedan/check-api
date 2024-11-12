@@ -2,10 +2,13 @@ require_relative '../test_helper'
 
 class Relationship2Test < ActiveSupport::TestCase
   def setup
-    super
-    Sidekiq::Testing.inline!
+    Sidekiq::Testing.fake!
     @team = create_team
     @project = create_project team: @team
+  end
+
+  def teardown
+    User.current = Team.current = nil
   end
 
   test "should create relationship" do
@@ -54,6 +57,7 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should destroy relationships when project media is destroyed" do
+    Sidekiq::Testing.inline!
     pm = create_project_media team: @team
     pm2 = create_project_media team: @team
     pm3 = create_project_media team: @team
@@ -140,6 +144,7 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should archive or restore medias when source is archived or restored" do
+    Sidekiq::Testing.inline!
     RequestStore.store[:skip_delete_for_ever] = true
     s = create_project_media project: @project
     t1 = create_project_media project: @project
@@ -159,6 +164,7 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should delete medias when source is deleted" do
+    Sidekiq::Testing.inline!
     s = create_project_media project: @project
     t1 = create_project_media project: @project
     t2 = create_project_media project: @project
@@ -205,6 +211,7 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should have versions" do
+    Sidekiq::Testing.inline!
     with_versioning do
       u = create_user is_admin: true
       t = create_team
@@ -342,6 +349,7 @@ class Relationship2Test < ActiveSupport::TestCase
 
   test "should cache the name of who confirmed a similar item and store confirmation information" do
     RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline!
     t = create_team
     u = create_user is_admin: true
     pm1 = create_project_media team: t
@@ -360,5 +368,55 @@ class Relationship2Test < ActiveSupport::TestCase
     assert_queries(0, '>') { assert_equal u.name, pm2.confirmed_as_similar_by_name }
     r.destroy!
     assert_queries(0, '=') { assert_nil pm2.confirmed_as_similar_by_name }
+  end
+
+  test "should move fact-check from child to parent when creating relationship if child has a fact-check but parent does not" do
+    t = create_team
+    child = create_project_media team: t
+    create_claim_description project_media: child
+    parent = create_project_media team: t
+    relationship = nil
+
+    # No report for any of them: No failure
+    assert_difference 'Relationship.count' do
+      assert_nothing_raised do
+        relationship = create_relationship source: parent, target: child, relationship_type: Relationship.confirmed_type
+      end
+    end
+    relationship.destroy!
+
+    # Child has a published report, but parent doesn't: No failure; claim/fact-check/report should be moved from the child to the parent
+    child = ProjectMedia.find(child.id)
+    parent = ProjectMedia.find(parent.id)
+    report = publish_report(child)
+    claim = child.reload.claim_description
+    assert_not_nil report
+    assert_not_nil claim
+    assert_not_nil child.reload.claim_description
+    assert_not_nil child.reload.get_dynamic_annotation('report_design')
+    assert_nil parent.reload.claim_description
+    assert_nil parent.reload.get_dynamic_annotation('report_design')
+    assert_difference 'Relationship.count' do
+      assert_nothing_raised do
+        relationship = create_relationship source: parent, target: child, relationship_type: Relationship.confirmed_type
+      end
+    end
+    assert_not_nil parent.reload.claim_description
+    assert_not_nil parent.reload.get_dynamic_annotation('report_design')
+    assert_equal claim, parent.reload.claim_description
+    assert_equal report, parent.reload.get_dynamic_annotation('report_design')
+    assert_nil child.reload.claim_description
+    assert_nil child.reload.get_dynamic_annotation('report_design')
+    relationship.destroy!
+
+    # Child has a published report, and parent has one too: Failure
+    child = ProjectMedia.find(child.id)
+    parent = ProjectMedia.find(parent.id)
+    publish_report(child)
+    assert_no_difference 'Relationship.count' do
+      assert_raises 'ActiveRecord::RecordInvalid' do
+        create_relationship source: parent, target: child, relationship_type: Relationship.confirmed_type
+      end
+    end
   end
 end
