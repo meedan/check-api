@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class TeamStatisticsTest < ActiveSupport::TestCase
+class CheckSearchTest < ActiveSupport::TestCase
   def setup
     @team = create_team
   end
