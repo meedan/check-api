@@ -379,7 +379,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":false}") { number_of_results } }'
+    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":true}") { number_of_results } }'
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
