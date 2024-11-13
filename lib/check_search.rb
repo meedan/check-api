@@ -758,6 +758,9 @@ class CheckSearch
     conditions = []
     @feed.get_team_filters(@options['feed_team_ids']).each do |filters|
       team_id = filters['team_id'].to_i
+      feed_options = @options.clone
+      feed_options.delete('feed_id')
+      filters.merge!(feed_options)
       conditions << CheckSearch.new(filters.merge({ show_similar: !!@options['show_similar'] }).to_json, nil, team_id).medias_query
     end
     conditions
