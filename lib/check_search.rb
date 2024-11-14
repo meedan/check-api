@@ -311,10 +311,11 @@ class CheckSearch
     else
       and_conditions.concat(custom_conditions)
     end
+    # Build ES query using this format: `bool: { must: [{and_conditions}], should: [{or_conditions}, must_not: [{not_conditions}]] }`
     query = {}
-    query[:must] = and_conditions unless and_conditions.blank?
-    query[:should] = or_conditions unless or_conditions.blank?
-    query[:must_not] = not_conditions unless not_conditions.blank?
+    { must: and_conditions, should: or_conditions, must_not: not_conditions }.each do |k, v|
+      query[k] = v unless v.blank?
+    end
     { bool: query }
   end
 
@@ -756,12 +757,12 @@ class CheckSearch
   def build_feed_conditions
     return [] unless feed_query?
     conditions = []
+    feed_options = @options.clone
+    feed_options.delete('feed_id')
+    feed_options[:show_similar] = !!@options['show_similar']
     @feed.get_team_filters(@options['feed_team_ids']).each do |filters|
       team_id = filters['team_id'].to_i
-      feed_options = @options.clone
-      feed_options.delete('feed_id')
-      filters.merge!(feed_options)
-      conditions << CheckSearch.new(filters.merge({ show_similar: !!@options['show_similar'] }).to_json, nil, team_id).medias_query
+      conditions << CheckSearch.new(filters.merge(feed_options).to_json, nil, team_id).medias_query
     end
     conditions
   end
