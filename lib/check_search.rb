@@ -58,7 +58,7 @@ class CheckSearch
 
   def adjust_keyword_filter
     unless @options['keyword'].blank?
-      # This regex removes all characters except letters, numbers, and whitespace in any language - stripping out special characters can improve match results
+      # This regex removes all characters except letters, numbers, hashtag and whitespace in any language - stripping out special characters can improve match results
       @options['keyword'].gsub!(/[^[:word:]\s#]/, ' ')
 
       # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
