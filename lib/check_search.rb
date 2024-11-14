@@ -59,7 +59,7 @@ class CheckSearch
   def adjust_keyword_filter
     unless @options['keyword'].blank?
       # This regex removes all characters except letters, numbers, and whitespace in any language - stripping out special characters can improve match results
-      @options['keyword'].gsub!(/[^[:word:]\s]/, ' ')
+      @options['keyword'].gsub!(/[^[:word:]\s#]/, ' ')
 
       # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
