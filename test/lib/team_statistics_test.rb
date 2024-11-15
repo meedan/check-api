@@ -85,18 +85,18 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
 
     pm1 = create_project_media team: @team, disable_es_callbacks: false
-    create_fact_check title: 'Bar', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm1), disable_es_callbacks: false
+    fc1 = create_fact_check title: 'Bar', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm1), disable_es_callbacks: false
     create_tipline_request team_id: @team.id, associated: pm1
 
     pm2 = create_project_media team: @team, disable_es_callbacks: false
-    create_fact_check title: 'Foo', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm2), disable_es_callbacks: false
+    fc2 = create_fact_check title: 'Foo', report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: pm2), disable_es_callbacks: false
     create_tipline_request team_id: @team.id, associated: pm2
     create_tipline_request team_id: @team.id, associated: pm2
 
     sleep 2
 
     object = TeamStatistics.new(@team, 'past_week', 'en')
-    expected = [{ id: pm2.id, label: 'Foo', value: 2 }, { id: pm1.id, label: 'Bar', value: 1 }]
+    expected = [{ id: fc2.id, label: 'Foo', value: 2 }, { id: fc1.id, label: 'Bar', value: 1 }]
     assert_equal expected, object.top_articles_sent
   end
 

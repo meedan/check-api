@@ -37,9 +37,9 @@ class StatisticsTest < ActiveSupport::TestCase
 
   test "check:data:statistics generates statistics data for teams with no tipline" do
     TeamBotInstallation.delete_all
+    Team.current = nil
 
-    api_key = create_api_key
-    bot_user = create_bot_user api_key_id: api_key.id
+    bot_user = create_bot_user
     bot_user.approve!
 
     non_tipline_team = create_team(slug: 'other-team')
