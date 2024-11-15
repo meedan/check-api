@@ -29,11 +29,7 @@ class CheckSearch
     adjust_numeric_range_filter
     adjust_archived_filter
     adjust_language_filter
-
-    # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
-    # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
-    # https://github.com/elastic/elasticsearch/issues/23366
-    @options['keyword'] = "#{@options['keyword']}~" if !@options['keyword'].blank? && @options['fuzzy']
+    adjust_keyword_filter
 
     # Set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['GraphQL::Types::String', 'GraphQL::Types::Int', 'String', 'Integer'].include?(@options['id'].class.name)
@@ -59,6 +55,19 @@ class CheckSearch
     'cluster_published_reports_count' => 'cluster_published_reports_count', 'score' => '_score',
     'fact_check_published_on' => 'fact_check_published_on'
   }
+
+  def adjust_keyword_filter
+    unless @options['keyword'].blank?
+      # This regex removes all characters except letters, numbers, hashtag, search operators, emojis and whitespace
+      # in any language - stripping out special characters can improve match results
+      @options['keyword'].gsub!(/[^[:word:]\s#~+\-|()"\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/, ' ')
+
+      # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
+      # https://github.com/elastic/elasticsearch/issues/23366
+      @options['keyword'] = "#{@options['keyword']}~" if @options['fuzzy']
+    end
+  end
 
   def team_condition(team_id = nil)
     if feed_query?
