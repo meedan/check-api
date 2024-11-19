@@ -50,6 +50,18 @@ class Cluster < ApplicationRecord
     parent
   end
 
+  def full_url
+    "#{CheckConfig.get('checkdesk_client')}/#{self.feed.team.slug}/feed/#{self.feed_id}/#{self.project_media_id}"
+  end
+
+  def team_names
+    Team.where(id: self.team_ids.to_a).order('id ASC').map(&:name).uniq
+  end
+
+  def ratings
+    self.project_medias.order('team_id ASC').map(&:status_i18n).uniq
+  end
+
   def self.import_other_medias_to_team(cluster_id, parent_id, max)
     cluster = Cluster.find_by_id(cluster_id)
     parent = ProjectMedia.find_by_id(parent_id)
