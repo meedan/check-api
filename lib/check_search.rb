@@ -279,15 +279,8 @@ class CheckSearch
   end
 
   def medias_query
-    and_conditions = []
-    or_conditions = []
-    not_conditions = []
-    unless feed_query?
-      and_conditions, or_conditions, not_conditions = build_es_medias_query
-    else
-      feed_conditions = build_feed_conditions
-      return feed_conditions
-    end
+    return build_feed_conditions if feed_query?
+    and_conditions, or_conditions, not_conditions = build_es_medias_query
     # Build ES query using this format: `bool: { must: [{and_conditions}], should: [{or_conditions}, must_not: [{not_conditions}]] }`
     query = {}
     { must: and_conditions, should: or_conditions, must_not: not_conditions }.each do |k, v|
@@ -783,6 +776,10 @@ class CheckSearch
       conditions << CheckSearch.new(filters.merge({ show_similar: !!@options['show_similar'] }).to_json, nil, team_id).medias_query
     end
     or_conditions.concat(conditions)
-    { bool: { must: [{ bool: { must: and_conditions } }, { bool: { should: or_conditions } }, { bool: { must_not: not_conditions } } ] } }
+    query = []
+    { must: and_conditions, should: or_conditions, must_not: not_conditions}.each do |k, v|
+      query << { bool: { "#{k}": v } } unless v.blank?
+    end
+    { bool: { must: query } }
   end
 end
