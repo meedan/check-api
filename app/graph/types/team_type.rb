@@ -369,7 +369,7 @@ class TeamType < DefaultObject
     count
   end
 
-  field :relevent_articles, ::ArticleUnion.connection_type, null: true do
+  field :relevant_articles, ::ArticleUnion.connection_type, null: true do
     argument :article_type, GraphQL::Types::String, required: true, camelize: false
 
     # Sort and pagination
@@ -392,7 +392,7 @@ class TeamType < DefaultObject
     argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
   end
 
-  def relevent_articles(**args)
+  def relevant_articles(**args)
     sort = args[:sort].to_s
     order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
@@ -405,7 +405,7 @@ class TeamType < DefaultObject
     articles.offset(args[:offset].to_i).order(order => order_type)
   end
 
-  field :relevent_articles_count, GraphQL::Types::Int, null: true do
+  field :relevant_articles_count, GraphQL::Types::Int, null: true do
     argument :article_type, GraphQL::Types::String, required: false, camelize: false
 
     # Filters
@@ -423,7 +423,7 @@ class TeamType < DefaultObject
     argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
   end
 
-  def relevent_articles_count(**args)
+  def relevant_articles_count(**args)
     count = nil
     if args[:article_type] == 'explainer'
       count = object.filtered_explainers(args).count

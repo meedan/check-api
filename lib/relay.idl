@@ -13320,6 +13320,44 @@ type Team implements Node {
   public_team: PublicTeam
   public_team_id: String
   pusher_channel: String
+  relevant_articles(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+    article_type: String!
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+    imported: Boolean
+    language: [String]
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+    offset: Int = 0
+    publisher_ids: [Int]
+    rating: [String]
+    report_status: [String]
+    sort: String = "title"
+    sort_type: String = "ASC"
+    standalone: Boolean
+    tags: [String]
+    target_id: Int
+    text: String
+    trashed: Boolean = false
+    updated_at: String
+    user_ids: [Int]
+  ): ArticleUnionConnection
+  relevant_articles_count(article_type: String, imported: Boolean, language: [String], publisher_ids: [Int], rating: [String], report_status: [String], standalone: Boolean, tags: [String], target_id: Int, text: String, trashed: Boolean = false, updated_at: String, user_ids: [Int]): Int
   rules_json_schema: String
   rules_search_fields_json_schema: JsonStringType
   saved_searches(
