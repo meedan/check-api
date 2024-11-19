@@ -2,8 +2,12 @@ require_relative '../test_helper'
 
 class ClusterTest < ActiveSupport::TestCase
   def setup
-    super
+    Sidekiq::Testing.fake!
     Cluster.delete_all
+    User.current = Team.current = nil
+  end
+
+  def teardown
   end
 
   test "should create cluster" do
@@ -73,5 +77,24 @@ class ClusterTest < ActiveSupport::TestCase
     assert_equal 1, c.size
     c.project_medias << create_project_media
     assert_equal 2, c.size
+  end
+
+  test "should return full URL to cluster" do
+    c = create_cluster
+    assert_match /^http/, c.full_url
+  end
+
+  test "should return team names" do
+    t1 = create_team name: 'Foo'
+    t2 = create_team name: 'Bar'
+    c = create_cluster
+    c.update_column :team_ids, [t1.id, t2.id]
+    assert_equal ['Foo', 'Bar'], c.team_names
+  end
+
+  test "should return ratings" do
+    c = create_cluster
+    c.project_medias << create_project_media
+    assert_equal ['Unstarted'], c.ratings
   end
 end
