@@ -400,4 +400,56 @@ class TeamType < DefaultObject
     return nil unless User.current&.is_admin
     TeamStatistics.new(object, period, language, platform)
   end
+
+  field :bot_query, [TiplineSearchResultType], null: true do
+    argument :search_text, GraphQL::Types::String, required: true
+  end
+
+  def bot_query(search_text:)
+    unless User.current&.is_admin
+      raise GraphQL::ExecutionError, "You do not have permission to perform this action"
+    end
+
+    return nil unless search_text
+
+    explainers = object.explainers.order(created_at: :desc).limit(3)
+
+    fact_checks = FactCheck.joins(:claim_description)
+                           .where(claim_descriptions: { team_id: object.id })
+                           .order('fact_checks.created_at DESC')
+                           .limit(3)
+
+    combined_records = explainers + fact_checks
+    sorted_records = combined_records.sort_by(&:created_at).reverse
+
+    top_three = sorted_records.first(3)
+
+    results = top_three.map do |record|
+      if record.is_a?(Explainer)
+        TiplineSearchResult.new(
+          team: object,
+          title: record.title,
+          body: record.description,
+          image_url: nil,
+          language: record.language,
+          url: record.url,
+          type: :explainer,
+          format: :text
+        )
+      elsif record.is_a?(FactCheck)
+        TiplineSearchResult.new(
+          team: object,
+          title: record.title,
+          body: record.summary,
+          image_url: nil,
+          language: record.language,
+          url: record.url,
+          type: :fact_check,
+          format: :text
+        )
+      end
+    end
+
+    results
+  end
 end
