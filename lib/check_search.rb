@@ -270,53 +270,61 @@ class CheckSearch
   end
 
   def medias_query
-    core_conditions = []
-    custom_conditions = []
-    feed_conditions = []
+    and_conditions = []
+    or_conditions = []
+    not_conditions = []
     unless feed_query?
-      core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
-      core_conditions << { terms: { team_id: [@options['team_id']].flatten } } if @options['team_id'].is_a?(Array)
-      core_conditions << { terms: { archived: @options['archived'] } }
-      core_conditions << { term: { sources_count: 0 } } unless @options['show_similar']
-      custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
-      custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
-      custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
-      custom_conditions.concat keyword_conditions
-      custom_conditions.concat tags_conditions
-      custom_conditions.concat report_status_conditions
-      custom_conditions.concat published_by_conditions
-      custom_conditions.concat annotated_by_conditions
-      custom_conditions.concat integer_terms_query('assigned_user_ids', 'assigned_to')
-      custom_conditions.concat integer_terms_query('channel', 'channels')
-      custom_conditions.concat integer_terms_query('source_id', 'sources')
-      custom_conditions.concat doc_conditions
-      custom_conditions.concat has_claim_conditions
-      custom_conditions.concat file_filter
-      custom_conditions.concat range_filter(:es)
-      custom_conditions.concat numeric_range_filter
-      custom_conditions.concat language_conditions
-      custom_conditions.concat fact_check_language_conditions
-      custom_conditions.concat request_language_conditions
-      custom_conditions.concat report_language_conditions
-      custom_conditions.concat team_tasks_conditions
+      and_conditions, or_conditions, not_conditions = build_es_medias_query
     else
       feed_conditions = build_feed_conditions
-    end
-    and_conditions = core_conditions
-    or_conditions = feed_conditions
-    not_conditions = []
-    if @options['operator'].upcase == 'OR'
-      or_conditions.concat(custom_conditions)
-      not_conditions << { term: { associated_type: { value: "Blank" } } }
-    else
-      and_conditions.concat(custom_conditions)
+      return feed_conditions
     end
     # Build ES query using this format: `bool: { must: [{and_conditions}], should: [{or_conditions}, must_not: [{not_conditions}]] }`
     query = {}
     { must: and_conditions, should: or_conditions, must_not: not_conditions }.each do |k, v|
-      query[k] = v unless v.blank?
+      query[k] = v.flatten unless v.blank?
     end
     { bool: query }
+  end
+
+  def build_es_medias_query
+    core_conditions = []
+    custom_conditions = []
+    core_conditions << { terms: { get_search_field => @options['project_media_ids'] } } unless @options['project_media_ids'].blank?
+    core_conditions << { terms: { team_id: [@options['team_id']].flatten } } if @options['team_id'].is_a?(Array)
+    core_conditions << { terms: { archived: @options['archived'] } }
+    core_conditions << { term: { sources_count: 0 } } unless @options['show_similar']
+    custom_conditions << { terms: { read: @options['read'].map(&:to_i) } } if @options.has_key?('read')
+    custom_conditions << { terms: { cluster_teams: @options['cluster_teams'] } } if @options.has_key?('cluster_teams')
+    custom_conditions << { terms: { unmatched: @options['unmatched'] } } if @options.has_key?('unmatched')
+    custom_conditions.concat keyword_conditions
+    custom_conditions.concat tags_conditions
+    custom_conditions.concat report_status_conditions
+    custom_conditions.concat published_by_conditions
+    custom_conditions.concat annotated_by_conditions
+    custom_conditions.concat integer_terms_query('assigned_user_ids', 'assigned_to')
+    custom_conditions.concat integer_terms_query('channel', 'channels')
+    custom_conditions.concat integer_terms_query('source_id', 'sources')
+    custom_conditions.concat doc_conditions
+    custom_conditions.concat has_claim_conditions
+    custom_conditions.concat file_filter
+    custom_conditions.concat range_filter(:es)
+    custom_conditions.concat numeric_range_filter
+    custom_conditions.concat language_conditions
+    custom_conditions.concat fact_check_language_conditions unless feed_query?
+    custom_conditions.concat request_language_conditions
+    custom_conditions.concat report_language_conditions
+    custom_conditions.concat team_tasks_conditions
+    and_conditions = core_conditions
+    or_conditions = []
+    not_conditions = []
+    if @options['operator'].upcase == 'OR'
+      or_conditions << custom_conditions
+      not_conditions << { term: { associated_type: { value: "Blank" } } }
+    else
+      and_conditions.concat(custom_conditions)
+    end
+    return and_conditions, or_conditions, not_conditions
   end
 
   def medias_get_search_result(query)
@@ -759,11 +767,13 @@ class CheckSearch
     conditions = []
     feed_options = @options.clone
     feed_options.delete('feed_id')
-    feed_options[:show_similar] = !!@options['show_similar']
+    feed_options.delete('input')
+    and_conditions, or_conditions, not_conditions = CheckSearch.new(feed_options.to_json, nil, @options['team_id']).build_es_medias_query
     @feed.get_team_filters(@options['feed_team_ids']).each do |filters|
       team_id = filters['team_id'].to_i
-      conditions << CheckSearch.new(filters.merge(feed_options).to_json, nil, team_id).medias_query
+      conditions << CheckSearch.new(filters.merge({ show_similar: !!@options['show_similar'] }).to_json, nil, team_id).medias_query
     end
-    conditions
+    or_conditions.concat(conditions)
+    { bool: { must: [{ bool: { must: and_conditions } }, { bool: { should: or_conditions } }, { bool: { must_not: not_conditions } } ] } }
   end
 end

@@ -68,9 +68,8 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     # and for each team participating in the feed
     with_current_user_and_team(u, t1) do
       # Keyword search
-      # TODO: should fix (Sawy)
-      # result = Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).map(&:id)
-      # assert_equal [pm1a.id, pm1f.id, pm2a.id].sort, result.sort
+      result = Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).map(&:id)
+      assert_equal [pm1a.id, pm1f.id, pm2a.id].sort, result.sort
       # Text similarity search
       result = Bot::Smooch.search_for_similar_published_fact_checks('text', 'This is a test', [t1.id, t2.id, t3.id, t4.id], nil, f1.id).map(&:id)
       assert_equal [pm1a.id, pm1d.id, pm2a.id].sort, result.sort
