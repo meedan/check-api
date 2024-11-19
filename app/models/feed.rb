@@ -175,7 +175,8 @@ class Feed < ApplicationRecord
   def get_exported_data(filters)
     data = [['Title', 'Description', 'Date (first)', 'Date (last)', 'Number of media', 'Number of requests', 'Number of fact-checks', 'Cluster URL', 'Workspaces', 'Ratings']]
     self.filtered_clusters(filters).find_each do |cluster|
-      data << [cluster.title, cluster.center.description, cluster.first_item_at, cluster.last_item_at, cluster.media_count, cluster.requests_count, cluster.fact_checks_count, cluster.full_url, cluster.team_names.join("\n"), cluster.ratings.join("\n")]
+      description = cluster.center.description.blank? ? cluster.center.extracted_text : cluster.center.description
+      data << [cluster.title, description, cluster.first_item_at, cluster.last_item_at, cluster.media_count, cluster.requests_count, cluster.fact_checks_count, cluster.full_url, cluster.team_names.join("\n"), cluster.ratings.join("\n")]
     end
     data
   end
