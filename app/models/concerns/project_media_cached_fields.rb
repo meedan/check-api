@@ -70,14 +70,23 @@ module ProjectMediaCachedFields
       }
     }
 
-    FACT_CHECK_EVENT = {
-      model: FactCheck,
-      affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
-      events: {
-        save: :recalculate,
-        destroy: :recalculate
+    FACT_CHECK_EVENTS = [
+      {
+        model: FactCheck,
+        affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
+        events: {
+          save: :recalculate,
+          destroy: :recalculate
+        }
+      },
+      {
+        model: ClaimDescription,
+        affected_ids: proc { |cd| [cd.project_media_id, cd.project_media_id_before_last_save] },
+        events: {
+          save: :recalculate
+        }
       }
-    }
+    ]
 
     { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, _type|
       cached_field field_name,
@@ -181,28 +190,28 @@ module ProjectMediaCachedFields
     cached_field :fact_check_id,
       start_as: nil,
       recalculate: :recalculate_fact_check_id,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_title,
       start_as: nil,
       recalculate: :recalculate_fact_check_title,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_summary,
       start_as: nil,
       recalculate: :recalculate_fact_check_summary,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_url,
       start_as: nil,
       recalculate: :recalculate_fact_check_url,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_published_on,
       start_as: 0,
       update_es: true,
       recalculate: :recalculate_fact_check_published_on,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :description,
       recalculate: :recalculate_description,
