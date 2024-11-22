@@ -714,4 +714,18 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_equal 'Foo', pm.reload.report_text_title
     end
   end
+
+  test "should reset cached fields when fact-check is detached" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+      cd = create_claim_description project_media: pm
+      fc = create_fact_check claim_description: cd, title: 'Foo'
+      assert_equal fc.id, pm.reload.fact_check_id
+
+      cd.project_media = nil # Remove the claim/fact-check from the item
+      cd.save!
+      assert_nil pm.reload.fact_check_id
+    end
+  end
 end
