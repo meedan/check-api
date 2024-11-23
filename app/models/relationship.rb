@@ -304,7 +304,7 @@ class Relationship < ApplicationRecord
   def point_targets_to_new_source
     # Get existing targets for the source
     target_ids = Relationship.where(source_id: self.source_id).map(&:target_id)
-    # Delete duplicate relation from target(CHECK-1603)
+    # Delete duplicate relationships from target (CHECK-1603)
     Relationship.where(source_id: self.target_id, target_id: target_ids).delete_all
     Relationship.where(source_id: self.target_id).find_each do |old_relationship|
       old_relationship.delete
@@ -313,6 +313,8 @@ class Relationship < ApplicationRecord
         weight: old_relationship.weight
       }
       Relationship.create_unless_exists(self.source_id, old_relationship.target_id, old_relationship.relationship_type, options)
+      old_relationship.source.clear_cached_fields
+      old_relationship.target.clear_cached_fields
     end
   end
 
