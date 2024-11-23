@@ -277,15 +277,17 @@ class RelationshipTest < ActiveSupport::TestCase
     t = create_team
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
-    assert_nothing_raised do
+    assert_difference 'Relationship.count' do
       create_relationship source_id: pm1.id, target_id: pm2.id
     end
-    assert_raises 'ActiveRecord::RecordNotUnique' do
+    assert_no_difference 'Relationship.count' do
       create_relationship source_id: pm2.id, target_id: pm1.id
     end
     pm3 = create_project_media
-    assert_raises 'ActiveRecord::RecordInvalid' do
-      create_relationship source_id: pm3.id, target_id: pm3.id
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_relationship source_id: pm3.id, target_id: pm3.id
+      end
     end
   end
 
