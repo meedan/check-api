@@ -426,18 +426,12 @@ class Relationship2Test < ActiveSupport::TestCase
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
     pm3 = create_project_media team: t
+    pm4 = create_project_media team: t
 
     # Create a relationship between two items
     assert_difference 'Relationship.count' do
       assert_nothing_raised do
         create_relationship source_id: pm1.id, target_id: pm2.id
-      end
-    end
-
-    # If an item is already a parent, it can't be a child in another relationship
-    assert_no_difference 'Relationship.count' do
-      assert_raises ActiveRecord::StatementInvalid do
-        create_relationship source_id: pm3.id, target_id: pm1.id
       end
     end
 
@@ -455,10 +449,17 @@ class Relationship2Test < ActiveSupport::TestCase
       end
     end
 
+    # If an item is already a parent, it can't be a child in another relationship - move targets to new relationship
+    assert_equal 1, Relationship.where(source_id: pm1.id).count
+    assert_equal 0, Relationship.where(source_id: pm3.id).count
+    create_relationship source_id: pm3.id, target_id: pm1.id
+    assert_equal 0, Relationship.where(source_id: pm1.id).count
+    assert_equal 2, Relationship.where(source_id: pm3.id).count
+
     # If an item is already a parent, it can still have another child
     assert_difference 'Relationship.count' do
       assert_nothing_raised do
-        create_relationship source_id: pm1.id, target_id: pm3.id
+        create_relationship source_id: pm3.id, target_id: pm4.id
       end
     end
   end
