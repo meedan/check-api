@@ -463,4 +463,29 @@ class Relationship2Test < ActiveSupport::TestCase
       end
     end
   end
+
+  # If we're trying to create a relationship between C (target_id) and B (source_id), but there is already a relationship between A (source_id) and B (target_id),
+  # then, instead, create the relationship between A (source_id) and C (target_id) (so, if A's cluster contains B, then C comes in and our algorithm says C is similar
+  # to B, it is added to A's cluster). Exception: If the relationship between A (source_id) and B (target_id) is a suggestion, we should not create any relationship
+  # at all when trying to create a relationship between C (target_id) and B (source_id) (regardless if it’s a suggestion or a confirmed match) - but we should log that case.
+  test "should add to existing media cluster" do
+    t = create_team
+    a = create_project_media team: t
+    b = create_project_media team: t
+    c = create_project_media team: t
+    Relationship.create_unless_exists(a.id, b.id, Relationship.confirmed_type)
+    Relationship.create_unless_exists(b.id, c.id, Relationship.confirmed_type)
+    assert !Relationship.where(source: b, target: c).exists?
+    assert Relationship.where(source: a, target: b).exists?
+    assert Relationship.where(source: a, target: c).exists?
+
+    a = create_project_media team: t
+    b = create_project_media team: t
+    c = create_project_media team: t
+    Relationship.create_unless_exists(a.id, b.id, Relationship.suggested_type)
+    Relationship.create_unless_exists(b.id, c.id, Relationship.confirmed_type)
+    assert !Relationship.where(source: b, target: c).exists?
+    assert Relationship.where(source: a, target: b).exists?
+    assert !Relationship.where(source: a, target: c).exists?
+  end
 end
