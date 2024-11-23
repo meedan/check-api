@@ -420,4 +420,46 @@ class Relationship2Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should belong to only one media cluster" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+
+    # Create a relationship between two items
+    assert_difference 'Relationship.count' do
+      assert_nothing_raised do
+        create_relationship source_id: pm1.id, target_id: pm2.id
+      end
+    end
+
+    # If an item is already a parent, it can't be a child in another relationship
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::StatementInvalid do
+        create_relationship source_id: pm3.id, target_id: pm1.id
+      end
+    end
+
+    # If an item is already a child, it can't be a child in another relationship
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::StatementInvalid do
+        create_relationship source_id: pm3.id, target_id: pm2.id
+      end
+    end
+
+    # If an item is already a child, it can't be a parent in another relationship
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::StatementInvalid do
+        create_relationship source_id: pm2.id, target_id: pm3.id
+      end
+    end
+
+    # If an item is already a parent, it can still have another child
+    assert_difference 'Relationship.count' do
+      assert_nothing_raised do
+        create_relationship source_id: pm1.id, target_id: pm3.id
+      end
+    end
+  end
 end
