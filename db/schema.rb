@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_10_15_223059) do
+ActiveRecord::Schema.define(version: 2024_11_23_001206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -596,7 +596,7 @@ ActiveRecord::Schema.define(version: 2024_10_15_223059) do
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
     t.index ["source_id"], name: "index_relationships_on_source_id"
     t.index ["target_id", "relationship_type"], name: "index_relationships_on_target_id_and_relationship_type"
-    t.index ["target_id"], name: "index_relationships_on_target_id"
+    t.index ["target_id"], name: "index_relationships_on_target_id", unique: true
     t.check_constraint "source_id <> target_id", name: "source_target_must_be_different"
   end
 
