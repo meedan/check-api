@@ -312,7 +312,7 @@ ActiveRecord::Schema.define(version: 2024_11_23_135242) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -984,6 +984,6 @@ ActiveRecord::Schema.define(version: 2024_11_23_135242) do
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT OR UPDATE ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
   SQL
 end

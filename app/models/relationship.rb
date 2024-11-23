@@ -19,9 +19,10 @@ class Relationship < ApplicationRecord
   validate :cant_be_related_to_itself
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
+  before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
-  after_create :point_targets_to_new_source, :update_counters, prepend: true
+  after_create :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }

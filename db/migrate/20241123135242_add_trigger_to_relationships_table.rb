@@ -20,10 +20,10 @@ class AddTriggerToRelationshipsTable < ActiveRecord::Migration[6.1]
       $$ LANGUAGE plpgsql;
     SQL
 
-    # Attach the trigger to the table
+    # Attach the trigger to the table (only on INSERT - we shouldn't have it for UPDATE since we need to support reverting a relationship
     execute <<~SQL
       CREATE TRIGGER enforce_relationships
-      BEFORE INSERT OR UPDATE ON relationships
+      BEFORE INSERT ON relationships
       FOR EACH ROW
       EXECUTE FUNCTION validate_relationships();
     SQL
