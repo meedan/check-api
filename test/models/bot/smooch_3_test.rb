@@ -298,21 +298,21 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       r = Relationship.last
       assert_equal [pm_l1.id, pm.id].sort, [r.source_id, r.target_id].sort
       # 5) Send two messages with the same text but different links
-      link_long_text3 = @link_url_2.concat(' ').concat(long_text.join(' '))
+      link_long_text3 = @link_url_2.concat(' ').concat(long_text.join(' ')).concat(' ').concat(random_string)
       message = {
         '_id': random_string,
         authorId: uid,
         type: 'text',
-        source: { type: "whatsapp" },
+        source: { type: 'whatsapp' },
         text: link_long_text3,
       }
       payload[:messages] = [message]
       Bot::Smooch.run(payload.to_json)
       sleep 1
-      assert_difference 'ProjectMedia.count' do
+      assert_difference 'ProjectMedia.count', 2 do
         assert_difference 'Relationship.count' do
           assert_difference 'Link.count' do
-            assert_no_difference 'Claim.count' do
+            assert_difference 'Claim.count' do
               Sidekiq::Worker.drain_all
             end
           end
@@ -320,7 +320,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       end
       pm = ProjectMedia.last
       r = Relationship.last
-      assert_equal [pm_c1.id, pm.id].sort, [r.source_id, r.target_id].sort
+      assert_equal pm.id, r.target_id
     end
   end
 

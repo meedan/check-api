@@ -8,17 +8,19 @@ namespace :check do
         i += 1
         puts "[#{Time.now}] #{i}/#{n}"
         if count > 1
-          relationships = Relationship.where(target_id: pm_id).to_a
-          # Keep the relationship whose model is image, video or audio... if none, keep the first one
-          keep = relationships.find{ |r| ['image', 'video', 'audio'].include?(r.model) } || relationships.first
-          raise "No relationship to keeo for target_id #{pm_id}!" if keep.nil?
+          relationships = Relationship.where(target_id: pm_id).order('id ASC').to_a
+          # Keep the confirmed relationship, or the one whose model is image, video or audio... if none, keep the first one
+          keep = relationships.find{ |r| r.relationship_type == Relationship.confirmed_type } || relationships.find{ |r| ['image', 'video', 'audio'].include?(r.model) } || relationships.first
+          raise "No relationship to keep for target_id #{pm_id}!" if keep.nil?
           relationships.each do |relationship|
             if relationship.id == keep.id
-              puts "  Keeping relationship ##{r.id}"
+              puts "  Keeping relationship ##{relationship.id}"
             else
-              puts "  Deleting relationship ##{r.id}"
-              relationship.destroy!
+              puts "  Deleting relationship ##{relationship.id}"
+              relationship.delete
             end
+            relationship.source.clear_cached_fields
+            relationship.target.clear_cached_fields
           end
         end
       end

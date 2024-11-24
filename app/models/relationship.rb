@@ -19,9 +19,10 @@ class Relationship < ApplicationRecord
   validate :cant_be_related_to_itself
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
+  before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
-  after_create :point_targets_to_new_source, :update_counters, prepend: true
+  after_create :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
@@ -160,6 +161,21 @@ class Relationship < ApplicationRecord
     exception_message = nil
     exception_class = nil
     if r.nil?
+      # Add to existing media cluster if source is already a target:
+      # If we're trying to create a relationship between C (target_id) and B (source_id), but there is already a relationship between A (source_id) and B (target_id),
+      # then, instead, create the relationship between A (source_id) and C (target_id) (so, if A's cluster contains B, then C comes in and our algorithm says C is similar
+      # to B, it is added to A's cluster). Exception: If the relationship between A (source_id) and B (target_id) is a suggestion, we should not create any relationship
+      # at all when trying to create a relationship between C (target_id) and B (source_id) (regardless if it’s a suggestion or a confirmed match) - but we should log that case.
+      existing = Relationship.where(target_id: source_id).first
+      unless existing.nil?
+        if existing.relationship_type == Relationship.suggested_type
+          error_msg = StandardError.new('Not creating relationship because requested source_id is already suggested to another item.')
+          CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options)
+          return nil
+        end
+        source_id = existing.source_id
+      end
+
       begin
         r = Relationship.new
         r.skip_check_ability = true
@@ -288,7 +304,7 @@ class Relationship < ApplicationRecord
   def point_targets_to_new_source
     # Get existing targets for the source
     target_ids = Relationship.where(source_id: self.source_id).map(&:target_id)
-    # Delete duplicate relation from target(CHECK-1603)
+    # Delete duplicate relationships from target (CHECK-1603)
     Relationship.where(source_id: self.target_id, target_id: target_ids).delete_all
     Relationship.where(source_id: self.target_id).find_each do |old_relationship|
       old_relationship.delete
@@ -297,6 +313,8 @@ class Relationship < ApplicationRecord
         weight: old_relationship.weight
       }
       Relationship.create_unless_exists(self.source_id, old_relationship.target_id, old_relationship.relationship_type, options)
+      old_relationship.source.clear_cached_fields
+      old_relationship.target.clear_cached_fields
     end
   end
 

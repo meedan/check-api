@@ -420,4 +420,72 @@ class Relationship2Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should belong to only one media cluster" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+    pm4 = create_project_media team: t
+
+    # Create a relationship between two items
+    assert_difference 'Relationship.count' do
+      assert_nothing_raised do
+        create_relationship source_id: pm1.id, target_id: pm2.id
+      end
+    end
+
+    # If an item is already a child, it can't be a child in another relationship
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::StatementInvalid do
+        create_relationship source_id: pm3.id, target_id: pm2.id
+      end
+    end
+
+    # If an item is already a child, it can't be a parent in another relationship
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::StatementInvalid do
+        create_relationship source_id: pm2.id, target_id: pm3.id
+      end
+    end
+
+    # If an item is already a parent, it can't be a child in another relationship - move targets to new relationship
+    assert_equal 1, Relationship.where(source_id: pm1.id).count
+    assert_equal 0, Relationship.where(source_id: pm3.id).count
+    create_relationship source_id: pm3.id, target_id: pm1.id
+    assert_equal 0, Relationship.where(source_id: pm1.id).count
+    assert_equal 2, Relationship.where(source_id: pm3.id).count
+
+    # If an item is already a parent, it can still have another child
+    assert_difference 'Relationship.count' do
+      assert_nothing_raised do
+        create_relationship source_id: pm3.id, target_id: pm4.id
+      end
+    end
+  end
+
+  # If we're trying to create a relationship between C (target_id) and B (source_id), but there is already a relationship between A (source_id) and B (target_id),
+  # then, instead, create the relationship between A (source_id) and C (target_id) (so, if A's cluster contains B, then C comes in and our algorithm says C is similar
+  # to B, it is added to A's cluster). Exception: If the relationship between A (source_id) and B (target_id) is a suggestion, we should not create any relationship
+  # at all when trying to create a relationship between C (target_id) and B (source_id) (regardless if it’s a suggestion or a confirmed match) - but we should log that case.
+  test "should add to existing media cluster" do
+    t = create_team
+    a = create_project_media team: t
+    b = create_project_media team: t
+    c = create_project_media team: t
+    Relationship.create_unless_exists(a.id, b.id, Relationship.confirmed_type)
+    Relationship.create_unless_exists(b.id, c.id, Relationship.confirmed_type)
+    assert !Relationship.where(source: b, target: c).exists?
+    assert Relationship.where(source: a, target: b).exists?
+    assert Relationship.where(source: a, target: c).exists?
+
+    a = create_project_media team: t
+    b = create_project_media team: t
+    c = create_project_media team: t
+    Relationship.create_unless_exists(a.id, b.id, Relationship.suggested_type)
+    Relationship.create_unless_exists(b.id, c.id, Relationship.confirmed_type)
+    assert !Relationship.where(source: b, target: c).exists?
+    assert Relationship.where(source: a, target: b).exists?
+    assert !Relationship.where(source: a, target: c).exists?
+  end
 end
