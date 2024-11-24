@@ -16,10 +16,10 @@ class AddUniqueIndexToRelationshipsTable < ActiveRecord::Migration[6.1]
         raise "No relationship to keep for target_id #{pm_id}!" if keep.nil?
         relationships.each do |relationship|
           if relationship.id == keep.id
-            puts "  Keeping relationship ##{r.id}"
+            puts "  Keeping relationship ##{relationship.id}"
           else
-            puts "  Deleting relationship ##{r.id}"
-            relationship.destroy!
+            puts "  Deleting relationship ##{relationship.id}"
+            relationship.delete
           end
           relationship.source.clear_cached_fields
           relationship.target.clear_cached_fields
