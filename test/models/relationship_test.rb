@@ -277,15 +277,17 @@ class RelationshipTest < ActiveSupport::TestCase
     t = create_team
     pm1 = create_project_media team: t
     pm2 = create_project_media team: t
-    assert_nothing_raised do
+    assert_difference 'Relationship.count' do
       create_relationship source_id: pm1.id, target_id: pm2.id
     end
-    assert_raises 'ActiveRecord::RecordNotUnique' do
+    assert_no_difference 'Relationship.count' do
       create_relationship source_id: pm2.id, target_id: pm1.id
     end
     pm3 = create_project_media
-    assert_raises 'ActiveRecord::RecordInvalid' do
-      create_relationship source_id: pm3.id, target_id: pm3.id
+    assert_no_difference 'Relationship.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_relationship source_id: pm3.id, target_id: pm3.id
+      end
     end
   end
 
@@ -380,21 +382,23 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should move similar items when export item" do
+    Sidekiq::Testing.fake!
     t = create_team
-    pm = create_project_media team: t
+    pm1 = create_project_media team: t
     pm2 = create_project_media team: t
-    pm_1 = create_project_media team: t
-    pm_2 = create_project_media team: t
-    pm2_1 = create_project_media team: t
-    # Add pm_1 & pm_2 as a similar item to pm
-    create_relationship source_id: pm.id, target_id: pm_1.id, relationship_type: Relationship.suggested_type
-    create_relationship source_id: pm.id, target_id: pm_2.id, relationship_type: Relationship.suggested_type
-    # Add pm_1 & pm2_1 as a similar item to pm2
-    create_relationship source_id: pm2.id, target_id: pm_1.id, relationship_type: Relationship.suggested_type
-    create_relationship source_id: pm.id, target_id: pm2_1.id, relationship_type: Relationship.suggested_type
-    # Expose pm to pm2
-    create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
-    assert_equal 3, Relationship.where(source_id: pm.id, relationship_type: Relationship.suggested_type).count
+    pm1a = create_project_media team: t
+    pm1b = create_project_media team: t
+    pm2a = create_project_media team: t
+    pm2b = create_project_media team: t
+    # Add pm1a & pm1b as a similar items to pm1
+    create_relationship source_id: pm1.id, target_id: pm1a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: pm1.id, target_id: pm1b.id, relationship_type: Relationship.suggested_type
+    # Add pm2a & pm2b as a similar items to pm2
+    create_relationship source_id: pm2.id, target_id: pm2a.id, relationship_type: Relationship.suggested_type
+    create_relationship source_id: pm2.id, target_id: pm2b.id, relationship_type: Relationship.suggested_type
+    # Export pm1 to pm2
+    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
+    assert_equal 4, Relationship.where(source_id: pm1.id, relationship_type: Relationship.suggested_type).count
     assert_equal 0, Relationship.where(source_id: pm2.id, relationship_type: Relationship.suggested_type).count
   end
 end
