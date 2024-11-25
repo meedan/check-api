@@ -553,6 +553,12 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:requests] = requests
   end
 
+  def self.get_similar_articles(project_media)
+    team = project_media.team
+    # TODO: define the query from ProjectMedia (title, description, etc)
+    team.search_for_similar_articles(pm.title)
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/project_media_private.rb

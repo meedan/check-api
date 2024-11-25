@@ -560,6 +560,23 @@ class Team < ApplicationRecord
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
+  def search_for_similar_articles(query)
+    # For now this one will support type text (text or link)
+    # Shall I support media type and how can I define the url isa  media type (audio, video and image) and not a link?
+    result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id]).map(&:id)
+    items = []
+    unless result_ids.blank?
+      # I depend on FactCheck to filter result instead of report_design
+      # as I found `as_tipline_search_result` method  in this PR https://github.com/meedan/check-api/pull/2132 as a part of FactCheck
+      # TODO: add a language filter
+      items = FactCheck.where(report_status: 'published').joins(:claim_description)
+      .joins("INNER JOIN project_medias pm ON pm.id = claim_descriptions.project_media_id ")
+      .where('pm.id': result_ids)
+    end
+    items = Bot::Smooch.search_for_explainers(nil, query, self.id, self.default_language) if items.blank?
+    items
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb

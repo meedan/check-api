@@ -315,7 +315,7 @@ module SmoochSearch
           results = Explainer.search_by_similarity(text, language, team_id)
         end
       rescue StandardError => e
-        self.handle_search_error(uid, e, language)
+        self.handle_search_error(uid, e, language) unless uid.blank?
       end
       results.joins(:project_medias)
     end
