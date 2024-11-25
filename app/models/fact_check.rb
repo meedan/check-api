@@ -63,6 +63,20 @@ class FactCheck < ApplicationRecord
     self.tags = clean_tags(self.tags)
   end
 
+  def as_tipline_search_result
+    TiplineSearchResult.new(
+      id: self.id,
+      team: self.team,
+      title: self.title,
+      body: self.summary,
+      language: self.language,
+      url: self.url,
+      image_url: nil,
+      type: :fact_check,
+      format: :text
+    )
+  end
+
   private
 
   def set_language

@@ -400,4 +400,30 @@ class TeamType < DefaultObject
     return nil unless User.current&.is_admin
     TeamStatistics.new(object, period, language, platform)
   end
+
+  field :bot_query, [TiplineSearchResultType], null: true do
+    argument :search_text, GraphQL::Types::String, required: true
+  end
+
+  def bot_query(search_text:)
+    return nil unless User.current&.is_admin
+
+    explainers = object.explainers.order(updated_at: :desc).limit(3)
+
+    fact_checks = FactCheck.joins(:claim_description)
+                           .where(claim_descriptions: { team_id: object.id })
+                           .order('fact_checks.updated_at DESC')
+                           .limit(3)
+
+    combined_records = explainers + fact_checks
+    sorted_records = combined_records.sort_by(&:updated_at).reverse
+
+    top_three = sorted_records.first(3)
+
+    results = top_three.map do |record|
+      record.as_tipline_search_result
+    end
+
+    results
+  end
 end

@@ -31,6 +31,7 @@ class Explainer < ApplicationRecord
 
   def as_tipline_search_result
     TiplineSearchResult.new(
+      id: self.id,
       team: self.team,
       title: self.title,
       body: self.description,
