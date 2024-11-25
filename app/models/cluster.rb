@@ -70,7 +70,7 @@ class Cluster < ApplicationRecord
     cluster.project_medias.where.not(team_id: team.id).limit(max).select(:id, :media_id).find_each do |pm|
       next if ProjectMedia.where(team_id: team.id, media_id: pm.media_id).exists?
       target = cluster.import_media_to_team(team, pm)
-      Relationship.create(source: parent, target: target, relationship_type: Relationship.confirmed_type) # Didn't use "!" so if fails silently if the similarity bot creates a relationship first
+      Relationship.create_unless_exists(parent.id, target.id, Relationship.confirmed_type)
     end
   end
 end
