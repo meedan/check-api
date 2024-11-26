@@ -115,4 +115,29 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
     end
   end
+
+  test "should search for item similar articles" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+    t = create_team
+    pm1 = create_project_media quote: 'Foo Bar', team: t
+    pm2 = create_project_media quote: 'Foo Bar Test', team: t
+    pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
+    ex = create_explainer language: 'en', team: t, title: 'Foo Bar'
+    ex2 = create_explainer language: 'en', team: t, title: 'Foo Bar Test'
+    pm1.explainers << ex
+    pm2.explainers << ex2
+    # TODO: fix explainers query
+    # assert_equal [ex2.id], t.get_similar_articles.map(&:id).sort
+    fact_checks = []
+    [pm1, pm2, pm3].each do |pm|
+      cd = create_claim_description description: pm.title, project_media: pm
+      fc = create_fact_check claim_description: cd, title: pm.title
+      fact_checks << fc.id
+    end
+    [pm1, pm2, pm3].each { |pm| publish_report(pm) }
+    sleep 2
+    fact_checks.delete(pm1.fact_check_id)
+    assert_equal fact_checks.sort, pm1.get_similar_articles.map(&:id).sort
+  end
 end

@@ -398,17 +398,12 @@ class ProjectMediaType < DefaultObject
   field :relevant_articles, ::ArticleUnion.connection_type, null: true
 
   def relevant_articles
-    # TODO: replace a dummy articles with right ones
-    team_id = object.team_id
-    FactCheck.includes(:claim_description).where('claim_descriptions.team_id' => team_id)
-    .where.not('fact_checks.id' => object.fact_check_id)
-    .limit(10)
+    object.get_similar_articles
   end
 
   field :relevant_articles_count, GraphQL::Types::Int, null: true
 
   def relevant_articles_count
-    # TODO: get right count
-    10
+    object.get_similar_articles.count
   end
 end
