@@ -455,6 +455,22 @@ class ProjectMedia < ApplicationRecord
     self.save!
   end
 
+  def get_similar_articles
+    # Get search query based on Media type
+    # Quote for Claim
+    # Transcription for UploadedVideo , UploadedAudio and UploadedImage
+    # Title and/or description for Link
+    media = self.media
+    search_query = case media.type
+                   when 'Claim'
+                     media.quote
+                   when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
+                     self.transcription
+                   end
+    search_query ||= self.title
+    self.team.search_for_similar_articles(search_query, self)
+  end
+
   protected
 
   def add_extra_elasticsearch_data(ms)
@@ -551,23 +567,6 @@ class ProjectMedia < ApplicationRecord
       }
     end
     ms.attributes[:requests] = requests
-  end
-
-  def get_similar_articles
-    team = project_media.team
-    # Get search query based on Media type
-    # Quote for Claim
-    # Transcription for UploadedVideo , UploadedAudio and UploadedImage
-    # Title and/or description for Link
-    media = self.media
-    search_query = case media.types
-                   when 'Claim'
-                     media.quote
-                   when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
-                     self.transcription
-                   end
-    search_query ||= self.title
-    team.search_for_similar_articles(search_query)
   end
 
   # private
