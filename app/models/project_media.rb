@@ -553,10 +553,21 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:requests] = requests
   end
 
-  def self.get_similar_articles(project_media)
+  def get_similar_articles
     team = project_media.team
-    # TODO: define the query from ProjectMedia (title, description, etc)
-    team.search_for_similar_articles(pm.title)
+    # Get search query based on Media type
+    # Quote for Claim
+    # Transcription for UploadedVideo , UploadedAudio and UploadedImage
+    # Title and/or description for Link
+    media = self.media
+    search_query = case media.types
+                   when 'Claim'
+                     media.quote
+                   when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
+                     self.transcription
+                   end
+    search_query ||= self.title
+    team.search_for_similar_articles(search_query)
   end
 
   # private
