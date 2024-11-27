@@ -1130,9 +1130,40 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 3, t.reload.medias_count
   end
 
+  test "should return an existing empty data report structure if no statistics exist" do
+    t = create_team
+
+    assert_equal(
+      [{:Platform => "-",
+        :Language => t.default_language,
+        :Month => "-",
+        :"WhatsApp conversations" => "-",
+        :"Business Conversations" => "-",
+        :"Service Conversations" => "-",
+        :"Unique users" => "-",
+        :"Returning users" => "-",
+        :"Published reports" => "-",
+        :"Positive searches" => "-",
+        :"Negative searches" => "-",
+        :"Positive feedback" => "-",
+        :"Negative feedback" => "-",
+        :"Reports sent to users" => "-",
+        :"Unique users who received a report" => "-",
+        :"Average (median) response time" => "-",
+        :"Current subscribers" => "-",
+        :"Unique newsletters sent" => "-",
+        :"Total newsletters sent" => "-",
+        :"Total newsletters delivered" => "-",
+        :"Newsletter subscriptions" => "-",
+        :"Newsletter cancellations" => "-",
+        :Org => t.name}],
+      t.data_report
+    )
+  end
+
   test "should default to Rails cache for data report if monthly team statistics not present" do
     t = create_team
-    assert_nil t.data_report
+    assert_equal t.data_report.dig(0, :Month), '-'
 
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Search' => 1, 'Foo' => 2 }])
     assert_equal([{ 'Month' => '1. Jan 2022', 'Search' => 1, 'Foo' => 2 }], t.data_report)
@@ -1140,7 +1171,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return data report with chronologically ordered items, preferring the MonthlyTeamStatistics when present" do
     t = create_team(name: 'Test team')
-    assert_nil t.data_report
+    assert_equal t.data_report.dig(0, :Month), '-'
 
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Unique users' => 200 }])
 
