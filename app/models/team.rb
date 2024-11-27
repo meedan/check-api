@@ -561,7 +561,8 @@ class Team < ApplicationRecord
   end
 
   def search_for_similar_articles(query, pm = nil)
-    # query expected to be text
+    # query:  expected to be text
+    # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
     result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id]).map(&:id)
     items = []
     unless result_ids.blank?
@@ -572,13 +573,14 @@ class Team < ApplicationRecord
       # Exclude the ones already applied to a target item if exsits
       items = items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
     end
-    if items.blank?
-      # Get Explainers if no fact-check returned
-      items = Bot::Smooch.search_for_explainers(nil, query, self.id)
+    if items.blank? || !pm.nil?
+      # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id)
       # Exclude the ones already applied to a target item
-      items = items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
+      ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
+      items = items + ex_items
     end
-    items
+    items.sort_by(&:created_at).reverse
   end
 
   # private
