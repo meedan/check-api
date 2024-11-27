@@ -205,21 +205,20 @@ class Relationship < ApplicationRecord
 
   def update_elasticsearch_parent(action = 'create_or_update')
     return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    # touch target to update `updated_at` date
-    target =  self.target
-    unless target.nil?
+    [self.source, self.target].compact.each do |pm|
       updated_at = Time.now
-      target.update_columns(updated_at: updated_at)
+      # touch item to update `updated_at` date
+      pm.update_columns(updated_at: updated_at)
       data = { updated_at: updated_at.utc }
       data['parent_id'] = {
         method: "#{action}_parent_id",
         klass: self.class.name,
         id: self.id,
-        default: target_id,
+        default: self.source_id,
         type: 'int'
-      } if self.is_confirmed?
-      target.update_elasticsearch_doc(data.keys, data, target.id, true)
-    end
+      }
+      pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    end if self.is_confirmed?
   end
 
   def set_unmatched_field(value)
