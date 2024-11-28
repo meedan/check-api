@@ -443,11 +443,14 @@ class Team < ApplicationRecord
       end
     else
       data = Rails.cache.read("data:report:#{self.id}")
-      return nil if data.blank?
 
-      data.map.with_index do |row, i|
-        row['Month'] = "#{i + 1}. #{row['Month']}"
-        row.reject { |key, _value| ['Average number of conversations per day', 'Number of messages sent'].include?(key) }
+      if data.blank?
+        empty_data_structure
+      else
+        data.map.with_index do |row, i|
+          row['Month'] = "#{i + 1}. #{row['Month']}"
+          row.reject { |key, _value| ['Average number of conversations per day', 'Number of messages sent'].include?(key) }
+        end
       end
     end
   end
