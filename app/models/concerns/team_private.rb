@@ -132,30 +132,9 @@ module TeamPrivate
   end
 
   def empty_data_structure
-    [{
-      "Platform": "-",
-      "Language": self.default_language,
-      "Month": "-",
-      "WhatsApp conversations": "-",
-      "Business Conversations": "-",
-      "Service Conversations": "-",
-      "Unique users": "-",
-      "Returning users": "-",
-      "Published reports": "-",
-      "Positive searches": "-",
-      "Negative searches": "-",
-      "Positive feedback": "-",
-      "Negative feedback": "-",
-      "Reports sent to users": "-",
-      "Unique users who received a report": "-",
-      "Average (median) response time": "-",
-      "Current subscribers": "-",
-      "Unique newsletters sent": "-",
-      "Total newsletters sent": "-",
-      "Total newsletters delivered": "-",
-      "Newsletter subscriptions": "-",
-      "Newsletter cancellations": "-",
-      "Org": self.name
-    }]
+    data_structure = MonthlyTeamStatistic.new.formatted_hash
+    data_structure["Language"] = self.default_language
+    data_structure["Org"] = self.name
+    [data_structure]
   end
 end
