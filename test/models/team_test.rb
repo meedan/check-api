@@ -1164,7 +1164,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should default to Rails cache for data report if monthly team statistics not present" do
     t = create_team
-    assert_equal t.data_report.dig(0, :Month), '-'
+    assert_equal t.data_report.dig(0, "Month"), '-'
 
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Search' => 1, 'Foo' => 2 }])
     assert_equal([{ 'Month' => '1. Jan 2022', 'Search' => 1, 'Foo' => 2 }], t.data_report)
@@ -1172,7 +1172,7 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return data report with chronologically ordered items, preferring the MonthlyTeamStatistics when present" do
     t = create_team(name: 'Test team')
-    assert_equal t.data_report.dig(0, :Month), '-'
+    assert_equal t.data_report.dig(0, "Month"), '-'
 
     Rails.cache.write("data:report:#{t.id}", [{ 'Month' => 'Jan 2022', 'Unique users' => 200 }])
 
