@@ -51,7 +51,7 @@ class RelationshipTest < ActiveSupport::TestCase
     r.save!
     r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.confirmed_type
     r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
-    sleep 2
+    sleep 1
     es_s = $repository.find(get_es_id(pm_s))
     assert_equal pm_s.id, es_s['parent_id']
     assert_equal pm_s.reload.sources_count, es_s['sources_count']
@@ -67,22 +67,21 @@ class RelationshipTest < ActiveSupport::TestCase
     r2.target_id = pm_s.id
     r2.disable_es_callbacks = false
     r2.save!
-    # TODO: fix tests
-    # sleep 2
-    # es_t2 = $repository.find(get_es_id(pm_t2))
-    # assert_equal pm_t2.id, es_t2['parent_id']
-    # assert_equal pm_t2.reload.sources_count, es_t2['sources_count']
-    # assert_equal 0, pm_t2.reload.sources_count
-    # [pm_s, pm_t].each do |pm|
-    #   es = $repository.find(get_es_id(pm))
-    #   assert_equal pm_t2.id, es['parent_id']
-    #   assert_equal pm.reload.sources_count, es['sources_count']
-    #   assert_equal 1, pm.reload.sources_count
-    # end
+    sleep 1
+    es_t2 = $repository.find(get_es_id(pm_t2))
+    assert_equal pm_t2.id, es_t2['parent_id']
+    assert_equal pm_t2.reload.sources_count, es_t2['sources_count']
+    assert_equal 0, pm_t2.reload.sources_count
+    [pm_s, pm_t].each do |pm|
+      es = $repository.find(get_es_id(pm))
+      assert_equal pm_t2.id, es['parent_id']
+      assert_equal pm.reload.sources_count, es['sources_count']
+      assert_equal 1, pm.reload.sources_count
+    end
     # Verify destory
-    # r.destroy!
-    # es_t = $repository.find(get_es_id(pm_t))
-    # assert_equal pm_t.id, es_t['parent_id']
+    r.destroy!
+    es_t = $repository.find(get_es_id(pm_t))
+    assert_equal pm_t.id, es_t['parent_id']
   end
 
   test "should remove suggested relation when same items added as similar" do
