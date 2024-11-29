@@ -269,18 +269,11 @@ class Relationship < ApplicationRecord
         claim.project_media_id = self.source_id
         claim.save
       end
-      Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
-      # Update ES parent_id for confirmed items
-      target_ids = Relationship.where(source_id: self.source_id, relationship_type: Relationship.confirmed_type).map(&:target_id)
-      options = {
-        index: CheckElasticSearchModel.get_index_alias,
-        conflicts: 'proceed',
-        body: {
-          script: { source: "ctx._source.parent_id = params.parent_id", params: { parent_id: self.source_id } },
-          query: { terms: { annotated_id: target_ids } }
-        }
-      }
-      $repository.client.update_by_query options
+      Relationship.where(source_id: self.target_id).find_each do |r|
+        r.source_id = self.source_id
+        r.skip_check_ability = true
+        r.save!
+      end
       self.source&.clear_cached_fields
       self.target&.clear_cached_fields
       Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)

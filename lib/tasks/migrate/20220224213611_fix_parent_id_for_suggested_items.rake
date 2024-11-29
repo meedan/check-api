@@ -82,7 +82,7 @@ namespace :check do
         last_team_id = Rails.cache.read('check:migrate:fix_parent_id_for_suggested_list:team_id') || 0
       else
         last_team_id = 0
-        team_condition = { slug: data_args['slug'] } unless data_args['slug'].blank?
+        team_condition = { slug: data_args['slug'] }
       end
       index_alias = CheckElasticSearchModel.get_index_alias
       Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
