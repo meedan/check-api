@@ -584,7 +584,7 @@ class Team < ApplicationRecord
       ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
       items = items + ex_items
     end
-    items.sort_by(&:created_at).reverse
+    items
   end
 
   # private
