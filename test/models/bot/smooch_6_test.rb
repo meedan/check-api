@@ -1002,4 +1002,21 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       assert_state 'waiting_for_message'
     end
   end
+
+  test "should unsubscribe user when clicking on newsletter button" do
+    Sidekiq::Testing.inline! do
+      # Create subscription
+      ts = create_tipline_subscription team_id: @team.id, uid: @uid
+      assert_not_nil TiplineSubscription.find_by_id(ts.id)
+
+      # "Send" newsletter
+      message_id = random_string
+      response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: message_id) }))
+      Bot::Smooch.save_smooch_response(response, nil, Time.now.to_i, 'newsletter', 'en')
+
+      # Click on "Unsubscribe" button
+      send_message_to_smooch_bot('Unsubscribe', @uid, { 'quotedMessage' => { 'content' => { '_id' => message_id } } })
+      assert_nil TiplineSubscription.find_by_id(ts.id)
+    end
+  end
 end
