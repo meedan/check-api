@@ -563,7 +563,8 @@ class Team < ApplicationRecord
   def search_for_similar_articles(query, pm = nil)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
-    result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id]).map(&:id)
+    limit = pm.nil? ? CheckConfig.get(:most_relevant_team_limit, 3, :integer) : CheckConfig.get(:most_relevant_item_limit, 10, :integer)
+    result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], nil, nil, nil, limit).map(&:id)
     items = []
     unless result_ids.blank?
       # I depend on FactCheck to filter result instead of report_design
@@ -575,7 +576,7 @@ class Team < ApplicationRecord
     end
     if items.blank? || !pm.nil?
       # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
-      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id)
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit)
       # Exclude the ones already applied to a target item
       ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
       items = items + ex_items
