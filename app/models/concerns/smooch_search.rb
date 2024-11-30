@@ -306,7 +306,6 @@ module SmoochSearch
     end
 
     def search_for_explainers(uid, query, team_id, limit, language = nil)
-      limit ||= CheckConfig.get(:most_relevant_team_limit, 3, :integer)
       results = nil
       begin
         text = ::Bot::Smooch.extract_claim(query)
