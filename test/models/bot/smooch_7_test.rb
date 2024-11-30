@@ -316,7 +316,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     # Create more project media if needed
     results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {foo: :bar}}, pm2.id => { model: 'elasticsearch', score: 15.2, context: {foo: :bar}},
       pm3.id => { model: 'anything-else', score: 1.98, context: {foo: :bar}}, pm4.id => { model: 'anything-else', score: 1.8, context: {foo: :bar}}}
-    assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
+    assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, 3, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
   end
 
@@ -330,7 +330,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     # Create more project media if needed
     results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {blah: 1} }, pm2.id => { model: 'elasticsearch', score: 15.2, context: {blah: 1} },
       pm3.id => { model: 'anything-else', score: 1.98, context: {temporary_media: true} }, pm4.id => { model: 'anything-else', score: 1.8, context: {temporary_media: false}}}
-    assert_equal [pm4, pm2, pm1], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
+    assert_equal [pm4, pm2, pm1], Bot::Smooch.parse_search_results_from_alegre(results, 3, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
   end
 

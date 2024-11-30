@@ -107,7 +107,7 @@ class Explainer < ApplicationRecord
     end
   end
 
-  def self.search_by_similarity(text, language, team_id, limit = nil)
+  def self.search_by_similarity(text, language, team_id, limit)
     limit ||= CheckConfig.get(:most_relevant_team_limit, 3, :integer)
     context = {
       type: 'explainer',

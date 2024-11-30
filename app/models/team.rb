@@ -567,7 +567,7 @@ class Team < ApplicationRecord
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
     limit = pm.nil? ? CheckConfig.get(:most_relevant_team_limit, 3, :integer) : CheckConfig.get(:most_relevant_item_limit, 10, :integer)
-    result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], nil, nil, nil, limit).map(&:id)
+    result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit).map(&:id)
     items = []
     unless result_ids.blank?
       # I depend on FactCheck to filter result instead of report_design
