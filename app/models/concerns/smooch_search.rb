@@ -14,7 +14,7 @@ module SmoochSearch
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
         query = self.get_search_query(uid, message)
-        results = self.get_search_results(uid, query, team_id, language).collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
+        results = self.get_search_results(uid, query, team_id, language, limit).collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
         reports = results.select{ |pm| pm.report_status == 'published' }.collect{ |pm| pm.get_dynamic_annotation('report_design') }.reject{ |r| r.nil? }.collect{ |r| r.report_design_to_tipline_search_result }.select{ |r| r.should_send_in_language?(language) }
 
         # Extract explainers from matched media if they don't have published fact-checks but they have explainers
@@ -135,7 +135,7 @@ module SmoochSearch
         after = self.date_filter(team_id)
         query = message['text']
         query = CheckS3.rewrite_url(message['mediaUrl']) unless type == 'text'
-        results = self.search_for_similar_published_fact_checks(type, query, [team_id], after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
+        results = self.search_for_similar_published_fact_checks(type, query, [team_id], limit, after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
@@ -149,8 +149,7 @@ module SmoochSearch
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks(type, query, team_ids, after = nil, feed_id = nil, language = nil, skip_cache = false)
-      limit = CheckConfig.get(:most_relevant_team_limit, 3, :integer)
+    def search_for_similar_published_fact_checks(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, skip_cache = false)
       if skip_cache
         self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after, feed_id, language)
       else
@@ -184,7 +183,7 @@ module SmoochSearch
           results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id, language)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
-          results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids, limit)
+          results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
       else
@@ -194,7 +193,7 @@ module SmoochSearch
         media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
         alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url: media_url, threshold: [{ value: threshold }], team_ids: team_ids, type: type)
-        results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids, limit)
+        results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
       results
