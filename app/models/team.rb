@@ -566,7 +566,7 @@ class Team < ApplicationRecord
   def search_for_similar_articles(query, pm = nil)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
-    limit = pm.nil? ? CheckConfig.get(:most_relevant_team_limit, 3, :integer) : CheckConfig.get(:most_relevant_item_limit, 10, :integer)
+    limit = pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
     result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit).map(&:id)
     items = []
     unless result_ids.blank?

@@ -9,7 +9,7 @@ module SmoochSearch
     def search(app_id, uid, language, message, team_id, workflow, provider = nil)
       platform = self.get_platform_from_message(message)
       begin
-        limit = CheckConfig.get(:most_relevant_team_limit, 3, :integer)
+        limit = CheckConfig.get('most_relevant_team_limit', 3, :integer)
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?

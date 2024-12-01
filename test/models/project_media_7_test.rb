@@ -123,12 +123,16 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     pm1 = create_project_media quote: 'Foo Bar', team: t
     pm2 = create_project_media quote: 'Foo Bar Test', team: t
     pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
-    ex = create_explainer language: 'en', team: t, title: 'Foo Bar'
+    ex1 = create_explainer language: 'en', team: t, title: 'Foo Bar'
     ex2 = create_explainer language: 'en', team: t, title: 'Foo Bar Test'
-    pm1.explainers << ex
+    ex3 = create_explainer language: 'en', team: t, title: 'Foo Bar Test Testing'
+    pm1.explainers << ex1
     pm2.explainers << ex2
-    # TODO: fix explainers query
-    # assert_equal [ex2.id], t.get_similar_articles.map(&:id).sort
+    pm3.explainers << ex3
+    ex_ids = [ex1.id, ex2.id, ex3.id]
+    Bot::Smooch.stubs(:search_for_explainers).returns(Explainer.where(id: ex_ids))
+    # Should get explainer
+    assert_equal [ex2.id, ex3.id], pm1.get_similar_articles.map(&:id).sort
     fact_checks = []
     [pm1, pm2, pm3].each do |pm|
       cd = create_claim_description description: pm.title, project_media: pm
@@ -138,6 +142,8 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     [pm1, pm2, pm3].each { |pm| publish_report(pm) }
     sleep 2
     fact_checks.delete(pm1.fact_check_id)
-    assert_equal fact_checks.sort, pm1.get_similar_articles.map(&:id).sort
+    # Should get both explainer and FactCheck
+    assert_equal fact_checks.concat([ex2.id, ex3.id]).sort, pm1.get_similar_articles.map(&:id).sort
+    Bot::Smooch.unstub(:search_for_explainers)
   end
 end

@@ -49,7 +49,7 @@ module Api
       def self.get_results_from_api_key_teams(type, query, after, skip_cache)
         RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
         team_ids = ApiKey.current.bot_user.team_ids
-        limit = CheckConfig.get(:most_relevant_team_limit, 3, :integer)
+        limit = CheckConfig.get('most_relevant_team_limit', 3, :integer)
         Bot::Smooch.search_for_similar_published_fact_checks(type, query, team_ids, limit, after, skip_cache)
       end
 
