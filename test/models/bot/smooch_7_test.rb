@@ -609,12 +609,12 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     m = create_uploaded_image
     pm = create_project_media team: t, media: m, disable_es_callbacks: false
     query = "Claim content"
-    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id], 3)
     assert_empty results
     cd = create_claim_description project_media: pm, description: query
     publish_report(pm)
     assert_equal query, pm.claim_description_content
-    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id], 3)
     assert_equal [pm.id], results.map(&:id)
   end
 

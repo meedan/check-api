@@ -38,27 +38,27 @@ module Api
         skip_cache = skip_cache || filters.dig(:skip_cache, 0) == 'true'
 
         return ProjectMedia.none if team_ids.blank? || query.blank?
-
+        limit = CheckConfig.get('most_relevant_team_limit', 3, :integer)
         if feed_id > 0
-          return get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request, skip_cache)
+          return get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request, skip_cache, limit)
         elsif ApiKey.current
-          return get_results_from_api_key_teams(type, query, after, skip_cache)
+          return get_results_from_api_key_teams(type, query, after, skip_cache, limit)
         end
       end
 
-      def self.get_results_from_api_key_teams(type, query, after, skip_cache)
+      def self.get_results_from_api_key_teams(type, query, after, skip_cache, limit)
         RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
         team_ids = ApiKey.current.bot_user.team_ids
         limit = CheckConfig.get('most_relevant_team_limit', 3, :integer)
         Bot::Smooch.search_for_similar_published_fact_checks(type, query, team_ids, limit, after, skip_cache)
       end
 
-      def self.get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request, skip_cache)
+      def self.get_results_from_feed_teams(team_ids, feed_id, query, type, after, webhook_url, skip_save_request, skip_cache, limit)
         return ProjectMedia.none unless can_read_feed?(feed_id, team_ids)
         feed = Feed.find(feed_id)
         RequestStore.store[:pause_database_connection] = true # Release database connection during Bot::Alegre.request_api
         RequestStore.store[:smooch_bot_settings] = feed.get_smooch_bot_settings.to_h
-        results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, feed.team_ids, after, feed_id, skip_cache)
+        results = Bot::Smooch.search_for_similar_published_fact_checks(type, query, feed.team_ids, limit, after, feed_id, skip_cache)
         Feed.delay({ retry: 0, queue: 'feed' }).save_request(feed_id, type, query, webhook_url, results.to_a.map(&:id)) unless skip_save_request
         results
       end

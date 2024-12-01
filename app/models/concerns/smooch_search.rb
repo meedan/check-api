@@ -128,7 +128,7 @@ module SmoochSearch
       self.bundle_list_of_messages(list, last_message, true)
     end
 
-    def get_search_results(uid, message, team_id, language)
+    def get_search_results(uid, message, team_id, language, limit)
       results = []
       begin
         type = message['type']
@@ -180,7 +180,7 @@ module SmoochSearch
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
-          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id, language)
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids)
@@ -246,10 +246,10 @@ module SmoochSearch
       !!tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
     end
 
-    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, feed_id = nil, language = nil)
+    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id = nil, language = nil)
       types = CheckSearch::MEDIA_TYPES.clone.push('blank')
       search_fields = %w(title description fact_check_title fact_check_summary extracted_text url claim_description_content)
-      filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: 3, show: types }
+      filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: limit, show: types }
       filters.merge!({ fc_language: [language] }) if should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })

@@ -1578,10 +1578,9 @@ class Team2Test < ActiveSupport::TestCase
     # Should return FactCheck even there is an Explainer exists
     assert_equal fact_checks.sort, t.search_for_similar_articles('Foo Bar').map(&:id).sort
     # Verirfy limit option
-    # TODO: fix limit
-    # stub_configs({ 'most_relevant_team_limit' => 1 }) do
-    #   assert_equal [fact_checks.first], t.search_for_similar_articles('Foo Bar').map(&:id).sort
-    # end
+    stub_configs({ 'most_relevant_team_limit' => 1 }) do
+      assert_equal [fact_checks.first], t.search_for_similar_articles('Foo Bar').map(&:id).sort
+    end
     Bot::Smooch.unstub(:search_for_explainers)
   end
 end
