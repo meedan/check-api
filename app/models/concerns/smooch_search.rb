@@ -22,7 +22,7 @@ module SmoochSearch
 
         # Search for explainers if fact-checks were not found
         if reports.empty? && query['type'] == 'text'
-          explainers = self.search_for_explainerssearch_for_explainers(uid, query['text'], team_id, limit, language).select{ |explainer| explainer.as_tipline_search_result.should_send_in_language?(language) }
+          explainers = self.search_for_explainers(uid, query['text'], team_id, limit, language).select{ |explainer| explainer.as_tipline_search_result.should_send_in_language?(language) }
           Rails.logger.info "[Smooch Bot] Text similarity search got #{explainers.count} explainers while looking for '#{query['text']}' for team #{team_id}"
           results = explainers.collect{ |explainer| explainer.project_medias.to_a }.flatten.uniq.reject{ |pm| pm.blank? }.first(3)
           reports = explainers.map(&:as_tipline_search_result)
