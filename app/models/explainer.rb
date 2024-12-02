@@ -1,12 +1,6 @@
 class Explainer < ApplicationRecord
   include Article
 
-  # FIXME: Read from workspace settings
-  # ALEGRE_MODELS_AND_THRESHOLDS = {
-  #   # Bot::Alegre::ELASTICSEARCH_MODEL => 0.8 # Sometimes this is easier for local development
-  #   Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.7
-  # }
-
   belongs_to :team
 
   has_annotations
@@ -128,7 +122,7 @@ class Explainer < ApplicationRecord
 
   def self.get_alegre_models_and_thresholds(team_id)
     tbi = Bot::Alegre.get_alegre_tbi(team_id)
-    tbi.get_alegre_models_and_thresholds || { Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.7 }
+    tbi&.get_alegre_models_and_thresholds || { Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.7 }
   end
 
   private
