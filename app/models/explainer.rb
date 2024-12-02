@@ -104,15 +104,17 @@ class Explainer < ApplicationRecord
 
   def self.search_by_similarity(text, language, team_id)
     models_thresholds = Explainer.get_alegre_models_and_thresholds(team_id)
+    context = {
+      type: 'explainer',
+      team: Team.find(team_id).slug
+    }
+    context[:language] = language unless language.nil?
     params = {
       text: text,
       models: models_thresholds.keys,
       per_model_threshold: models_thresholds,
-      context: {
-        type: 'explainer',
-        team: Team.find(team_id).slug,
-        language: language
-      }
+      context: context
+
     }
     response = Bot::Alegre.query_sync_with_params(params, "text")
     results = response['result'].to_a.sort_by{ |result| result['_score'] }

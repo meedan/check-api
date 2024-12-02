@@ -304,19 +304,19 @@ module SmoochSearch
       end
     end
 
-    def search_for_explainers(uid, query, team_id, language)
+    def search_for_explainers(uid, query, team_id, language = nil)
       results = nil
       begin
         text = ::Bot::Smooch.extract_claim(query)
         if Bot::Alegre.get_number_of_words(text) == 1
           results = Explainer.where(team_id: team_id).where('description ILIKE ? OR title ILIKE ?', "%#{text}%", "%#{text}%")
-          results = results.where(language: language) if should_restrict_by_language?([team_id])
+          results = results.where(language: language) if !language.nil? && should_restrict_by_language?([team_id])
           results = results.order('updated_at DESC')
         else
           results = Explainer.search_by_similarity(text, language, team_id)
         end
       rescue StandardError => e
-        self.handle_search_error(uid, e, language)
+        self.handle_search_error(uid, e, language) unless uid.blank?
       end
       results.joins(:project_medias)
     end

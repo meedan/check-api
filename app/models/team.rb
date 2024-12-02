@@ -563,6 +563,27 @@ class Team < ApplicationRecord
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
+  def search_for_similar_articles(query, pm = nil)
+    # query expected to be text
+    result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id]).map(&:id)
+    items = []
+    unless result_ids.blank?
+      # I depend on FactCheck to filter result instead of report_design
+      items = FactCheck.where(report_status: 'published')
+      .joins(claim_description: :project_media)
+      .where('project_medias.id': result_ids)
+      # Exclude the ones already applied to a target item if exsits
+      items = items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
+    end
+    if items.blank?
+      # Get Explainers if no fact-check returned
+      items = Bot::Smooch.search_for_explainers(nil, query, self.id)
+      # Exclude the ones already applied to a target item
+      items = items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
+    end
+    items
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
