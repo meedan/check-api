@@ -18,13 +18,13 @@ module SmoochSearch
         reports = results.select{ |pm| pm.report_status == 'published' }.collect{ |pm| pm.get_dynamic_annotation('report_design') }.reject{ |r| r.nil? }.collect{ |r| r.report_design_to_tipline_search_result }.select{ |r| r.should_send_in_language?(language) }
 
         # Extract explainers from matched media if they don't have published fact-checks but they have explainers
-        reports = results.collect{ |pm| pm.explainers.to_a }.flatten.uniq.first(3).map(&:as_tipline_search_result) if !results.empty? && reports.empty?
+        reports = results.collect{ |pm| pm.explainers.to_a }.flatten.uniq.first(limit).map(&:as_tipline_search_result) if !results.empty? && reports.empty?
 
         # Search for explainers if fact-checks were not found
         if reports.empty? && query['type'] == 'text'
           explainers = self.search_for_explainers(uid, query['text'], team_id, limit, language).select{ |explainer| explainer.as_tipline_search_result.should_send_in_language?(language) }
           Rails.logger.info "[Smooch Bot] Text similarity search got #{explainers.count} explainers while looking for '#{query['text']}' for team #{team_id}"
-          results = explainers.collect{ |explainer| explainer.project_medias.to_a }.flatten.uniq.reject{ |pm| pm.blank? }.first(3)
+          results = explainers.collect{ |explainer| explainer.project_medias.to_a }.flatten.uniq.reject{ |pm| pm.blank? }.first(limit)
           reports = explainers.map(&:as_tipline_search_result)
         end
 
