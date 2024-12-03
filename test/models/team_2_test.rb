@@ -1557,12 +1557,16 @@ class Team2Test < ActiveSupport::TestCase
     pm1 = create_project_media quote: 'Foo Bar', team: t
     pm2 = create_project_media quote: 'Foo Bar Test', team: t
     pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
-    ex = create_explainer language: 'en', team: t, title: 'Foo Bar'
+    ex1 = create_explainer language: 'en', team: t, title: 'Foo Bar'
     ex2 = create_explainer language: 'en', team: t, title: 'Foo Bar Test'
-    pm1.explainers << ex
+    ex3 = create_explainer language: 'en', team: t, title: 'Foo Bar Test Testing'
+    pm1.explainers << ex1
     pm2.explainers << ex2
-    # TODO: fix explainers query
-    # assert_equal [ex.id, ex2.id], t.search_for_similar_articles('Foo Bar').map(&:id).sort
+    pm3.explainers << ex3
+    ex_ids = [ex1.id, ex2.id, ex3.id]
+    Bot::Smooch.stubs(:search_for_explainers).returns(Explainer.where(id: ex_ids))
+    # Return Explainer if no FactCheck exists
+    assert_equal ex_ids, t.search_for_similar_articles('Foo Bar').map(&:id).sort
     fact_checks = []
     [pm1, pm2, pm3].each do |pm|
       cd = create_claim_description description: pm.title, project_media: pm
@@ -1571,6 +1575,12 @@ class Team2Test < ActiveSupport::TestCase
     end
     [pm1, pm2, pm3].each { |pm| publish_report(pm) }
     sleep 2
+    # Should return FactCheck even there is an Explainer exists
     assert_equal fact_checks.sort, t.search_for_similar_articles('Foo Bar').map(&:id).sort
+    # Verirfy limit option
+    stub_configs({ 'most_relevant_team_limit' => 1 }) do
+      assert_equal [fact_checks.first], t.search_for_similar_articles('Foo Bar').map(&:id).sort
+    end
+    Bot::Smooch.unstub(:search_for_explainers)
   end
 end
