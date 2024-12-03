@@ -409,7 +409,7 @@ class TeamType < DefaultObject
     return nil unless User.current&.is_admin
 
     results = object.search_for_similar_articles(search_text)
-    results.map do |record|
+    results = results.map do |record|
       record.as_tipline_search_result
     end
 
