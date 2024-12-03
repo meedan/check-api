@@ -108,20 +108,21 @@ class Explainer < ApplicationRecord
     end
   end
 
-  def self.search_by_similarity(text, language, team_id)
+  def self.search_by_similarity(text, language, team_id, limit)
+    context = {
+      type: 'explainer',
+      team: Team.find(team_id).slug
+    }
+    context[:language] = language unless language.nil?
     params = {
       text: text,
       models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
       per_model_threshold: ALEGRE_MODELS_AND_THRESHOLDS,
-      context: {
-        type: 'explainer',
-        team: Team.find(team_id).slug,
-        language: language
-      }
+      context: context
     }
     response = Bot::Alegre.query_sync_with_params(params, "text")
     results = response['result'].to_a.sort_by{ |result| result['_score'] }
-    explainer_ids = results.collect{ |result| result.dig('context', 'explainer_id').to_i }.uniq.first(3)
+    explainer_ids = results.collect{ |result| result.dig('context', 'explainer_id').to_i }.uniq.first(limit)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
   end
 
