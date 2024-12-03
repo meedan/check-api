@@ -100,6 +100,7 @@ Dynamic.class_eval do
   def report_design_to_tipline_search_result
     if self.annotation_type == 'report_design'
       TiplineSearchResult.new(
+        id: self.id,
         type: :fact_check,
         team: self.annotated.team,
         title: self.report_design_field_value('title'),
