@@ -443,11 +443,14 @@ class Team < ApplicationRecord
       end
     else
       data = Rails.cache.read("data:report:#{self.id}")
-      return nil if data.blank?
 
-      data.map.with_index do |row, i|
-        row['Month'] = "#{i + 1}. #{row['Month']}"
-        row.reject { |key, _value| ['Average number of conversations per day', 'Number of messages sent'].include?(key) }
+      if data.blank?
+        empty_data_structure
+      else
+        data.map.with_index do |row, i|
+          row['Month'] = "#{i + 1}. #{row['Month']}"
+          row.reject { |key, _value| ['Average number of conversations per day', 'Number of messages sent'].include?(key) }
+        end
       end
     end
   end
@@ -558,6 +561,30 @@ class Team < ApplicationRecord
       tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || ' ' || coalesce(url, ''))"
     end
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
+  end
+
+  def search_for_similar_articles(query, pm = nil)
+    # query:  expected to be text
+    # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
+    limit = pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
+    result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit).map(&:id)
+    items = []
+    unless result_ids.blank?
+      # I depend on FactCheck to filter result instead of report_design
+      items = FactCheck.where(report_status: 'published')
+      .joins(claim_description: :project_media)
+      .where('project_medias.id': result_ids)
+      # Exclude the ones already applied to a target item if exsits
+      items = items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
+    end
+    if items.blank? || !pm.nil?
+      # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit)
+      # Exclude the ones already applied to a target item
+      ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
+      items = items + ex_items
+    end
+    items
   end
 
   # private
