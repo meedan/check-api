@@ -324,76 +324,57 @@ class GraphqlController11Test < ActionController::TestCase
     assert_equal 2, JSON.parse(@response.body).dig('data', 'team', 'tipline_requests', 'edges').size
   end
 
-  test "super admin user should receive the 3 most recent FactChecks or Explainers" do
+  test "super admin user should receive the 3 matching FactChecks or Explainers based on search_text" do
+    t = create_team
     # Create a super admin user
     super_admin = create_user(is_admin: true)
-    create_team_user team: @t, user: super_admin, role: 'admin'
-  
+    create_team_user team: t, user: super_admin, role: 'admin'
+
     # Authenticate with super admin user
     authenticate_with_user(super_admin)
-  
-    # Create ClaimDescriptions associated with the team
-    claim_desc1 = create_claim_description(team: @t)
-    claim_desc2 = create_claim_description(team: @t)
-  
-    # Create FactChecks and set created_at
-    another_fact_check = create_fact_check(
-      title: "Another FactCheck",
-      claim_description: claim_desc1
-    )
-    another_fact_check.update_column(:created_at, 4.days.ago)
-  
-    newer_fact_check = create_fact_check(
-      title: "Newer FactCheck",
-      claim_description: claim_desc2
-    )
-    newer_fact_check.update_column(:created_at, 2.days.ago)
-  
-    # Create Explainers and set created_at
-    older_explainer = create_explainer(
-      team: @t,
-      title: "Older Explainer"
-    )
-    older_explainer.update_column(:created_at, 3.days.ago)
-  
-    newest_explainer = create_explainer(
-      team: @t,
-      title: "Newest Explainer"
-    )
-    newest_explainer.update_column(:created_at, 1.day.ago)
-  
-    yet_another_explainer = create_explainer(
-      team: @t,
-      title: "Yet Another Explainer"
-    )
-    yet_another_explainer.update_column(:created_at, Time.now)
-  
-    # Perform the GraphQL query
+
+    # Create a project under the team
+    project = create_project(team: t)
+
+    # Create ProjectMedia instances
+    pm1 = create_project_media quote: 'Foo Bar', team: t
+    pm2 = create_project_media quote: 'Foo Bar Test', team: t
+    pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
+
+    # Create Explainers and attach them to PMs
+    ex1 = create_explainer language: 'en', team: t, title: 'Foo Bar'
+    ex2 = create_explainer language: 'en', team: t, title: 'Foo Bar Test'
+    ex3 = create_explainer language: 'en', team: t, title: 'Foo Bar Test Testing'
+    ex4 = create_explainer language: 'en', team: t, title: 'Explainer Test Testing'
+    ex5 = create_explainer language: 'en', team: t, title: 'Explainer 5 Test Testing'
+    ex6 = create_explainer language: 'en', team: t, title: 'Explainer 6 Test Testing'
+    pm1.explainers << ex1
+    pm2.explainers << ex2
+    pm3.explainers << ex3
+    pm3.explainers << ex4
+    pm3.explainers << ex5
+    pm3.explainers << ex6
+
+    # Perform the GraphQL query with searchText "123"
     query = <<~GRAPHQL
       query {
-        team(slug: "#{@t.slug}") {
-          bot_query(searchText: "test") {
+        team(slug: "#{t.slug}") {
+          bot_query(searchText: "Foo") {
             title
             type
-            format
           }
         }
       }
     GRAPHQL
-  
-    post :create, params: { query: query, team: @t.slug }
+
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
-  
+
     data = JSON.parse(@response.body)['data']['team']['bot_query']
-    assert_equal 3, data.size, "Expected 3 results"
-  
-    expected_titles = ["Yet Another Explainer", "Newest Explainer", "Older Explainer"]
+    assert_equal 3, data.size, "Expected 3 matching results"
+
+    expected_titles = [ex1.title, ex2.title, ex3.title]
     actual_titles = data.map { |result| result['title'] }
-    assert_equal expected_titles, actual_titles, "Results should be the 3 most recent records"
-  
-    # Verify types
-    expected_types = ['explainer', 'explainer', 'explainer']
-    actual_types = data.map { |result| result['type'] }
-    assert_equal expected_types, actual_types, "Types should match the records"
-  end  
+    assert_equal expected_titles.sort, actual_titles.sort, "Results should match the search query"
+  end
 end
