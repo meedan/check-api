@@ -1315,4 +1315,92 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Rails.cache.write("url_sha:#{pm.url}", Digest::MD5.hexdigest("blah"), expires_in: 60*3)
     assert_equal("6f1ed002ab5595859014ebf0951522d9", Bot::Alegre.content_hash(pm, nil))
   end
+
+  test "should only relate project media if it belongs to the same team" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+
+    p2 = create_project
+    team2 = p2.team
+    team2.set_languages = ['en','pt','es']
+    team2.save!
+    @bot.install_to!(team2)
+    pm2 = create_project_media team: team2, media: create_uploaded_audio
+
+    response = {
+      pm2.id=>{
+        :score=>0.91,
+        :context=>{
+          "team_id"=>pm2.team_id,
+          "has_custom_id"=>true,
+          "project_media_id"=>pm2.id,
+          "temporary_media"=>false
+        },
+        :model=>"audio",
+        :source_field=>"audio",
+        :target_field=>"audio",
+        :relationship_type=>Relationship.suggested_type
+      },
+    }
+
+    Bot::Alegre.stubs(:get_similar_items_v2).returns(response)
+    assert_difference 'Relationship.count' do
+      relationship = Bot::Alegre.relate_project_media(pm1)
+    end
+    Bot::Alegre.unstub(:get_similar_items_v2)
+  end
+
+  test "should parse similarity results, do not create relationship for different team's items" do
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
+
+    p2 = create_project
+    team2 = p2.team
+    team2.set_languages = ['en','pt','es']
+    team2.save!
+    @bot.install_to!(team2)
+    pm2 = create_project_media team: team2, media: create_uploaded_audio
+
+    results = [
+      {
+        "id"=>15346,
+        "doc_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0yMzE4MC1hdWRpbw",
+        "chromaprint_fingerprint"=>[
+          -714426431,
+          -731146431,
+          -731138797,
+          -597050061
+        ],
+        "url"=>"https://qa-assets.checkmedia.org/uploads/uploaded_audio/47237/51845f9bbf47bcfc47e90ab2083f94c1.mp3",
+        "context"=>[{"team_id"=>pm2.team_id, "has_custom_id"=>true, "project_media_id"=>pm2.id}],
+        "score"=>1.0,
+        "model"=>"audio"},
+      {
+        "id"=>15347,
+        "doc_id"=>"Y2hlY2stcHJvamVjdF9tZWRpYS0yMzE4MS1hdWRpbw",
+        "chromaprint_fingerprint"=>[
+          -546788830,
+          -566629838,
+          -29630958,
+          -29638141
+        ],
+        "url"=>"https://qa-assets.checkmedia.org/uploads/uploaded_audio/47238/e6cd55fd06742929124cdeaeebfa58d6.mp3",
+        "context"=>[{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>23181}],
+        "score"=>0.915364583333333,
+        "model"=>"audio"
+      }
+    ]
+
+    parsed_response = {
+      23181=>{
+        :score=>0.915364583333333,
+        :context=>{"team_id"=>pm1.team_id, "has_custom_id"=>true, "project_media_id"=>23181},
+        :model=>"audio",
+        :source_field=>"audio",
+        :target_field=>"audio",
+        :relationship_type=>Relationship.suggested_type
+      }
+    }
+
+    response = Bot::Alegre.parse_similarity_results(pm1, nil, results, Relationship.suggested_type)
+    assert_equal response, parsed_response
+  end
 end
