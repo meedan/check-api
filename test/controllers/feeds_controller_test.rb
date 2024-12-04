@@ -26,7 +26,7 @@ class FeedsControllerTest < ActionController::TestCase
     @f = create_feed published: true
     @f.teams = [@t1, @t2]
     FeedTeam.update_all(shared: true)
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false).returns([@pm1, @pm2])
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false).returns([@pm1, @pm2])
   end
 
   def teardown
@@ -44,7 +44,7 @@ class FeedsControllerTest < ActionController::TestCase
     b.api_key = a
     b.save!
     create_team_user team: @t1, user: b
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id], nil, false).returns([@pm1])
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id], 3, nil, false).returns([@pm1])
 
     authenticate_with_token a
     get :index, params: { filter: { type: 'text', query: 'Foo' } }
@@ -55,7 +55,7 @@ class FeedsControllerTest < ActionController::TestCase
 
   test "should request feed data" do
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks)
-             .with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false)
+             .with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false)
              .returns([@pm1, @pm2])
     authenticate_with_token @a
     get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
@@ -68,13 +68,13 @@ class FeedsControllerTest < ActionController::TestCase
     Sidekiq::Testing.fake! do
       authenticate_with_token @a
 
-      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false).returns([@pm1, @pm2])
+      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false).returns([@pm1, @pm2])
       get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
       assert_response :success
       assert_equal 'Foo', json_response['data'][0]['attributes']['organization']
       assert_equal 'Bar', json_response['data'][1]['attributes']['organization']
 
-      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false).returns([@pm2, @pm1])
+      Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false).returns([@pm2, @pm1])
       get :index, params: { filter: { type: 'text', query: 'Foo', feed_id: @f.id } }
       assert_response :success
       assert_equal 'Bar', json_response['data'][0]['attributes']['organization']
@@ -111,7 +111,7 @@ class FeedsControllerTest < ActionController::TestCase
   test "should save request query" do
     Bot::Alegre.stubs(:request).returns({})
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks)
-             .with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false)
+             .with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false)
              .returns([@pm1, @pm2])
     Sidekiq::Testing.inline!
     authenticate_with_token @a
@@ -129,7 +129,7 @@ class FeedsControllerTest < ActionController::TestCase
   test "should save relationship between request and results" do
     Bot::Alegre.stubs(:request).returns({})
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks)
-           .with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false)
+           .with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false)
            .returns([@pm1, @pm2])
     Sidekiq::Testing.inline!
     authenticate_with_token @a
@@ -143,7 +143,7 @@ class FeedsControllerTest < ActionController::TestCase
   test "should not save request when skip_save_request is true" do
     Bot::Alegre.stubs(:request).returns({})
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks)
-           .with('text', 'Foo', [@t1.id, @t2.id], nil, @f.id, false)
+           .with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false)
            .returns([@pm1, @pm2])
     Sidekiq::Testing.inline!
     authenticate_with_token @a
