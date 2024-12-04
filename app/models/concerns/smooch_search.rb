@@ -250,7 +250,7 @@ module SmoochSearch
       types = CheckSearch::MEDIA_TYPES.clone.push('blank')
       search_fields = %w(title description fact_check_title fact_check_summary extracted_text url claim_description_content)
       filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: limit, show: types }
-      filters.merge!({ fc_language: [language] }) if should_restrict_by_language?(team_ids)
+      filters.merge!({ fc_language: [language] }) if !language.blank? && should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
