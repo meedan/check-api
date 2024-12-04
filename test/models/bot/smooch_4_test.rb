@@ -671,10 +671,10 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
     uid = random_string
     query = Bot::Smooch.get_search_query(uid, {})
-    assert_equal [pm2], Bot::Smooch.get_search_results(uid, query, t.id, 'en')
+    assert_equal [pm2], Bot::Smooch.get_search_results(uid, query, t.id, 'en', 3)
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => "Test #{url}" })
     query = Bot::Smooch.get_search_query(uid, {})
-    assert_equal [pm1], Bot::Smooch.get_search_results(uid, query, t.id, 'en')
+    assert_equal [pm1], Bot::Smooch.get_search_results(uid, query, t.id, 'en', 3)
 
     ProjectMedia.any_instance.unstub(:report_status)
     CheckSearch.any_instance.unstub(:medias)
@@ -694,7 +694,7 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
     assert_nothing_raised do
       with_current_user_and_team(nil, t) do
-        Bot::Smooch.search_for_similar_published_fact_checks('text', 'https://projetocomprova.com.br/publicações/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/ ', [t.id], nil, f.id)
+        Bot::Smooch.search_for_similar_published_fact_checks('text', 'https://projetocomprova.com.br/publicações/tuite-engana-ao-dizer-que-o-stf-decidiu-que-voto-impresso-e-inconstitucional/ ', [t.id], 3, nil, f.id)
       end
     end
   end
