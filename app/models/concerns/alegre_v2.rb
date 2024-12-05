@@ -351,18 +351,22 @@ module AlegreV2
       results ||= []
       Hash[results.collect{|result|
         result["context"] = isolate_relevant_context(project_media, result)
-        [
-          result["context"] && result["context"]["project_media_id"],
-          {
-            score: result["score"],
-            context: result["context"],
-            model: result["model"],
-            source_field: get_target_field(project_media, field),
-            target_field: get_target_field(project_media, result["field"] || result["context"]["field"]),
-            relationship_type: relationship_type
-          }
-        ]
-      }.reject{ |k,_| k == project_media.id }]
+        if result["context"]
+          [
+            result["context"] && result["context"]["project_media_id"],
+            {
+              score: result["score"],
+              context: result["context"],
+              model: result["model"],
+              source_field: get_target_field(project_media, field),
+              target_field: get_target_field(project_media, result["field"] || result["context"]["field"]),
+              relationship_type: relationship_type
+            }
+          ]
+        else
+          raise ActiveRecord::RecordInvalid.new, "Related items must exist in the same workspace"
+        end
+        }.reject{ |k,_| k == project_media.id }]
     end
 
     def safe_get_async(project_media, field, params={})
