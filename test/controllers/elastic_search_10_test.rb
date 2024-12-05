@@ -140,22 +140,14 @@ class ElasticSearch10Test < ActionController::TestCase
     end
   end
 
-  test "should filter items by non project and read-unread" do
+  test "should filter items by read-unread" do
     t = create_team
-    p = create_project team: t
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u ,t) do
       pm = create_project_media team: t, disable_es_callbacks: false
-      pm2 = create_project_media project: p, disable_es_callbacks: false
+      pm2 = create_project_media team: t, disable_es_callbacks: false
       pm3 = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
-      results = CheckSearch.new({ projects: ['-1'] }.to_json)
-      # result should return empty as now all items should have a project CHECK-1150
-      assert_empty results.medias.map(&:id)
-      results = CheckSearch.new({ projects: [p.id, '-1'] }.to_json)
-      assert_equal [pm2.id], results.medias.map(&:id)
-      results = CheckSearch.new({ keyword: 'claim', projects: ['-1'] }.to_json)
-      assert_empty results.medias.map(&:id)
       # test read/unread
       pm.read = true
       pm.save!

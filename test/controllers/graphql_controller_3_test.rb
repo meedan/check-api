@@ -18,22 +18,17 @@ class GraphqlController3Test < ActionController::TestCase
     u = create_user is_admin: true
     authenticate_with_user(u)
     t1 = create_team
-    p1a = create_project team: t1
-    p1b = create_project team: t1
-    pm1a = create_project_media project: p1a, disable_es_callbacks: false ; sleep 1
-    pm1b = create_project_media project: p1b, disable_es_callbacks: false ; sleep 1
+    pm1a = create_project_media team: t1, disable_es_callbacks: false ; sleep 1
+    pm1b = create_project_media team: t1, disable_es_callbacks: false ; sleep 1
     pm1b.disable_es_callbacks = false ; pm1b.updated_at = Time.now ; pm1b.save! ; sleep 1
     pm1a.disable_es_callbacks = false ; pm1a.updated_at = Time.now ; pm1a.save! ; sleep 1
-    pm1c = create_project_media project: p1a, disable_es_callbacks: false, archived: CheckArchivedFlags::FlagCodes::TRASHED ; sleep 1
+    pm1c = create_project_media team: t1, disable_es_callbacks: false, archived: CheckArchivedFlags::FlagCodes::TRASHED ; sleep 1
     t2 = create_team
-    p2 = create_project team: t2
     pm2 = []
     6.times do
-      pm2 << create_project_media(project: p2, disable_es_callbacks: false)
-      sleep 1
+      pm2 << create_project_media(team: t2, disable_es_callbacks: false)
     end
-
-    sleep 10
+    sleep 2
 
     # Default sort criteria and order: recent added, descending
     query = 'query CheckSearch { search(query: "{}") {medias(first:20){edges{node{dbid}}}}}'
@@ -63,13 +58,6 @@ class GraphqlController3Test < ActionController::TestCase
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm1b.id, pm1a.id], results
 
-    # Filter by project
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p1b.id.to_s + ']}") {medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t1.slug }
-    assert_response :success
-    results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [pm1b.id], results
-
     # Get archived items
     query = 'query CheckSearch { search(query: "{\"archived\":1}") {medias(first:20){edges{node{dbid}}}}}'
     post :create, params: { query: query, team: t1.slug }
@@ -78,10 +66,10 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [pm1c.id], results
 
     # Relationships
-    pm1e = create_project_media project: p1a, disable_es_callbacks: false ; sleep 1
-    pm1f = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 1' ; sleep 1
-    pm1g = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 2' ; sleep 1
-    pm1h = create_project_media project: p1a, disable_es_callbacks: false, media: nil, quote: 'Test 3' ; sleep 1
+    pm1e = create_project_media team: t1, disable_es_callbacks: false ; sleep 1
+    pm1f = create_project_media team: t1, disable_es_callbacks: false, media: nil, quote: 'Test 1' ; sleep 1
+    pm1g = create_project_media team: t1, disable_es_callbacks: false, media: nil, quote: 'Test 2' ; sleep 1
+    pm1h = create_project_media team: t1, disable_es_callbacks: false, media: nil, quote: 'Test 3' ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1f.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1g.id, disable_es_callbacks: false ; sleep 1
     create_relationship source_id: pm1e.id, target_id: pm1h.id, disable_es_callbacks: false ; sleep 1
@@ -94,21 +82,21 @@ class GraphqlController3Test < ActionController::TestCase
     assert_equal [pm1f.id, pm1g.id, pm1h.id].sort, results.sort
 
     # Paginate, page 1
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"eslimit\":2,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"eslimit\":2,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'
     post :create, params: { query: query, team: t2.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm2[5].id, pm2[4].id], results
 
     # Paginate, page 2
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"eslimit\":2,\"esoffset\":2}") {medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"eslimit\":2,\"esoffset\":2}") {medias(first:20){edges{node{dbid}}}}}'
     post :create, params: { query: query, team: t2.slug }
     assert_response :success
     results = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
     assert_equal [pm2[3].id, pm2[2].id], results
 
     # Paginate, page 3
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p2.id.to_s + '],\"eslimit\":2,\"esoffset\":4}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
+    query = 'query CheckSearch { search(query: "{\"eslimit\":2,\"esoffset\":4}") {number_of_results,medias(first:20){edges{node{dbid}}}}}'
     post :create, params: { query: query, team: t2.slug }
     assert_response :success
     response = JSON.parse(@response.body)['data']['search']

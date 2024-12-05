@@ -157,40 +157,6 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
-  test "should search with context" do
-    t = create_team
-    p = create_project team: t
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    url2 = 'http://test2.com'
-    response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    m1 = create_media(account: create_valid_account, url: url2)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    keyword = { projects: [0,0,0] }.to_json
-    sleep 1
-    Team.current = t
-    result = CheckSearch.new(keyword)
-    assert_empty result.medias
-    result = CheckSearch.new({projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # add a new context to existing media
-    p2 = create_project team: t
-    pm2 = create_project_media project: p2, media: m1, disable_es_callbacks: false
-    sleep 1
-    result = CheckSearch.new({projects: [p.id]}.to_json)
-    assert_equal [pm.id].sort, result.medias.map(&:id).sort
-    # add a new media to same context
-    m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
-    sleep 1
-    result = CheckSearch.new({projects: [p.id]}.to_json)
-    assert_equal [pm.id, pm2.id].sort, result.medias.map(&:id).sort
-  end
-
   test "should search with tags or status" do
     t = create_team
     p = create_project team: t

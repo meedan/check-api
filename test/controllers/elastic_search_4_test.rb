@@ -8,10 +8,8 @@ class ElasticSearch4Test < ActionController::TestCase
 
   test "should search with multiple filters" do
     t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p, quote: 'report_title', disable_es_callbacks: false
-    pm2 = create_project_media project: p2, quote: 'report_title', disable_es_callbacks: false
+    pm = create_project_media team: t, quote: 'report_title', disable_es_callbacks: false
+    pm2 = create_project_media team: t, quote: 'report_title', disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm, disable_es_callbacks: false
@@ -20,37 +18,16 @@ class ElasticSearch4Test < ActionController::TestCase
     Team.current = t
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports']}.to_json)
     assert_equal [pm2.id, pm.id], result.medias.map(&:id)
-    # keyword & context
-    result = CheckSearch.new({keyword: 'report_title', projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
     # keyword & status
     result = CheckSearch.new({keyword: 'report_title', verification_status: ['verified']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # tags & context
-    result = CheckSearch.new({projects: [p.id], tags: ['sports']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # status & context
-    result = CheckSearch.new({projects: [p.id], verification_status: ['verified']}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & tags & context
-    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & status & context
-    result = CheckSearch.new({keyword: 'report_title', verification_status: ['verified'], projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
-    # tags & context & status
-    result = CheckSearch.new({tags: ['sports'], verification_status: ['verified'], projects: [p.id]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # keyword & tags & status
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], verification_status: ['verified']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
-    # keyword & tags & context & status
-    result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], verification_status: ['verified'], projects: [p.id]}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
     # search keyword in comments
     create_comment text: 'add_comment', annotated: pm, disable_es_callbacks: false
     sleep 1
-    result = CheckSearch.new({keyword: 'add_comment', projects: [p.id]}.to_json)
+    result = CheckSearch.new({keyword: 'add_comment'}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
   end
 
@@ -200,34 +177,21 @@ class ElasticSearch4Test < ActionController::TestCase
     c2 = create_claim_media
     m = create_valid_media
     t1 = create_team
-    p1a = create_project team: t1
-    p1b = create_project team: t1
-    pm1a = create_project_media project: p1a, media: c, disable_es_callbacks: false
-    sleep 1
-    pm1b = create_project_media project: p1b, media: c2, disable_es_callbacks: false
-
+    pm1a = create_project_media team: t1, media: c, disable_es_callbacks: false
+    pm1b = create_project_media team: t1, media: c2, disable_es_callbacks: false
     t2 = create_team
-    p2a = create_project team: t2
-    p2b = create_project team: t2
-    pm2a = create_project_media project: p2a, media: m, disable_es_callbacks: false
-    sleep 1
-    pm2b = create_project_media project: p2b, disable_es_callbacks: false
-
+    pm2a = create_project_media team: t2, media: m, disable_es_callbacks: false
+    pm2b = create_project_media team: t2, disable_es_callbacks: false
+    sleep 2
     Team.current = t1
     assert_equal [pm1b, pm1a], CheckSearch.new('{}').medias
     assert_equal 2, CheckSearch.new('{}').project_medias.count
-    assert_equal 1, CheckSearch.new({ projects: [p1a.id], show: ['claims']}.to_json).project_medias.count
-    assert_equal [pm1a], CheckSearch.new({ projects: [p1a.id] }.to_json).medias
-    assert_equal 1, CheckSearch.new({ projects: [p1a.id] }.to_json).project_medias.count
+    assert_equal 2, CheckSearch.new({ show: ['claims']}.to_json).project_medias.count
     assert_equal [pm1a, pm1b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
     assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
-    Team.current = nil
-
     Team.current = t2
     assert_equal [pm2b, pm2a], CheckSearch.new('{}').medias
     assert_equal 2, CheckSearch.new('{}').project_medias.count
-    assert_equal [pm2a], CheckSearch.new({ projects: [p2a.id] }.to_json).medias
-    assert_equal 1, CheckSearch.new({ projects: [p2a.id] }.to_json).project_medias.count
     assert_equal [pm2a, pm2b], CheckSearch.new({ sort_type: 'ASC' }.to_json).medias
     assert_equal 2, CheckSearch.new({ sort_type: 'ASC' }.to_json).project_medias.count
     Team.current = nil

@@ -96,7 +96,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     sleep 2
 
     object = TeamStatistics.new(@team, 'past_week', 'en')
-    expected = [{ id: fc2.id, label: 'Foo', value: 2 }, { id: fc1.id, label: 'Bar', value: 1 }]
+    expected = [{ id: pm2.fact_check_id, label: 'Foo', value: 2 }, { id: pm1.fact_check_id, label: 'Bar', value: 1 }]
     assert_equal expected, object.top_articles_sent
   end
 
