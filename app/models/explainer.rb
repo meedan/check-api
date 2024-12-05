@@ -65,7 +65,7 @@ class Explainer < ApplicationRecord
       explainer_id: explainer.id
     }
 
-    models_thresholds = Explainer.get_alegre_models_and_thresholds(explainer.team_id).keys
+    models_thresholds = Explainer.get_alegre_models_and_thresholds(explainer.team_id).collect{|m| m[:model]}
     # Index title
     params = {
       content_hash: Bot::Alegre.content_hash_for_value(explainer.title),
@@ -111,7 +111,7 @@ class Explainer < ApplicationRecord
     context[:language] = language unless language.nil?
     params = {
       text: text,
-      models: models_thresholds.keys,
+      models: models_thresholds.collect{|m| m[:model]},
       per_model_threshold: models_thresholds,
       context: context
 

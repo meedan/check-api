@@ -275,7 +275,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
-    self.get_threshold_given_model_settings(team_id, media_type, similarity_method, automatic, model_name)
+    self.get_threshold_given_model_settings(pm.team_id, media_type, similarity_method, automatic, model_name)
   end
 
   def self.get_similarity_methods_and_models_given_media_type_and_team_id(media_type, team_id, get_vector_settings)
