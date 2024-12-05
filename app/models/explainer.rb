@@ -123,8 +123,10 @@ class Explainer < ApplicationRecord
   end
 
   def self.get_alegre_models_and_thresholds(team_id)
-    tbi = Bot::Alegre.get_alegre_tbi(team_id)
-    tbi&.get_alegre_models_and_thresholds || { Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.7 }
+    Bot::Alegre.get_similarity_methods_and_models_given_media_type_and_team_id("text", team_id, true).map do |similarity_method, model_name|
+      _, value = Bot::Alegre.get_threshold_given_model_settings(team_id, "text", similarity_method, true, model_name)
+      {model: model_name, value: value}
+    end
   end
 
   private
