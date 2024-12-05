@@ -71,7 +71,8 @@ class SmoochNlu
     end
     begin
       self.increment_global_counter
-      team_slug = Team.find(Bot::Smooch.config['team_id']).slug
+      team_id = Bot::Smooch.config['team_id']
+      team_slug = Team.find(team_id).slug
       # FIXME: In the future we could consider matches across all languages when options is nil
       # FIXME: No need to call Alegre if it's an exact match to one of the keywords
       # FIXME: No need to call Alegre if message has no word characters
@@ -85,8 +86,10 @@ class SmoochNlu
           language: language,
         }.merge(context)
       }
-      response = Bot::Alegre.query_sync_with_params(params, "text")
-
+      response = Bot::Alegre.query_sync_with_params(params, "text")["result"].collect{|result|
+        result["context"] = Bot::Alegre.isolate_relevant_context(team_id, result)
+      }
+      
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option
       # So, we are not using this approach right now
@@ -96,7 +99,7 @@ class SmoochNlu
       # ranked_options = option_counts.group_by(&:itself).transform_values(&:count).sort_by{|_k,v| v}.reverse()
 
       # Second approach is to sort the results from best to worst
-      sorted_options = response['result'].to_a.sort_by{ |result| result['score'] }.reverse
+      sorted_options = response.to_a.sort_by{ |result| result['score'] }.reverse
       ranked_options = sorted_options.map{ |o| { 'key' => o.dig('context', alegre_result_key), 'score' => o['score'] } }
       matches = ranked_options
 

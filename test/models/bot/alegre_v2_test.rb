@@ -280,22 +280,22 @@ class Bot::AlegreTest < ActiveSupport::TestCase
 
   test "should isolate relevant_context for text" do
     pm1 = create_project_media team: @team, quote: 'This is a long text that creates a text-based item'
-    assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
+    assert_equal Bot::Alegre.isolate_relevant_context(pm1.team_id, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
   end
 
   test "should isolate relevant_context for audio" do
     pm1 = create_project_media team: @team, media: create_uploaded_audio
-    assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
+    assert_equal Bot::Alegre.isolate_relevant_context(pm1.team_id, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
   end
 
   test "should isolate relevant_context for image" do
     pm1 = create_project_media team: @team, media: create_uploaded_image
-    assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
+    assert_equal Bot::Alegre.isolate_relevant_context(pm1.team_id, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
   end
 
   test "should isolate relevant_context for video" do
     pm1 = create_project_media team: @team, media: create_uploaded_video
-    assert_equal Bot::Alegre.isolate_relevant_context(pm1, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
+    assert_equal Bot::Alegre.isolate_relevant_context(pm1.team_id, {"context"=>[{"team_id"=>pm1.team_id}]}), {"team_id"=>pm1.team_id}
   end
 
   test "should return field or type on get_target_field for text" do
