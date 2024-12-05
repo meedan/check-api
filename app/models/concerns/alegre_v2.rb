@@ -336,8 +336,8 @@ module AlegreV2
       end
     end
 
-    def isolate_relevant_context(project_media, result)
-      (result["contexts"]||result["context"]).select{|x| ([x["team_id"]].flatten & [project_media.team_id].flatten).count > 0 && !x["temporary_media"]}.first
+    def isolate_relevant_context(team_id, result)
+      (result["contexts"]||result["context"]).select{|x| ([x["team_id"]].flatten & [team_id].flatten).count > 0 && !x["temporary_media"]}.first
     end
 
     def get_target_field(project_media, field)
@@ -350,7 +350,7 @@ module AlegreV2
     def parse_similarity_results(project_media, field, results, relationship_type)
       results ||= []
       Hash[results.collect{|result|
-        result["context"] = isolate_relevant_context(project_media, result)
+        result["context"] = isolate_relevant_context(project_media.team_id, result)
         [
           result["context"] && result["context"]["project_media_id"],
           {
