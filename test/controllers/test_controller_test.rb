@@ -493,6 +493,49 @@ class TestControllerTest < ActionController::TestCase
     Rails.unstub(:env)
   end
 
+  test "should create standalone fact check and associate with the team" do
+    # Test setup
+    team = create_team
+    user = create_user
+    create_team_user(user: user, team: team)
+
+    get :create_imported_standalone_fact_check, params: {
+      team_id: team.id,
+      email: user.email,
+      description: 'Test description',
+      context: 'Test context',
+      title: 'Test title',
+      summary: 'Test summary',
+      url: 'http://example.com',
+      language: 'en'
+    }
+
+    assert_response :success
+  end
+
+  test "should not create standalone fact check and associate with the team" do
+    Rails.stubs(:env).returns('development')
+
+    # Test setup
+    team = create_team
+    user = create_user
+    create_team_user(user: user, team: team)
+
+    get :create_imported_standalone_fact_check, params: {
+      team_id: team.id,
+      email: user.email,
+      description: 'Test description',
+      context: 'Test context',
+      title: 'Test title',
+      summary: 'Test summary',
+      url: 'http://example.com',
+      language: 'en'
+    }
+
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
   test "should get a random number in HTML" do
     get :random
     assert_response :success
