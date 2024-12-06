@@ -257,7 +257,8 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_threshold_given_model_settings(team_id, media_type, similarity_method, automatic, model_name)
-    tbi = self.get_alegre_tbi(team_id)
+    tbi = nil
+    tbi = self.get_alegre_tbi(team_id) unless team_id.nil?
     similarity_level = automatic ? 'matching' : 'suggestion'
     generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
     specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
@@ -275,7 +276,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
-    self.get_threshold_given_model_settings(pm.team_id, media_type, similarity_method, automatic, model_name)
+    self.get_threshold_given_model_settings(pm&.team_id, media_type, similarity_method, automatic, model_name)
   end
 
   def self.get_similarity_methods_and_models_given_media_type_and_team_id(media_type, team_id, get_vector_settings)
@@ -292,7 +293,7 @@ class Bot::Alegre < BotUser
   end
 
   def self.get_threshold_for_query(media_type, pm, automatic = false)
-    self.get_similarity_methods_and_models_given_media_type_and_team_id(media_type, pm.team_id, !pm.nil?).collect do |similarity_method, model_name|
+    self.get_similarity_methods_and_models_given_media_type_and_team_id(media_type, pm&.team_id, !pm.nil?).collect do |similarity_method, model_name|
       key, value = self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
       { value: value.to_f, key: key, automatic: automatic, model: model_name}
     end
