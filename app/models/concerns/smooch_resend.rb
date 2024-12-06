@@ -109,13 +109,19 @@ module SmoochResend
     end
 
     def clicked_on_template_button?(message)
-      ['report', 'message'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
+      ['report', 'message', 'newsletter'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
     end
 
     def get_information_from_clicked_template_button(message, delete = false)
       quoted_id = message.dig('quotedMessage', 'content', '_id')
       unless quoted_id.blank?
-        info = Rails.cache.read("smooch:original:#{quoted_id}").to_s.split(':')
+        info = Rails.cache.read("smooch:original:#{quoted_id}").to_s
+        begin
+          original = JSON.parse(info)
+          info = ['newsletter', original['language']] if original['fallback_template'] == 'newsletter'
+        rescue
+          info = info.split(':')
+        end
         Rails.cache.delete("smooch:original:#{quoted_id}") if delete
         return info
       end
@@ -130,6 +136,10 @@ module SmoochResend
         self.send_report_on_template_button_click(message, uid, language, info)
       when 'message'
         self.send_message_on_template_button_click(message, uid, language, info)
+      when 'newsletter'
+        team_id = self.config['team_id'].to_i
+        language = info[1] || language
+        self.toggle_subscription(uid, language, team_id, self.get_platform_from_message(message), self.get_workflow(language)) if self.user_is_subscribed_to_newsletter?(uid, language, team_id)
       end
     end
   end

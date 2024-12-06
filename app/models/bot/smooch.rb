@@ -565,7 +565,7 @@ class Bot::Smooch < BotUser
   def self.is_a_shortcut_for_submission?(state, message)
     self.is_v2? && (state == 'main' || state == 'waiting_for_message') && (
       !message['mediaUrl'].blank? ||
-      ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer) ||
+      ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text ||
       !Twitter::TwitterText::Extractor.extract_urls(message['text'].to_s).blank? # URL in message?
       )
   end
@@ -851,7 +851,7 @@ class Bot::Smooch < BotUser
         extra = { quote: claim }
         pm = ProjectMedia.joins(:media).where('trim(lower(quote)) = ?', claim.downcase).where('project_medias.team_id' => team.id).last
         # Don't create a new text media if it's an unconfirmed request with just a few words
-        if pm.nil? && message['archived'] == CheckArchivedFlags::FlagCodes::UNCONFIRMED && ::Bot::Alegre.get_number_of_words(claim) < CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+        if pm.nil? && message['archived'] == CheckArchivedFlags::FlagCodes::UNCONFIRMED && ::Bot::Alegre.get_number_of_words(claim) < self.min_number_of_words_for_tipline_long_text
           return team
         end
       else

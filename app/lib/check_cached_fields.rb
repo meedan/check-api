@@ -47,7 +47,7 @@ module CheckCachedFields
         klass = self
         update_on[:events].each do |event, callback|
           model.send "after_#{event}", ->(obj) do
-            klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options)
+            klass.update_cached_field(name, obj, update_on[:if], update_on[:affected_ids], callback, options, event)
           end
         end
       end
@@ -97,12 +97,13 @@ module CheckCachedFields
           update_pg: options[:update_pg],
           pg_field_name: options[:pg_field_name],
         }
-        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj)
+        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj.class.name, obj.id)
       end
     end
 
-    def index_cached_field_bg(index_options, value, name, obj)
-      self.index_and_pg_cached_field(index_options, value, name, obj)
+    def index_cached_field_bg(index_options, value, name, klass, id)
+      obj = klass.constantize.find_by_id id
+      self.index_and_pg_cached_field(index_options, value, name, obj) unless obj.nil?
     end
 
     def update_pg_cache_field(options, value, name, target)
@@ -120,7 +121,7 @@ module CheckCachedFields
       self.index_cached_field(options, value, name, obj) unless Rails.env == 'test'
     end
 
-    def update_cached_field(name, obj, condition, ids, callback, options)
+    def update_cached_field(name, obj, condition, ids, callback, options, event)
       return if self.skip_cached_field_update?
       condition ||= proc { true }
       return unless condition.call(obj)
@@ -136,17 +137,20 @@ module CheckCachedFields
           pg_field_name: options[:pg_field_name],
           recalculate: options[:recalculate],
         }
-        self.delay_for(1.second).update_cached_field_bg(name, obj, ids, callback, index_options)
+        self.delay_for(1.second).update_cached_field_bg(name, ids, callback, index_options, obj.class.name, obj.id, event)
       end
     end
 
-    def update_cached_field_bg(name, obj, ids, callback, options)
-      recalculate = options[:recalculate]
-      self.where(id: ids).each do |target|
-        value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
-        Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: self.cached_field_expiration(options))
-        # Update ES index and PG, if needed
-        self.index_and_pg_cached_field(options, value, name, target)
+    def update_cached_field_bg(name, ids, callback, options, klass, id, event)
+      obj = event == 'destroy' ? klass.constantize : klass.constantize.find_by_id(id)
+      unless obj.nil?
+        recalculate = options[:recalculate]
+        self.where(id: ids).each do |target|
+          value = callback == :recalculate ? target.send(recalculate) : obj.send(callback, target)
+          Rails.cache.write(self.check_cache_key(self, target.id, name), value, expires_in: self.cached_field_expiration(options))
+          # Update ES index and PG, if needed
+          self.index_and_pg_cached_field(options, value, name, target)
+        end
       end
     end
   end

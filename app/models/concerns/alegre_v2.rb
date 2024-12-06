@@ -1,7 +1,7 @@
 require 'active_support/concern'
 class AlegreTimeoutError < StandardError; end
 class TemporaryProjectMedia
-  attr_accessor :team_id, :id, :url, :type
+  attr_accessor :team_id, :id, :url, :text, :type, :field
   def media
     media_type_map = {
       "claim" => "Claim",
@@ -36,6 +36,10 @@ class TemporaryProjectMedia
   def is_audio?
     self.type == "audio"
   end
+
+  def is_uploaded_media?
+    self.is_image? || self.is_audio? || self.is_video?
+  end
 end
 
 module AlegreV2
@@ -55,11 +59,18 @@ module AlegreV2
     end
 
     def async_path(project_media)
-      "/similarity/async/#{get_type(project_media)}"
+      self.async_path_for_type(get_type(project_media))
+    end
+
+    def async_path_for_type(type)
+      "/similarity/async/#{type}"
     end
 
     def delete_path(project_media)
-      type = get_type(project_media)
+      self.delete_path_for_type(get_type(project_media))
+    end
+
+    def delete_path_for_type(type)
       "/#{type}/similarity/"
     end
 
@@ -122,6 +133,10 @@ module AlegreV2
       end
     end
 
+    def request_delete_from_raw(params, type)
+      request("delete", delete_path_for_type(type), params)
+    end
+
     def request_delete(data, project_media)
       request("delete", delete_path(project_media), data)
     end
@@ -148,28 +163,32 @@ module AlegreV2
       type
     end
 
+    def content_hash_for_value(value)
+      value.nil? ? nil : Digest::MD5.hexdigest(value)
+    end
+
     def content_hash(project_media, field)
       if Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.include?(field)
-        Digest::MD5.hexdigest(project_media.send(field))
+        content_hash_for_value(project_media.send(field))
+      elsif project_media.is_link?
+        return content_hash_for_value(project_media.media.url)
+      elsif project_media.is_a?(TemporaryProjectMedia)
+        return Rails.cache.read("url_sha:#{project_media.url}")
+      elsif project_media.is_uploaded_media?
+        return project_media.media.file.filename.split(".").first
       else
-        if project_media.is_link?
-          return Digest::MD5.hexdigest(project_media.media.url)
-        elsif project_media.is_a?(TemporaryProjectMedia)
-          return Rails.cache.read("url_sha:#{project_media.url}")
-        elsif !project_media.is_text?
-          return project_media.media.file.filename.split(".").first
-        else
-          return Digest::MD5.hexdigest(project_media.send(field).to_s)
-        end
+        return content_hash_for_value(project_media.send(field).to_s)
       end
     end
 
     def generic_package(project_media, field)
-      {
-        content_hash: content_hash(project_media, field),
+      content_hash_value = content_hash(project_media, field)
+      params = {
         doc_id: item_doc_id(project_media, field),
         context: get_context(project_media, field)
       }
+      params[:content_hash] = content_hash_value if !content_hash_value.nil?
+      params
     end
 
     def delete_package(project_media, field, params={}, quiet=false)
@@ -267,6 +286,22 @@ module AlegreV2
       generic_package_text(project_media, field, params)
     end
 
+    def index_async_with_params(params, type, suppress_search_response=true)
+      request("post", async_path_for_type(type), params.merge(suppress_search_response: suppress_search_response))
+    end
+
+    def index_sync_with_params(params, type)
+      query_sync_with_params(params, type)
+    end
+
+    def query_sync_with_params(params, type)
+      request("post", sync_path_for_type(type), params)
+    end
+
+    def query_async_with_params(params, type)
+      request("post", async_path_for_type(type), params)
+    end
+
     def get_sync(project_media, field=nil, params={})
       request_sync(
         store_package(project_media, field, params),
@@ -286,6 +321,10 @@ module AlegreV2
         delete_package(project_media, field, params),
         project_media
       )
+    rescue StandardError => e
+      error = Bot::Alegre::Error.new(e)
+      Rails.logger.error("[Alegre Bot] Exception on Delete for ProjectMedia ##{project_media.id}: #{error.class} - #{error.message}")
+      CheckSentry.notify(error, bot: "alegre", project_media: project_media, params: params, field: field)
     end
 
     def get_per_model_threshold(project_media, threshold)
@@ -298,7 +337,7 @@ module AlegreV2
     end
 
     def isolate_relevant_context(project_media, result)
-      result["context"].select{|x| ([x["team_id"]].flatten & [project_media.team_id].flatten).count > 0 && !x["temporary_media"]}.first
+      (result["contexts"]||result["context"]).select{|x| ([x["team_id"]].flatten & [project_media.team_id].flatten).count > 0 && !x["temporary_media"]}.first
     end
 
     def get_target_field(project_media, field)
@@ -319,7 +358,7 @@ module AlegreV2
             context: result["context"],
             model: result["model"],
             source_field: get_target_field(project_media, field),
-            target_field: get_target_field(project_media, result["field"]),
+            target_field: get_target_field(project_media, result["field"] || result["context"]["field"]),
             relationship_type: relationship_type
           }
         ]
@@ -485,25 +524,27 @@ module AlegreV2
     end
 
     def get_items_with_similar_media_v2(args={})
+      text = args[:text]
+      field = args[:field]
       media_url = args[:media_url]
       project_media = args[:project_media]
       threshold = args[:threshold]
       team_ids = args[:team_ids]
       type = args[:type]
-      if ['audio', 'image', 'video'].include?(type)
-        if project_media.nil?
-          project_media = TemporaryProjectMedia.new
-          project_media.url = media_url
-          project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
-          project_media.team_id = team_ids
-          project_media.type = type
-        end
-        get_similar_items_v2_async(project_media, nil, threshold)
-        wait_for_results(project_media, args)
-        response = get_similar_items_v2_callback(project_media, nil)
-        delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
-        return response
+      if project_media.nil?
+        project_media = TemporaryProjectMedia.new
+        project_media.text = text
+        project_media.field = field
+        project_media.url = media_url
+        project_media.id = Digest::MD5.hexdigest(project_media.url).to_i(16)
+        project_media.team_id = team_ids
+        project_media.type = type
       end
+      get_similar_items_v2_async(project_media, nil, threshold)
+      wait_for_results(project_media, args)
+      response = get_similar_items_v2_callback(project_media, nil)
+      delete(project_media, nil) if project_media.is_a?(TemporaryProjectMedia)
+      return response
     end
 
     def process_alegre_callback(params)
@@ -512,9 +553,11 @@ module AlegreV2
       should_relate = true
       if project_media.nil?
         project_media = TemporaryProjectMedia.new
+        project_media.text = params.dig('data', 'item', 'raw', 'text')
         project_media.url = params.dig('data', 'item', 'raw', 'url')
         project_media.id = params.dig('data', 'item', 'raw', 'context', 'project_media_id')
         project_media.team_id = params.dig('data', 'item', 'raw', 'context', 'team_id')
+        project_media.field = params.dig('data', 'item', 'raw', 'context', 'field')
         project_media.type = params['model_type']
         should_relate = false
       end

@@ -12,18 +12,21 @@ class Relationship < ApplicationRecord
 
   before_validation :set_user, on: :create
   before_validation :set_confirmed, if: :is_being_confirmed?, on: :update
+  before_validation :move_fact_check_and_report_to_main, on: :create
   validate :relationship_type_is_valid, :items_are_from_the_same_team
   validate :target_not_published_report, on: :create
   validate :similar_item_exists, on: :create, if: proc { |r| r.is_suggested? }
   validate :cant_be_related_to_itself
   validates :relationship_type, uniqueness: { scope: [:source_id, :target_id], message: :already_exists }, on: :create
 
+  before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
-  after_create :point_targets_to_new_source, :update_counters, prepend: true
+  after_create :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
+  after_save :move_explainers_to_source, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
@@ -158,6 +161,21 @@ class Relationship < ApplicationRecord
     exception_message = nil
     exception_class = nil
     if r.nil?
+      # Add to existing media cluster if source is already a target:
+      # If we're trying to create a relationship between C (target_id) and B (source_id), but there is already a relationship between A (source_id) and B (target_id),
+      # then, instead, create the relationship between A (source_id) and C (target_id) (so, if A's cluster contains B, then C comes in and our algorithm says C is similar
+      # to B, it is added to A's cluster). Exception: If the relationship between A (source_id) and B (target_id) is a suggestion, we should not create any relationship
+      # at all when trying to create a relationship between C (target_id) and B (source_id) (regardless if it’s a suggestion or a confirmed match) - but we should log that case.
+      existing = Relationship.where(target_id: source_id).first
+      unless existing.nil?
+        if existing.relationship_type == Relationship.suggested_type
+          error_msg = StandardError.new('Not creating relationship because requested source_id is already suggested to another item.')
+          CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options)
+          return nil
+        end
+        source_id = existing.source_id
+      end
+
       begin
         r = Relationship.new
         r.skip_check_ability = true
@@ -187,21 +205,20 @@ class Relationship < ApplicationRecord
 
   def update_elasticsearch_parent(action = 'create_or_update')
     return if self.is_default? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    # touch target to update `updated_at` date
-    target =  self.target
-    unless target.nil?
+    [self.source, self.target].compact.each do |pm|
       updated_at = Time.now
-      target.update_columns(updated_at: updated_at)
+      # touch item to update `updated_at` date
+      pm.update_columns(updated_at: updated_at)
       data = { updated_at: updated_at.utc }
       data['parent_id'] = {
         method: "#{action}_parent_id",
         klass: self.class.name,
         id: self.id,
-        default: target_id,
+        default: pm.id,
         type: 'int'
-      } if self.is_confirmed?
-      target.update_elasticsearch_doc(data.keys, data, target.id, true)
-    end
+      }
+      pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    end if self.is_confirmed?
   end
 
   def set_unmatched_field(value)
@@ -252,7 +269,11 @@ class Relationship < ApplicationRecord
         claim.project_media_id = self.source_id
         claim.save
       end
-      Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
+      Relationship.where(source_id: self.target_id).find_each do |r|
+        r.source_id = self.source_id
+        r.skip_check_ability = true
+        r.save!
+      end
       self.source&.clear_cached_fields
       self.target&.clear_cached_fields
       Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
@@ -286,7 +307,7 @@ class Relationship < ApplicationRecord
   def point_targets_to_new_source
     # Get existing targets for the source
     target_ids = Relationship.where(source_id: self.source_id).map(&:target_id)
-    # Delete duplicate relation from target(CHECK-1603)
+    # Delete duplicate relationships from target (CHECK-1603)
     Relationship.where(source_id: self.target_id, target_id: target_ids).delete_all
     Relationship.where(source_id: self.target_id).find_each do |old_relationship|
       old_relationship.delete
@@ -295,6 +316,8 @@ class Relationship < ApplicationRecord
         weight: old_relationship.weight
       }
       Relationship.create_unless_exists(self.source_id, old_relationship.target_id, old_relationship.relationship_type, options)
+      old_relationship.source.clear_cached_fields
+      old_relationship.target.clear_cached_fields
     end
   end
 
@@ -332,6 +355,27 @@ class Relationship < ApplicationRecord
     end
   end
 
+  def move_explainers_to_source
+    # Three cases to move explainers
+    # 1) Relationship is new and confirmed
+    # 2) Item is being confirmed (move from suggested to confirmed)
+    # 3) Pin item (sawp source_id & target_id)
+    if self.relationship_type_before_last_save.nil? || self.is_being_confirmed? || (self.source_id_before_last_save && self.source_id_before_last_save == self.target_id)
+      ExplainerItem.transaction do
+        # Destroy common Explainer from target item (use destroy to log this event)
+        explainer_ids = ExplainerItem.where(project_media_id: [self.source_id, self.target_id])
+        .group('explainer_id').having("count(explainer_id) = ?", 2).pluck(:explainer_id)
+        ExplainerItem.where(explainer_id: explainer_ids, project_media_id: self.target_id).destroy_all
+        # Move the Explainer from target to source by using update_all(as no callbacks) and then update logs
+        ExplainerItem.where(project_media_id: self.target_id).update_all(project_media_id: self.source_id)
+        # Update logs (to make item history consistent with Explainers attached to item)
+        Version.from_partition(self.source.team_id)
+        .where(event_type: 'create_explaineritem', associated_type: 'ProjectMedia', associated_id: self.target_id)
+        .update_all(associated_id: self.source_id)
+      end
+    end
+  end
+
   def destroy_same_suggested_item
     Relationship.transaction do
       # Check if same item already exists as a suggested item by a bot
@@ -343,5 +387,33 @@ class Relationship < ApplicationRecord
 
   def cant_be_related_to_itself
     errors.add(:base, I18n.t(:item_cant_be_related_to_itself)) if self.source_id == self.target_id
+  end
+
+  def move_fact_check_and_report_to_main
+    Relationship.transaction do
+      source = self.source
+      target = self.target
+      if source && target && source.team_id == target.team_id # Must verify since this method runs before the validation
+        target_report = target.get_annotations('report_design').to_a.map(&:load).last
+
+        # If the child item has a claim/fact-check and published report but the parent item doesn't, then move the claim/fact-check/report from the child to the parent
+        if !source.claim_description && target.claim_description && target_report && target_report.get_field_value('state') == 'published'
+          # Move report
+          target_report.annotated_id = source.id
+          target_report.save!
+
+          # Move claim/fact-check
+          claim_description = target.claim_description
+          claim_description.project_media = source
+          claim_description.save!
+
+          # Clear caches
+          source.clear_cached_fields
+          target.clear_cached_fields
+          source.reload
+          target.reload
+        end
+      end
+    end
   end
 end

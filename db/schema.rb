@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_10_09_192811) do
+ActiveRecord::Schema.define(version: 2024_11_23_135242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -120,6 +120,26 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
           RETURN dynamic_field_value;
         END;
         $function$
+  SQL
+  create_function :validate_relationships, sql_definition: <<-'SQL'
+      CREATE OR REPLACE FUNCTION public.validate_relationships()
+       RETURNS trigger
+       LANGUAGE plpgsql
+      AS $function$
+      BEGIN
+          -- Check if source_id exists as a target_id
+          IF EXISTS (SELECT 1 FROM relationships WHERE target_id = NEW.source_id) THEN
+              RAISE EXCEPTION 'source_id % already exists as a target_id', NEW.source_id;
+          END IF;
+
+          -- Check if target_id exists as a source_id
+          IF EXISTS (SELECT 1 FROM relationships WHERE source_id = NEW.target_id) THEN
+              RAISE EXCEPTION 'target_id % already exists as a source_id', NEW.target_id;
+          END IF;
+
+          RETURN NEW;
+      END;
+      $function$
   SQL
 
   create_table "account_sources", id: :serial, force: :cascade do |t|
@@ -292,7 +312,7 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
     t.jsonb "value_json", default: "{}"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY (ARRAY[('external_id'::character varying)::text, ('smooch_user_id'::character varying)::text, ('verification_status_status'::character varying)::text]))"
+    t.index "dynamic_annotation_fields_value(field_name, value)", name: "dynamic_annotation_fields_value", where: "((field_name)::text = ANY ((ARRAY['external_id'::character varying, 'smooch_user_id'::character varying, 'verification_status_status'::character varying])::text[]))"
     t.index ["annotation_id", "field_name"], name: "index_dynamic_annotation_fields_on_annotation_id_and_field_name"
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["annotation_type"], name: "index_dynamic_annotation_fields_on_annotation_type"
@@ -326,6 +346,8 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "tags", default: [], array: true
     t.boolean "trashed", default: false
+    t.index "date_trunc('day'::text, created_at)", name: "explainer_created_at_day"
+    t.index ["created_at"], name: "index_explainers_on_created_at"
     t.index ["tags"], name: "index_explainers_on_tags", using: :gin
     t.index ["team_id"], name: "index_explainers_on_team_id"
     t.index ["user_id"], name: "index_explainers_on_user_id"
@@ -347,7 +369,9 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
     t.string "rating"
     t.boolean "imported", default: false
     t.boolean "trashed", default: false
+    t.index "date_trunc('day'::text, created_at)", name: "fact_check_created_at_day"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
+    t.index ["created_at"], name: "index_fact_checks_on_created_at"
     t.index ["imported"], name: "index_fact_checks_on_imported"
     t.index ["language"], name: "index_fact_checks_on_language"
     t.index ["publisher_id"], name: "index_fact_checks_on_publisher_id"
@@ -592,7 +616,7 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
     t.index ["source_id"], name: "index_relationships_on_source_id"
     t.index ["target_id", "relationship_type"], name: "index_relationships_on_target_id_and_relationship_type"
-    t.index ["target_id"], name: "index_relationships_on_target_id"
+    t.index ["target_id"], name: "index_relationships_on_target_id", unique: true
     t.check_constraint "source_id <> target_id", name: "source_target_must_be_different"
   end
 
@@ -958,4 +982,8 @@ ActiveRecord::Schema.define(version: 2024_10_09_192811) do
   add_foreign_key "project_media_requests", "project_medias"
   add_foreign_key "project_media_requests", "requests"
   add_foreign_key "requests", "feeds"
+
+  create_trigger :enforce_relationships, sql_definition: <<-SQL
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
+  SQL
 end

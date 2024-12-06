@@ -29,11 +29,7 @@ class CheckSearch
     adjust_numeric_range_filter
     adjust_archived_filter
     adjust_language_filter
-
-    # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
-    # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
-    # https://github.com/elastic/elasticsearch/issues/23366
-    @options['keyword'] = "#{@options['keyword']}~" if !@options['keyword'].blank? && @options['fuzzy']
+    adjust_keyword_filter
 
     # Set es_id option
     @options['es_id'] = Base64.encode64("ProjectMedia/#{@options['id']}") if @options['id'] && ['GraphQL::Types::String', 'GraphQL::Types::Int', 'String', 'Integer'].include?(@options['id'].class.name)
@@ -59,6 +55,19 @@ class CheckSearch
     'cluster_published_reports_count' => 'cluster_published_reports_count', 'score' => '_score',
     'fact_check_published_on' => 'fact_check_published_on'
   }
+
+  def adjust_keyword_filter
+    unless @options['keyword'].blank?
+      # This regex removes all characters except letters, numbers, hashtag, search operators, emojis and whitespace
+      # in any language - stripping out special characters can improve match results
+      @options['keyword'].gsub!(/[^[:word:]\s#~+\-|()"\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/, ' ')
+
+      # Set fuzzy matching for keyword search, right now with automatic Levenshtein Edit Distance
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html
+      # https://github.com/elastic/elasticsearch/issues/23366
+      @options['keyword'] = "#{@options['keyword']}~" if @options['fuzzy']
+    end
+  end
 
   def team_condition(team_id = nil)
     if feed_query?
@@ -332,10 +341,11 @@ class CheckSearch
     # Prepare the export
     data = []
     header = nil
+    fields = []
     if feed_sharing_only_fact_checks
       header = ['Fact-check title', 'Fact-check summary', 'Fact-check URL', 'Tags', 'Workspace', 'Updated at', 'Rating']
     else
-      header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Published at', 'Number of media', 'Tags']
+      header = ['Claim', 'Item page URL', 'Status', 'Created by', 'Submitted at', 'Social Media Posted at', 'Report Published at', 'Number of media', 'Tags']
       fields = team.team_tasks.sort
       fields.each { |tt| header << tt.label }
     end
@@ -346,39 +356,15 @@ class CheckSearch
     while !search_after.empty?
       result = $repository.search(_source: 'annotated_id', query: search.medias_query, sort: [{ annotated_id: { order: :asc } }], size: 10000, search_after: search_after).results
       ids = result.collect{ |i| i['annotated_id'] }.uniq.compact.map(&:to_i)
+      pm_report = {}
+      Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: ids)
+      .find_each do |raw|
+        pm_report[raw.annotated_id] = (raw.data['last_published'] || raw.updated_at).to_i if raw.data['state'] == 'published'
+      end
 
       # Iterate through each result and generate an output row for the CSV
       ProjectMedia.where(id: ids, team_id: search.team_condition(team_id)).find_each do |pm|
-        row = nil
-        if feed_sharing_only_fact_checks
-          row = [
-            pm.fact_check_title,
-            pm.fact_check_summary,
-            pm.fact_check_url,
-            pm.tags_as_sentence,
-            pm.team_name,
-            pm.updated_at_timestamp,
-            pm.status
-          ]
-        else
-          row = [
-            pm.claim_description&.description,
-            pm.full_url,
-            pm.status_i18n,
-            pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
-            pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
-            pm.linked_items_count,
-            pm.tags_as_sentence
-          ]
-          annotations = pm.get_annotations('task').map(&:load)
-          fields.each do |field|
-            annotation = annotations.find { |a| a.team_task_id == field.id }
-            answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
-            answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
-            row << answer
-          end
-        end
+        row = self.get_exported_data_row(feed_sharing_only_fact_checks, pm, pm_report[pm.id], fields)
         data << row
       end
 
@@ -386,6 +372,42 @@ class CheckSearch
     end
 
     data
+  end
+
+  def self.get_exported_data_row(feed_sharing_only_fact_checks, pm, report_published_at, fields)
+    row = nil
+    if feed_sharing_only_fact_checks
+      row = [
+        pm.fact_check_title,
+        pm.fact_check_summary,
+        pm.fact_check_url,
+        pm.tags_as_sentence,
+        pm.team_name,
+        pm.updated_at_timestamp,
+        pm.status
+      ]
+    else
+      report_published_at_value = report_published_at ? Time.at(report_published_at).strftime("%Y-%m-%d %H:%M:%S") : nil
+      row = [
+        pm.claim_description&.description,
+        pm.full_url,
+        pm.status_i18n,
+        pm.author_name.to_s.gsub(/ \[.*\]$/, ''),
+        pm.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        pm.published_at&.strftime("%Y-%m-%d %H:%M:%S"),
+        report_published_at_value,
+        pm.linked_items_count,
+        pm.tags_as_sentence
+      ]
+      annotations = pm.get_annotations('task').map(&:load)
+      fields.each do |field|
+        annotation = annotations.find { |a| a.team_task_id == field.id }
+        answer = (annotation ? (begin annotation.first_response_obj.file_data[:file_urls].join("\n") rescue annotation.first_response.to_s end) : '')
+        answer = begin JSON.parse(answer).collect{ |x| x['url'] }.join(', ') rescue answer end
+        row << answer
+      end
+    end
+    row
   end
 
   private

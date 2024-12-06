@@ -130,4 +130,11 @@ module TeamPrivate
     # as admin not allowed to delete the default project
     self.default_folder.update_columns(is_default: false)
   end
+
+  def empty_data_structure
+    data_structure = MonthlyTeamStatistic.new.formatted_hash
+    data_structure["Language"] = self.default_language
+    data_structure["Org"] = self.name
+    [data_structure]
+  end
 end

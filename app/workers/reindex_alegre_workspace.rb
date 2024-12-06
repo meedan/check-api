@@ -45,12 +45,15 @@ class ReindexAlegreWorkspace
   end
 
   def get_request_doc(pm, field, field_value)
-    Bot::Alegre.send_to_text_similarity_index_package(
-      pm,
-      field,
-      field_value,
-      Bot::Alegre.item_doc_id(pm, field)
-    )
+    {
+      doc: Bot::Alegre.send_to_text_similarity_index_package(
+        pm,
+        field,
+        field_value,
+        Bot::Alegre.item_doc_id(pm, field)
+      ),
+      type: Bot::Alegre.get_pm_type(pm)
+    }
   end
 
   def get_request_docs_for_project_media(pm)
@@ -64,11 +67,14 @@ class ReindexAlegreWorkspace
     end
   end
 
-  def check_for_write(running_bucket, event_id, team_id, write_remains=false, in_processes=3)
+  def check_for_write(running_bucket, event_id, team_id, write_remains=false)
     # manage dispatch of documents to bulk similarity api call in parallel
     if running_bucket.length > 500 || write_remains
       log(event_id, 'Writing to Alegre...')
-      Parallel.map(running_bucket.each_slice(30).to_a, in_processes: in_processes) { |bucket_slice| Bot::Alegre.request('post', '/text/bulk_similarity/', { documents: bucket_slice }) }
+      running_bucket.each do |item|
+        # FIXME we need to go back to bulk uploads eventually
+        Bot::Alegre.query_async_with_params(item[:doc], item[:type])
+      end
       log(event_id, 'Wrote to Alegre.')
       # track state in case job needs to restart
       write_last_id(event_id, team_id, running_bucket.last[:context][:project_media_id]) if running_bucket.length > 0 && running_bucket.last[:context]
