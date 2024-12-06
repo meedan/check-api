@@ -281,8 +281,8 @@ module SmoochMessages
     def bundle_list_of_messages_to_items(list, last)
       # Collect messages from list based on media files, long text and short text
       # so we have three types of messages
-      # Long text (text with number of words > min_number_of_words_for_tipline_submit_shortcut)
-      # Short text (text with number of words <= min_number_of_words_for_tipline_submit_shortcut)
+      # Long text (text with number of words > min_number_of_words_for_tipline_long_text)
+      # Short text (text with number of words <= min_number_of_words_for_tipline_long_text)
       # Media (image, audio, video, etc)
       messages = []
       # Define a text variable to hold short text
@@ -291,20 +291,34 @@ module SmoochMessages
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil?
-            contains_link = Twitter::TwitterText::Extractor.extract_urls(message['text'])
-            messages << message if !contains_link.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
-            text << message['text']
+            link_from_message = nil
+            begin
+              link_from_message = self.extract_url(message['text'])
+            rescue SecurityError
+              link_from_message = nil
+            end
+            messages << message if !link_from_message.blank? || ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text
+            # Text should be a link only in case we have two matched items (link and long text)
+            text << (link_from_message.blank? ? message['text'] : link_from_message.url)
           end
         elsif !message['mediaUrl'].blank?
           # Get an item for each media file
-          if !message['text'].blank? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+          if !message['text'].blank? && ::Bot::Alegre.get_number_of_words(message['text'].to_s) > self.min_number_of_words_for_tipline_long_text
             message['caption'] = message['text']
+            # Text should be a media url in case we have two matched items (media and caption)
+            message['text'] = message['mediaUrl'].to_s
+          else
+            message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
           end
-          message['text'] = [message['text'], message['mediaUrl'].to_s].compact.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
           text << message['text']
           messages << self.adjust_media_type(message)
         end
       end
+      # Attach text to exising messages and return all messages
+      self.attach_text_to_messages(text, messages, last)
+    end
+
+    def attach_text_to_messages(text, messages, last)
       # collect all text in right order and add a boundary so we can easily split messages if needed
       all_text = text.reject{ |t| t.blank? }.join("\n#{Bot::Smooch::MESSAGE_BOUNDARY}")
       if messages.blank?
@@ -400,8 +414,7 @@ module SmoochMessages
         end
         unless associated.nil?
           self.smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
-          # Check if message contains caption then create an item and force relationship
-          self.relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj) unless message['caption'].blank?
+          self.smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
         end
       end
     end
@@ -416,21 +429,39 @@ module SmoochMessages
       self.send_report_to_user(message['authorId'], message, associated, message['language'], 'fact_check_report') if self.should_try_to_send_report?(request_type, associated)
     end
 
-    def relate_item_and_caption(message, associated, app_id, author, request_type, associated_obj)
+    def smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
+      if !message['caption'].blank?
+        # Check if message contains caption then create an item and force relationship
+        self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
+      elsif message['type'] == 'text' && associated.class.name == 'ProjectMedia' && associated.media.type == 'Link'
+        # Check if message of type text contain a link and long text
+        # Text words equal the number of words - 1(which is the link size)
+        text_words = ::Bot::Alegre.get_number_of_words(message['text']) - 1
+        if text_words > self.min_number_of_words_for_tipline_long_text
+          # Remove link from text
+          link = self.extract_url(message['text'])
+          message['text'] = message['text'].remove(link.url)
+          self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
+        end
+      end
+    end
+
+    def relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, relationship_type)
       message['_id'] = SecureRandom.hex
       message['type'] = 'text'
+      message['text'] = message['caption'] unless message['caption'].nil?
       message['request_body'] = message['text']
-      message['text'] = message['caption']
       message.delete('caption')
       message.delete('mediaUrl')
       target = self.create_project_media_from_message(message)
       unless target.nil?
         smoooch_post_save_message_actions(message, target, app_id, author, request_type, associated_obj)
-        Relationship.create_unless_exists(associated.id, target.id, Relationship.suggested_type)
+        Relationship.create_unless_exists(associated.id, target.id, relationship_type)
       end
     end
 
     def smooch_save_tipline_request(message, associated, app_id, author, request_type, associated_obj)
+      text = message['text']
       message['text'] = message['request_body'] unless message['request_body'].blank?
       message.delete('request_body')
       fields = { smooch_data: message.merge({ app_id: app_id }) }
@@ -450,6 +481,8 @@ module SmoochMessages
           associated.save!
         end
       end
+      # Back message text to original one
+      message['text'] = text
     end
 
     def create_tipline_requests(associated, author, fields)
@@ -524,6 +557,11 @@ module SmoochMessages
       response = self.send_message_to_user(uid, message, {}, false, true, 'custom_message')
       success = (response && response.code.to_i < 400)
       success
+    end
+
+    def min_number_of_words_for_tipline_long_text
+      # Define a min number of words to create a media
+      CheckConfig.get('min_number_of_words_for_tipline_long_text') || CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
     end
   end
 end

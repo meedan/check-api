@@ -5,14 +5,10 @@ on:
     - cron: '0 5 * * *'  #Runs  daily at 5 AM UTC
   push:
     branches:
-    - master
-    - develop
-    - epic*
-    - cv2*
+    - '*'
   pull_request:
     branches:
     - develop
-    
 
 env:
   CC_TEST_REPORTER_ID: "${{ secrets.CC_TEST_REPORTER_ID }}"

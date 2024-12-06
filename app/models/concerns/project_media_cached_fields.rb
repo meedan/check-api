@@ -70,14 +70,23 @@ module ProjectMediaCachedFields
       }
     }
 
-    FACT_CHECK_EVENT = {
-      model: FactCheck,
-      affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
-      events: {
-        save: :recalculate,
-        destroy: :recalculate
+    FACT_CHECK_EVENTS = [
+      {
+        model: FactCheck,
+        affected_ids: proc { |fc| [fc.claim_description.project_media_id] },
+        events: {
+          save: :recalculate,
+          destroy: :recalculate
+        }
+      },
+      {
+        model: ClaimDescription,
+        affected_ids: proc { |cd| [cd.project_media_id, cd.project_media_id_before_last_save] },
+        events: {
+          save: :recalculate
+        }
       }
-    }
+    ]
 
     { is_suggested: Relationship.suggested_type, is_confirmed: Relationship.confirmed_type }.each do |field_name, _type|
       cached_field field_name,
@@ -181,28 +190,28 @@ module ProjectMediaCachedFields
     cached_field :fact_check_id,
       start_as: nil,
       recalculate: :recalculate_fact_check_id,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_title,
       start_as: nil,
       recalculate: :recalculate_fact_check_title,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_summary,
       start_as: nil,
       recalculate: :recalculate_fact_check_summary,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_url,
       start_as: nil,
       recalculate: :recalculate_fact_check_url,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :fact_check_published_on,
       start_as: 0,
       update_es: true,
       recalculate: :recalculate_fact_check_published_on,
-      update_on: [FACT_CHECK_EVENT]
+      update_on: FACT_CHECK_EVENTS
 
     cached_field :description,
       recalculate: :recalculate_description,
@@ -272,8 +281,8 @@ module ProjectMediaCachedFields
           model: Tag,
           affected_ids: proc { |t| [t.annotated_id.to_i] },
           events: {
-            save: :cached_field_project_media_tags_as_sentence_save,
-            destroy: :cached_field_project_media_tags_as_sentence_destroy,
+            save: :recalculate,
+            destroy: :recalculate,
           }
         }
       ]
@@ -720,11 +729,11 @@ module ProjectMediaCachedFields
       self.user && self.user == BotUser.alegre_user ? 'Check' : self.user&.name
     end
 
-    def cached_field_project_media_added_as_similar_by_name_destroy(_target)
+    def self.cached_field_project_media_added_as_similar_by_name_destroy(_target)
       nil
     end
 
-    def cached_field_project_media_confirmed_as_similar_by_name_destroy(_target)
+    def self.cached_field_project_media_confirmed_as_similar_by_name_destroy(_target)
       nil
     end
   end
@@ -742,16 +751,6 @@ module ProjectMediaCachedFields
   Project.class_eval do
     def cached_field_project_media_folder_save(_target)
       self.title
-    end
-  end
-
-  Tag.class_eval do
-    def cached_field_project_media_tags_as_sentence_save(target)
-      target.tags_as_sentence.split(', ').concat([self.tag_text]).uniq.join(', ')
-    end
-
-    def cached_field_project_media_tags_as_sentence_destroy(target)
-      target.tags_as_sentence.split(', ').reject{ |tt| tt == self.tag_text }.uniq.join(', ')
     end
   end
 end

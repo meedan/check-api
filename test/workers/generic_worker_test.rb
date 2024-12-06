@@ -3,6 +3,7 @@ require 'test_helper'
 class GenericWorkerTest < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
+    WebMock.disable_net_connect! allow: /http:\/\/bot|#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
     Sidekiq::Worker.clear_all
   end
 
@@ -35,8 +36,14 @@ class GenericWorkerTest < ActiveSupport::TestCase
     project_media_id = pm.id
     tags_json = ['one', 'two'].to_json
 
-    assert_difference "Tag.where(annotation_type: 'tag').count", difference = 2 do
+    assert_difference "Tag.where(annotation_type: 'tag').count", 2 do
       GenericWorker.perform_async('Tag', 'create_project_media_tags', project_media_id, tags_json, user_id: pm.user_id)
+    end
+    tags_json = [''].to_json
+    assert_nothing_raised do
+      assert_no_difference "Tag.where(annotation_type: 'tag').count" do
+        GenericWorker.perform_async('Tag', 'create_project_media_tags', project_media_id, tags_json, user_id: pm.user_id)
+      end
     end
   end
 

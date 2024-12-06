@@ -7,7 +7,20 @@ class GraphqlCrudOperations
       obj.send(method, value) if obj.respond_to?(method)
     end
     obj.disable_es_callbacks = Rails.env.to_s == "test"
-    obj.save_with_version!
+
+    begin
+      obj.save_with_version!
+    rescue RuntimeError => e
+      if e.message.include?("\"code\":#{LapisConstants::ErrorCodes::const_get('DUPLICATED')}") &&
+      obj.is_a?(ProjectMedia) &&
+      obj.set_fact_check.present? &&
+      obj.set_original_claim.present?
+        existing_pm = ProjectMedia.find(JSON.parse(e.message)['data']['id'])
+        obj = ProjectMedia.handle_fact_check_for_existing_claim(existing_pm,obj)
+      else
+        raise e
+      end
+    end
 
     name = obj.class_name.underscore
     { name.to_sym => obj }.merge(

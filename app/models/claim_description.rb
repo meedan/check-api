@@ -16,7 +16,7 @@ class ClaimDescription < ApplicationRecord
   validates_uniqueness_of :project_media_id, allow_nil: true
   validate :cant_apply_article_to_item_if_article_is_in_the_trash
   after_commit :update_fact_check, on: [:update]
-  after_update :update_report_status
+  after_update :update_report
   after_update :reset_item_rating_if_removed
   after_update :replace_media, unless: proc { |cd| cd.disable_replace_media }
   after_update :migrate_claim_and_fact_check_logs, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
@@ -69,16 +69,17 @@ class ClaimDescription < ApplicationRecord
     end
   end
 
-  # Pause report when claim/fact-check is removed
-  def update_report_status
+  # Pause and update report when claim/fact-check is removed
+  def update_report
     if self.project_media_id.nil? && !self.project_media_id_before_last_save.nil?
-      # Update report status
+      # Update report status and text fields
       pm = ProjectMedia.find(self.project_media_id_before_last_save)
       report = Annotation.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: pm.id).last
       unless report.nil?
         report = report.load
         data = report.data.clone.with_indifferent_access
         data[:state] = 'paused'
+        data[:options] = data[:options].to_h.merge({ description: '', headline: '', title: '', text: '' })
         report.data = data
         report.save!
       end

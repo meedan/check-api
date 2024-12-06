@@ -2,6 +2,7 @@ class TiplineRequest < ApplicationRecord
   include CheckElasticSearch
 
   belongs_to :associated, polymorphic: true
+  belongs_to :project_media, -> { where(tipline_requests: { associated_type: 'ProjectMedia' }) }, foreign_key: 'associated_id', optional: true
   belongs_to :user, optional: true
 
   before_validation :set_team_and_user, :set_smooch_data_fields, on: :create

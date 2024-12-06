@@ -201,6 +201,73 @@ class GraphqlController11Test < ActionController::TestCase
     end
   end
 
+  test "should get team statistics if super admin" do
+    user = create_user is_admin: true
+    team = create_team
+    create_team_user user: user, team: team, role: 'admin'
+
+    authenticate_with_user(user)
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{team.slug}") {
+          statistics(period: "past_week", platform: "whatsapp", language: "en") {
+            number_of_articles_created_by_date
+            number_of_articles_updated_by_date
+            number_of_explainers_created
+            number_of_fact_checks_created
+            number_of_published_fact_checks
+            number_of_fact_checks_by_rating
+            top_articles_sent
+            top_articles_tags
+            number_of_messages
+            number_of_conversations
+            number_of_messages_by_date
+            number_of_conversations_by_date
+            number_of_search_results_by_feedback_type
+            average_response_time
+            number_of_unique_users
+            number_of_total_users
+            number_of_returning_users
+            number_of_subscribers
+            number_of_new_subscribers
+            number_of_newsletters_sent
+            number_of_newsletters_delivered
+            top_media_tags
+            top_requested_media_clusters
+            number_of_media_received_by_media_type
+            number_of_articles_sent
+            number_of_matched_results_by_article_type
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query }
+    assert_response :success
+    assert_not_nil JSON.parse(@response.body).dig('data', 'team', 'statistics')
+  end
+
+  test "should not get team statistics if not super admin" do
+    user = create_user is_admin: false
+    team = create_team
+    create_team_user user: user, team: team, role: 'admin'
+
+    authenticate_with_user(user)
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{team.slug}") {
+          statistics(period: "past_week", platform: "whatsapp", language: "en") {
+            number_of_articles_created_by_date
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query }
+    assert_response :success
+    assert_nil JSON.parse(@response.body).dig('data', 'team', 'statistics')
+  end
+
   test "should not get requests if interval is more than one month" do
     u = create_user
     t = create_team
@@ -222,6 +289,7 @@ class GraphqlController11Test < ActionController::TestCase
         }
       }
     GRAPHQL
+
     post :create, params: { query: query, team: t.slug }
     assert_response 400
     assert_equal 'Maximum interval is one month.', JSON.parse(@response.body)['errors'][0]['message']
@@ -250,6 +318,7 @@ class GraphqlController11Test < ActionController::TestCase
         }
       }
     GRAPHQL
+
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal 2, JSON.parse(@response.body).dig('data', 'team', 'tipline_requests', 'edges').size

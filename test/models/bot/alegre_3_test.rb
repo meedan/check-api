@@ -149,7 +149,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
       WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
       WebMock.stub_request(:post, 'http://alegre/text/similarity/').to_return(body: 'success')
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(body: {success: true}.to_json)
-      WebMock.stub_request(:post, 'http://alegre/text/similarity/search/').to_return(body: {success: true}.to_json)
+      WebMock.stub_request(:post, 'http://alegre/similarity/sync/text').to_return(body: {success: true}.to_json)
       WebMock.stub_request(:post, 'http://alegre/audio/similarity/').to_return(body: {
         "success": true
       }.to_json)

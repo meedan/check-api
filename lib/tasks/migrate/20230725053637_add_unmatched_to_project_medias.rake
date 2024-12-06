@@ -43,6 +43,52 @@ namespace :check do
             $repository.client.update_by_query options
           end
         end
+        Rails.cache.write('check:migrate:add_unmatched_to_project_media:team_id', team.id)
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
+
+    # bundle exec rails check:migrate:fix_unmatched_list
+    task fix_unmatched_list: :environment do |_t, args|
+      started = Time.now.to_i
+      slug = args.extras.last
+      team_condition = {}
+      if slug.blank?
+        last_team_id = Rails.cache.read('check:migrate:fix_unmatched_list:team_id') || 0
+      else
+        last_team_id = 0
+        team_condition = { slug: slug }
+      end
+      Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
+        puts "Processing team #{team.slug} .... \n"
+        unmatched_ids = team.project_medias.where(unmatched: 1).map(&:id)
+        # Get re-matched items (suggested or confirmed)
+        relationships = Relationship.where('source_id IN (?) OR target_id IN (?)', unmatched_ids, unmatched_ids)
+        .where('relationship_type = ? OR relationship_type = ?', Relationship.suggested_type.to_yaml, Relationship.confirmed_type.to_yaml)
+        s_ids = relationships.map(&:source_id).uniq
+        t_ids = relationships.map(&:target_id).uniq
+        matched_ids = s_ids.concat(t_ids).uniq
+        unless matched_ids.blank?
+          index_alias = CheckElasticSearchModel.get_index_alias
+          ProjectMedia.where(id: matched_ids).find_in_batches(:batch_size => 500) do |pms|
+            print '.'
+            pm_ids = pms.map(&:id)
+            # Update PG
+            ProjectMedia.where(id: pm_ids).update_all(unmatched: 0)
+            # Update ES
+            options = {
+              index: index_alias,
+              conflicts: 'proceed',
+              body: {
+                script: { source: "ctx._source.unmatched = params.unmatched", params: { unmatched: 0 } },
+                query: { terms: { annotated_id: pm_ids } }
+              }
+            }
+            $repository.client.update_by_query options
+          end
+        end
+        Rails.cache.write('check:migrate:fix_unmatched_list:team_id', team.id)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
