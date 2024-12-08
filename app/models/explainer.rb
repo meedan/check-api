@@ -65,7 +65,7 @@ class Explainer < ApplicationRecord
       explainer_id: explainer.id
     }
 
-    models_thresholds = Explainer.get_alegre_models_and_thresholds(explainer.team_id).collect{|m| m[:model]}
+    models_thresholds = Explainer.get_alegre_models_and_thresholds(explainer.team_id).keys
     # Index title
     params = {
       content_hash: Bot::Alegre.content_hash_for_value(explainer.title),
@@ -111,7 +111,7 @@ class Explainer < ApplicationRecord
     context[:language] = language unless language.nil?
     params = {
       text: text,
-      models: models_thresholds.collect{|m| m[:model]},
+      models: models_thresholds.keys,
       per_model_threshold: models_thresholds,
       context: context
 
@@ -123,10 +123,12 @@ class Explainer < ApplicationRecord
   end
 
   def self.get_alegre_models_and_thresholds(team_id)
+    models_thresholds = {}
     Bot::Alegre.get_similarity_methods_and_models_given_media_type_and_team_id("text", team_id, true).map do |similarity_method, model_name|
       _, value = Bot::Alegre.get_threshold_given_model_settings(team_id, "text", similarity_method, true, model_name)
-      {model: model_name, value: value}
+      models_thresholds[model_name] = value
     end
+    models_thresholds
   end
 
   private
