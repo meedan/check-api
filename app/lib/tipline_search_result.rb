@@ -1,7 +1,8 @@
 class TiplineSearchResult
-  attr_accessor :team, :title, :body, :image_url, :language, :url, :type, :format
+  attr_accessor :id, :team, :title, :body, :image_url, :language, :url, :type, :format
 
-  def initialize(team:, title:, body:, image_url:, language:, url:, type:, format:)
+  def initialize(id:, team:, title:, body:, image_url:, language:, url:, type:, format:)
+    self.id = id
     self.team = team
     self.title = title
     self.body = body
