@@ -89,7 +89,7 @@ class SmoochNlu
       response = Bot::Alegre.query_sync_with_params(params, "text")["result"].collect{|result|
         result["context"] = Bot::Alegre.isolate_relevant_context(team_id, result)
       }
-      
+
       # One approach would be to take the option that has the most matches
       # Unfortunately this approach is influenced by the number of keywords per option
       # So, we are not using this approach right now

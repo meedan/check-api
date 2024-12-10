@@ -366,7 +366,7 @@ module AlegreV2
         else
           raise ActiveRecord::RecordInvalid.new, "Related items must exist in the same workspace"
         end
-        }.reject{ |k,_| k == project_media.id }]
+      }.reject{ |k,_| k == project_media.id }]
     end
 
     def safe_get_async(project_media, field, params={})
