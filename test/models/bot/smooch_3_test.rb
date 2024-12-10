@@ -691,10 +691,10 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       'Segurança das urna',
       'Seguranca das urnas'
     ].each do |query|
-      assert_equal [pm1.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+      assert_equal [pm1.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], 3).to_a.map(&:id)
     end
 
-    assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id]).to_a.map(&:id)
+    assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Segurando', [t.id], 3).to_a.map(&:id)
   end
   
   test "should get turn.io installation" do
