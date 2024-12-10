@@ -499,16 +499,18 @@ class TestControllerTest < ActionController::TestCase
     user = create_user
     create_team_user(user: user, team: team)
 
-    get :create_imported_standalone_fact_check, params: {
-      team_id: team.id,
-      email: user.email,
-      description: 'Test description',
-      context: 'Test context',
-      title: 'Test title',
-      summary: 'Test summary',
-      url: 'http://example.com',
-      language: 'en'
-    }
+    assert_difference 'FactCheck.count' do
+      get :create_imported_standalone_fact_check, params: {
+        team_id: team.id,
+        email: user.email,
+        description: 'Test description',
+        context: 'Test context',
+        title: 'Test title',
+        summary: 'Test summary',
+        url: 'http://example.com',
+        language: 'en'
+      }
+    end
 
     assert_response :success
   end
@@ -521,16 +523,18 @@ class TestControllerTest < ActionController::TestCase
     user = create_user
     create_team_user(user: user, team: team)
 
-    get :create_imported_standalone_fact_check, params: {
-      team_id: team.id,
-      email: user.email,
-      description: 'Test description',
-      context: 'Test context',
-      title: 'Test title',
-      summary: 'Test summary',
-      url: 'http://example.com',
-      language: 'en'
-    }
+    assert_no_difference 'FactCheck.count' do
+      get :create_imported_standalone_fact_check, params: {
+        team_id: team.id,
+        email: user.email,
+        description: 'Test description',
+        context: 'Test context',
+        title: 'Test title',
+        summary: 'Test summary',
+        url: 'http://example.com',
+        language: 'en'
+      }
+    end
 
     assert_response 400
     Rails.unstub(:env)

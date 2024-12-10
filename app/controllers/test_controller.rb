@@ -243,19 +243,19 @@ class TestController < ApplicationController
       team: team
     )
 
-   # Set up FactCheck
-  fact_check = FactCheck.new(
-    claim_description: claim_description,
-    title: title,
-    summary: summary,
-    url: url,
-    language: language,
-    user: user,
-    publish_report: true,
-    report_status: 'published'
-  )
-  fact_check.save!
-  render_success 'fact_check', fact_check
+    # Set up FactCheck
+    fact_check = FactCheck.new(
+      claim_description: claim_description,
+      title: title,
+      summary: summary,
+      url: url,
+      language: language,
+      user: user,
+      publish_report: true,
+      report_status: 'published'
+    )
+    fact_check.save!
+    render_success 'fact_check', fact_check
   end
 
   def random
