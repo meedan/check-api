@@ -39,73 +39,40 @@ class GraphqlController6Test < ActionController::TestCase
     assert_not_nil json_response.dig('data', 'team', 'team_bot_installation', 'smooch_enabled_integrations')
   end
 
-  test "should search using OR or AND on PG" do
-    t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-
-    pm1 = create_project_media team: t, project: p1, read: true
-    pm2 = create_project_media team: t, project: p2, read: false
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":true,\"projects\":[' + p2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":true,\"projects\":[' + p2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
-  end
-
-  test "should search using OR or AND on ES" do
+  test "should search using OR or AND" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
     u = create_user
+    u2 = create_user
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
-
-    pm1 = create_project_media team: t, project: p1, read: true, disable_es_callbacks: false
-    pm2 = create_project_media team: t, project: p2, read: false, disable_es_callbacks: false
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":[1],\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    pm1 = create_project_media team: t, user: u, read: true, disable_es_callbacks: false
+    pm2 = create_project_media team: t, user: u2, read: false, disable_es_callbacks: false
+    # PG
+    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":true,\"users\":[' + u2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
-
-    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":[1],\"projects\":[' + p2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":true,\"users\":[' + u2.id.to_s + ']}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
-  end
-
-  test "should search by project" do
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-
-    create_project_media team: t, project: nil, project_id: nil
-    create_project_media project: p
-
-    query = 'query CheckSearch { search(query: "{}") { medias(first: 20) { edges { node { dbid } } } } }'
+    # ES
+    query = 'query CheckSearch { search(query: "{\"operator\":\"AND\",\"read\":[1],\"users\":[' + u2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
+    query = 'query CheckSearch { search(query: "{\"operator\":\"OR\",\"read\":[1],\"users\":[' + u2.id.to_s + '],\"report_status\":\"unpublished\"}") { medias(first: 20) { edges { node { dbid } } } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }.sort
   end
 
   test "should search by similar image on PG" do
     t = create_team
     u = create_user is_admin: true
     authenticate_with_user(u)
-
     pm = create_project_media team: t
 
     Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => 0.8 })
@@ -124,13 +91,11 @@ class GraphqlController6Test < ActionController::TestCase
     t = create_team
     u = create_user is_admin: true
     authenticate_with_user(u)
-
     m = create_claim_media quote: 'Test'
     m2 = create_claim_media quote: 'Another Test'
     pm = create_project_media team: t, media: m
     pm2 = create_project_media team: t, media: m2
     sleep 2
-
     Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => 0.8 })
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
@@ -146,7 +111,6 @@ class GraphqlController6Test < ActionController::TestCase
     t = create_team
     u = create_user is_admin: true
     authenticate_with_user(u)
-
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
     query = 'mutation { searchUpload(input: {}) { file_handle, file_url } }'
