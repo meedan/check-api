@@ -147,4 +147,28 @@ class SmoochNluTest < ActiveSupport::TestCase
     Bot::Alegre.stubs(:request).never
     assert_equal [], SmoochNlu.alegre_matches_from_message('test', 'en', {}, 'test', 'test')
   end
+
+  test 'blip' do
+    ProjectMedia.any_instance.stubs(:report_status).returns('published') # We can stub this because it's not what this test is testing
+    
+    t1 = create_team_with_smooch_bot_installed
+    SmoochNlu.new(t1.slug).enable!
+    pm1_t1 = create_project_media team: t1, claim: 'test'
+    pm2_t1 = create_project_media team: t1, claim: 'test'
+    
+    t2 = create_team    
+    pm1_t2 = create_project_media team: t2, claim: 'test'
+    pm2_t2 = create_project_media team: t2, claim: 'test'
+
+    response = { 
+      pm1_t1.id => { model: 'elasticsearch', score: 15.2, context: {foo: :bar}},
+      pm1_t2.id => { model: 'elasticsearch', score: 15.2, context: {foo: :bar}},
+      pm2_t1.id => { model: 'anything-else', score: 1.98, context: {foo: :bar}},
+      pm2_t2.id => { model: 'anything-else', score: 1.98, context: {foo: :bar}}
+    }
+    Bot::Alegre.stubs(:query_sync_with_params).returns(response)
+
+    assert_equal [pm1_t1,pm2_t1], SmoochNlu.alegre_matches_from_message('test', 'en', {}, 'test', 'test')
+    ProjectMedia.any_instance.unstub(:report_status)
+  end
 end
