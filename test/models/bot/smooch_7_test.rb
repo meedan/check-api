@@ -219,7 +219,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
     uid = random_string
     query = Bot::Smooch.get_search_query(uid, {})
-    assert_equal [pm], Bot::Smooch.get_search_results(uid, query, pm.team_id, 'en')
+    assert_equal [pm], Bot::Smooch.get_search_results(uid, query, pm.team_id, 'en', 3)
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     CheckSearch.any_instance.unstub(:medias)
@@ -242,7 +242,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
     uid = random_string
     query = Bot::Smooch.get_search_query(uid, {})
-    assert_equal [pm], Bot::Smooch.get_search_results(uid, query, pm.team_id, 'en')
+    assert_equal [pm], Bot::Smooch.get_search_results(uid, query, pm.team_id, 'en', 3)
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
@@ -266,7 +266,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm.id => { score: 0.9, model: 'elasticsearch', context: {foo: :bar} } })
     CheckS3.stubs(:rewrite_url).returns(random_url)
 
-    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
+    assert_equal [pm], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en', 3)
 
     Bot::Smooch.unstub(:bundle_list_of_messages)
     ProjectMedia.any_instance.unstub(:report_status)
@@ -316,7 +316,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     # Create more project media if needed
     results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {foo: :bar}}, pm2.id => { model: 'elasticsearch', score: 15.2, context: {foo: :bar}},
       pm3.id => { model: 'anything-else', score: 1.98, context: {foo: :bar}}, pm4.id => { model: 'anything-else', score: 1.8, context: {foo: :bar}}}
-    assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
+    assert_equal [pm3, pm4, pm2], Bot::Smooch.parse_search_results_from_alegre(results, 3, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
   end
 
@@ -330,7 +330,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     # Create more project media if needed
     results = { pm1.id => { model: 'elasticsearch', score: 10.8, context: {blah: 1} }, pm2.id => { model: 'elasticsearch', score: 15.2, context: {blah: 1} },
       pm3.id => { model: 'anything-else', score: 1.98, context: {temporary_media: true} }, pm4.id => { model: 'anything-else', score: 1.8, context: {temporary_media: false}}}
-    assert_equal [pm4, pm2, pm1], Bot::Smooch.parse_search_results_from_alegre(results, t.id)
+    assert_equal [pm4, pm2, pm1], Bot::Smooch.parse_search_results_from_alegre(results, 3, t.id)
     ProjectMedia.any_instance.unstub(:report_status)
   end
 
@@ -346,7 +346,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:bundle_list_of_messages).returns({ 'type' => 'text', 'text' => url })
     CheckSearch.any_instance.stubs(:medias).returns([pm])
 
-    assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
+    assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en', 3)
 
     ProjectMedia.any_instance.unstub(:report_status)
     CheckSearch.any_instance.unstub(:medias)
@@ -362,11 +362,11 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     query = 'foo bar'
 
     assert_queries '>', 1 do
-      assert_equal [pm], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], nil)
+      assert_equal [pm], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], 3, nil)
     end
 
     assert_queries '=', 0 do
-      assert_equal [pm], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], nil)
+      assert_equal [pm], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], 3, nil)
     end
 
     ProjectMedia.any_instance.unstub(:report_status)
@@ -389,7 +389,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       'ward', #Fuzzy match (non-emoji)
       '🤣 ward', #Fuzzy match (non-emoji)
     ].each do |query|
-      assert_equal [pm.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+      assert_equal [pm.id], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], 3).to_a.map(&:id)
     end
 
     [
@@ -397,7 +397,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       '🌞', #No match
       '🤣 🌞' #No match (we only perform AND)
     ].each do |query|
-      assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id]).to_a.map(&:id)
+      assert_equal [], Bot::Smooch.search_for_similar_published_fact_checks('text', query, [t.id], 3).to_a.map(&:id)
     end
   end
 
@@ -412,9 +412,9 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     [pm1, pm2, pm3].each { |pm| publish_report(pm) }
     sleep 2 # Wait for ElasticSearch to index content
 
-    assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id]).to_a.map(&:id)
+    assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id], 3).to_a.map(&:id)
     # Calling wiht skip_cache true
-    assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id], nil, nil, nil, true).to_a.map(&:id)
+    assert_equal [pm1.id, pm2.id, pm3.id], Bot::Smooch.search_for_similar_published_fact_checks('text', 'Foo Bar', [t.id], 3, nil, nil, nil, true).to_a.map(&:id)
   end
 
   test "should store media" do
@@ -441,7 +441,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
   test "should not return cache search result if report is not published anymore" do
     pm = create_project_media
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks).returns([pm])
-    assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en')
+    assert_equal [], Bot::Smooch.get_search_results(random_string, {}, pm.team_id, 'en', 3)
   end
 
   test "should store sent tipline message in background" do
@@ -609,12 +609,12 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     m = create_uploaded_image
     pm = create_project_media team: t, media: m, disable_es_callbacks: false
     query = "Claim content"
-    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id], 3)
     assert_empty results
     cd = create_claim_description project_media: pm, description: query
     publish_report(pm)
     assert_equal query, pm.claim_description_content
-    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id])
+    results = Bot::Smooch.search_by_keywords_for_similar_published_fact_checks(query.split(), nil, [t.id], 3)
     assert_equal [pm.id], results.map(&:id)
   end
 

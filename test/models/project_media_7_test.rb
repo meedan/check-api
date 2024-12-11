@@ -115,4 +115,52 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
     end
   end
+
+  test "should search for item similar articles" do
+    RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+    t = create_team
+    pm1 = create_project_media quote: 'Foo Bar', team: t
+    pm2 = create_project_media quote: 'Foo Bar Test', team: t
+    pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
+    ex1 = create_explainer language: 'en', team: t, title: 'Foo Bar'
+    ex2 = create_explainer language: 'en', team: t, title: 'Foo Bar Test'
+    ex3 = create_explainer language: 'en', team: t, title: 'Foo Bar Test Testing'
+    pm1.explainers << ex1
+    pm2.explainers << ex2
+    pm3.explainers << ex3
+    ex_ids = [ex1.id, ex2.id, ex3.id]
+    Bot::Smooch.stubs(:search_for_explainers).returns(Explainer.where(id: ex_ids))
+    # Should get explainer
+    assert_equal [ex2.id, ex3.id], pm1.get_similar_articles.map(&:id).sort
+    fact_checks = []
+    [pm1, pm2, pm3].each do |pm|
+      cd = create_claim_description description: pm.title, project_media: pm
+      fc = create_fact_check claim_description: cd, title: pm.title
+      fact_checks << fc.id
+    end
+    [pm1, pm2, pm3].each { |pm| publish_report(pm) }
+    sleep 1
+    fact_checks.delete(pm1.fact_check_id)
+    # Should get both explainer and FactCheck
+    assert_equal fact_checks.concat([ex2.id, ex3.id]).sort, pm1.get_similar_articles.map(&:id).sort
+    Bot::Smooch.unstub(:search_for_explainers)
+    # Test with media item
+    json_schema = {
+      type: 'object',
+      required: ['job_name'],
+      properties: {
+        text: { type: 'string' },
+        job_name: { type: 'string' },
+        last_response: { type: 'object' }
+      }
+    }
+    create_annotation_type_and_fields('Transcription', {}, json_schema)
+    img = create_uploaded_image
+    pm_i = create_project_media team: t, media: img
+    data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo Bar'}
+    a = create_dynamic_annotation annotation_type: 'transcription', annotated: pm_i, set_fields: { text: 'Foo Bar', job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
+    sleep 1
+    assert_equal [pm1.fact_check_id, pm2.fact_check_id, pm3.fact_check_id].sort, pm_i.get_similar_articles.map(&:id).sort
+  end
 end

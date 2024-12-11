@@ -394,4 +394,16 @@ class ProjectMediaType < DefaultObject
     count += 1 if object.fact_check
     count
   end
+
+  field :relevant_articles, ::ArticleUnion.connection_type, null: true
+
+  def relevant_articles
+    object.get_similar_articles
+  end
+
+  field :relevant_articles_count, GraphQL::Types::Int, null: true
+
+  def relevant_articles_count
+    object.get_similar_articles.count
+  end
 end
