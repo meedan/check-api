@@ -25,6 +25,7 @@ class Explainer < ApplicationRecord
 
   def as_tipline_search_result
     TiplineSearchResult.new(
+      id: self.id,
       team: self.team,
       title: self.title,
       body: self.description,
@@ -114,7 +115,6 @@ class Explainer < ApplicationRecord
       models: models_thresholds.keys,
       per_model_threshold: models_thresholds,
       context: context
-
     }
     response = Bot::Alegre.query_sync_with_params(params, "text")
     results = response['result'].to_a.sort_by{ |result| result['_score'] }
