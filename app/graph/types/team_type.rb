@@ -400,4 +400,15 @@ class TeamType < DefaultObject
     return nil unless User.current&.is_admin
     TeamStatistics.new(object, period, language, platform)
   end
+
+  field :bot_query, [TiplineSearchResultType], null: true do
+    argument :search_text, GraphQL::Types::String, required: true
+  end
+
+  def bot_query(search_text:)
+    return nil unless User.current&.is_admin
+
+    results = object.search_for_similar_articles(search_text)
+    results.map(&:as_tipline_search_result)
+  end
 end
