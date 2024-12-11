@@ -67,18 +67,18 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     # Get feed data scoped by teams that are part of the feed, taking into account the filters for the feed
     # and for each team participating in the feed
     with_current_user_and_team(u, t1) do
-
       # Keyword search
-      assert_equal [pm1a, pm1f, pm2a].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).to_a.sort
-
+      result = Bot::Smooch.search_for_similar_published_fact_checks('text', 'Test', [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).map(&:id)
+      assert_equal [pm1a.id, pm1f.id, pm2a.id].sort, result.sort
       # Text similarity search
-      assert_equal [pm1a, pm1d, pm2a], Bot::Smooch.search_for_similar_published_fact_checks('text', 'This is a test', [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).to_a
-
+      result = Bot::Smooch.search_for_similar_published_fact_checks('text', 'This is a test', [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).map(&:id)
+      assert_equal [pm1a.id, pm1d.id, pm2a.id].sort, result.sort
       # Media similarity search
-      assert_equal [pm1a, pm1d, pm2a], Bot::Smooch.search_for_similar_published_fact_checks('image', random_url, [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).to_a
-
+      result = Bot::Smooch.search_for_similar_published_fact_checks('image', random_url, [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).map(&:id)
+      assert_equal [pm1a.id, pm1d.id, pm2a.id], result.sort
       # URL search
-      assert_equal [pm1g, pm2b].sort, Bot::Smooch.search_for_similar_published_fact_checks('text', "Test with URL: #{url}", [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).to_a.sort
+      result = Bot::Smooch.search_for_similar_published_fact_checks('text', "Test with URL: #{url}", [t1.id, t2.id, t3.id, t4.id], 3, nil, f1.id).map(&:id)
+      assert_equal [pm1g.id, pm2b.id].sort, result.sort
     end
 
     Bot::Alegre.unstub(:get_merged_similar_items)

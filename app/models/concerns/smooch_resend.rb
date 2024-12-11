@@ -118,7 +118,7 @@ module SmoochResend
         info = Rails.cache.read("smooch:original:#{quoted_id}").to_s
         begin
           original = JSON.parse(info)
-          info = ['newsletter'] if original['fallback_template'] == 'newsletter'
+          info = ['newsletter', original['language']] if original['fallback_template'] == 'newsletter'
         rescue
           info = info.split(':')
         end
@@ -138,6 +138,7 @@ module SmoochResend
         self.send_message_on_template_button_click(message, uid, language, info)
       when 'newsletter'
         team_id = self.config['team_id'].to_i
+        language = info[1] || language
         self.toggle_subscription(uid, language, team_id, self.get_platform_from_message(message), self.get_workflow(language)) if self.user_is_subscribed_to_newsletter?(uid, language, team_id)
       end
     end
