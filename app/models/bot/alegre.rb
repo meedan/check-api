@@ -256,11 +256,12 @@ class Bot::Alegre < BotUser
     end
   end
 
-  def self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
+  def self.get_threshold_given_model_settings(team_id, media_type, similarity_method, automatic, model_name)
+    tbi = nil
+    tbi = self.get_alegre_tbi(team_id) unless team_id.nil?
     similarity_level = automatic ? 'matching' : 'suggestion'
     generic_key = "#{media_type}_#{similarity_method}_#{similarity_level}_threshold"
     specific_key = "#{media_type}_#{similarity_method}_#{model_name}_#{similarity_level}_threshold"
-    tbi = self.get_alegre_tbi(pm&.team_id)
     settings = tbi.alegre_settings unless tbi.nil?
     outkey = ""
     value = nil
@@ -274,17 +275,25 @@ class Bot::Alegre < BotUser
     return [outkey, value]
   end
 
-  def self.get_threshold_for_query(media_type, pm, automatic = false)
+  def self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
+    self.get_threshold_given_model_settings(pm&.team_id, media_type, similarity_method, automatic, model_name)
+  end
+
+  def self.get_similarity_methods_and_models_given_media_type_and_team_id(media_type, team_id, get_vector_settings)
     similarity_methods = media_type == 'text' ? ['elasticsearch'] : ['hash']
     models = similarity_methods.dup
-    if media_type == 'text' && !pm.nil?
-      models_to_use = [self.matching_model_to_use(pm.team_id)].flatten-[Bot::Alegre::ELASTICSEARCH_MODEL]
+    if media_type == 'text' && get_vector_settings
+      models_to_use = [self.matching_model_to_use(team_id)].flatten-[Bot::Alegre::ELASTICSEARCH_MODEL]
       models_to_use.each do |model|
         similarity_methods << 'vector'
         models << model
       end
     end
-    similarity_methods.zip(models).collect do |similarity_method, model_name|
+    return similarity_methods.zip(models)
+  end
+
+  def self.get_threshold_for_query(media_type, pm, automatic = false)
+    self.get_similarity_methods_and_models_given_media_type_and_team_id(media_type, pm&.team_id, !pm.nil?).collect do |similarity_method, model_name|
       key, value = self.get_matching_key_value(pm, media_type, similarity_method, automatic, model_name)
       { value: value.to_f, key: key, automatic: automatic, model: model_name}
     end
