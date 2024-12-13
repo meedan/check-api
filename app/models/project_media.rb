@@ -430,7 +430,7 @@ class ProjectMedia < ApplicationRecord
     self.team.apply_rules_and_actions(self, rule_ids)
   end
 
-  def self.handle_fact_check_for_existing_claim(existing_pm,new_pm)
+  def self.handle_fact_check_for_existing_claim(existing_pm, new_pm)
     if existing_pm.fact_check.blank?
       existing_pm.append_fact_check_from(new_pm)
       return existing_pm
@@ -440,6 +440,7 @@ class ProjectMedia < ApplicationRecord
         return new_pm
       end
     end
+    new_pm
   end
 
   def append_fact_check_from(new_pm)
