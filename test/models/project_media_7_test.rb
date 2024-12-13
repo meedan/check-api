@@ -115,4 +115,13 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
     end
   end
+
+  test "should not return null when handling fact-check for existing media" do
+    t = create_team
+    pm1 = create_project_media team: t
+    c = create_claim_description project_media: pm1
+    create_fact_check claim_description: c, language: 'en'
+    pm2 = ProjectMedia.new team: t, set_fact_check: { 'language' => 'en' }
+    assert_not_nil ProjectMedia.handle_fact_check_for_existing_claim(pm1, pm2)
+  end
 end
