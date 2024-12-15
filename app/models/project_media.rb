@@ -461,15 +461,27 @@ class ProjectMedia < ApplicationRecord
     # Quote for Claim
     # Transcription for UploadedVideo , UploadedAudio and UploadedImage
     # Title and/or description for Link
-    media = self.media
-    search_query = case media.type
-                   when 'Claim'
-                     media.quote
-                   when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
-                     self.transcription
-                   end
-    search_query ||= self.title
-    self.team.search_for_similar_articles(search_query, self)
+    results = []
+    items = Rails.cache.fetch("similar-articles:#{self.id}", expires_in: 2.hours) do
+      media = self.media
+      search_query = case media.type
+                     when 'Claim'
+                       media.quote
+                     when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
+                       self.transcription
+                     end
+      search_query ||= self.title
+      results = self.team.search_for_similar_articles(search_query, self)
+      fact_check_ids = results.select{|i| i.class.name == 'FactCheck'}.map(&:id)
+      explainer_ids = results.select{|i| i.class.name == 'Explainer'}.map(&:id)
+      { fact_check: fact_check_ids, explainer: explainer_ids }.to_json
+    end
+    if results.blank?
+      # This indicates a cache hit, so we should retrieve the items based on the cached values.
+      items = JSON.parse(items)
+      results = FactCheck.where(id: items['fact_check']) + Explainer.where(id: items['explainer'])
+    end
+    results
   end
 
   protected
