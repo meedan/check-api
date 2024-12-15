@@ -17,4 +17,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     search = CheckSearch.new({ keyword: query }.to_json, nil, @team.id)
     assert_equal 'Something is going to happen on 04 11  reportedly', search.instance_variable_get('@options')['keyword']
   end
+
+  test "should search for array field containing nil values" do
+    search = CheckSearch.new({ users: [1, nil] }.to_json, nil, @team.id)
+    assert_not_nil search.send(:doc_conditions)
+  end
 end

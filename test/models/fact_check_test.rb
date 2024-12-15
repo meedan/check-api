@@ -728,4 +728,9 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_nil pm.reload.fact_check_id
     end
   end
+
+  test "should be formatted as tipline search result" do
+    fc = create_fact_check
+    assert_kind_of TiplineSearchResult, fc.as_tipline_search_result
+  end
 end
