@@ -645,4 +645,11 @@ class ProjectTest < ActiveSupport::TestCase
     p = create_project team: t
     assert p.inactive
   end
+
+  test "should get and set current project" do
+    p = create_project
+    assert_nil Project.current
+    Project.current = p
+    assert_equal p, Project.current
+  end
 end

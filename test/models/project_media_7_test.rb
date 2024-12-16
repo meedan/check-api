@@ -163,4 +163,13 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     sleep 1
     assert_equal [pm1.fact_check_id, pm2.fact_check_id, pm3.fact_check_id].sort, pm_i.get_similar_articles.map(&:id).sort
   end
+
+  test "should not return null when handling fact-check for existing media" do
+    t = create_team
+    pm1 = create_project_media team: t
+    c = create_claim_description project_media: pm1
+    create_fact_check claim_description: c, language: 'en'
+    pm2 = ProjectMedia.new team: t, set_fact_check: { 'language' => 'en' }
+    assert_not_nil ProjectMedia.handle_fact_check_for_existing_claim(pm1, pm2)
+  end
 end
