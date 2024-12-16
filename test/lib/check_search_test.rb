@@ -16,5 +16,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     query = 'Something is going to happen on 04/11, reportedly'
     search = CheckSearch.new({ keyword: query }.to_json, nil, @team.id)
     assert_equal 'Something is going to happen on 04 11  reportedly', search.instance_variable_get('@options')['keyword']
+
+    query = "Something is going to happen on Foo's house"
+    search = CheckSearch.new({ keyword: query }.to_json, nil, @team.id)
+    assert_equal "Something is going to happen on Foo's house", search.instance_variable_get('@options')['keyword']
   end
 end
