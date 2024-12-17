@@ -198,7 +198,7 @@ class TeamStatistics
   # FIXME: The "demand" is across languages and platforms
   def top_media_tags
     tags = {}
-    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'language', @platform)
+    clusters = CheckDataPoints.top_media_tags(@team.id, @start_date, @end_date, 20, 'last_seen', @language || @all_languages, 'language', @platform)
     clusters.each do |pm_id, demand|
       item = ProjectMedia.find(pm_id)
       item.tags_as_sentence.split(',').map(&:strip).each do |tag|
