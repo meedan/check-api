@@ -6,7 +6,7 @@ class CheckDataPoints
     # Number of tipline messages
     def tipline_messages(team_id, start_date, end_date, granularity = nil, platform = nil, language = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
-      query = TiplineMessage.where(team_id: team_id, created_at: start_date..end_date)
+      query = TiplineMessage.where(team_id: team_id, created_at: start_date..end_date, state: ['sent', 'received'])
       query_based_on_granularity(query, platform, language, granularity)
     end
 

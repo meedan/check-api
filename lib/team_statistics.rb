@@ -83,10 +83,10 @@ class TeamStatistics
       FROM (
         SELECT unnest(fcs.tags) AS tag FROM fact_checks fcs
           INNER JOIN claim_descriptions cds ON fcs.claim_description_id = cds.id
-          WHERE cds.team_id = :team_id AND fcs.created_at BETWEEN :start_date AND :end_date AND fcs.language IN (:language)
+          WHERE cds.team_id = :team_id AND fcs.updated_at BETWEEN :start_date AND :end_date AND fcs.language IN (:language)
         UNION ALL
         SELECT unnest(explainers.tags) AS tag FROM explainers
-          WHERE explainers.team_id = :team_id AND explainers.created_at BETWEEN :start_date AND :end_date AND explainers.language IN (:language)
+          WHERE explainers.team_id = :team_id AND explainers.updated_at BETWEEN :start_date AND :end_date AND explainers.language IN (:language)
       ) AS all_tags
       GROUP BY tag
       ORDER BY tag_count DESC
@@ -198,7 +198,7 @@ class TeamStatistics
   # FIXME: The "demand" is across languages and platforms
   def top_media_tags
     tags = {}
-    clusters = CheckDataPoints.top_clusters(@team.id, @start_date, @end_date, 5, 'last_seen', @language || @all_languages, 'language', @platform)
+    clusters = CheckDataPoints.top_media_tags(@team.id, @start_date, @end_date, 20, 'last_seen', @language || @all_languages, 'language', @platform)
     clusters.each do |pm_id, demand|
       item = ProjectMedia.find(pm_id)
       item.tags_as_sentence.split(',').map(&:strip).each do |tag|
@@ -218,7 +218,7 @@ class TeamStatistics
   end
 
   def number_of_matched_results_by_article_type
-    query = TiplineRequest.where(team_id: @team.id, smooch_request_type: ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests'], created_at: @start_date..@end_date)
+    query = TiplineRequest.where(team_id: @team.id, created_at: @start_date..@end_date)
     query = query.where(platform: @platform) unless @platform.blank?
     query = query.where(language: @language) unless @language.blank?
     { 'FactCheck' => query.joins(project_media: { claim_description: :fact_check }).count, 'Explainer' => query.joins(project_media: :explainers).count }

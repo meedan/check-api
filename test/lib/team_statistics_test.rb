@@ -2,6 +2,7 @@ require_relative '../test_helper'
 
 class TeamStatisticsTest < ActiveSupport::TestCase
   def setup
+    Explainer.delete_all
     @team = create_team
     @team.set_languages = ['en', 'pt']
     @team.save!
@@ -52,7 +53,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       create_fact_check(tags: ['foo', 'bar'], language: 'en', rating: 'false', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
       create_fact_check(tags: ['foo', 'bar'], claim_description: create_claim_description(project_media: create_project_media(team: team)))
       exp = create_explainer team: @team, language: 'en', tags: ['foo']
-      create_explainer team: @team, tags: ['foo', 'bar']
+      create_explainer team: @team, tags: ['foo', 'bar'], language: 'pt'
       create_explainer language: 'en', team: team, tags: ['foo', 'bar']
     end
 
@@ -60,7 +61,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       create_fact_check(tags: ['bar'], report_status: 'published', rating: 'verified', language: 'en', claim_description: create_claim_description(project_media: create_project_media(team: @team)))
       create_fact_check(tags: ['foo', 'bar'], claim_description: create_claim_description(project_media: create_project_media(team: team)))
       create_explainer team: @team, language: 'en', tags: ['foo']
-      create_explainer team: @team, tags: ['foo', 'bar']
+      create_explainer team: @team, tags: ['foo', 'bar'], language: 'pt'
       create_explainer language: 'en', team: team, tags: ['foo', 'bar']
       exp.updated_at = Time.now
       exp.save!
