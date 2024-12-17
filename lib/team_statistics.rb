@@ -83,10 +83,10 @@ class TeamStatistics
       FROM (
         SELECT unnest(fcs.tags) AS tag FROM fact_checks fcs
           INNER JOIN claim_descriptions cds ON fcs.claim_description_id = cds.id
-          WHERE cds.team_id = :team_id AND fcs.created_at BETWEEN :start_date AND :end_date AND fcs.language IN (:language)
+          WHERE cds.team_id = :team_id AND fcs.updated_at BETWEEN :start_date AND :end_date AND fcs.language IN (:language)
         UNION ALL
         SELECT unnest(explainers.tags) AS tag FROM explainers
-          WHERE explainers.team_id = :team_id AND explainers.created_at BETWEEN :start_date AND :end_date AND explainers.language IN (:language)
+          WHERE explainers.team_id = :team_id AND explainers.updated_at BETWEEN :start_date AND :end_date AND explainers.language IN (:language)
       ) AS all_tags
       GROUP BY tag
       ORDER BY tag_count DESC
