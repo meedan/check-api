@@ -117,7 +117,7 @@ class Explainer < ApplicationRecord
       context: context
     }
     response = Bot::Alegre.query_sync_with_params(params, "text")
-    results = response['result'].to_a.sort_by{ |result| result['_score'] }
+    results = response['result'].to_a.sort_by{ |result| [result['model'] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, result['_score']] }.reverse
     explainer_ids = results.collect{ |result| result.dig('context', 'explainer_id').to_i }.uniq.first(limit)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
   end
