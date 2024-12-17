@@ -139,7 +139,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       fc = create_fact_check claim_description: cd, title: pm.title
       fact_checks << fc.id
     end
-    [pm1, pm2, pm3].each { |pm| publish_report(pm) }
+    [pm1, pm2].each { |pm| publish_report(pm) }
     sleep 1
     fact_checks.delete(pm1.fact_check_id)
     # Should get both explainer and FactCheck

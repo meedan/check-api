@@ -571,7 +571,7 @@ class Team < ApplicationRecord
     fc_items = []
     ex_items = []
     threads << Thread.new {
-      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit).map(&:id)
+      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, nil, false).map(&:id)
       unless result_ids.blank?
         fc_items = FactCheck.joins(claim_description: :project_media).where('project_medias.id': result_ids)
         if pm.nil?
