@@ -218,7 +218,7 @@ class TeamStatistics
   end
 
   def number_of_matched_results_by_article_type
-    query = TiplineRequest.where(team_id: @team.id, smooch_request_type: ['relevant_search_result_requests', 'irrelevant_search_result_requests', 'timeout_search_requests'], created_at: @start_date..@end_date)
+    query = TiplineRequest.where(team_id: @team.id, created_at: @start_date..@end_date)
     query = query.where(platform: @platform) unless @platform.blank?
     query = query.where(language: @language) unless @language.blank?
     { 'FactCheck' => query.joins(project_media: { claim_description: :fact_check }).count, 'Explainer' => query.joins(project_media: :explainers).count }
