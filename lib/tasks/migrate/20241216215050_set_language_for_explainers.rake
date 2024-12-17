@@ -7,7 +7,7 @@ namespace :check do
       i = 0
       query.find_each do |explainer|
         i += 1
-        language = explainer.team&.get_language || 'unk' 
+        language = explainer.team&.get_language || 'und'
         explainer.update_column(:language, language)
         puts "[#{Time.now}] [#{i}/#{n}] Setting language for explainer ##{explainer.id} as #{language}"
       end
