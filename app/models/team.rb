@@ -570,12 +570,15 @@ class Team < ApplicationRecord
     result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit).map(&:id)
     items = []
     unless result_ids.blank?
-      # I depend on FactCheck to filter result instead of report_design
-      items = FactCheck.where(report_status: 'published')
-      .joins(claim_description: :project_media)
-      .where('project_medias.id': result_ids)
-      # Exclude the ones already applied to a target item if exsits
-      items = items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
+      items = FactCheck.joins(claim_description: :project_media).where('project_medias.id': result_ids)
+      if pm.nil?
+        # This means we obtain relevant items for the Bot preview, so we should limit FactChecks to published articles;
+        # otherwise, relevant articles for ProjectMedia should include all FactChecks.
+        items = items.where(report_status: 'published')
+      elsif !pm.fact_check_id.nil?
+        # Exclude the ones already applied to a target item if exsits
+        items = items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
+      end
     end
     if items.blank? || !pm.nil?
       # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
