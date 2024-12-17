@@ -138,7 +138,7 @@ class Explainer < ApplicationRecord
   end
 
   def set_language
-    default_language = self.team&.get_language || 'unk'
+    default_language = self.team&.get_language || 'und'
     self.language ||= default_language
   end
 
