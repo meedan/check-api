@@ -462,7 +462,7 @@ class ProjectMedia < ApplicationRecord
     # Transcription for UploadedVideo , UploadedAudio and UploadedImage
     # Title and/or description for Link
     results = []
-    items = Rails.cache.fetch("similar-articles:#{self.id}", expires_in: 2.hours) do
+    items = Rails.cache.fetch("relevant-items-#{self.id}", expires_in: 2.hours) do
       media = self.media
       search_query = case media.type
                      when 'Claim'
@@ -480,7 +480,7 @@ class ProjectMedia < ApplicationRecord
       # This indicates a cache hit, so we should retrieve the items according to the cached values while maintaining the same sort order.
       items = JSON.parse(items)
       items.each do |klass, ids|
-        results += klass.constantize.where(id: ids).sort_by { |result| ids.index(result.id) }
+        results += klass.camelize.constantize.where(id: ids).sort_by { |result| ids.index(result.id) }
       end
     end
     results
