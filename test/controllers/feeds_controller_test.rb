@@ -26,7 +26,7 @@ class FeedsControllerTest < ActionController::TestCase
     @f = create_feed published: true
     @f.teams = [@t1, @t2]
     FeedTeam.update_all(shared: true)
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, false).returns([@pm1, @pm2])
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id, @t2.id], 3, nil, @f.id, nil, false).returns([@pm1, @pm2])
   end
 
   def teardown
@@ -44,7 +44,7 @@ class FeedsControllerTest < ActionController::TestCase
     b.api_key = a
     b.save!
     create_team_user team: @t1, user: b
-    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id], 3, nil, false).returns([@pm1])
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id], 3, nil, nil, nil, false).returns([@pm1])
 
     authenticate_with_token a
     get :index, params: { filter: { type: 'text', query: 'Foo' } }
