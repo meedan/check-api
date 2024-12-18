@@ -7,10 +7,10 @@ class Explainer < ApplicationRecord
   has_many :explainer_items, dependent: :destroy
   has_many :project_medias, through: :explainer_items
 
-  before_validation :set_team
+  before_validation :set_team, :set_language
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates_presence_of :team, :title, :description
-  validate :language_in_allowed_values, unless: proc { |e| e.language.blank? }
+  validate :language_in_allowed_values
 
   after_save :update_paragraphs_in_alegre
   after_update :detach_explainer_if_trashed
@@ -137,8 +137,13 @@ class Explainer < ApplicationRecord
     self.team ||= Team.current
   end
 
+  def set_language
+    default_language = self.team&.get_language || 'und'
+    self.language ||= default_language
+  end
+
   def language_in_allowed_values
-    allowed_languages = self.team.get_languages || ['en']
+    allowed_languages = self.team&.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
   end

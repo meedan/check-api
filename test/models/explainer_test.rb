@@ -5,6 +5,10 @@ class ExplainerTest < ActiveSupport::TestCase
     Explainer.delete_all
   end
 
+  def teardown
+    User.current = Team.current = nil
+  end
+
   test "should create explainer" do
     assert_difference 'Explainer.count' do
       create_explainer
@@ -158,5 +162,10 @@ class ExplainerTest < ActiveSupport::TestCase
     ex = create_explainer
     models_thresholds = Explainer.get_alegre_models_and_thresholds(ex.team_id)
     assert_kind_of Hash, models_thresholds
+  end
+
+  test "should set default language when language is not set" do
+    ex = create_explainer language: nil
+    assert_equal 'en', ex.reload.language
   end
 end
