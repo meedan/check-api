@@ -585,7 +585,7 @@ class Team < ApplicationRecord
       end
     }
     threads << Thread.new {
-      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit).distinct
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit)
       # Exclude the ones already applied to a target item
       ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
     }
