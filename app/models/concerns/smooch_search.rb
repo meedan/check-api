@@ -161,7 +161,7 @@ module SmoochSearch
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil)
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, published_only = true)
       results = []
       pm = nil
       pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
@@ -180,7 +180,7 @@ module SmoochSearch
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
-          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language)
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language, published_only)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids)
@@ -246,13 +246,17 @@ module SmoochSearch
       !!tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
     end
 
-    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id = nil, language = nil)
+    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id = nil, language = nil, published_only = true)
       types = CheckSearch::MEDIA_TYPES.clone.push('blank')
       search_fields = %w(title description fact_check_title fact_check_summary extracted_text url claim_description_content)
       filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: limit, show: types }
       filters.merge!({ fc_language: [language] }) if !language.blank? && should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
-      feed_id.blank? ? filters.merge!({ report_status: ['published'] }) : filters.merge!({ feed_id: feed_id })
+      if feed_id.blank?
+        filters.merge!({ report_status: ['published'] }) if published_only
+      else
+        filters.merge!({ feed_id: feed_id })
+      end
       filters.merge!({ range: { updated_at: { start_time: after.strftime('%Y-%m-%dT%H:%M:%S.%LZ') } } }) unless after.blank?
       results = CheckSearch.new(filters.to_json, nil, team_ids).medias
       Rails.logger.info "[Smooch Bot] Keyword search got #{results.count} results (only main items) while looking for '#{words}' after date #{after.inspect} for teams #{team_ids}"
