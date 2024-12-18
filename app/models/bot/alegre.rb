@@ -153,10 +153,10 @@ class Bot::Alegre < BotUser
         Rails.logger.info("[Alegre Bot] [ProjectMedia ##{pm.id}] This item was just created, processing...")
         self.get_language(pm)
         if ['audio', 'image', 'video'].include?(self.get_pm_type(pm))
-          self.relate_project_media_async(pm)
+          self.relate_project_media_async(pm) if self.media_file_url(pm)
         else
-          self.relate_project_media_async(pm, 'original_title')
-          self.relate_project_media_async(pm, 'original_description')
+          self.relate_project_media_async(pm, 'original_title') if pm.original_title
+          self.relate_project_media_async(pm, 'original_description') if pm.original_description
         end
         self.get_extracted_text(pm)
         self.get_flags(pm)

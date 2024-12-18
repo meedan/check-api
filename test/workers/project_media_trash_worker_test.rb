@@ -2,9 +2,9 @@ require_relative '../test_helper'
 
 class ProjectMediaTrashWorkerTest < ActiveSupport::TestCase
   def setup
-    super
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    Team.current = User.current = nil
   end
 
   test "should destroy trashed items" do

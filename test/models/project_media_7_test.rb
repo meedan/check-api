@@ -139,12 +139,16 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       fc = create_fact_check claim_description: cd, title: pm.title
       fact_checks << fc.id
     end
-    [pm1, pm2, pm3].each { |pm| publish_report(pm) }
+    [pm1, pm2].each { |pm| publish_report(pm) }
     sleep 1
     fact_checks.delete(pm1.fact_check_id)
     # Should get both explainer and FactCheck
-    assert_equal fact_checks.concat([ex2.id, ex3.id]).sort, pm1.get_similar_articles.map(&:id).sort
-    Bot::Smooch.unstub(:search_for_explainers)
+    Rails.cache.delete("relevant-items-#{pm1.id}")
+    expected_result = fact_checks.concat([ex2.id, ex3.id]).sort
+    assert_equal expected_result, pm1.get_similar_articles.map(&:id).sort
+    assert_queries '=', 0 do
+      assert_equal expected_result, pm1.get_similar_articles.map(&:id).sort
+    end
     # Test with media item
     json_schema = {
       type: 'object',
@@ -161,7 +165,8 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo Bar'}
     a = create_dynamic_annotation annotation_type: 'transcription', annotated: pm_i, set_fields: { text: 'Foo Bar', job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
     sleep 1
-    assert_equal [pm1.fact_check_id, pm2.fact_check_id, pm3.fact_check_id].sort, pm_i.get_similar_articles.map(&:id).sort
+    assert_equal [pm1.fact_check_id, pm2.fact_check_id, pm3.fact_check_id].concat([ex1.id, ex2.id, ex3.id]).sort, pm_i.get_similar_articles.map(&:id).sort
+    Bot::Smooch.unstub(:search_for_explainers)
   end
 
   test "should not return null when handling fact-check for existing media" do
