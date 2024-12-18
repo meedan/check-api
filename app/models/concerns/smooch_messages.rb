@@ -430,7 +430,6 @@ module SmoochMessages
     end
 
     def smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
-      return unless associated_obj.is_a?(ProjectMedia)
       if !message['caption'].blank?
         # Check if message contains caption then create an item and force relationship
         self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
@@ -457,6 +456,7 @@ module SmoochMessages
       target = self.create_project_media_from_message(message)
       unless target.nil?
         smooch_post_save_message_actions(message, target, app_id, author, request_type, associated_obj)
+        return unless associated_obj.is_a?(ProjectMedia)
         Relationship.create_unless_exists(associated.id, target.id, relationship_type)
       end
     end
