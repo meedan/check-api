@@ -472,8 +472,8 @@ class ProjectMedia < ApplicationRecord
                      end
       search_query ||= self.title
       results = self.team.search_for_similar_articles(search_query, self)
-      fact_check_ids = results.select{|i| i.class.name == 'FactCheck'}.map(&:id)
-      explainer_ids = results.select{|i| i.class.name == 'Explainer'}.map(&:id)
+      fact_check_ids = results.select{|article| article.is_a?(FactCheck)}.map(&:id)
+      explainer_ids = results.select{|article| article.is_a?(Explainer)}.map(&:id)
       { fact_check: fact_check_ids, explainer: explainer_ids }.to_json
     end
     if results.blank?

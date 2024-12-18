@@ -579,13 +579,13 @@ class Team < ApplicationRecord
           # otherwise, relevant articles for ProjectMedia should include all FactChecks.
           fc_items = fc_items.where(report_status: 'published')
         elsif !pm.fact_check_id.nil?
-          # Exclude the ones already applied to a target item if exsits
+          # Exclude the ones already applied to a target item if exists.
           fc_items = fc_items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
         end
       end
     }
     threads << Thread.new {
-      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit)
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit).distinct
       # Exclude the ones already applied to a target item
       ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
     }
