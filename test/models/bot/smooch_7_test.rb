@@ -632,4 +632,32 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     end
     TiplineRequest.any_instance.unstub(:save!)
   end
+
+  test "should not try to create relationship between media and tipline resource" do
+    t2 = create_team
+    pm = create_project_media team: t2
+    
+    t = create_team
+    tipline_resource = create_tipline_resource team: t
+    tipline_resource.update_column(:id, pm.id)
+
+    # It should not try to match at all, so we should never get to this notification
+    CheckSentry.expects(:notify).never
+    Rails.logger.expects(:notify).never
+
+    Sidekiq::Testing.inline! do
+      message = {
+        type: 'video',
+        source: { type: "whatsapp" },
+        text: 'Something',
+        caption: 'For this to happen, it needs a caption',
+        mediaUrl: @video_url,
+        '_id': random_string,
+        language: 'en',
+      }
+      assert_no_difference 'Relationship.count' do
+        Bot::Smooch.save_message(message.to_json, @app_id, @bot, 'resource_requests', tipline_resource.id, 'TiplineResource')
+      end
+    end
+  end
 end
