@@ -334,7 +334,7 @@ class ProjectMedia < ApplicationRecord
         item_id: new_pm.id.to_s,
         event: 'replace',
         whodunnit: options['author_id'].to_s,
-        object_changes: { pm_id: [old_pm.id, new_pm.id] }.to_json,
+        object_changes: { pm_id: [old_pm_id, new_pm.id] }.to_json,
         associated_id: new_pm.id,
         associated_type: 'ProjectMedia',
         team_id: new_pm.team_id,
