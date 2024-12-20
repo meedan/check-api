@@ -65,7 +65,7 @@ class TeamBotInstallation < TeamUser
   end
 
   def bot_user
-    BotUser.where(id: self.user_id).last
+    @bot_user ||= BotUser.find_by(id: self.user_id)
   end
 
   def apply_default_settings
