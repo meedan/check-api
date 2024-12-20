@@ -247,4 +247,17 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
       assert_equal 'def456', tbi.reload.get_turnio_token
     end
   end
+
+  test "should not trigger additional queries when accessing bot_user" do
+    team_bot = create_team_bot set_approved: true
+    team_bot_installation = create_team_bot_installation(user_id: team_bot.id)
+
+    initial_query_count = ActiveRecord::Base.connection.query_cache.size
+
+    assert_queries(0) do
+      team_bot_installation.bot_user
+    end
+
+    assert_equal initial_query_count, ActiveRecord::Base.connection.query_cache.size
+  end
 end
