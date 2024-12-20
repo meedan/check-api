@@ -78,25 +78,19 @@ module SmoochMessages
     end
 
     def send_final_message_to_user(uid, text, workflow, language, event = nil)
-      if self.is_v2?
-        CheckStateMachine.new(uid).go_to_main
-        self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language, nil, event)
-      else
-        self.send_message_to_user(uid, text)
-      end
+      CheckStateMachine.new(uid).go_to_main
+      self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language, nil, event)
     end
 
     def send_final_messages_to_user(uid, text, workflow, language, interval = 1, preview_url = true, event = nil)
       response = self.send_message_to_user(uid, text, {}, false, preview_url, event)
-      if self.is_v2?
-        label = self.get_string('navigation_button', language)
-        CheckStateMachine.new(uid).go_to_main
-        if interval > 1
-          self.delay_for(interval.seconds, { queue: 'smooch' }).send_message_to_user_with_main_menu_appended(uid, label, nil, language, self.config['installation_id'])
-        else
-          sleep(interval)
-          response = self.send_message_to_user_with_main_menu_appended(uid, label, workflow, language)
-        end
+      label = self.get_string('navigation_button', language)
+      CheckStateMachine.new(uid).go_to_main
+      if interval > 1
+        self.delay_for(interval.seconds, { queue: 'smooch' }).send_message_to_user_with_main_menu_appended(uid, label, nil, language, self.config['installation_id'])
+      else
+        sleep(interval)
+        response = self.send_message_to_user_with_main_menu_appended(uid, label, workflow, language)
       end
       response
     end
@@ -106,15 +100,11 @@ module SmoochMessages
       message = self.get_message_for_state(workflow, state, language, uid).to_s
       message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
-      if self.is_v2?
-        if self.should_ask_for_language_confirmation?(uid)
-          self.ask_for_language_confirmation(workflow, language, uid)
-        else
-          # On v2, when we go to the "main" state, we need to show the main menu
-          state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language, nil, event) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
-        end
+      if self.should_ask_for_language_confirmation?(uid)
+        self.ask_for_language_confirmation(workflow, language, uid)
       else
-        self.send_message_to_user(uid, text)
+        # On v2, when we go to the "main" state, we need to show the main menu
+        state == 'main' ? self.send_message_to_user_with_main_menu_appended(uid, text, workflow, language, nil, event) : self.send_message_for_state_with_buttons(uid, text, workflow, state, language)
       end
     end
 
@@ -144,13 +134,11 @@ module SmoochMessages
 
     def get_message_for_state(workflow, state, language, uid = nil)
       message = []
-      is_v2 = (self.config['smooch_version'] == 'v2')
       if state.to_s == 'main'
-        message << (is_v2 ? self.get_string('navigation_button', language) : workflow['smooch_message_smooch_bot_greetings'])
-        message << self.tos_message(workflow, language) unless is_v2
+        message << self.get_string('navigation_button', language)
       end
       message << self.subscription_message(uid, language) if state.to_s == 'subscription'
-      message << self.get_custom_string(["smooch_state_#{state}", 'smooch_menu_message'], language) if state != 'main' || !is_v2
+      message << self.get_custom_string(["smooch_state_#{state}", 'smooch_menu_message'], language) if state != 'main'
       message << self.get_custom_string("#{state}_state", language) if ['search', 'search_result', 'add_more_details', 'ask_if_ready'].include?(state.to_s)
       message.reject{ |m| m.blank? }.join("\n\n")
     end
