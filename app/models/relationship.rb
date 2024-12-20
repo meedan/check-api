@@ -312,7 +312,7 @@ class Relationship < ApplicationRecord
     Relationship.where(source_id: self.target_id).find_each do |old_relationship|
       old_relationship.delete
       options = {
-        user_id: old_relationship.user_id,
+        user_id: User.current&.id || old_relationship.user_id,
         weight: old_relationship.weight
       }
       Relationship.create_unless_exists(self.source_id, old_relationship.target_id, old_relationship.relationship_type, options)
