@@ -251,15 +251,13 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
   test "should not trigger additional queries when accessing bot_user" do
     team_bot = create_team_bot set_approved: true
     team_bot_installation = create_team_bot_installation(user_id: team_bot.id)
-  
+
     initial_query_count = ActiveRecord::Base.connection.query_cache.size
-  
-    team_bot_installation.bot_user
-  
-    assert_no_queries do
+
+    assert_queries(0) do
       team_bot_installation.bot_user
     end
-  
+
     assert_equal initial_query_count, ActiveRecord::Base.connection.query_cache.size
   end
 end
