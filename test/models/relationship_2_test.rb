@@ -488,4 +488,19 @@ class Relationship2Test < ActiveSupport::TestCase
     assert Relationship.where(source: a, target: b).exists?
     assert !Relationship.where(source: a, target: c).exists?
   end
+
+  test "should set current user when moving targets to new source" do
+    t = create_team
+    u1 = create_user is_admin: true
+    u2 = create_user is_admin: true
+    a = create_project_media team: t
+    b = create_project_media team: t
+    c = create_project_media team: t
+    create_relationship source: b, target: c, user: u1
+    with_current_user_and_team(u2, t) do
+      create_relationship source: a, target: b
+    end
+    r = Relationship.where(source: a, target: c).last
+    assert_equal u2, r.reload.user
+  end
 end
