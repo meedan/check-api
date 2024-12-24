@@ -467,8 +467,10 @@ class ProjectMedia < ApplicationRecord
       search_query = case media.type
                      when 'Claim'
                        media.quote
-                     when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
+                     when 'UploadedVideo', 'UploadedAudio'
                        self.transcription
+                     when 'UploadedImage'
+                       self.extracted_text
                      end
       search_query ||= self.title
       results = self.team.search_for_similar_articles(search_query, self)
