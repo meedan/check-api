@@ -61,7 +61,7 @@ class Explainer < ApplicationRecord
 
     base_context = {
       type: 'explainer',
-      team: explainer.team.slug,
+      team: explainer.team.id,
       language: explainer.language,
       explainer_id: explainer.id
     }
@@ -107,7 +107,7 @@ class Explainer < ApplicationRecord
     models_thresholds = Explainer.get_alegre_models_and_thresholds(team_id)
     context = {
       type: 'explainer',
-      team: Team.find(team_id).slug
+      team: Team.find(team_id).id
     }
     context[:language] = language unless language.nil?
     params = {
