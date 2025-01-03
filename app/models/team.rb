@@ -563,7 +563,7 @@ class Team < ApplicationRecord
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
-  def search_for_similar_articles(query, pm = nil)
+  def search_for_similar_articles(query, pm = nil, include_unpublished = false)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
     limit = pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
@@ -571,13 +571,13 @@ class Team < ApplicationRecord
     fc_items = []
     ex_items = []
     threads << Thread.new {
-      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, nil, false).map(&:id)
+      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, nil, include_unpublished).map(&:id)
       unless result_ids.blank?
         fc_items = FactCheck.joins(claim_description: :project_media).where('project_medias.id': result_ids)
         if pm.nil?
           # This means we obtain relevant items for the Bot preview, so we should limit FactChecks to published articles;
           # otherwise, relevant articles for ProjectMedia should include all FactChecks.
-          fc_items = fc_items.where(report_status: 'published')
+          fc_items = fc_items.where(report_status: 'published') unless include_unpublished
         elsif !pm.fact_check_id.nil?
           # Exclude the ones already applied to a target item if exists.
           fc_items = fc_items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
