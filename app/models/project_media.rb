@@ -467,11 +467,13 @@ class ProjectMedia < ApplicationRecord
       search_query = case media.type
                      when 'Claim'
                        media.quote
-                     when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
+                     when 'UploadedVideo', 'UploadedAudio'
                        self.transcription
+                     when 'UploadedImage'
+                       self.extracted_text
                      end
       search_query ||= self.title
-      results = self.team.search_for_similar_articles(search_query, self)
+      results = self.team.search_for_similar_articles(search_query, self, true)
       fact_check_ids = results.select{|article| article.is_a?(FactCheck)}.map(&:id)
       explainer_ids = results.select{|article| article.is_a?(Explainer)}.map(&:id)
       { fact_check: fact_check_ids, explainer: explainer_ids }.to_json

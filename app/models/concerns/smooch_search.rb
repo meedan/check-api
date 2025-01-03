@@ -78,7 +78,7 @@ module SmoochSearch
       self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     end
 
-    def filter_search_results(pms, after, feed_id, team_ids)
+    def filter_search_results(pms, after, feed_id, team_ids, include_unpublished = false)
       return [] if pms.empty?
       feed_results = []
       if feed_id && team_ids
@@ -87,12 +87,12 @@ module SmoochSearch
         feed_results = CheckSearch.new(filters.to_json, nil, team_ids).medias.to_a.map(&:id)
       end
       pms.compact_blank.select do |pm|
-        (feed_id && feed_results.include?(pm.id)) || (!feed_id && pm.updated_at.to_i > after.to_i && is_a_valid_search_result(pm))
+        (feed_id && feed_results.include?(pm.id)) || (!feed_id && pm.updated_at.to_i > after.to_i && is_a_valid_search_result(pm, include_unpublished))
       end
     end
 
-    def is_a_valid_search_result(pm)
-      (pm.report_status == 'published' || pm.explainers.count > 0) && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
+    def is_a_valid_search_result(pm, include_unpublished=false)
+      (include_unpublished || pm.report_status == 'published' || pm.explainers.count > 0) && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
     end
 
     def reject_temporary_results(results)
@@ -101,9 +101,9 @@ module SmoochSearch
       end
     end
 
-    def parse_search_results_from_alegre(results, limit, after = nil, feed_id = nil, team_ids = nil)
+    def parse_search_results_from_alegre(results, limit, after = nil, feed_id = nil, team_ids = nil, include_unpublished = false)
       pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
-      filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(limit)
+      filter_search_results(pms, after, feed_id, team_ids, include_unpublished).uniq(&:id).first(limit)
     end
 
     def date_filter(team_id)
@@ -149,19 +149,22 @@ module SmoochSearch
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, skip_cache = false)
+    # TODO: rename to search_for_similar_fact_checks
+    # This method is now used to search for both published an unpublished fact-checks
+    # Unpublished fact-checks should be shown in check web side bar for relevant fact-checks
+    def search_for_similar_published_fact_checks(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, skip_cache = false, include_unpublished = false)
       if skip_cache
-        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after, feed_id, language)
+        self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after, feed_id, language, include_unpublished)
       else
-        Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id, language)}", expires_in: 2.hours) do
-          self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after, feed_id, language)
+        Rails.cache.fetch("smooch:search_results:#{self.normalized_query_hash(type, query, team_ids, after, feed_id, language, include_unpublished)}", expires_in: 2.hours) do
+          self.search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after, feed_id, language, include_unpublished)
         end
       end
     end
 
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, published_only = true)
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, include_unpublished = false)
       results = []
       pm = nil
       pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
@@ -180,10 +183,10 @@ module SmoochSearch
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
         if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
-          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language, published_only)
+          results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language, include_unpublished)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
-          results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids)
+          results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids, include_unpublished)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
       else
@@ -246,14 +249,14 @@ module SmoochSearch
       !!tbi&.alegre_settings&.dig('single_language_fact_checks_enabled')
     end
 
-    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id = nil, language = nil, published_only = true)
+    def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id = nil, language = nil, include_unpublished= false)
       types = CheckSearch::MEDIA_TYPES.clone.push('blank')
       search_fields = %w(title description fact_check_title fact_check_summary extracted_text url claim_description_content)
       filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: limit, show: types }
       filters.merge!({ fc_language: [language] }) if !language.blank? && should_restrict_by_language?(team_ids)
       filters.merge!({ sort: 'score' }) if words.size > 1 # We still want to be able to return the latest fact-checks if a meaninful query is not passed
       if feed_id.blank?
-        filters.merge!({ report_status: ['published'] }) if published_only
+        filters.merge!({ report_status: ['published'] }) if !include_unpublished
       else
         filters.merge!({ feed_id: feed_id })
       end
