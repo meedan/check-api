@@ -550,9 +550,18 @@ module ProjectMediaCachedFields
     def recalculate_last_seen
       # If it’s a main/parent item, last_seen is related to any tipline request to that own ProjectMedia or any similar/child ProjectMedia
       # If it’s not a main item (so, single or child, a.k.a. “confirmed match” or “suggestion”), then last_seen is related only to tipline requests related to that ProjectMedia.
-      ids = self.is_parent ? self.related_items_ids : self.id
-      v1 = TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: ids).order('created_at DESC').first&.created_at || 0
-      v2 = ProjectMedia.where(id: ids).order('created_at DESC').first&.created_at || 0
+      if self.is_parent
+        result = Relationship.select('MAX(pm.created_at) as pm_c, MAX(tr.created_at) as tr_c')
+        .where(relationship_type: Relationship.confirmed_type, source_id: self.id)
+        .joins("INNER JOIN project_medias pm ON pm.id = relationships.target_id")
+        .joins("INNER JOIN tipline_requests tr ON tr.associated_id = relationships.target_id AND tr.associated_type = 'ProjectMedia'")
+      else
+        result = ProjectMedia.select('MAX(project_medias.created_at) as pm_c, MAX(tr.created_at) as tr_c')
+        .where(id: self.id)
+        .joins("INNER JOIN tipline_requests tr ON tr.associated_id = project_medias.id AND tr.associated_type = 'ProjectMedia'")
+      end
+      v1 = result.map(&:tr_c).first || 0
+      v2 = result.map(&:pm_c).first || 0
       [v1, v2].max.to_i
     end
 
