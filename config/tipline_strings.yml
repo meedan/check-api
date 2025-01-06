@@ -11,7 +11,7 @@ ar:
   main_menu: القائمة الرئيسية
   main_state_button_label: إلغاء
   navigation_button: استخدم الأزرار للتنقل
-  no_results_in_language: 'لم يتم العثور على نتائج في %{language}. إليك بعض النتائج بلغات أخرى قد تكون ذات صلة.'
+  no_results_in_language: ''
   privacy_and_purpose: |-
     الخصوصية والغرض
 
@@ -276,7 +276,7 @@ zh_CN:
   main_menu: 主菜单
   main_state_button_label: 取消
   navigation_button: 使用按键浏览
-  no_results_in_language: '在%{language}中未找到结果。以下是可能相关的其他语言的结果。'
+  no_results_in_language: ''
   privacy_and_purpose: |-
     隐私与用途
 
@@ -390,7 +390,7 @@ fr:
   main_menu: Menu principal
   main_state_button_label: Annuler
   navigation_button: Utilisez les boutons pour naviguer
-  no_results_in_language: 'Aucun résultat trouvé en %{language}. Voici quelques résultats dans d'autres langues qui pourraient être pertinents.'
+  no_results_in_language: ''
   privacy_and_purpose: |-
     Confidentialité et objectif
 
@@ -428,7 +428,7 @@ de:
   main_menu: Hauptmenü
   main_state_button_label: Abbrechen
   navigation_button: Verwenden Sie die Schaltflächen zum Navigieren
-  no_results_in_language: 'Keine Ergebnisse in %{language} gefunden. Hier sind einige Ergebnisse in anderen Sprachen, die relevant sein könnten.'
+  no_results_in_language: ''
   privacy_and_purpose: |-
     Datenschutz und Zweck
 
@@ -540,7 +540,7 @@ id:
   main_menu: Menu utama
   main_state_button_label: Batalkan
   navigation_button: Gunakan tombol untuk mendapatkan navigasi
-  no_results_in_language: 'Tidak ada hasil yang ditemukan dalam %{language}. Berikut beberapa hasil dalam bahasa lain yang mungkin relevan.'
+  no_results_in_language: ''
   privacy_and_purpose: |-
     Privasi dan Tujuan
 
@@ -954,7 +954,7 @@ es:
   main_menu: Menú principal
   main_state_button_label: Cancelar
   navigation_button: Usa el menú para ver más opciones
-  no_results_in_language: 'No se encontraron resultados en %{language}. Aquí hay algunos resultados en otros idiomas que pueden ser relevantes.'
+  no_results_in_language: ''
   privacy_and_purpose: |-
     Privacidad y Propósito
 
