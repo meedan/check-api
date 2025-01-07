@@ -555,7 +555,6 @@ module ProjectMediaCachedFields
       parent = self
       if self.is_parent
         parent = Relationship.confirmed.where(target_id: self.id).last&.source || self
-        ids = Relationship.where(relationship_type: Relationship.confirmed_type, source_id: self.id).map(&:target_id)
         result = Relationship.select('MAX(pm.created_at) as pm_c, MAX(tr.created_at) as tr_c')
         .where(relationship_type: Relationship.confirmed_type, source_id: parent.id)
         .joins("INNER JOIN project_medias pm ON pm.id = relationships.target_id")

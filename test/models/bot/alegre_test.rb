@@ -171,6 +171,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should set similarity relationship based on date threshold" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     p = create_project team: @team
     pm1 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
