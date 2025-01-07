@@ -10,7 +10,7 @@ class TiplineNewsletterTest < ActiveSupport::TestCase
       rss_feed_url: 'https://example.com/feed',
       number_of_articles: 3,
       send_every: ['monday'],
-      send_on: Time.parse('2025-01-01'),
+      send_on: Time.parse('2030-01-01'),
       timezone: 'UTC',
       time: Time.parse('10:00'),
       footer: 'Test',
