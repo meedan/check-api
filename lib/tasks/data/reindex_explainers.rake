@@ -45,7 +45,7 @@ namespace :check do
           end
   
           if errors.any?
-            raise Check::Statistics::IncompleteRunError.new("Failed to reindex #{errors.length} explainers")
+            raise Check::ExplainerReindexing::IncompleteRunError.new("Failed to reindex #{errors.length} explainers")
           else
             puts "[#{Time.now}] Successfully reindexed all explainers"
           end
