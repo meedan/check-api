@@ -676,9 +676,9 @@ class GraphqlController12Test < ActionController::TestCase
       }
     } '
 
-  post :create, params: { query: query2, team: t.slug }
-  assert_response :success
-  assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
+    post :create, params: { query: query2, team: t.slug }
+    assert_response :success
+    assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
   end
 
   test "should not create duplicate tags for the ProjectMedia and FactCheck" do
@@ -854,5 +854,192 @@ class GraphqlController12Test < ActionController::TestCase
 
     assert_not_nil fc_2
     assert_not_equal response_pm['dbid'], pm.id
+  end
+
+  # the three tests below are variations on trying to reproduce the error we are seeing
+  # somehthing like:
+  # should return duplicate error when trying to create same existing Project Media with a Media and a FactCheck attached
+
+  test "1. create PM 'manually' / 2. graphql request" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline!
+
+    url = 'http://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
+    
+    t = create_team
+    t.settings[:languages] << 'en'
+    t.save!
+    p = create_project team: t
+    pm = create_project_media team: t, set_original_claim: url
+    claim = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: claim
+
+    assert_not_nil fc
+
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    authenticate_with_token(a)
+
+    query = <<~GRAPHQL
+      mutation {
+        createProjectMedia(input: {
+          project_id: #{p.id},
+          media_type: "Blank",
+          channel: { main: 1 },
+          set_tags: ["tag"],
+          set_status: "undetermined",
+          set_claim_description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+          set_original_claim: "#{url}",
+          set_fact_check: {
+            title: "Fact Check Title",
+            summary: "Fact Check Summary",
+            language:"#{fc.language}",
+            publish_report: false
+          }
+        }) {
+          project_media {
+          dbid
+          full_url
+            claim_description {
+              fact_check {
+                dbid
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :error
+
+    response = JSON.parse(@response.body)
+    response_pm = response['data']['createProjectMedia']
+    assert_equal response_pm['error'], "This item already exists"
+    # or maybe "PG::UniqueViolation: ERROR:  duplicate key value violates unique constraint \"index_fact_checks_on_signature\"\nDETAIL:  Key (signature)=(d7807644b9816b7d59fb944bef341782) already exists.\n"
+  end
+
+  test "1. graphql request / 2. graphql request" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline!
+  
+    url = 'http://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
+
+    t = create_team
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    p = create_project team: t
+    authenticate_with_token(a)
+
+    query1 = <<~GRAPHQL
+      mutation {
+        createProjectMedia(input: {
+          project_id: #{p.id},
+          media_type: "Blank",
+          channel: { main: 1 },
+          set_tags: ["tag"],
+          set_status: "undetermined",
+          set_claim_description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+          set_original_claim: "#{url}",
+          set_fact_check: {
+            title: "Fact Check Title",
+            summary: "Fact Check Summary",
+            language:"en",
+            publish_report: false
+          }
+        }) {
+          project_media {
+          dbid
+          full_url
+            claim_description {
+              fact_check {
+                dbid
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query1, team: t.slug }
+    assert_response :success
+
+    response = JSON.parse(@response.body)
+
+    # sleep 1
+
+    query2 = <<~GRAPHQL
+      mutation {
+        createProjectMedia(input: {
+          project_id: #{p.id},
+          media_type: "Blank",
+          channel: { main: 1 },
+          set_tags: ["another tag"],
+          set_status: "false",
+          set_claim_description: "Consectetur adipiscing elit. Lorem ipsum dolor sit amet.",
+          set_original_claim: "#{url}",
+          set_fact_check: {
+            title: "Another Fact Check Title",
+            summary: "Another Fact Check Summary",
+            language:"en",
+            publish_report: true
+          }
+        }) {
+          project_media {
+          dbid
+          full_url
+            claim_description {
+              fact_check {
+                dbid
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query2, team: t.slug }
+    assert_response :error
+
+    response = JSON.parse(@response.body)
+    response_pm = response['data']['createProjectMedia']
+    assert_equal response_pm['error'], "This item already exists"
+    # or maybe "PG::UniqueViolation: ERROR:  duplicate key value violates unique constraint \"index_fact_checks_on_signature\"\nDETAIL:  Key (signature)=(d7807644b9816b7d59fb944bef341782) already exists.\n"
+  end
+
+  # tried to see if I could force the error on this one
+  # but the error is the expected one
+  # will delete this, keeping for now just for context
+  test "1. create PM 'manually' / 2. create PM 'manually'" do
+    RequestStore.store[:skip_cached_field_update] = false
+    Sidekiq::Testing.inline!
+
+    url = 'http://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
+    
+    t = create_team
+    t.settings[:languages] << 'en'
+    t.save!
+    create_project team: t
+
+    pm = create_project_media team: t, set_original_claim: url
+    claim = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: claim
+
+    assert_not_nil fc
+
+    pm2 = create_project_media team: t, set_original_claim: url
+    claim2 = create_claim_description project_media: pm2
+    fc2 = create_fact_check claim_description: claim2
   end
 end
