@@ -406,4 +406,11 @@ class ProjectMediaType < DefaultObject
   def relevant_articles_count
     object.get_similar_articles.count
   end
+
+  field :media_cluster_origin, GraphQL::Types::Int, null: true
+
+  # FIXME: Replace by actual implementation (temporary placeholder to unblock frontend work)
+  def media_cluster_origin
+    [CheckMediaClusterOrigins::OriginCodes::ALL, nil].flatten.sample
+  end
 end
