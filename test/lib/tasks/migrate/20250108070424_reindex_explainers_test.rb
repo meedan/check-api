@@ -13,7 +13,7 @@ class ReindexExplainersTest < ActiveSupport::TestCase
   end
 
   def teardown
-    [@explainer].each(&:destroy)
+    @explainer.destroy
     Rails.cache.delete('check:migrate:reindex_explainers:last_migrated_id')
     Explainer.unstub(:update_paragraphs_in_alegre)
   end

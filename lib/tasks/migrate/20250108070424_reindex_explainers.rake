@@ -16,7 +16,6 @@ namespace :check do
         puts "[#{Time.now}] Successfully reindexed explainer with ID #{explainer.id}"
       rescue StandardError => e
         Rails.logger.error "[#{Time.now}] Error reindexing explainer with ID #{explainer.id}: #{e.message}"
-        CheckSentry.notify(e, explainer_id: explainer.id)
       end
     end
 
