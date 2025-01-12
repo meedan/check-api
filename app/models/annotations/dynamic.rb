@@ -166,6 +166,7 @@ class Dynamic < ApplicationRecord
       task = self.annotated
       if task&.annotated_type == 'ProjectMedia'
         pm = task.project_media
+        return if pm.nil?
         key = "project_media:annotated_by:#{pm.id}"
         uids = []
         if Rails.cache.exist?(key)
