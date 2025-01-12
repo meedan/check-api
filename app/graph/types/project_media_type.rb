@@ -420,9 +420,4 @@ class ProjectMediaType < DefaultObject
         user if ability.can?(:read, user)
       end
   end
-
-  # FIXME: Replace by actual implementation (temporary placeholder to unblock frontend work)
-  def media_cluster_origin
-    [CheckMediaClusterOrigins::OriginCodes::ALL, nil].flatten.sample
-  end
 end
