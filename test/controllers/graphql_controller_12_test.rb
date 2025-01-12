@@ -1042,4 +1042,51 @@ class GraphqlController12Test < ActionController::TestCase
     claim2 = create_claim_description project_media: pm2
     fc2 = create_fact_check claim_description: claim2
   end
+
+  test 'should not raise exception but not create item when trying to create imported item with fact-check in the same language and existing original media URL' do
+    create_metadata_stuff
+    Sidekiq::Testing.fake!
+
+    url = 'http://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response_body = '{"type":"media","data":{"url":"' + url + '","type":"item","title":"Test"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
+
+    t = create_team
+    pm = create_project_media team: t, set_original_claim: url
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd
+
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    authenticate_with_token(a)
+
+    query = <<~GRAPHQL
+      mutation {
+        createProjectMedia(input: {
+          media_type: "Blank",
+          set_status: "undetermined",
+          set_claim_description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+          set_original_claim: "#{url}",
+          set_fact_check: {
+            title: "Fact Check Title",
+            summary: "Fact Check Summary",
+            language: "#{fc.language}",
+            publish_report: false
+          }
+        }) {
+          project_media {
+            title
+          }
+        }
+      }
+    GRAPHQL
+
+    assert_nothing_raised do
+      post :create, params: { query: query, team: t.slug }
+    end
+    assert_response 400
+    assert_equal 'This item already exists', JSON.parse(@response.body).dig('errors', 0, 'message')
+  end
 end
