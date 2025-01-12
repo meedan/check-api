@@ -61466,6 +61466,20 @@
               "deprecationReason": null
             },
             {
+              "name": "media_cluster_relationship",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Relationship",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "media_id",
               "description": null,
               "args": [

@@ -355,4 +355,26 @@ class GraphqlController11Test < ActionController::TestCase
     actual_titles = data.map { |result| result['title'] }
     assert_equal expected_titles.sort, actual_titles.sort, "Results should match the search query"
   end
+
+  test "should get media cluster origin fields for an item" do
+    Sidekiq::Testing.fake!
+    Relationship.delete_all
+
+    u = create_user is_admin: true
+    t = create_team
+    pm1 = create_project_media team: t, user: u
+    pm2 = create_project_media team: t
+    r = create_relationship source: pm1, target: pm2, user: u
+
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm1.id},nil,#{t.id}\") { media_cluster_relationship { dbid }, media_cluster_origin, media_cluster_origin_user { dbid }, media_cluster_origin_timestamp } }"
+    post :create, params: { query: query }
+    assert_response :success
+
+    response = JSON.parse(@response.body)['data']['project_media']
+    assert_equal r.id, response['media_cluster_relationship']['dbid']
+    assert_equal u.id, response['media_cluster_origin_user']['dbid']
+    assert_equal pm1.created_at.to_i, response['media_cluster_origin_timestamp']
+    assert_equal CheckMediaClusterOrigins::OriginCodes::USER_ADDED, response['media_cluster_origin']
+  end
 end

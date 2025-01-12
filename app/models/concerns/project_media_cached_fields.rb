@@ -515,6 +515,18 @@ module ProjectMediaCachedFields
         }
       ]
 
+    cached_field :media_cluster_origin,
+      update_on: [SIMILARITY_EVENT],
+      recalculate: :recalculate_media_cluster_origin
+
+    cached_field :media_cluster_origin_user_id,
+      update_on: [SIMILARITY_EVENT],
+      recalculate: :recalculate_media_cluster_origin_user_id
+
+    cached_field :media_cluster_origin_timestamp,
+      update_on: [SIMILARITY_EVENT],
+      recalculate: :recalculate_media_cluster_origin_timestamp
+
     def recalculate_linked_items_count
       count = Relationship.send('confirmed').where(source_id: self.id).count
       count += 1 unless self.media.type == 'Blank'
@@ -715,6 +727,48 @@ module ProjectMediaCachedFields
       types = ["relevant_search_result_requests", "irrelevant_search_result_requests", "timeout_search_requests"]
       TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id, smooch_request_type: types).count
     end
+
+    def recalculate_media_cluster_origin(field = :origin) # Possible values for "field": :origin, :user_id, :timestamp
+      relationship = Relationship.where(target_id: self.id).last
+      origin = { origin: nil, user_id: nil, timestamp: nil }
+
+      # Not child of any media cluster
+      if relationship.nil?
+        if self.user == BotUser.smooch_user
+          origin[:origin] = CheckMediaClusterOrigins::OriginCodes::TIPLINE_SUBMITTED
+        else
+          origin[:origin] = CheckMediaClusterOrigins::OriginCodes::USER_ADDED
+        end
+        origin[:user_id] = self.user_id
+        origin[:timestamp] = self.created_at.to_i
+
+      # Child of a media cluster
+      else
+        if relationship.confirmed_at # A suggestion that was confirmed
+          origin[:origin] = CheckMediaClusterOrigins::OriginCodes::USER_MATCHED
+          origin[:user_id] = relationship.confirmed_by
+          origin[:timestamp] = relationship.confirmed_at.to_i
+        elsif relationship.user == BotUser.alegre_user
+          origin[:origin] = CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED
+          origin[:user_id] = relationship.user_id
+          origin[:timestamp] = relationship.created_at.to_i
+        elsif relationship.user.is_a?(User)
+          origin[:origin] = CheckMediaClusterOrigins::OriginCodes::USER_MERGED
+          origin[:user_id] = relationship.user_id
+          origin[:timestamp] = relationship.created_at.to_i
+        end
+      end
+
+      origin[field]
+    end
+  end
+
+  def recalculate_media_cluster_origin_user_id
+    self.recalculate_media_cluster_origin(:user_id)
+  end
+
+  def recalculate_media_cluster_origin_timestamp
+    self.recalculate_media_cluster_origin(:timestamp)
   end
 
   DynamicAnnotation::Field.class_eval do

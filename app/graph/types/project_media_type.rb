@@ -420,4 +420,10 @@ class ProjectMediaType < DefaultObject
         user if ability.can?(:read, user)
       end
   end
+
+  field :media_cluster_relationship, RelationshipType, null: true
+
+  def media_cluster_relationship
+    Relationship.where(target_id: object.id).last || Relationship.where(source_id: object.id).last
+  end
 end
