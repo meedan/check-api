@@ -11659,6 +11659,8 @@ type ProjectMedia implements Node {
   ): VersionConnection
   media: Media
   media_cluster_origin: Int
+  media_cluster_origin_timestamp: Int
+  media_cluster_origin_user: User
   media_id: Int
   media_slug: String
   oembed_metadata: String

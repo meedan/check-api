@@ -408,6 +408,18 @@ class ProjectMediaType < DefaultObject
   end
 
   field :media_cluster_origin, GraphQL::Types::Int, null: true
+  field :media_cluster_origin_timestamp, GraphQL::Types::Int, null: true
+  field :media_cluster_origin_user, UserType, null: true
+
+  def media_cluster_origin_user
+    RecordLoader
+      .for(User)
+      .load(object.media_cluster_origin_user_id)
+      .then do |user|
+        ability = context[:ability] || Ability.new
+        user if ability.can?(:read, user)
+      end
+  end
 
   # FIXME: Replace by actual implementation (temporary placeholder to unblock frontend work)
   def media_cluster_origin
