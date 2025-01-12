@@ -213,17 +213,21 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
   test "should create blank media if needed" do
     t = create_team
     pm = create_project_media team: t
+    cd = nil
 
     assert_no_difference 'Blank.count' do
-      create_claim_description project_media: nil, team: t
+      cd = create_claim_description project_media: nil, team: t
     end
+    assert_nil cd.project_media
 
     assert_no_difference 'Blank.count' do
-      create_claim_description project_media: pm, team: t, enable_create_blank_media: true
+      cd = create_claim_description project_media: pm, team: t, enable_create_blank_media: true
     end
+    assert_equal pm, cd.project_media
 
     assert_difference 'Blank.count' do
-      create_claim_description project_media: nil, team: t, enable_create_blank_media: true
+      cd = create_claim_description project_media: nil, team: t, enable_create_blank_media: true
     end
+    assert cd.project_media.media.is_a?(Blank)
   end
 end
