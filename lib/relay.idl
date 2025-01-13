@@ -1180,6 +1180,7 @@ input CreateClaimDescriptionInput {
   clientMutationId: String
   context: String
   description: String
+  enable_create_blank_media: Boolean
   project_media_id: Int
 }
 
@@ -14187,6 +14188,7 @@ input UpdateClaimDescriptionInput {
   clientMutationId: String
   context: String
   description: String
+  enable_create_blank_media: Boolean
   id: ID
   project_media_id: Int
 }
