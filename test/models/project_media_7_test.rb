@@ -160,10 +160,27 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       }
     }
     create_annotation_type_and_fields('Transcription', {}, json_schema)
-    img = create_uploaded_image
-    pm_i = create_project_media team: t, media: img
+    audio = create_uploaded_audio
+    pm_a = create_project_media team: t, media: audio
     data = { 'job_status' => 'COMPLETED', 'transcription' => 'Foo Bar'}
-    a = create_dynamic_annotation annotation_type: 'transcription', annotated: pm_i, set_fields: { text: 'Foo Bar', job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
+    create_dynamic_annotation annotation_type: 'transcription', annotated: pm_a, set_fields: { text: 'Foo Bar', job_name: '0c481e87f2774b1bd41a0a70d9b70d11', last_response: data }.to_json
+    sleep 1
+    assert_equal [pm1.fact_check_id, pm2.fact_check_id, pm3.fact_check_id].concat([ex1.id, ex2.id, ex3.id]).sort, pm_a.get_similar_articles.map(&:id).sort
+    # Verify search query for images
+    create_extracted_text_annotation_type
+    pm_i = nil
+    stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
+      Sidekiq::Testing.fake! do
+        WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
+        WebMock.stub_request(:post, 'http://alegre/image/ocr/').with({ body: { url: "some/path" } }).to_return(body: { text: 'Foo Bar' }.to_json)
+        WebMock.stub_request(:post, 'http://alegre/text/similarity/')
+        Bot::Alegre.unstub(:media_file_url)
+        pm_i = create_project_media team: t, media: create_uploaded_image
+        Bot::Alegre.stubs(:media_file_url).with(pm_i).returns('some/path')
+        Bot::Alegre.get_extracted_text(pm_i)
+        Bot::Alegre.unstub(:media_file_url)
+      end
+    end
     sleep 1
     assert_equal [pm1.fact_check_id, pm2.fact_check_id, pm3.fact_check_id].concat([ex1.id, ex2.id, ex3.id]).sort, pm_i.get_similar_articles.map(&:id).sort
     Bot::Smooch.unstub(:search_for_explainers)
