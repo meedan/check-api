@@ -743,6 +743,7 @@ module ProjectMediaCachedFields
         origin[:timestamp] = self.created_at.to_i
 
       # Child of a media cluster
+      # FIXME: Replace the `elsif`'s below by a single `else` when we start handling all cases, so we don't repeat code
       else
         if relationship.confirmed_at # A suggestion that was confirmed
           origin[:origin] = CheckMediaClusterOrigins::OriginCodes::USER_MATCHED
