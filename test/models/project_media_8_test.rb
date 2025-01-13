@@ -65,6 +65,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
 
   test "should set media origin information" do
     Sidekiq::Testing.fake!
+    Team.current = User.current = nil
 
     t = create_team
     u1 = create_user
