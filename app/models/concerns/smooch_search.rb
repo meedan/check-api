@@ -78,7 +78,7 @@ module SmoochSearch
       self.ask_if_ready_to_submit(uid, workflow, 'ask_if_ready', language)
     end
 
-    def filter_search_results(pms, after, feed_id, team_ids)
+    def filter_search_results(pms, after, feed_id, team_ids, published_only)
       return [] if pms.empty?
       feed_results = []
       if feed_id && team_ids
@@ -87,12 +87,13 @@ module SmoochSearch
         feed_results = CheckSearch.new(filters.to_json, nil, team_ids).medias.to_a.map(&:id)
       end
       pms.compact_blank.select do |pm|
-        (feed_id && feed_results.include?(pm.id)) || (!feed_id && pm.updated_at.to_i > after.to_i && is_a_valid_search_result(pm))
+        (feed_id && feed_results.include?(pm.id)) || (!feed_id && pm.updated_at.to_i > after.to_i && is_a_valid_search_result(pm, published_only))
       end
     end
 
-    def is_a_valid_search_result(pm)
-      (pm.report_status == 'published' || pm.explainers.count > 0) && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
+    def is_a_valid_search_result(pm, published_only)
+      published_condition = (published_only ? pm.report_status == 'published' : true)
+      (published_condition || pm.explainers.count > 0) && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
     end
 
     def reject_temporary_results(results)
@@ -101,9 +102,9 @@ module SmoochSearch
       end
     end
 
-    def parse_search_results_from_alegre(results, limit, after = nil, feed_id = nil, team_ids = nil)
+    def parse_search_results_from_alegre(results, limit, published_only, after = nil, feed_id = nil, team_ids = nil)
       pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
-      filter_search_results(pms, after, feed_id, team_ids).uniq(&:id).first(limit)
+      filter_search_results(pms, after, feed_id, team_ids, published_only).uniq(&:id).first(limit)
     end
 
     def date_filter(team_id)
@@ -128,14 +129,14 @@ module SmoochSearch
       self.bundle_list_of_messages(list, last_message, true)
     end
 
-    def get_search_results(uid, message, team_id, language, limit)
+    def get_search_results(uid, message, team_id, language, limit, published_only = true)
       results = []
       begin
         type = message['type']
         after = self.date_filter(team_id)
         query = message['text']
         query = CheckS3.rewrite_url(message['mediaUrl']) unless type == 'text'
-        results = self.search_for_similar_published_fact_checks(type, query, [team_id], limit, after, nil, language).select{ |pm| is_a_valid_search_result(pm) }
+        results = self.search_for_similar_published_fact_checks(type, query, [team_id], limit, after, nil, language).select{ |pm| is_a_valid_search_result(pm, published_only) }
       rescue StandardError => e
         self.handle_search_error(uid, e, language)
       end
@@ -171,7 +172,7 @@ module SmoochSearch
         unless link.nil?
           Rails.logger.info "[Smooch Bot] Search query (URL): #{link.url}"
           pms = ProjectMedia.joins(:media).where('medias.url' => link.url, 'project_medias.team_id' => team_ids).to_a
-          result = self.filter_search_results(pms, after, feed_id, team_ids)
+          result = self.filter_search_results(pms, after, feed_id, team_ids, published_only)
           return result unless result.empty?
           text = [link.pender_data['description'].to_s, text.to_s.gsub(/https?:\/\/[^\s]+/, '').strip].max_by(&:length)
         end
@@ -183,7 +184,7 @@ module SmoochSearch
           results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language, published_only)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
-          results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids)
+          results = self.parse_search_results_from_alegre(alegre_results, limit, published_only, after, feed_id, team_ids)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
       else
@@ -193,7 +194,7 @@ module SmoochSearch
         media_url = self.save_locally_and_return_url(media_url, type, feed_id)
         threshold = Bot::Alegre.get_threshold_for_query(type, pm)[0][:value]
         alegre_results = Bot::Alegre.get_items_with_similar_media_v2(media_url: media_url, threshold: [{ value: threshold }], team_ids: team_ids, type: type)
-        results = self.parse_search_results_from_alegre(alegre_results, limit, after, feed_id, team_ids)
+        results = self.parse_search_results_from_alegre(alegre_results, limit, published_only, after, feed_id, team_ids)
         Rails.logger.info "[Smooch Bot] Media similarity search got #{results.count} results while looking for '#{query}' after date #{after.inspect} for teams #{team_ids}"
       end
       results
