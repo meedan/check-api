@@ -1,20 +1,21 @@
 class ClaimDescription < ApplicationRecord
-  attr_accessor :disable_replace_media
+  attr_accessor :disable_replace_media, :enable_create_blank_media
 
   include Article
 
   has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
-  before_validation :set_team, on: :create
   belongs_to :project_media, optional: true
   belongs_to :team
   has_one :fact_check, dependent: :destroy
 
   accepts_nested_attributes_for :fact_check, reject_if: proc { |attributes| attributes['summary'].blank? }
 
+  before_validation :set_team, on: :create
   validates_presence_of :team
   validates_uniqueness_of :project_media_id, allow_nil: true
   validate :cant_apply_article_to_item_if_article_is_in_the_trash
+  before_create :create_blank_media_if_needed
   after_commit :update_fact_check, on: [:update]
   after_update :update_report
   after_update :reset_item_rating_if_removed
@@ -134,6 +135,12 @@ class ClaimDescription < ApplicationRecord
         status.status = default_status
         status.save
       end
+    end
+  end
+
+  def create_blank_media_if_needed
+    if self.enable_create_blank_media && self.project_media_id.blank?
+      self.project_media = ProjectMedia.create!(media: Blank.create!, team: self.team)
     end
   end
 end

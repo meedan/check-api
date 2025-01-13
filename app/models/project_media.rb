@@ -334,7 +334,7 @@ class ProjectMedia < ApplicationRecord
         item_id: new_pm.id.to_s,
         event: 'replace',
         whodunnit: options['author_id'].to_s,
-        object_changes: { pm_id: [old_pm.id, new_pm.id] }.to_json,
+        object_changes: { pm_id: [old_pm_id, new_pm.id] }.to_json,
         associated_id: new_pm.id,
         associated_type: 'ProjectMedia',
         team_id: new_pm.team_id,
@@ -467,8 +467,10 @@ class ProjectMedia < ApplicationRecord
       search_query = case media.type
                      when 'Claim'
                        media.quote
-                     when 'UploadedVideo', 'UploadedAudio', 'UploadedImage'
+                     when 'UploadedVideo', 'UploadedAudio'
                        self.transcription
+                     when 'UploadedImage'
+                       self.extracted_text
                      end
       search_query ||= self.title
       results = self.team.search_for_similar_articles(search_query, self)

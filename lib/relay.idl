@@ -54,6 +54,11 @@ type About implements Node {
   languages_supported: String
 
   """
+  List of media cluster origins
+  """
+  media_cluster_origins: JsonStringType
+
+  """
   Application name
   """
   name: String
@@ -1180,6 +1185,7 @@ input CreateClaimDescriptionInput {
   clientMutationId: String
   context: String
   description: String
+  enable_create_blank_media: Boolean
   project_media_id: Int
 }
 
@@ -11653,6 +11659,10 @@ type ProjectMedia implements Node {
     who_dunnit: [String]
   ): VersionConnection
   media: Media
+  media_cluster_origin: Int
+  media_cluster_origin_timestamp: Int
+  media_cluster_origin_user: User
+  media_cluster_relationship: Relationship
   media_id: Int
   media_slug: String
   oembed_metadata: String
@@ -14187,6 +14197,7 @@ input UpdateClaimDescriptionInput {
   clientMutationId: String
   context: String
   description: String
+  enable_create_blank_media: Boolean
   id: ID
   project_media_id: Int
 }

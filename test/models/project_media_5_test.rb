@@ -885,6 +885,16 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     end
   end
 
+  test "should save history version even if the original project media does not exist anymore" do
+    t = create_team
+    old_pm_id = 123456 # something that does not exist anymore
+    new = create_project_media team: t
+    ProjectMedia.apply_replace_by(old_pm_id, new.id, "{\"author_id\":1234,\"assignments_ids\":[],\"skip_send_report\":true}")
+
+    history = new.versions.first.object_changes
+    assert_equal history, { pm_id: [123456,new.id]}.to_json
+  end
+
   test "should replace a blank project media by another project media" do
     setup_elasticsearch
     t = create_team
