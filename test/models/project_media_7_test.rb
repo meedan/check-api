@@ -175,6 +175,8 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     c = create_claim_description project_media: pm1
     create_fact_check claim_description: c, language: 'en'
     pm2 = ProjectMedia.new team: t, set_fact_check: { 'language' => 'en' }
-    assert_not_nil ProjectMedia.handle_fact_check_for_existing_claim(pm1, pm2)
+    assert_raise ActiveRecord::RecordInvalid do
+      ProjectMedia.handle_fact_check_for_existing_claim(pm1, pm2)
+    end
   end
 end
