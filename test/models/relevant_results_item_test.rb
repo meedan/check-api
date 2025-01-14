@@ -47,7 +47,7 @@ class RelevantResultsItemTest < ActiveSupport::TestCase
       # Verify selected item
       fc = cd.fact_check
       selected_item = RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'FactCheck', article_id: fc.id).last
-      assert_equal fc, selected_item
+      assert_equal fc, selected_item.article
       assert_nil Rails.cache.read("relevant-items-#{pm1.id}")
     end
     Bot::Smooch.unstub(:search_for_explainers)
