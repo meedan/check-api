@@ -488,6 +488,38 @@ class ProjectMedia < ApplicationRecord
     results
   end
 
+  def log_relevant_results(article)
+    items = begin JSON.parse(Rails.cache.read("relevant-items-#{self.id}")) rescue {} end
+    type = article.class.name.underscore
+    unless items[type].blank?
+      user_action = items[type].include?(article.id) ? 'relevant_articles' : 'article_search'
+      insert_items = []
+      current_time = Time.now
+      items[type].each_with_index do |value, index|
+        selected_count = (value == article.id).to_i
+        rr = {
+          article_id: article.id,
+          article_type: article.class.name,
+          user_id: User.current&.id,
+          team_id: Team.current&.id,
+          relevant_results_render_id: Digest::MD5.hexdigest(RequestStore[:actor_session_id]),
+          user_action: user_action,
+          query_media_parent_id: self.id,
+          query_media_ids: [self.id],
+          similarity_settings: {},
+          matched_media_id: self.id,
+          selected_count: selected_count,
+          display_rank: index + 1,
+          created_at: current_time,
+          updated_at: current_time,
+        }
+        insert_items << rr
+      end
+      RelevantResultsItem.insert_all(insert_items)
+    end
+    Rails.cache.delete("relevant-items-#{self.id}")
+  end
+
   protected
 
   def add_extra_elasticsearch_data(ms)

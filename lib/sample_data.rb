@@ -925,6 +925,13 @@ module SampleData
     }.merge(options))
   end
 
+  def create_explainer_item(options = {})
+    ExplainerItem.create!({
+      explainer: options[:explainer] || create_explainer,
+      project_media: options[:project_media] || create_project_media
+    }.merge(options))
+  end
+
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
