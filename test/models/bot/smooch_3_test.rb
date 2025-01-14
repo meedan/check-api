@@ -780,4 +780,47 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     end
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
+
+  test "should return error when link is nil" do
+    uid = random_string
+    payload = {
+      trigger: 'message:appUser',
+      app: {
+        '_id': @app_id
+      },
+      version: 'v1.1',
+      messages: [message],
+      appUser: {
+        '_id': random_string,
+        'conversationStarted': true
+      }
+    }
+    Sidekiq::Testing.fake! do
+      # 2) Send link with long text
+      long_text = []
+      15.times{ long_text << random_string }
+      link_long_text = @link_url.concat(' ').concat(long_text.join(' ')).concat
+      Bot::Smooch.stubs(:extract_url).with(link_long_text).returns(nil)
+      message = {
+        '_id': random_string,
+        authorId: uid,
+        type: 'text',
+        source: { type: "whatsapp" },
+        text: link_long_text,
+      }
+      payload[:messages] = [message]
+      Bot::Smooch.run(payload.to_json)
+      sleep 1
+      pm_id = ProjectMedia.last.id
+      assert_difference 'ProjectMedia.count', 2 do
+        assert_difference 'Claim.count' do
+          assert_difference 'Link.count' do
+            assert_difference 'Relationship.count' do
+              Sidekiq::Worker.drain_all
+            end
+          end
+        end
+      end
+    end
+  end
 end
