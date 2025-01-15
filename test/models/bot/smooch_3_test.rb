@@ -781,7 +781,7 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 
-  test "should return error when link is nil" do
+  test "should not throw exception when extract_url fails" do
     # Temporarily redefine extract_url to check the caller stack
     original_extract_url = Bot::Smooch.method(:extract_url)
   
