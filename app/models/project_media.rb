@@ -487,7 +487,8 @@ class ProjectMedia < ApplicationRecord
       ex_pm = {}
       unless explainer_ids.blank?
         # Intiate the ex_pm with nil values as some Explainer not assinged to existing items
-        ex_pm = explainer_ids.each_with_object(nil).to_h
+        default_pm = nil
+        ex_pm = explainer_ids.each_with_object(default_pm).to_h
         # Get ProjectMedia for Explainer for RelevantResultsItem logs and should use sort_by to keep existing order
         ExplainerItem.where(explainer_id: explainer_ids).find_each do |raw|
           ex_pm[raw.explainer_id] = raw.project_media_id
@@ -495,8 +496,8 @@ class ProjectMedia < ApplicationRecord
       end
       threshold = Bot::Alegre.get_threshold_for_query('text', self)[0][:value]
       {
-        fact_check: fc_pm.sort_by { |k, v| fact_check_ids.index(k) }.to_h,
-        explainer: ex_pm.sort_by { |k, v| explainer_ids.index(k) }.to_h,
+        fact_check: fc_pm.sort_by { |k, _v| fact_check_ids.index(k) }.to_h,
+        explainer: ex_pm.sort_by { |k, _v| explainer_ids.index(k) }.to_h,
         similarity_settings: { threshold: threshold }
       }.to_json
     end
