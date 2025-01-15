@@ -475,52 +475,93 @@ class ProjectMedia < ApplicationRecord
       search_query ||= self.title
       results = self.team.search_for_similar_articles(search_query, self)
       fact_check_ids = results.select{|article| article.is_a?(FactCheck)}.map(&:id)
+      fc_pm = {}
+      unless fact_check_ids.blank?
+        # Get ProjectMedia for FactCheck for RelevantResultsItem logs and should use sort_by to keep existing order
+        FactCheck.select('fact_checks.id AS fc_id, claim_descriptions.project_media_id AS pm_id')
+        .where(id: fact_check_ids).joins(:claim_description).each do |raw|
+          fc_pm[raw.fc_id] = raw.pm_id
+        end
+      end
       explainer_ids = results.select{|article| article.is_a?(Explainer)}.map(&:id)
-      { fact_check: fact_check_ids, explainer: explainer_ids }.to_json
+      ex_pm = {}
+      unless explainer_ids.blank?
+        # Intiate the ex_pm with nil values as some Explainer not assinged to existing items
+        ex_pm = explainer_ids.each_with_object(nil).to_h
+        # Get ProjectMedia for Explainer for RelevantResultsItem logs and should use sort_by to keep existing order
+        ExplainerItem.where(explainer_id: explainer_ids).find_each do |raw|
+          ex_pm[raw.explainer_id] = raw.project_media_id
+        end
+      end
+      threshold = Bot::Alegre.get_threshold_for_query('text', self)[0][:value]
+      {
+        fact_check: fc_pm.sort_by { |k, v| fact_check_ids.index(k) }.to_h,
+        explainer: ex_pm.sort_by { |k, v| explainer_ids.index(k) }.to_h,
+        similarity_settings: { threshold: threshold }
+      }.to_json
     end
     if results.blank?
       # This indicates a cache hit, so we should retrieve the items according to the cached values while maintaining the same sort order.
       items = JSON.parse(items)
-      items.each do |klass, ids|
+      items.each do |klass, data|
+        ids = data.keys
         results += klass.camelize.constantize.where(id: ids).sort_by { |result| ids.index(result.id) }
       end
     end
     results
   end
 
-  def log_relevant_results(article)
-    items = begin JSON.parse(Rails.cache.read("relevant-items-#{self.id}")) rescue {} end
+  def log_relevant_results(article, author_id)
+    data = begin JSON.parse(Rails.cache.read("relevant-items-#{self.id}")) rescue {} end
     type = article.class.name.underscore
-    unless items[type].blank?
-      user_action = items[type].include?(article.id) ? 'relevant_articles' : 'article_search'
-      insert_items = []
-      current_time = Time.now
-      items[type].each_with_index do |value, index|
+    unless data[type].blank?
+      user_action = data[type].include?(article.id) ? 'relevant_articles' : 'article_search'
+      similarity_settings = data['similarity_settings']
+      items = data[type]
+      items.keys.each_with_index do |value, index|
         selected_count = (value == article.id).to_i
-        rr = {
+        fields = {
           article_id: article.id,
           article_type: article.class.name,
-          user_id: User.current&.id,
-          team_id: Team.current&.id,
-          relevant_results_render_id: Digest::MD5.hexdigest(RequestStore[:actor_session_id]),
-          user_action: user_action,
-          query_media_parent_id: self.id,
-          query_media_ids: [self.id],
-          similarity_settings: {},
-          matched_media_id: self.id,
+          matched_media_id: items[value],
           selected_count: selected_count,
           display_rank: index + 1,
-          created_at: current_time,
-          updated_at: current_time,
         }
-        insert_items << rr
+        create_relevant_results_item(user_action, similarity_settings, author_id, fields)
       end
-      RelevantResultsItem.insert_all(insert_items)
+      other_type = (['fact_check', 'explainer'] - [type]).first
+      items = data[other_type]
+      items.keys.each_with_index do |value, index|
+        fields = {
+          article_id: value,
+          article_type: other_type.camelize,
+          matched_media_id: items[value],
+          selected_count: 0,
+          display_rank: index + 1,
+        }
+        create_relevant_results_item(user_action, similarity_settings, author_id, fields)
+      end
     end
     Rails.cache.delete("relevant-items-#{self.id}")
   end
 
   protected
+
+  def create_relevant_results_item(user_action, similarity_settings, author_id, fields)
+    rr = RelevantResultsItem.new
+    rr.team_id = self.team_id
+    rr.user_id = author_id
+    rr.relevant_results_render_id = Digest::MD5.hexdigest(RequestStore[:actor_session_id])
+    rr.query_media_parent_id = self.id
+    rr.query_media_ids = [self.id]
+    rr.user_action = user_action
+    rr.similarity_settings = similarity_settings
+    rr.skip_check_ability = true
+    fields.each do |k, v|
+      rr.send("#{k}=", v) if rr.respond_to?("#{k}=")
+    end
+    rr.save!
+  end
 
   def add_extra_elasticsearch_data(ms)
     analysis = self.analysis

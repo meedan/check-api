@@ -1,6 +1,36 @@
 require_relative '../test_helper'
 
 class RelevantResultsItemTest < ActiveSupport::TestCase
+  test "should create relevant results item" do
+    assert_difference 'RelevantResultsItem.count' do
+      create_relevant_results_item
+    end
+  end
+
+  test "should set team and user" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    ex = create_explainer
+    with_current_user_and_team(u, t) do
+      rr = create_relevant_results_item team: nil, user: nil, article: ex
+      assert_equal t.id, rr.team_id
+      assert_equal u.id, rr.user_id
+    end
+  end
+
+  test "should validate user action field" do
+    ex = create_explainer
+    assert_no_difference 'RelevantResultsItem.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_relevant_results_item article:ex, user_action: random_string
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_relevant_results_item article:ex, query_media_parent_id: nil
+      end
+    end
+  end
+
   test "should record user selection for relevant articles" do
     RequestStore.store[:skip_cached_field_update] = false
     setup_elasticsearch
@@ -32,9 +62,13 @@ class RelevantResultsItemTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       # Assign explainer to item
       assert_not_nil Rails.cache.read("relevant-items-#{pm1.id}")
+      # Select an Explainer
       create_explainer_item explainer: ex2, project_media: pm1
       assert_equal 2, RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'Explainer').count
+      assert_equal 2, RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'FactCheck').count
       assert_nil Rails.cache.read("relevant-items-#{pm1.id}")
+      # Select a FactCheck
+      log_time = Time.now
       pm1.get_similar_articles.map(&:id).sort
       assert_not_nil Rails.cache.read("relevant-items-#{pm1.id}")
       cd = ClaimDescription.where(project_media_id: pm1.id).last
@@ -43,7 +77,8 @@ class RelevantResultsItemTest < ActiveSupport::TestCase
       cd = ClaimDescription.where.not(project_media_id: pm1.id).last
       cd.project_media_id = pm1.id
       cd.save!
-      assert_equal 2, RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'FactCheck').count
+      assert_equal 2, RelevantResultsItem.where('created_at > ?', log_time).where(query_media_parent_id: pm1.id, article_type: 'Explainer').count
+      assert_equal 2, RelevantResultsItem.where('created_at > ?', log_time).where(query_media_parent_id: pm1.id, article_type: 'FactCheck').count
       # Verify selected item
       fc = cd.fact_check
       selected_item = RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'FactCheck', article_id: fc.id).last

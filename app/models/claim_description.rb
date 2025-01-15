@@ -20,7 +20,7 @@ class ClaimDescription < ApplicationRecord
   after_update :update_report
   after_update :reset_item_rating_if_removed
   after_update :replace_media, unless: proc { |cd| cd.disable_replace_media }
-  after_update :migrate_claim_and_fact_check_logs, :log_relevant_factcheck_results, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
+  after_update :migrate_claim_and_fact_check_logs, :log_relevant_article_results, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
 
   # To avoid GraphQL conflict with name `context`
   alias_attribute :claim_context, :context
@@ -120,8 +120,8 @@ class ClaimDescription < ApplicationRecord
     end
   end
 
-  def log_relevant_factcheck_results
-    self.project_media.log_relevant_results(self.fact_check)
+  def log_relevant_article_results
+    self.project_media.delay.log_relevant_results(self.fact_check, User.current&.id)
   end
 
   def cant_apply_article_to_item_if_article_is_in_the_trash

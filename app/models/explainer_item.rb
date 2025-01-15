@@ -9,7 +9,7 @@ class ExplainerItem < ApplicationRecord
   validate :same_team
   validate :cant_apply_article_to_item_if_article_is_in_the_trash
 
-  after_create :log_relevant_explainer_results
+  after_create :log_relevant_article_results
 
   def version_metadata(_changes)
     { explainer_title: self.explainer.title }.to_json
@@ -25,7 +25,7 @@ class ExplainerItem < ApplicationRecord
     errors.add(:base, I18n.t(:cant_apply_article_to_item_if_article_is_in_the_trash)) if self.explainer&.trashed
   end
 
-  def log_relevant_explainer_results
-    self.project_media.log_relevant_results(self.explainer)
+  def log_relevant_article_results
+    self.project_media.delay.log_relevant_results(self.explainer, User.current&.id)
   end
 end
