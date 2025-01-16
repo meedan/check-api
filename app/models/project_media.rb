@@ -494,11 +494,9 @@ class ProjectMedia < ApplicationRecord
           ex_pm[raw.explainer_id] = raw.project_media_id
         end
       end
-      threshold = Bot::Alegre.get_threshold_for_query('text', self)[0][:value]
       {
         fact_check: fc_pm.sort_by { |k, _v| fact_check_ids.index(k) }.to_h,
-        explainer: ex_pm.sort_by { |k, _v| explainer_ids.index(k) }.to_h,
-        similarity_settings: { threshold: threshold }
+        explainer: ex_pm.sort_by { |k, _v| explainer_ids.index(k) }.to_h
       }.to_json
     end
     if results.blank?
@@ -519,7 +517,8 @@ class ProjectMedia < ApplicationRecord
     type = klass.underscore
     unless data[type].blank?
       user_action = data[type].include?(article.id) ? 'relevant_articles' : 'article_search'
-      similarity_settings = data['similarity_settings']
+      tbi = Bot::Alegre.get_alegre_tbi(self.team_id)
+      similarity_settings = tbi.settings
       # Retrieve the user's selection, which can be either FactCheck or Explainer,
       # as this type encompasses the user's choice, and then define the shared field based on this type.
       # i.e selected_count either 0/1
