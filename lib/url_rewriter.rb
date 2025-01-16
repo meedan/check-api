@@ -22,6 +22,7 @@ class UrlRewriter
 
   def self.shorten_and_utmize_urls(input_text, source = nil, owner = nil)
     text = input_text
+    return text if text.blank?
     # Encode URLs in Arabic which are not detected by the URL extraction methods
     text = text.gsub(/https?:\/\/[\S]+/) { |url| url =~ /\p{Arabic}/ ? Addressable::URI.escape(url) : url } if input_text =~ /\p{Arabic}/
     entities = Twitter::TwitterText::Extractor.extract_urls_with_indices(text, extract_url_without_protocol: true)

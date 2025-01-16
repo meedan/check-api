@@ -596,6 +596,10 @@ class Team < ApplicationRecord
     items
   end
 
+  def get_shorten_outgoing_urls
+    self.settings.to_h.with_indifferent_access[:shorten_outgoing_urls] || self.tipline_newsletters.where(content_type: 'rss', enabled: true).exists?
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
