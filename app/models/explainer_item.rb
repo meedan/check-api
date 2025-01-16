@@ -26,6 +26,7 @@ class ExplainerItem < ApplicationRecord
   end
 
   def log_relevant_article_results
-    self.project_media.delay.log_relevant_results(self.explainer, User.current&.id)
+    ex = self.explainer
+    self.project_media.delay.log_relevant_results(ex.class.name, ex.id, User.current&.id, RequestStore[:actor_session_id])
   end
 end

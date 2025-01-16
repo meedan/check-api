@@ -512,12 +512,17 @@ class ProjectMedia < ApplicationRecord
     results
   end
 
-  def log_relevant_results(article, author_id)
+  def log_relevant_results(klass, id, author_id, actor_session_id)
+    article = klass.constantize.find_by_id id
+    return if article.nil?
     data = begin JSON.parse(Rails.cache.read("relevant-items-#{self.id}")) rescue {} end
-    type = article.class.name.underscore
+    type = klass.underscore
     unless data[type].blank?
       user_action = data[type].include?(article.id) ? 'relevant_articles' : 'article_search'
       similarity_settings = data['similarity_settings']
+      # Retrieve the user's selection, which can be either FactCheck or Explainer,
+      # as this type encompasses the user's choice, and then define the shared field based on this type.
+      # i.e selected_count either 0/1
       items = data[type]
       items.keys.each_with_index do |value, index|
         selected_count = (value == article.id).to_i
@@ -528,8 +533,10 @@ class ProjectMedia < ApplicationRecord
           selected_count: selected_count,
           display_rank: index + 1,
         }
-        create_relevant_results_item(user_action, similarity_settings, author_id, fields)
+        self.create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)
       end
+      # Retrieve the alternative type (the non-selected type) since all items in this category are marked as non-selected items
+      # i.e selected_count = 0
       other_type = (['fact_check', 'explainer'] - [type]).first
       items = data[other_type]
       items.keys.each_with_index do |value, index|
@@ -540,7 +547,7 @@ class ProjectMedia < ApplicationRecord
           selected_count: 0,
           display_rank: index + 1,
         }
-        create_relevant_results_item(user_action, similarity_settings, author_id, fields)
+        self.create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)
       end
     end
     Rails.cache.delete("relevant-items-#{self.id}")
@@ -548,11 +555,11 @@ class ProjectMedia < ApplicationRecord
 
   protected
 
-  def create_relevant_results_item(user_action, similarity_settings, author_id, fields)
+  def create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)
     rr = RelevantResultsItem.new
     rr.team_id = self.team_id
     rr.user_id = author_id
-    rr.relevant_results_render_id = Digest::MD5.hexdigest(RequestStore[:actor_session_id])
+    rr.relevant_results_render_id = Digest::MD5.hexdigest(actor_session_id)
     rr.query_media_parent_id = self.id
     rr.query_media_ids = [self.id]
     rr.user_action = user_action

@@ -23,10 +23,10 @@ class RelevantResultsItemTest < ActiveSupport::TestCase
     ex = create_explainer
     assert_no_difference 'RelevantResultsItem.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_relevant_results_item article:ex, user_action: random_string
+        create_relevant_results_item article: ex, user_action: random_string
       end
       assert_raises ActiveRecord::RecordInvalid do
-        create_relevant_results_item article:ex, query_media_parent_id: nil
+        create_relevant_results_item article: ex, query_media_parent_id: nil
       end
     end
   end
