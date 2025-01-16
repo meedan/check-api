@@ -1409,4 +1409,15 @@ class UserTest < ActiveSupport::TestCase
     assert_match /sawy/, u2.reload.source.name
     Team.unstub(:current)
   end
+
+  test "when merging should be able to destroy a user even if they created an explainer" do
+    u = create_user
+    create_explainer user: u
+
+    u2 = create_user
+
+    assert_nothing_raised do
+      u2.merge_with(u)
+    end
+  end
 end
