@@ -29,6 +29,7 @@ class User < ApplicationRecord
   has_many :feed_invitations
   has_many :tipline_requests
   has_many :api_keys
+  has_many :explainers
 
   devise :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :confirmable,
