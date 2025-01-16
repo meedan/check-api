@@ -443,7 +443,7 @@ module SmoochMessages
         if text_words > self.min_number_of_words_for_tipline_long_text
           # Remove link from text
           link = self.extract_url(message['text'])
-          if link  && link.respond_to?(:url)
+          if link && link.respond_to?(:url)
             message['text'] = message['text'].remove(link.url)
           end
           self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
