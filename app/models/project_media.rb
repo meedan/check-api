@@ -518,7 +518,7 @@ class ProjectMedia < ApplicationRecord
     unless data[type].blank?
       user_action = data[type].include?(article.id) ? 'relevant_articles' : 'article_search'
       tbi = Bot::Alegre.get_alegre_tbi(self.team_id)
-      similarity_settings = tbi.settings
+      similarity_settings = tbi&.settings || {}
       # Retrieve the user's selection, which can be either FactCheck or Explainer,
       # as this type encompasses the user's choice, and then define the shared field based on this type.
       # i.e selected_count either 0/1
