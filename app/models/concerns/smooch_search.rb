@@ -166,6 +166,8 @@ module SmoochSearch
       case setting_name.to_sym
       when :threshold
         self.get_text_similarity_threshold
+      when :max_number_of_words
+        self.max_number_of_words_for_keyword_search
       else
         nil
       end
@@ -191,7 +193,7 @@ module SmoochSearch
         text = self.remove_meaningless_phrases(text)
         words = text.split(/\s+/)
         Rails.logger.info "[Smooch Bot] Search query (text): #{text}"
-        if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
+        if Bot::Alegre.get_number_of_words(text) <= self.get_setting_value_or_default('max_number_of_words', settings)
           results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language, published_only)
         else
           alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_setting_value_or_default('threshold', settings) }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
