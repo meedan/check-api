@@ -413,7 +413,15 @@ class TeamType < DefaultObject
   def bot_query(search_text:, threshold: nil, max_number_of_words: nil, enable_language_detection: nil, should_restrict_by_language: nil, enable_link_shortening: nil, utm_code: nil)
     return nil unless User.current&.is_admin # Feature flag
 
-    results = object.search_for_similar_articles(search_text)
+    settings = {
+      threshold: threshold,
+      max_number_of_words: max_number_of_words,
+      enable_language_detection: enable_language_detection,
+      should_restrict_by_language: should_restrict_by_language,
+      enable_link_shortening: enable_link_shortening,
+      utm_code: utm_code
+    }.with_indifferent_access
+    results = object.search_for_similar_articles(search_text, nil, settings)
     results.map(&:as_tipline_search_result)
   end
 end

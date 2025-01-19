@@ -563,15 +563,16 @@ class Team < ApplicationRecord
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
-  def search_for_similar_articles(query, pm = nil)
+  def search_for_similar_articles(query, pm = nil, settings = nil)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
     limit = pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
     threads = []
     fc_items = []
     ex_items = []
-    threads << Thread.new {
-      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, nil, false).map(&:id)
+    # FIXME: Threads approach not working locally - requests from GraphiQL hang forever.
+    # threads << Thread.new {
+      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, nil, false, settings).map(&:id)
       unless result_ids.blank?
         fc_items = FactCheck.joins(claim_description: :project_media).where('project_medias.id': result_ids)
         if pm.nil?
@@ -583,13 +584,13 @@ class Team < ApplicationRecord
           fc_items = fc_items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
         end
       end
-    }
-    threads << Thread.new {
-      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit).distinct
+    # }
+    # threads << Thread.new {
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit, nil, settings).distinct
       # Exclude the ones already applied to a target item
       ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
-    }
-    threads.map(&:join)
+    # }
+    # threads.map(&:join)
     items = fc_items
     # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
     items += ex_items if items.blank? || !pm.nil?

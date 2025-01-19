@@ -160,9 +160,20 @@ module SmoochSearch
       end
     end
 
+    def get_setting_value_or_default(setting_name, custom_settings)
+      custom_value = custom_settings.to_h.with_indifferent_access[setting_name]
+      return custom_value unless custom_value.nil?
+      case setting_name.to_sym
+      when :threshold
+        self.get_text_similarity_threshold
+      else
+        nil
+      end
+    end
+
     # "type" is text, video, audio or image
     # "query" is either a piece of text of a media URL
-    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, published_only = true)
+    def search_for_similar_published_fact_checks_no_cache(type, query, team_ids, limit, after = nil, feed_id = nil, language = nil, published_only = true, settings = nil)
       results = []
       pm = nil
       pm = ProjectMedia.new(team_id: team_ids[0]) if team_ids.size == 1 # We'll use the settings of a team instead of global settings when there is only one team
@@ -183,7 +194,7 @@ module SmoochSearch
         if Bot::Alegre.get_number_of_words(text) <= self.max_number_of_words_for_keyword_search
           results = self.search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id, language, published_only)
         else
-          alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_text_similarity_threshold }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
+          alegre_results = Bot::Alegre.get_merged_similar_items(pm, [{ value: self.get_setting_value_or_default('threshold', settings) }], Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS, text, team_ids)
           results = self.parse_search_results_from_alegre(alegre_results, limit, published_only, after, feed_id, team_ids)
           Rails.logger.info "[Smooch Bot] Text similarity search got #{results.count} results while looking for '#{text}' after date #{after.inspect} for teams #{team_ids}"
         end
@@ -310,7 +321,7 @@ module SmoochSearch
       end
     end
 
-    def search_for_explainers(uid, query, team_id, limit, language = nil)
+    def search_for_explainers(uid, query, team_id, limit, language = nil, settings = nil)
       results = nil
       begin
         text = ::Bot::Smooch.extract_claim(query)
@@ -319,7 +330,7 @@ module SmoochSearch
           results = results.where(language: language) if !language.nil? && should_restrict_by_language?([team_id])
           results = results.order('updated_at DESC')
         else
-          results = Explainer.search_by_similarity(text, language, team_id, limit)
+          results = Explainer.search_by_similarity(text, language, team_id, limit, settings.to_h.with_indifferent_access[:threshold])
         end
       rescue StandardError => e
         self.handle_search_error(uid, e, language) unless uid.blank?
