@@ -12131,14 +12131,22 @@ type RejectPayload {
 A relationship between two items
 """
 type Relationship implements Node {
+  confirmed_at: Int
+  confirmed_by: User
   dbid: Int
   id: ID!
+  model: String
   permissions: String
   relationship_type: String
   source: ProjectMedia
+  source_field: String
   source_id: Int
   target: ProjectMedia
+  target_field: String
   target_id: Int
+  user: User
+  user_id: Int
+  weight: Float
 }
 
 """
