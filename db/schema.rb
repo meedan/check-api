@@ -623,7 +623,7 @@ ActiveRecord::Schema.define(version: 2025_01_13_174153) do
   create_table "relevant_results_items", force: :cascade do |t|
     t.bigint "user_id"
     t.bigint "team_id"
-    t.integer "relevant_results_render_id"
+    t.string "relevant_results_render_id"
     t.string "user_action"
     t.integer "query_media_parent_id"
     t.integer "query_media_ids", default: [], array: true

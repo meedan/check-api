@@ -1216,7 +1216,7 @@ module SampleData
     options[:article] = create_explainer unless options.has_key?(:article)
     options[:user_action] ||= 'relevant_articles'
     options[:query_media_parent_id] = create_project_media(team: options[:team]).id unless options.has_key?(:query_media_parent_id)
-    options[:relevant_results_render_id] ||= Digest::MD5.hexdigest(RequestStore[:actor_session_id])
+    options[:relevant_results_render_id] ||= Digest::MD5.hexdigest("#{RequestStore[:actor_session_id]}-#{Time.now.to_i}")
     rr = RelevantResultsItem.new
     options.each do |k, v|
       rr.send("#{k}=", v) if rr.respond_to?("#{k}=")

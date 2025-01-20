@@ -511,6 +511,7 @@ class ProjectMedia < ApplicationRecord
   end
 
   def log_relevant_results(klass, id, author_id, actor_session_id)
+    actor_session_id = Digest::MD5.hexdigest("#{actor_session_id}-#{Time.now.to_i}")
     article = klass.constantize.find_by_id id
     return if article.nil?
     data = begin JSON.parse(Rails.cache.read("relevant-items-#{self.id}")) rescue {} end
@@ -558,7 +559,7 @@ class ProjectMedia < ApplicationRecord
     rr = RelevantResultsItem.new
     rr.team_id = self.team_id
     rr.user_id = author_id
-    rr.relevant_results_render_id = Digest::MD5.hexdigest(actor_session_id)
+    rr.relevant_results_render_id = actor_session_id
     rr.query_media_parent_id = self.id
     rr.query_media_ids = [self.id]
     rr.user_action = user_action

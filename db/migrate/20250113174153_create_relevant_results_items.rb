@@ -3,7 +3,7 @@ class CreateRelevantResultsItems < ActiveRecord::Migration[6.1]
     create_table :relevant_results_items do |t|
       t.references :user
       t.references :team
-      t.integer :relevant_results_render_id
+      t.string :relevant_results_render_id
       t.string :user_action
       t.integer :query_media_parent_id
       t.integer :query_media_ids, array: true, default: []

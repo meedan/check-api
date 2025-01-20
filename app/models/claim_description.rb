@@ -122,7 +122,7 @@ class ClaimDescription < ApplicationRecord
 
   def log_relevant_article_results
     fc = self.fact_check
-    self.project_media.delay.log_relevant_results(fc.class.name, fc.id, User.current&.id, RequestStore[:actor_session_id])
+    self.project_media.delay.log_relevant_results(fc.class.name, fc.id, User.current&.id, self.class.actor_session_id)
   end
 
   def cant_apply_article_to_item_if_article_is_in_the_trash

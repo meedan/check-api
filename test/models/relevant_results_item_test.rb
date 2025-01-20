@@ -63,9 +63,16 @@ class RelevantResultsItemTest < ActiveSupport::TestCase
       # Assign explainer to item
       assert_not_nil Rails.cache.read("relevant-items-#{pm1.id}")
       # Select an Explainer
+      actor_session_id = random_string
+      RequestStore.stubs(:[]).with(:actor_session_id).returns(actor_session_id)
+      now = Time.now
+      Time.stubs(:now).returns(now)
       create_explainer_item explainer: ex2, project_media: pm1
       assert_equal 2, RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'Explainer').count
       assert_equal 2, RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'FactCheck').count
+      assert_equal 4, RelevantResultsItem.where(query_media_parent_id: pm1.id, relevant_results_render_id: Digest::MD5.hexdigest("#{actor_session_id}-#{now.to_i}")).count
+      Time.unstub(:now)
+      RequestStore.unstub(:[])
       assert_nil Rails.cache.read("relevant-items-#{pm1.id}")
       # Select a FactCheck
       log_time = Time.now
