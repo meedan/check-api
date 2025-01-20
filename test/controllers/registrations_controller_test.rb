@@ -144,24 +144,24 @@ class RegistrationsControllerTest < ActionController::TestCase
     assert_response 401
   end
 
-  test "should return generic response when registering using an existing email" do
+  test "should return generic response in case of error when registering using an existing email" do
     existing_user = create_user(email: 'existing@test.com')
     p1 = random_complex_password
 
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: existing_user.email, login: 'test', name: 'Test' } }
       assert_response 401
-      assert_equal 'Please check your email', response.parsed_body['message']
+      assert_equal 'Please check your email.', response.parsed_body.dig("errors", 0, "message")
     end
   end
 
   test "should return generic response when registering with non-existing email" do
     p1 = random_complex_password
 
-    assert_no_difference 'User.count' do
+    assert_difference 'User.count', 1 do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: 'non_existing@test.com', login: 'test', name: 'Test' } }
       assert_response 401
-      assert_equal 'Please check your email', response.parsed_body['message']
+      assert_equal 'Please check your email.', JSON.parse(response.parsed_body).dig("errors", 0, "message")
     end
   end
 end

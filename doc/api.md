@@ -365,7 +365,7 @@ Use this method in order to create a new user account
 {
   "errors": [
     {
-      "message": "Please check your email to verify your account.",
+      "message": "Please check your email.",
       "code": 1,
       "data": {
       }
