@@ -54,7 +54,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     p1 = random_complex_password
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password_confirmation: p1, email: 't@test.com', login: 'test', name: 'Test' } }
-      assert_response 400
+      assert_response 401
     end
   end
 
@@ -62,7 +62,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     p1 = '1234'
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: 't@test.com', login: 'test', name: 'Test' } }
-      assert_response 400
+      assert_response 401
     end
   end
 
@@ -70,7 +70,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     p1 = random_complex_password
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: random_complex_password, password_confirmation: random_complex_password, email: 't@test.com', login: 'test', name: 'Test' } }
-      assert_response 400
+      assert_response 401
     end
   end
 
@@ -78,7 +78,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     p1 = random_complex_password
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: '', login: 'test', name: 'Test' } }
-      assert_response 400
+      assert_response 401
     end
   end
 
@@ -94,7 +94,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     p1 = random_complex_password
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: 't@test.com', login: 'test', name: '' } }
-      assert_response 400
+      assert_response 401
     end
   end
 
