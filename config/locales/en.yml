@@ -165,7 +165,7 @@ en:
         user:
           attributes:
             email:
-              taken: "Please check your email."
+              taken: Please check your email.
       messages:
         record_invalid: "%{errors}"
         improbable_phone: is an invalid number
