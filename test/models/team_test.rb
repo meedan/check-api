@@ -1300,4 +1300,19 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, t.filtered_fact_checks(trashed: false).count
     assert_equal 1, t.filtered_fact_checks(trashed: true).count
   end
+
+  test "should return that URL shortening is enabled if there are active RSS newsletters" do
+    t = create_team
+    assert !t.get_shorten_outgoing_urls
+    t.set_shorten_outgoing_urls = true
+    t.save!
+    assert t.get_shorten_outgoing_urls
+    t.set_shorten_outgoing_urls = false
+    t.save!
+    assert !t.get_shorten_outgoing_urls
+    tn = create_tipline_newsletter team: t, enabled: true, content_type: 'rss', rss_feed_url: random_url
+    assert t.get_shorten_outgoing_urls
+    tn.destroy!
+    assert !t.get_shorten_outgoing_urls
+  end
 end

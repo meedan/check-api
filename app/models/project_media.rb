@@ -440,7 +440,7 @@ class ProjectMedia < ApplicationRecord
         return new_pm
       end
     end
-    new_pm
+    new_pm.save!
   end
 
   def append_fact_check_from(new_pm)
