@@ -925,6 +925,13 @@ module SampleData
     }.merge(options))
   end
 
+  def create_explainer_item(options = {})
+    ExplainerItem.create!({
+      explainer: options[:explainer] || create_explainer,
+      project_media: options[:project_media] || create_project_media
+    }.merge(options))
+  end
+
   def create_feed(options = {})
     Feed.create!({
       name: random_string,
@@ -1201,5 +1208,21 @@ module SampleData
       user: options[:user] || create_user,
       state: :invited 
     }.merge(options))
+  end
+
+  def create_relevant_results_item(options = {})
+    options[:team] = create_team unless options.has_key?(:team)
+    options[:user] = create_user unless options.has_key?(:user)
+    options[:article] = create_explainer unless options.has_key?(:article)
+    options[:user_action] ||= 'relevant_articles'
+    options[:query_media_parent_id] = create_project_media(team: options[:team]).id unless options.has_key?(:query_media_parent_id)
+    options[:relevant_results_render_id] ||= Digest::MD5.hexdigest("#{RequestStore[:actor_session_id]}-#{Time.now.to_i}")
+    rr = RelevantResultsItem.new
+    options.each do |k, v|
+      rr.send("#{k}=", v) if rr.respond_to?("#{k}=")
+    end
+    rr.skip_check_ability = true
+    rr.save!
+    rr.reload
   end
 end
