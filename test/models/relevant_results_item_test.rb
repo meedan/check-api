@@ -71,6 +71,11 @@ class RelevantResultsItemTest < ActiveSupport::TestCase
       assert_equal 2, RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'Explainer').count
       assert_equal 2, RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'FactCheck').count
       assert_equal 4, RelevantResultsItem.where(query_media_parent_id: pm1.id, relevant_results_render_id: Digest::MD5.hexdigest("#{actor_session_id}-#{now.to_i}")).count
+      # Verify user action value
+      assert_equal ['relevant_articles'], RelevantResultsItem.where(query_media_parent_id: pm1.id).map(&:user_action).uniq
+      # Verified selected_count value
+      assert_equal [1], RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'Explainer', article_id: ex2.id).map(&:selected_count)
+      assert_equal [0], RelevantResultsItem.where(query_media_parent_id: pm1.id, article_type: 'Explainer').where.not(article_id: ex2.id).map(&:selected_count).uniq
       Time.unstub(:now)
       RequestStore.unstub(:[])
       assert_nil Rails.cache.read("relevant-items-#{pm1.id}")

@@ -517,7 +517,7 @@ class ProjectMedia < ApplicationRecord
     data = begin JSON.parse(Rails.cache.read("relevant-items-#{self.id}")) rescue {} end
     type = klass.underscore
     unless data[type].blank?
-      user_action = data[type].include?(article.id) ? 'relevant_articles' : 'article_search'
+      user_action = data[type].keys.map(&:to_i).include?(article.id) ? 'relevant_articles' : 'article_search'
       tbi = Bot::Alegre.get_alegre_tbi(self.team_id)
       similarity_settings = tbi&.settings&.to_h || {}
       # Retrieve the user's selection, which can be either FactCheck or Explainer,
@@ -525,9 +525,9 @@ class ProjectMedia < ApplicationRecord
       # i.e selected_count either 0/1
       items = data[type]
       items.keys.each_with_index do |value, index|
-        selected_count = (value == article.id).to_i
+        selected_count = (value.to_i == article.id).to_i
         fields = {
-          article_id: article.id,
+          article_id: value,
           article_type: article.class.name,
           matched_media_id: items[value],
           selected_count: selected_count,
