@@ -565,10 +565,14 @@ class Team < ApplicationRecord
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
+  def similar_articles_search_limit(pm = nil)
+    pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
+  end
+
   def search_for_similar_articles(query, pm = nil)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
-    limit = pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
+    limit = self.similar_articles_search_limit(pm)
     threads = []
     fc_items = []
     ex_items = []
