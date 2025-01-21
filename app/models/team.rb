@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+  class RelevantArticlesError < StandardError; end
+
   # These two callbacks must be in the top
   after_create :create_team_partition
   before_destroy :delete_created_bots, :remove_is_default_project_flag
@@ -563,10 +565,15 @@ class Team < ApplicationRecord
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
-  def search_for_similar_articles(query, pm = nil, settings = nil)
+  def similar_articles_search_limit(pm = nil)
+    pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
+  end
+
+  def search_for_similar_articles(query, pm = nil)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
-    limit = pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
+    limit = self.similar_articles_search_limit(pm)
+    threads = []
     fc_items = []
     # FIXME: Threads approach not working locally - requests from GraphiQL hang forever.
     # ex_items = []
@@ -594,7 +601,12 @@ class Team < ApplicationRecord
     items = fc_items
     # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
     items += ex_items if items.blank? || !pm.nil?
+    Rails.logger.info("Relevant articles found for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}: #{items.map(&:graphql_id)}")
     items
+  rescue StandardError => e
+    Rails.logger.warn("Error when trying to retrieve relevant articles for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}.")
+    CheckSentry.notify(RelevantArticlesError.new('Error when trying to retrieve relevant articles'), team_slug: self.slug, project_media_id: pm&.id, query: query, exception_message: e.message, exception: e)
+    []
   end
 
   def get_shorten_outgoing_urls
