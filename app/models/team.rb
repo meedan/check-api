@@ -599,7 +599,7 @@ class Team < ApplicationRecord
     items = fc_items
     # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
     items += ex_items if items.blank? || !pm.nil?
-    Rails.logger.info("No relevant articles found for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}.") if items.empty?
+    Rails.logger.info("Relevant articles found for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}: #{items.map(&:graphql_id)}")
     items
   rescue StandardError => e
     Rails.logger.warn("Error when trying to retrieve relevant articles for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}.")
