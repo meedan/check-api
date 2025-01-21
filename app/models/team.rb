@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+  class RelevantArticlesError < StandardError; end
+
   # These two callbacks must be in the top
   after_create :create_team_partition
   before_destroy :delete_created_bots, :remove_is_default_project_flag
@@ -593,7 +595,12 @@ class Team < ApplicationRecord
     items = fc_items
     # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
     items += ex_items if items.blank? || !pm.nil?
+    Rails.logger.info("No relevant articles found for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}.") if items.empty?
     items
+  rescue StandardError => e
+    Rails.logger.warn("Error when trying to retrieve relevant articles for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}.")
+    CheckSentry.notify(RelevantArticlesError.new('Error when trying to retrieve relevant articles'), team_slug: self.slug, project_media_id: pm&.id, query: query, exception_message: e.message, exception: e)
+    []
   end
 
   def get_shorten_outgoing_urls

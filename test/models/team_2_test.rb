@@ -1583,4 +1583,11 @@ class Team2Test < ActiveSupport::TestCase
     end
     Bot::Smooch.unstub(:search_for_explainers)
   end
+
+  test "should notify Sentry if it fails to retrieve relevant articles" do
+    Bot::Smooch.stubs(:search_for_similar_published_fact_checks_no_cache).raises(StandardError)
+    CheckSentry.expects(:notify).once
+    t = create_team
+    assert_equal [], t.search_for_similar_articles('Test')
+  end
 end
