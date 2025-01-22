@@ -197,7 +197,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     end
   end
 
-  test "should save the original_claim link when media is created from original_claim" do
+  test "should save the original_claim url when Link Media is created from original_claim" do
     setup_elasticsearch
 
     # Mock Pender response for Link
@@ -211,15 +211,36 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       }
     }.to_json
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+    
     pm_link = create_project_media(set_original_claim: link_url)
-    assert_not_nil pm_link.media.original_claim
-    assert_equal pm_link.media.url, pm_link.media.original_claim
+    media_original_claim = pm_link.media.original_claim
+    
+    assert_not_nil media_original_claim
+    assert_equal link_url, media_original_claim
   end
 
-  test "should save the original_claim text when media is created from original_claim" do
-    pm_claim = create_project_media(set_original_claim: 'This is a claim.')
-    assert_not_nil pm_claim.media.original_claim
-    assert_equal pm_claim.media.quote, pm_claim.media.original_claim
+  test "should save the original_claim text when Claim media is created from original_claim" do
+    claim = 'This is a claim.'
+    pm_claim = create_project_media(set_original_claim: claim)
+    media_original_claim = pm_claim.media.original_claim
+    
+    assert_not_nil media_original_claim
+    assert_equal claim, media_original_claim
+  end
+
+  test "should save the original_claim url when UploadedAudio Media is created from original_claim" do
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+      
+      pm_audio = create_project_media(set_original_claim: audio_url)
+      media_original_claim = pm_audio.media.original_claim
+      
+      assert_not_nil media_original_claim
+      assert_equal audio_url, media_original_claim
+    end
   end
 
   # For whatever reason this last test is actually creating 4 Medias: 2 Claims and 2 Links
