@@ -196,4 +196,40 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       ProjectMedia.handle_fact_check_for_existing_claim(pm1, pm2)
     end
   end
+
+  test "should save the original_claim link when media is created from original_claim" do
+    setup_elasticsearch
+
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    link_response = {
+      type: 'media',
+      data: {
+        url: link_url,
+        type: 'item'
+      }
+    }.to_json
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+    pm_link = create_project_media(set_original_claim: link_url)
+    assert_not_nil pm_link.media.original_claim
+    assert_equal pm_link.media.url, pm_link.media.original_claim
+  end
+
+  test "should save the original_claim text when media is created from original_claim" do
+    pm_claim = create_project_media(set_original_claim: 'This is a claim.')
+    assert_not_nil pm_claim.media.original_claim
+    assert_equal pm_claim.media.quote, pm_claim.media.original_claim
+  end
+
+  # For whatever reason this last test is actually creating 4 Medias: 2 Claims and 2 Links
+  # I don't think it should create the Link Medias
+  test "should check if the original_claim exists and return that instance when trying to create media" do
+    t = create_team
+    create_project team: t
+
+    assert_difference 'Media.count', 1 do
+      2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
+    end
+  end
 end
