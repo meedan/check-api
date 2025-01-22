@@ -42,11 +42,17 @@ class FactCheck < ApplicationRecord
 
   def update_item_status
     pm = self.project_media
-    s = pm&.last_status_obj
-    if !s.nil? && s.status != self.rating
-      s.skip_check_ability = true
-      s.status = self.rating
-      s.save!
+    unless pm.nil?
+      s = pm.last_status_obj
+      if !s.nil? && s.status != self.rating
+        s.skip_check_ability = true
+        s.status = self.rating
+        s.save!
+      end
+      # update related items status
+      Relationship.confirmed.where(source_id: pm.id).find_each do |r|
+        Relationship.delay_for(2.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(r.id)
+      end
     end
   end
 
