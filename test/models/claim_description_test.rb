@@ -230,4 +230,26 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     end
     assert cd.project_media.media.is_a?(Blank)
   end
+
+  test "should update status for main and related items when set project_media" do
+    create_verification_status_stuff
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    smooch_bot = create_smooch_bot
+    create_team_bot_installation team_id: t.id, user_id: smooch_bot.id
+    pm = create_project_media team: t
+    pm_child = create_project_media team: t
+    create_relationship source_id: pm.id, target_id: pm_child.id, relationship_type: Relationship.confirmed_type
+    assert_equal 'undetermined', pm.reload.status
+    assert_equal 'undetermined', pm_child.reload.status
+    # Create fact-check with verified status
+    cd = create_claim_description team_id: t.id, project_media: nil
+    fc = create_fact_check claim_description: cd, rating: 'verified'
+    Sidekiq::Testing.inline! do
+      cd.project_media = pm
+      cd.save!
+      assert_equal 'verified', pm.reload.status
+      assert_equal 'verified', pm_child.reload.status
+    end
+  end
 end
