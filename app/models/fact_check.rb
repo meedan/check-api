@@ -51,7 +51,7 @@ class FactCheck < ApplicationRecord
       end
       # update related items status
       Relationship.confirmed.where(source_id: pm.id).find_each do |r|
-        Relationship.delay_for(2.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(r.id)
+        Relationship.delay_for(2.seconds, { queue: 'smooch'}).inherit_status_and_send_report(r.id)
       end
     end
   end
