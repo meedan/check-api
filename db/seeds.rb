@@ -529,11 +529,11 @@ class PopulatedWorkspaces
   end
 
   def confirmed_relationship(parent, children)
-    [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type) }
+    [children].flatten.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type, user_id: child.user_id) }
   end
 
   def suggested_relationship(parent, children)
-    children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.suggested_type)}
+    children.each { |child| Relationship.create!(source_id: parent.id, target_id: child.id, relationship_type: Relationship.suggested_type, user_id: child.user_id)}
   end
 
   def teams_project_medias
