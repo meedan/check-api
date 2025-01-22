@@ -83,6 +83,7 @@ module ProjectMediaCreators
     klass = type.constantize
     file = download_file(url, ext)
     m = klass.new
+    m.original_claim = url
     m.file = file
     m.save!
     m
@@ -99,14 +100,14 @@ module ProjectMediaCreators
   end
 
   def create_claim_media(text)
-    Claim.create!(quote: text)
+    Claim.create!(quote: text, original_claim: text)
   end
 
   def create_link_media(url)
     team = self.team || Team.current
     pender_key = team.get_pender_key if team
     url_from_pender = Link.normalized(url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.create!(url: url, pender_key: pender_key)
+    Link.find_by(url: url_from_pender) || Link.create!(url: url, pender_key: pender_key, original_claim: url)
   end
 
   def set_quote_metadata
