@@ -282,7 +282,7 @@ fr:
   account_exists: Ce compte existe déjà
   media_exists: Cet élément existe déjà
   source_exists: Cette source existe déjà
-  email_exists: est déjà utilisée
+  email_exists: Veuillez vérifier votre courriel.
   banned_user: Désolé, votre compte a été banni de %{app_name}. Contactez l’équipe d’assistance si vous pensez que c’est une erreur.
   devise:
     mailer:
