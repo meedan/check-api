@@ -27,7 +27,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
       end
       User.current = user
       sign_up(resource_name, user)
-      render_success 'user', user
+      render_error e.message.gsub(/^Email /, ''), 'INVALID_VALUE', 401
     rescue ActiveRecord::RecordInvalid => e
       clean_up_passwords resource
       set_minimum_password_length
