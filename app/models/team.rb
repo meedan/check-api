@@ -569,15 +569,20 @@ class Team < ApplicationRecord
     pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
   end
 
+  def similar_articles_search_language(query, settings)
+    settings.to_h.with_indifferent_access[:enable_language_detection] ? Bot::Smooch.get_language({ 'text' => query }, self.default_language) : nil
+  end
+
   def search_for_similar_articles(query, pm = nil, settings = nil)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
     limit = self.similar_articles_search_limit(pm)
+    language = self.similar_articles_search_language(query, settings)
     threads = []
     fc_items = []
     ex_items = []
     threads << Thread.new {
-      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, nil, false, settings).map(&:id)
+      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, language, false, settings).map(&:id)
       unless result_ids.blank?
         fc_items = FactCheck.joins(claim_description: :project_media).where('project_medias.id': result_ids)
         if pm.nil?
@@ -591,7 +596,7 @@ class Team < ApplicationRecord
       end
     }
     threads << Thread.new {
-      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit, nil, settings).distinct
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit, language, settings).distinct
       # Exclude the ones already applied to a target item
       ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
     }
