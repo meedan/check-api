@@ -121,7 +121,16 @@ class ListExportTest < ActiveSupport::TestCase
 
   test "should export dashboard CSV" do
     t = create_team
-    export = ListExport.new(:dashboard, { period: "past_week", platform: "whatsapp", language: "en" }.to_json, t.id)
+    # tipline_dashboard
+    export = ListExport.new(:tipline_dashboard, { period: "past_week", platform: "whatsapp", language: "en" }.to_json, t.id)
+    csv_url = export.generate_csv_and_send_email(create_user)
+    response = Net::HTTP.get_response(URI(csv_url))
+    assert_equal 200, response.code.to_i
+    csv_content = CSV.parse(response.body, headers: true)
+    assert_equal 1, csv_content.size
+    assert_equal 1, export.number_of_rows
+    # articles_dashboard
+    export = ListExport.new(:articles_dashboard, { period: "past_week", platform: "whatsapp", language: "en" }.to_json, t.id)
     csv_url = export.generate_csv_and_send_email(create_user)
     response = Net::HTTP.get_response(URI(csv_url))
     assert_equal 200, response.code.to_i

@@ -611,61 +611,24 @@ class Team < ApplicationRecord
     self.settings.to_h.with_indifferent_access[:shorten_outgoing_urls] || self.tipline_newsletters.where(content_type: 'rss', enabled: true).exists?
   end
 
-  def get_dashboard_exported_data(filters)
+  def get_dashboard_exported_data(filters, dashboard_type)
     ts = TeamStatistics.new(self, filters[:period], filters[:language], filters[:platform])
-    header = [
-      'Conversations',
-      'Messages',
-      'Conversations(Positive)', 'Conversations(Negative)', 'Conversations(No Response)',
-      'Avg. Response Time',
-      'Users(Total)',
-      'Users(Unique)',
-      'Users(Returning)',
-      'Subscribers',
-      'Subscribers(New)',
-      'Newsletters(Sent)',
-      'Newsletters(Delivered)',
-      'Media Received(Text)','Media Received(Link)','Media Received(Audio)','Media Received(Image)','Media Received(Video)',
-      'Articles Sent',
-      'Matched Results(Fact-Checks)', 'Matched Results(Explainers)',
-    ]
-    # Append Top tags/requested header based on result count
-    { top_media_tags: 'Top tag', top_requested_media_clusters: 'Top Requested' }.each do |method, prefix|
-      column_headers = []
-      ts.send(method).each_with_index do |_v, i|
-        column_headers << "#{prefix}(#{i+1})"
-      end
-      header << column_headers
-    end
+    headers = get_dashboard_export_headers(ts, dashboard_type)
     data = []
-    data << header.flatten
-    header_methods = {
-      number_of_conversations: 'to_i',
-      number_of_messages: 'to_i',
-      number_of_search_results_by_feedback_type: 'values',
-      average_response_time: 'to_i',
-      number_of_total_users: 'to_i',
-      number_of_unique_users: 'to_i',
-      number_of_returning_users: 'to_i',
-      number_of_subscribers: 'to_i',
-      number_of_new_subscribers: 'to_i',
-      number_of_newsletters_sent: 'to_i',
-      number_of_newsletters_delivered: 'to_i',
-      number_of_media_received_by_media_type: 'values',
-      number_of_articles_sent: 'to_i',
-      number_of_matched_results_by_article_type: 'values',
-      top_media_tags: 'collect',
-      top_requested_media_clusters: 'collect'
-    }
+    # Add header labels
+    data << headers.keys
+    header_methods = headers.values.delete_if{|v| v.blank?}
     raw = []
     header_methods.each do |method, type|
-      output = ts.send(method) if ts.respond_to?(method)
-      if type == 'collect'
-        output = output.collect{|item| "#{item[:label]}(#{item[:value]})"}
-      else
-        output = output.send(type)
+      unless type.blank?
+        output = ts.send(method) if ts.respond_to?(method)
+        if type.is_a?(Proc)
+          output = type.call(output)
+        else
+          output = output.send(type)
+        end
+        raw << output
       end
-      raw << output
     end
     data << raw.flatten
     data

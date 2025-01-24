@@ -1,5 +1,5 @@
 class ListExport
-  TYPES = [:media, :feed, :fact_check, :explainer, :dashboard]
+  TYPES = [:media, :feed, :fact_check, :explainer, :articles_dashboard, :tipline_dashboard ]
 
   def initialize(type, query, team_id)
     @type = type
@@ -21,8 +21,8 @@ class ListExport
       @team.filtered_fact_checks(@parsed_query).count
     when :explainer
       @team.filtered_explainers(@parsed_query).count
-    when :dashboard
-      1
+    when :articles_dashboard, :tipline_dashboard
+      1 # Always maintain one row for dashboard data, but use different columns for export.
     end
   end
 
@@ -64,8 +64,8 @@ class ListExport
       FactCheck.get_exported_data(@parsed_query, @team)
     when :explainer
       Explainer.get_exported_data(@parsed_query, @team)
-    when :dashboard
-      @team.get_dashboard_exported_data(@parsed_query)
+    when :articles_dashboard, :tipline_dashboard
+      @team.get_dashboard_exported_data(@parsed_query, @type)
     end
   end
 end
