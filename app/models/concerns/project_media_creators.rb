@@ -100,7 +100,7 @@ module ProjectMediaCreators
   end
 
   def create_claim_media(text)
-    Claim.create!(quote: text, original_claim: text)
+    Claim.find_by(original_claim: text) || Claim.create!(quote: text, original_claim: text)
   end
 
   def create_link_media(url)

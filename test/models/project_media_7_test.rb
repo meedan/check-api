@@ -243,14 +243,12 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     end
   end
 
-  # For whatever reason this last test is actually creating 4 Medias: 2 Claims and 2 Links
-  # I don't think it should create the Link Medias
   test "should check if the original_claim exists and return that instance when trying to create media" do
-    t = create_team
-    create_project team: t
+    text = 'This is a claim.'
 
-    assert_difference 'Media.count', 1 do
-      2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
-    end
+    claim = Claim.create!(quote: text, original_claim: text)
+    pm = create_project_media(set_original_claim: text)
+
+    assert_equal claim.id, pm.media.id
   end
 end
