@@ -618,6 +618,8 @@ class Team < ApplicationRecord
     # Add header labels
     data << headers.keys
     header_methods = headers.values.delete_if{|v| v.blank?}
+    # Merging multiple hashes as single hash
+    header_methods = Hash[*header_methods.map{|v|v.to_a}.flatten]
     raw = []
     header_methods.each do |method, type|
       unless type.blank?

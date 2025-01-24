@@ -195,7 +195,7 @@ module TeamPrivate
           header.merge!({"#{prefix} (1)": { "#{method}": top_callback } })
           (col_numbers - 1).times do |i|
             # Append other columns with empty method
-            header.merge!({"#{prefix} (#{i+2})": { "#{method}": {} } })
+            header.merge!({"#{prefix} (#{i+2})": {} })
           end
         end
       end
