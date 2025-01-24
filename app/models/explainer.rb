@@ -23,7 +23,7 @@ class Explainer < ApplicationRecord
     # Let's not use the same callbacks from article.rb
   end
 
-  def as_tipline_search_result
+  def as_tipline_search_result(settings = nil)
     TiplineSearchResult.new(
       id: self.id,
       team: self.team,
@@ -33,7 +33,8 @@ class Explainer < ApplicationRecord
       language: self.language,
       url: self.url,
       type: :explainer,
-      format: :text
+      format: :text,
+      link_settings: settings
     )
   end
 

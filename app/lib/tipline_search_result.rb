@@ -1,7 +1,7 @@
 class TiplineSearchResult
-  attr_accessor :id, :team, :title, :body, :image_url, :language, :url, :type, :format
+  attr_accessor :id, :team, :title, :body, :image_url, :language, :url, :type, :format, :link_settings
 
-  def initialize(id:, team:, title:, body:, image_url:, language:, url:, type:, format:)
+  def initialize(id:, team:, title:, body:, image_url:, language:, url:, type:, format:, link_settings: nil)
     self.id = id
     self.team = team
     self.title = title
@@ -11,6 +11,7 @@ class TiplineSearchResult
     self.url = url
     self.type = type # :explainer or :fact_check
     self.format = format # :text or :image
+    self.link_settings = link_settings
   end
 
   def should_send_in_language?(language, force_restrict_by_language = nil)
@@ -49,12 +50,31 @@ class TiplineSearchResult
     text << self.body.to_s unless hide_body
     text << self.url unless self.url.blank?
     text = text.collect do |part|
-      self.team.get_shorten_outgoing_urls ? UrlRewriter.shorten_and_utmize_urls(part, self.team.get_outgoing_urls_utm_code) : part
+      self.formatted_value(part)
     end
     unless language.nil?
       footer = self.footer(language)
       text << footer if !footer.blank? && self.team_report_setting_value('use_signature', language)
     end
     text.join("\n\n")
+  end
+
+  def title
+    self.formatted_value(@title)
+  end
+
+  def url
+    self.formatted_value(@url)
+  end
+
+  def body
+    self.formatted_value(@body)
+  end
+
+  def formatted_value(text)
+    link_settings = self.link_settings.to_h.with_indifferent_access
+    enable_link_shortening = link_settings[:enable_link_shortening].nil? ? self.team.get_shorten_outgoing_urls : link_settings[:enable_link_shortening]
+    utm_code = link_settings[:utm_code].nil? ? self.team.get_outgoing_urls_utm_code : link_settings[:utm_code]
+    enable_link_shortening ? UrlRewriter.shorten_and_utmize_urls(text, utm_code) : text
   end
 end

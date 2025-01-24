@@ -425,6 +425,6 @@ class TeamType < DefaultObject
     language = (enable_language_detection ? Bot::Smooch.get_language({ 'text' => search_text }, object.default_language) : object.default_language)
 
     results = object.search_for_similar_articles(search_text, nil, language, settings)
-    results.map(&:as_tipline_search_result).select { |item| item.should_send_in_language?(language, should_restrict_by_language) }
+    results.collect{ |result| result.as_tipline_search_result(settings) }.select{ |result| result.should_send_in_language?(language, should_restrict_by_language) }
   end
 end
