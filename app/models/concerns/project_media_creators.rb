@@ -82,11 +82,17 @@ module ProjectMediaCreators
   def create_media_from_url(type, url, ext)
     klass = type.constantize
     file = download_file(url, ext)
-    m = klass.new
-    m.original_claim = url
-    m.file = file
-    m.save!
-    m
+    existing_media = klass.find_by(original_claim: url)
+
+    if existing_media
+      existing_media
+    else
+      m = klass.new
+      m.original_claim = url
+      m.file = file
+      m.save!
+      m
+    end
   end
 
   def download_file(url, ext)

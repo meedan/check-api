@@ -243,12 +243,26 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     end
   end
 
-  test "should check if the original_claim exists and return that instance when trying to create media" do
+  test "should check if the original_claim text exists and return that instance when trying to create claim media" do
     text = 'This is a claim.'
 
     claim = Claim.create!(quote: text, original_claim: text)
     pm = create_project_media(set_original_claim: text)
 
     assert_equal claim.id, pm.media.id
+  end
+
+  test "should check if the original_claim url exists and return that instance when trying to create UploadedAudio media" do
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+
+      audio = UploadedAudio.create!(file: file, original_claim: audio_url)
+      pm = create_project_media(set_original_claim: audio_url)
+
+      assert_equal audio.id, pm.media.id
+    end
   end
 end
