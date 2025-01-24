@@ -1,5 +1,6 @@
 class TiplineSearchResult
-  attr_accessor :id, :team, :title, :body, :image_url, :language, :url, :type, :format, :link_settings
+  attr_accessor :id, :team, :image_url, :language, :type, :format, :link_settings
+  attr_writer :title, :body, :url
 
   def initialize(id:, team:, title:, body:, image_url:, language:, url:, type:, format:, link_settings: nil)
     self.id = id
