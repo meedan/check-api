@@ -91,7 +91,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     end
   end
 
-  test "should create duplicate media from original claim URL as UploadedImage" do
+  test "should not create duplicate media from original claim URL as UploadedImage" do
     Tempfile.create(['test_image', '.jpg']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
       file.rewind
@@ -101,17 +101,17 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       t = create_team
       create_project team: t
 
-      assert_difference 'ProjectMedia.count', 2 do
+      assert_raise RuntimeError do
         2.times { create_project_media(team: t, set_original_claim: image_url) }
       end
     end
   end
 
-  test "should create duplicate media from original claim URL as Claim" do
+  test "should not create duplicate media from original claim URL as Claim" do
     t = create_team
     create_project team: t
 
-    assert_difference 'ProjectMedia.count', 2 do
+    assert_raise RuntimeError do
       2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
     end
   end
