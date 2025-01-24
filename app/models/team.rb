@@ -569,15 +569,10 @@ class Team < ApplicationRecord
     pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
   end
 
-  def similar_articles_search_language(query, settings)
-    settings.to_h.with_indifferent_access[:enable_language_detection] ? Bot::Smooch.get_language({ 'text' => query }, self.default_language) : nil
-  end
-
-  def search_for_similar_articles(query, pm = nil, settings = nil)
+  def search_for_similar_articles(query, pm = nil, language = nil, settings = nil)
     # query:  expected to be text
     # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
     limit = self.similar_articles_search_limit(pm)
-    language = self.similar_articles_search_language(query, settings)
     threads = []
     fc_items = []
     ex_items = []
