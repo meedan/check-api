@@ -179,10 +179,12 @@ module TeamPrivate
         'Fact-Checks Created': { number_of_fact_checks_created: 'to_i' },
       })
       rates = ts.send('number_of_fact_checks_by_rating').keys
-      # Get the first element to fill the label and callback methods as other element will calling with empty callbacks
-      f_rate = rates.delete_at(0)
-      header.merge!({ "Claim & Fact-Checks (#{f_rate})": { number_of_fact_checks_by_rating: 'values' }})
-      rates.each{ |rate| header.merge!({"Claim & Fact-Checks (#{rate})": {}}) }
+      unless rates.blank?
+        # Get the first element to fill the label and callback methods as other element will calling with empty callbacks
+        f_rate = rates.delete_at(0)
+        header.merge!({ "Claim & Fact-Checks (#{f_rate})": { number_of_fact_checks_by_rating: 'values' }})
+        rates.each{ |rate| header.merge!({"Claim & Fact-Checks (#{rate})": {}}) }
+      end
       top_items = { top_articles_tags: 'Top Article Tags', top_articles_sent: 'Top Fact-Checks Sent' }
     end
     unless top_items.blank?

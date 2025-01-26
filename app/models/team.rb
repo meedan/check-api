@@ -612,6 +612,7 @@ class Team < ApplicationRecord
   end
 
   def get_dashboard_exported_data(filters, dashboard_type)
+    filters = filters.with_indifferent_access
     ts = TeamStatistics.new(self, filters[:period], filters[:language], filters[:platform])
     headers = get_dashboard_export_headers(ts, dashboard_type)
     data = []
