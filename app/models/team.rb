@@ -611,6 +611,32 @@ class Team < ApplicationRecord
     self.settings.to_h.with_indifferent_access[:shorten_outgoing_urls] || self.tipline_newsletters.where(content_type: 'rss', enabled: true).exists?
   end
 
+  def get_dashboard_exported_data(filters, dashboard_type)
+    filters = filters.with_indifferent_access
+    ts = TeamStatistics.new(self, filters[:period], filters[:language], filters[:platform])
+    headers = get_dashboard_export_headers(ts, dashboard_type)
+    data = []
+    # Add header labels
+    data << headers.keys
+    header_methods = headers.values.delete_if{|v| v.blank?}
+    # Merging multiple hashes as single hash
+    header_methods = Hash[*header_methods.map{|v|v.to_a}.flatten]
+    raw = []
+    header_methods.each do |method, type|
+      unless type.blank?
+        output = ts.send(method) if ts.respond_to?(method)
+        if type.is_a?(Proc)
+          output = type.call(output)
+        else
+          output = output.send(type)
+        end
+        raw << output
+      end
+    end
+    data << raw.flatten
+    data
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb

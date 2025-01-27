@@ -1315,4 +1315,24 @@ class TeamTest < ActiveSupport::TestCase
     tn.destroy!
     assert !t.get_shorten_outgoing_urls
   end
+
+  test "should get dashboard data" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    team = create_team
+    pm = create_project_media team: team, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
+    pm2 = create_project_media team: team, channel: { main: CheckChannels::ChannelCodes::WHATSAPP }, disable_es_callbacks: false
+    create_tipline_request team: team.id, associated: pm, disable_es_callbacks: false
+    create_tipline_request team: team.id, associated: pm2, disable_es_callbacks: false
+    sleep 1
+    filters = { period: "past_week", platform: "whatsapp", language: "en" }
+    data = team.get_dashboard_exported_data(filters, 'tipline_dashboard')
+    assert_not_nil data
+    assert_equal data[0].length, data[1].length
+    cd = create_claim_description project_media: pm
+    fc = create_fact_check claim_description: cd, rating: 'in_progress'
+    data = team.get_dashboard_exported_data(filters, 'articles_dashboard')
+    assert_not_nil data
+    assert_equal data[0].length, data[1].length
+  end
 end
