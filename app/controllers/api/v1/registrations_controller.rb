@@ -36,7 +36,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
       render_success user, 'user', 401, error
     rescue ActiveRecord::RecordInvalid => e
       # Check if the error is specifically related to the email being taken
-      if resource.errors.details[:email].any? { |error| error[:error] == :taken } && resource.errors.details.except(:email).empty?
+      if resource.errors.details[:email].any? { |email_error| email_error[:error] == :taken } && resource.errors.details.except(:email).empty?
         # Treat as successful sign-up if only the email is taken
         duplicate_user = User.get_duplicate_user(resource.email, [])[:user]
         User.current = duplicate_user if duplicate_user
