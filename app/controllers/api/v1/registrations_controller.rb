@@ -14,7 +14,6 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
     begin
       duplicate_user = User.get_duplicate_user(resource.email, [])[:user]
       user = resource
-
       if !duplicate_user.nil? && duplicate_user.invited_to_sign_up?
         duplicate_user.accept_invitation_or_confirm
         duplicate_user.password = resource.password
