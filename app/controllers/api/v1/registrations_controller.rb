@@ -14,6 +14,11 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
     begin
       duplicate_user = User.get_duplicate_user(resource.email, [])[:user]
       user = resource
+      error = [
+        {
+          message: I18n.t(:email_exists)
+        }
+      ]
       if !duplicate_user.nil? && duplicate_user.invited_to_sign_up?
         duplicate_user.accept_invitation_or_confirm
         duplicate_user.password = resource.password
@@ -28,7 +33,7 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
 
       User.current = user
       sign_up(resource_name, user)
-      render_success user, 'user', 401
+      render_success user, 'user', 401, error
     rescue ActiveRecord::RecordInvalid => e
       # Check if the error is specifically related to the email being taken
       if resource.errors.details[:email].any? { |error| error[:error] == :taken } && resource.errors.details.except(:email).empty?
@@ -36,11 +41,6 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
         duplicate_user = User.get_duplicate_user(resource.email, [])[:user]
         User.current = duplicate_user if duplicate_user
         sign_up(resource_name, duplicate_user)
-        error = [
-          {
-            message: I18n.t(:email_exists)
-          }
-        ]
         render_success nil, 'user', 401, error
       else
         # For other errors, show the error message in the form
