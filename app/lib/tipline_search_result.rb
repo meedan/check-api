@@ -50,9 +50,6 @@ class TiplineSearchResult
     text << "*#{self.title.strip}*" unless self.title.blank?
     text << self.body.to_s unless hide_body
     text << self.url unless self.url.blank?
-    text = text.collect do |part|
-      self.formatted_value(part)
-    end
     unless language.nil?
       footer = self.footer(language)
       text << footer if !footer.blank? && self.team_report_setting_value('use_signature', language)
