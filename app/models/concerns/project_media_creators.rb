@@ -82,13 +82,14 @@ module ProjectMediaCreators
   def create_media_from_url(type, url, ext)
     klass = type.constantize
     file = download_file(url, ext)
-    existing_media = klass.find_by(original_claim: url)
+    existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
 
     if existing_media
       existing_media
     else
       m = klass.new
       m.original_claim = url
+      m.original_claim_hash = Digest::MD5.hexdigest(url)
       m.file = file
       m.save!
       m
@@ -106,14 +107,14 @@ module ProjectMediaCreators
   end
 
   def create_claim_media(text)
-    Claim.find_by(original_claim: text) || Claim.create!(quote: text, original_claim: text)
+    Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text, original_claim_hash: Digest::MD5.hexdigest(text))
   end
 
   def create_link_media(url)
     team = self.team || Team.current
     pender_key = team.get_pender_key if team
     url_from_pender = Link.normalized(url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.create!(url: url, pender_key: pender_key, original_claim: url)
+    Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url, original_claim_hash: Digest::MD5.hexdigest(url))
   end
 
   def set_quote_metadata
