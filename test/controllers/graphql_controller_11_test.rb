@@ -302,7 +302,7 @@ class GraphqlController11Test < ActionController::TestCase
     assert_equal 2, JSON.parse(@response.body).dig('data', 'team', 'tipline_requests', 'edges').size
   end
 
-  test "super admin user should receive the 3 matching FactChecks or Explainers based on search_text" do
+  test "super admin user should receive 3 matching fact-checks or explainers based on search text and arguments sent to bot query" do
     t = create_team
     # Create a super admin user
     super_admin = create_user(is_admin: true)
@@ -333,11 +333,11 @@ class GraphqlController11Test < ActionController::TestCase
     pm3.explainers << ex5
     pm3.explainers << ex6
 
-    # Perform the GraphQL query with searchText "123"
+    # Perform the GraphQL query with searchText "Foo"
     query = <<~GRAPHQL
       query {
         team(slug: "#{t.slug}") {
-          bot_query(searchText: "Foo") {
+          bot_query(searchText: "Foo", threshold: 0.75, maxNumberOfWords: 2, enableLanguageDetection: false, shouldRestrictByLanguage: true, enableLinkShortening: true, utmCode: "test") {
             title
             type
           }
