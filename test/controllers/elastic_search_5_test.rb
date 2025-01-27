@@ -67,27 +67,6 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal 1, results.size
   end
 
-  test "should destroy related items" do
-    t = create_team
-    p = create_project team: t
-    m = create_claim_media
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      c = create_comment annotated: pm, disable_es_callbacks: false
-      sleep 1
-      result = $repository.find(get_es_id(pm))
-      assert_equal 1, result['comments'].count
-      id = pm.id
-      m.destroy
-      assert_equal 0, ProjectMedia.where(media_id: id).count
-      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
-      sleep 1
-      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
-        $repository.find(get_es_id(pm))
-      end
-    end
-  end
-
   test "should destroy related items 2" do
     t = create_team
     p = create_project team: t
@@ -106,28 +85,6 @@ class ElasticSearch5Test < ActionController::TestCase
         assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
       end
     end
-  end
-
-  test "should create update destroy elasticsearch comment" do
-    t = create_team
-    p = create_project team: t
-    m = create_valid_media
-    s = create_source
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    c = create_comment annotated: pm, text: 'test', disable_es_callbacks: false
-    sleep 1
-    result = $repository.find(get_es_id(pm))
-    assert_equal [c.id], result['comments'].collect{|i| i["id"]}
-    # update es comment
-    c.text = 'test-mod'; c.save!
-    sleep 1
-    result = $repository.find(get_es_id(pm))
-    assert_equal ['test-mod'], result['comments'].collect{|i| i["text"]}
-    # destroy es comment
-    c.destroy
-    sleep 1
-    result = $repository.find(get_es_id(pm))
-    assert_empty result['comments']
   end
 
   test "should create update destroy elasticsearch tag" do

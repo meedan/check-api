@@ -595,7 +595,7 @@ class ProjectMedia < ApplicationRecord
     # set fields with integer value including cached fields
     fields_i = [
       'archived', 'sources_count', 'linked_items_count', 'share_count','last_seen', 'demand', 'user_id',
-      'read', 'suggestions_count','related_count', 'reaction_count', 'comment_count', 'media_published_at',
+      'read', 'suggestions_count','related_count', 'reaction_count', 'media_published_at',
       'unmatched', 'fact_check_published_on'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
