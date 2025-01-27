@@ -352,14 +352,16 @@ class ProjectMedia < ApplicationRecord
   def replace_merge_assignments(assignments_ids)
     unless assignments_ids.blank?
       status = self.last_status_obj
-      assignments_uids = status.assignments.map(&:user_id)
-      Assignment.where(id: assignments_ids).find_each do |as|
-        if assignments_uids.include?(as.user_id)
-          as.skip_check_ability = true
-          as.delete
-        else
-          as.update_columns(assigned_id: status.id)
-          as.send(:increase_assignments_count)
+      unless status.nil?
+        assignments_uids = status.assignments.map(&:user_id)
+        Assignment.where(id: assignments_ids).find_each do |as|
+          if assignments_uids.include?(as.user_id)
+            as.skip_check_ability = true
+            as.delete
+          else
+            as.update_columns(assigned_id: status.id)
+            as.send(:increase_assignments_count)
+          end
         end
       end
     end
