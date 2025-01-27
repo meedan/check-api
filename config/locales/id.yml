@@ -274,7 +274,7 @@ id:
   account_exists: Akun ini sudah ada
   media_exists: Perihal ini sudah ada
   source_exists: Sumber ini sudah ada
-  email_exists: Silakan periksa email Anda.
+  email_exists: Silakan periksa email Anda. Jika tidak ada akun dengan email tersebut, Anda seharusnya menerima email konfirmasi. Jika Anda tidak menerima email konfirmasi, coba atur ulang kata sandi Anda atau hubungi dukungan kami.
   banned_user: 'Maaf, akun Anda telah dilarang dari %{app_name}. Mohon hubungi tim dukungan jika Anda merasa ini adalah sebuah kesalahan. '
   devise:
     mailer:

@@ -36,7 +36,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     p1 = random_complex_password
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: email, login: 'test', name: 'Test' } }
-      assert_response :success
+      assert_response 401
     end
   end
 
@@ -45,7 +45,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     User.any_instance.stubs(:confirmation_required?).returns(false)
     assert_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: 't@test.com', login: 'test', name: 'Test' } }
-      assert_response :success
+      assert_response 401
     end
     User.any_instance.unstub(:confirmation_required?)
   end
@@ -151,7 +151,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     assert_no_difference 'User.count' do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: existing_user.email, login: 'test', name: 'Test' } }
       assert_response 401
-      assert_equal 'Please check your email.', response.parsed_body.dig("errors", 0, "message")
+      assert_equal 'Please check your email. If an account with that email doesn’t exist, you should have received a confirmation email. If you don’t receive a confirmation e-mail, try to reset your password or get in touch with our support.', response.parsed_body.dig("errors", 0, "message")
     end
   end
 
@@ -161,7 +161,7 @@ class RegistrationsControllerTest < ActionController::TestCase
     assert_difference 'User.count', 1 do
       post :create, params: { api_user: { password: p1, password_confirmation: p1, email: 'non_existing@test.com', login: 'test', name: 'Test' } }
       assert_response 401
-      assert_equal 'Please check your email.', JSON.parse(response.parsed_body).dig("errors", 0, "message")
+      assert_equal 'Please check your email. If an account with that email doesn’t exist, you should have received a confirmation email. If you don’t receive a confirmation e-mail, try to reset your password or get in touch with our support.', JSON.parse(response.parsed_body).dig("errors", 0, "message")
     end
   end
 end
