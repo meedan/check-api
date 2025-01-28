@@ -2,3 +2,4 @@
 /.github/ @dmou
 /production/ @dmou
 Dockerfile @dmou
+/docker* @dmou
