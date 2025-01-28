@@ -282,7 +282,7 @@ es:
   account_exists: Esta cuenta ya existe
   media_exists: Este ítem ya existe
   source_exists: Esta fuente ya existe
-  email_exists: ya está en uso
+  email_exists: Por favor, revise su correo electrónico. Si no existe una cuenta con ese correo, debería haber recibido un correo de confirmación. Si no recibe un correo de confirmación, intente restablecer su contraseña o póngase en contacto con nuestro soporte.
   banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor comunícate con nuestro equipo de soporte técnico si crees que ha sido un error.
   devise:
     mailer:
