@@ -76,6 +76,27 @@ class Media < ApplicationRecord
     ''
   end
 
+  def self.find_or_create_from_original_claim(claim, project_media_team)
+    if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(claim)
+      content_type = fetch_content_type(uri)
+      ext = File.extname(uri.path)
+
+      case content_type
+      when /^image\//
+        create_uploaded_file_media_from_url('UploadedImage', claim, ext)
+      when /^video\//
+        create_uploaded_file_media_from_url('UploadedVideo', claim, ext)
+      when /^audio\//
+        create_uploaded_file_media_from_url('UploadedAudio', claim, ext)
+      else
+        create_link_media(claim, project_media_team)
+      end
+    else
+      create_claim_media(claim)
+    end
+  end
+
   private
 
   def set_url_nil_if_empty
@@ -102,5 +123,44 @@ class Media < ApplicationRecord
 
   def set_uuid
     self.update_column(:uuid, self.id)
+  end
+
+
+  def self.fetch_content_type(uri)
+    response = Net::HTTP.get_response(uri)
+    response['content-type']
+  end
+
+  def self.create_uploaded_file_media_from_url(media_type, url, ext)
+    klass = media_type.constantize
+    puts klass
+    file = download_file(url, ext)
+    existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
+
+    if existing_media
+      existing_media
+    else
+      klass.create!(file: file, original_claim: url, original_claim_hash: Digest::MD5.hexdigest(url))
+    end
+  end
+
+  def self.download_file(url, ext)
+    raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
+
+    file = Tempfile.new(['download', ext])
+    file.binmode
+    file.write(URI(url).open.read)
+    file.rewind
+    file
+  end
+
+  def self.create_claim_media(text)
+    Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text, original_claim_hash: Digest::MD5.hexdigest(text))
+  end
+
+  def self.create_link_media(url, project_media_team)
+    pender_key = project_media_team.get_pender_key if project_media_team
+    url_from_pender = Link.normalized(url, pender_key)
+    Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url, original_claim_hash: Digest::MD5.hexdigest(url))
   end
 end
