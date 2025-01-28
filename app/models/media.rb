@@ -11,7 +11,7 @@ class Media < ApplicationRecord
   has_many :requests, dependent: :destroy
   has_annotations
 
-  before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
+  before_validation :set_type, :set_url_nil_if_empty, :set_user, :set_original_claim_hash, on: :create
 
   after_create :set_uuid
 
@@ -125,6 +125,9 @@ class Media < ApplicationRecord
     self.update_column(:uuid, self.id)
   end
 
+  def set_original_claim_hash
+    self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
+  end
 
   def self.fetch_content_type(uri)
     response = Net::HTTP.get_response(uri)
@@ -133,14 +136,13 @@ class Media < ApplicationRecord
 
   def self.create_uploaded_file_media_from_url(media_type, url, ext)
     klass = media_type.constantize
-    puts klass
     file = download_file(url, ext)
     existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
 
     if existing_media
       existing_media
     else
-      klass.create!(file: file, original_claim: url, original_claim_hash: Digest::MD5.hexdigest(url))
+      klass.create!(file: file, original_claim: url)
     end
   end
 
@@ -155,12 +157,12 @@ class Media < ApplicationRecord
   end
 
   def self.create_claim_media(text)
-    Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text, original_claim_hash: Digest::MD5.hexdigest(text))
+    Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text)
   end
 
   def self.create_link_media(url, project_media_team)
     pender_key = project_media_team.get_pender_key if project_media_team
     url_from_pender = Link.normalized(url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url, original_claim_hash: Digest::MD5.hexdigest(url))
+    Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url)
   end
 end
