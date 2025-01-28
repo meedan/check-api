@@ -365,7 +365,7 @@ Use this method in order to create a new user account
 {
   "errors": [
     {
-      "message": "Please check your email to verify your account.",
+      "message": "Please check your email. If an account with that email doesn’t exist, you should have received a confirmation email. If you don’t receive a confirmation e-mail, try to reset your password or get in touch with our support.",
       "code": 1,
       "data": {
       }

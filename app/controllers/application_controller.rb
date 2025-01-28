@@ -32,11 +32,12 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def render_success(type = 'success', object = nil)
+  def render_success(type = 'success', object = nil, status = 200, errors = nil)
     json = { type: type }
     json[:data] = object unless object.nil?
-    logger.info message: json, status: 200
-    render json: json, status: 200
+    json[:errors] = errors unless errors.nil?
+    logger.info message: json, status: status
+    render json: json, status: status
   end
 
   def render_error(message, code, status = 400)
