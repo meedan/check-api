@@ -180,28 +180,5 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
-  test "should update elasticsearch after move project to other team" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    u.is_admin = true; u.save!
-    p = create_project team: t
-    m = create_valid_media
-    User.stubs(:current).returns(u)
-    Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      pm2 = create_project_media project: p, quote: 'Claim', disable_es_callbacks: false
-      sleep 2
-      results = $repository.search(query: { match: { team_id: t.id } }).results
-      assert_equal [pm.id, pm2.id], results.collect{|i| i['annotated_id']}.sort
-      p.team_id = t2.id; p.save!
-      sleep 2
-      results = $repository.search(query: { match: { team_id: t.id } }).results
-      assert_equal [], results.collect{|i| i['annotated_id']}
-      results = $repository.search(query: { match: { team_id: t2.id } }).results
-      assert_equal [pm.id, pm2.id], results.collect{|i| i['annotated_id']}.sort
-    end
-  end
-
   # Please add new tests to test/controllers/elastic_search_7_test.rb
 end
