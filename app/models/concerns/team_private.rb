@@ -153,7 +153,7 @@ module TeamPrivate
     # Hash to include top items as the header label depend on top_items size
     top_items = {}
     # tipline_dashboard columns
-    if dashboard_type == :tipline_dashboard
+    if dashboard_type.to_sym == :tipline_dashboard
       header.merge!({
         'Conversations': { number_of_conversations: 'to_i' },
         'Messages': { number_of_messages: 'to_i' },
