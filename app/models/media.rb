@@ -80,7 +80,7 @@ class Media < ApplicationRecord
   def self.find_or_create_from_original_claim(claim, project_media_team)
     if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(claim)
-      content_type = fetch_content_type(uri)
+      content_type = Net::HTTP.get_response(uri)['content-type']
       ext = File.extname(uri.path)
 
       case content_type
@@ -128,11 +128,6 @@ class Media < ApplicationRecord
 
   def set_original_claim_hash
     self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
-  end
-
-  def self.fetch_content_type(uri)
-    response = Net::HTTP.get_response(uri)
-    response['content-type']
   end
 
   def self.create_uploaded_file_media_from_original_claim(media_type, url, ext)
