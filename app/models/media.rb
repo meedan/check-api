@@ -20,6 +20,7 @@ class Media < ApplicationRecord
   end
 
   validates_inclusion_of :type, in: Media.types
+  validates_uniqueness_of :original_claim_hash, allow_nil: true
 
   def class_name
     'Media'
