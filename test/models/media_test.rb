@@ -627,4 +627,123 @@ class MediaTest < ActiveSupport::TestCase
     create_project_media media: c2
     assert_equal c1.id, c2.uuid
   end
+
+  test "Claim Media: should save the original_claim and original_claim_hash when created from original claim" do
+    claim = 'This is a claim.'
+    claim_media = Media.create_claim_media_from_original_claim(claim)
+
+    assert_not_nil claim_media.original_claim_hash
+    assert_not_nil claim_media.original_claim
+    assert_equal claim, claim_media.original_claim
+  end
+
+  test "Claim Media: should not save original_claim and original_claim_hash when not created from original claim" do
+    claim_media = Claim.create!(quote: 'This is a claim.')
+    assert_nil claim_media.original_claim_hash
+    assert_nil claim_media.original_claim
+  end
+
+  test "Claim Media: should not create duplicate media if media with original_claim_hash exists" do
+    assert_difference 'Claim.count', 1 do
+      2.times { Media.create_claim_media_from_original_claim('This is a claim.') }
+    end
+  end
+
+  test "Link Media: should save the original_claim and original_claim_hash when created from original claim" do
+    team = create_team
+
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    link_response = {
+      type: 'media',
+      data: {
+        url: link_url,
+        type: 'item'
+      }
+    }.to_json
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+
+    link_media = Media.create_link_media_from_original_claim(link_url, team)
+
+    assert_not_nil link_media.original_claim_hash
+    assert_not_nil link_media.original_claim
+    assert_equal link_url, link_media.original_claim
+  end
+
+  test "Link Media: should not save original_claim and original_claim_hash when not created from original claim" do
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    link_response = {
+      type: 'media',
+      data: {
+        url: link_url,
+        type: 'item'
+      }
+    }.to_json
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+
+    link_media = Link.create!(url: link_url)
+
+    assert_nil link_media.original_claim_hash
+    assert_nil link_media.original_claim
+  end
+
+  test "Link Media: should not create duplicate media if media with original_claim_hash exists" do
+    team = create_team
+
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    link_response = {
+      type: 'media',
+      data: {
+        url: link_url,
+        type: 'item'
+      }
+    }.to_json
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+
+    assert_difference 'Link.count', 1 do
+      2.times { Media.create_link_media_from_original_claim(link_url, team) }
+    end
+  end
+
+  test "Uploaded Media: should save the original_claim and original_claim_hash when created from original claim" do
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      ext = File.extname(URI.parse(audio_url).path)
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+
+      uploaded_media = Media.create_uploaded_file_media_from_original_claim('UploadedAudio', audio_url, ext)
+
+      assert_not_nil uploaded_media.original_claim_hash
+      assert_not_nil uploaded_media.original_claim
+      assert_equal audio_url, uploaded_media.original_claim
+    end
+  end
+
+  test "Uploaded Media: should not save original_claim and original_claim_hash when not created from original claim" do
+    uploaded_media = create_uploaded_audio
+
+    assert_nil uploaded_media.original_claim_hash
+    assert_nil uploaded_media.original_claim
+  end
+
+  test "Uploaded Media: should not create duplicate media if media with original_claim_hash exists" do
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      ext = File.extname(URI.parse(audio_url).path)
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+
+      assert_difference 'UploadedAudio.count', 1 do
+        2.times { Media.create_uploaded_file_media_from_original_claim('UploadedAudio', audio_url, ext) }
+      end
+    end
+  end
 end
