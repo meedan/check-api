@@ -249,7 +249,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
   test "should check if the original_claim text exists and return that instance when trying to create claim media" do
     text = 'This is a claim.'
 
-    claim = Claim.create!(quote: text, original_claim: text, original_claim_hash: Digest::MD5.hexdigest(text))
+    claim = Claim.create!(quote: text, original_claim: text)
     pm = create_project_media(set_original_claim: text)
 
     assert_equal claim.id, pm.media.id
@@ -262,7 +262,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       audio_url = "http://example.com/#{file.path.split('/').last}"
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
 
-      audio = UploadedAudio.create!(file: file, original_claim: audio_url, original_claim_hash: Digest::MD5.hexdigest(audio_url))
+      audio = UploadedAudio.create!(file: file, original_claim: audio_url)
       pm = create_project_media(set_original_claim: audio_url)
 
       assert_equal audio.id, pm.media.id
