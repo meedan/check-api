@@ -22,6 +22,7 @@ class CheckSearch
     @options['esoffset'] ||= 0
     adjust_es_window_size
 
+    adjust_show_filter
     adjust_channel_filter
     adjust_numeric_range_filter
     adjust_archived_filter
@@ -426,6 +427,13 @@ class CheckSearch
     if @options['channels'].is_a?(Array) && @options['channels'].include?('any_tipline')
       channels = @options['channels'] - ['any_tipline']
       @options['channels'] = channels.map(&:to_i).concat(CheckChannels::ChannelCodes::TIPLINE).uniq
+    end
+  end
+
+  def adjust_show_filter
+    if @options['show'].is_a?(Array) && @options['show'].include?('social_media')
+      @options['show'].concat(%w[twitter youtube tiktok instagram facebook telegram]).delete('social_media')
+      @options['show'].uniq!
     end
   end
 
