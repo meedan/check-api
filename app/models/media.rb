@@ -133,7 +133,7 @@ class Media < ApplicationRecord
   def self.find_or_create_uploaded_file_media_from_original_claim(media_type, url, ext)
     klass = media_type.constantize
     existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
-    
+
     if existing_media
       existing_media
     else
