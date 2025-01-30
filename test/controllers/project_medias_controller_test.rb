@@ -3,6 +3,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'test_helper')
 class ProjectMediasControllerTest < ActionController::TestCase
   def setup
     super
+    Sidekiq::Testing.fake!
     @controller = Api::V1::ProjectMediasController.new
     @request.env["devise.mapping"] = Devise.mappings[:api_user]
     sign_out('user')
