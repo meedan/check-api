@@ -85,16 +85,16 @@ class Media < ApplicationRecord
 
       case content_type
       when /^image\//
-        create_uploaded_file_media_from_original_claim('UploadedImage', claim, ext)
+        find_or_create_uploaded_file_media_from_original_claim('UploadedImage', claim, ext)
       when /^video\//
-        create_uploaded_file_media_from_original_claim('UploadedVideo', claim, ext)
+        find_or_create_uploaded_file_media_from_original_claim('UploadedVideo', claim, ext)
       when /^audio\//
-        create_uploaded_file_media_from_original_claim('UploadedAudio', claim, ext)
+        find_or_create_uploaded_file_media_from_original_claim('UploadedAudio', claim, ext)
       else
-        create_link_media_from_original_claim(claim, project_media_team)
+        find_or_create_link_media_from_original_claim(claim, project_media_team)
       end
     else
-      create_claim_media_from_original_claim(claim)
+      find_or_create_claim_media_from_original_claim(claim)
     end
   end
 
@@ -130,7 +130,7 @@ class Media < ApplicationRecord
     self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
   end
 
-  def self.create_uploaded_file_media_from_original_claim(media_type, url, ext)
+  def self.find_or_create_uploaded_file_media_from_original_claim(media_type, url, ext)
     klass = media_type.constantize
     existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
     
@@ -152,11 +152,11 @@ class Media < ApplicationRecord
     file
   end
 
-  def self.create_claim_media_from_original_claim(text)
+  def self.find_or_create_claim_media_from_original_claim(text)
     Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text)
   end
 
-  def self.create_link_media_from_original_claim(url, project_media_team)
+  def self.find_or_create_link_media_from_original_claim(url, project_media_team)
     pender_key = project_media_team.get_pender_key if project_media_team
     url_from_pender = Link.normalized(url, pender_key)
     Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url)
