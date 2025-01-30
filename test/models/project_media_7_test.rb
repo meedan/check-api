@@ -198,8 +198,6 @@ class ProjectMedia7Test < ActiveSupport::TestCase
   end
 
   test "should save the original_claim url and original_claim_hash when Link Media is created from original_claim" do
-    setup_elasticsearch
-
     # Mock Pender response for Link
     link_url = 'https://example.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
