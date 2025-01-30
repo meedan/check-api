@@ -358,7 +358,7 @@ module AlegreV2
             context: result["context"],
             model: result["model"],
             source_field: get_target_field(project_media, field),
-            target_field: get_target_field(project_media, result["field"] || result["context"]["field"]),
+            target_field: get_target_field(project_media, result["field"] || result.dig("context", "field")),
             relationship_type: relationship_type
           }
         ]
