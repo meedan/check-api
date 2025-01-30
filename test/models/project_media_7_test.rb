@@ -91,7 +91,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     end
   end
 
-  test "should create duplicate media from original claim URL as UploadedImage" do
+  test "should not create duplicate media from original claim URL as UploadedImage" do
     Tempfile.create(['test_image', '.jpg']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
       file.rewind
@@ -101,17 +101,17 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       t = create_team
       create_project team: t
 
-      assert_difference 'ProjectMedia.count', 2 do
+      assert_raise RuntimeError do
         2.times { create_project_media(team: t, set_original_claim: image_url) }
       end
     end
   end
 
-  test "should create duplicate media from original claim URL as Claim" do
+  test "should not create duplicate media from original claim URL as Claim" do
     t = create_team
     create_project team: t
 
-    assert_difference 'ProjectMedia.count', 2 do
+    assert_raise RuntimeError do
       2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
     end
   end
@@ -194,6 +194,76 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     pm2 = ProjectMedia.new team: t, set_fact_check: { 'language' => 'en' }
     assert_raise ActiveRecord::RecordInvalid do
       ProjectMedia.handle_fact_check_for_existing_claim(pm1, pm2)
+    end
+  end
+
+  test "should save the original_claim url and original_claim_hash when Link Media is created from original_claim" do
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    link_response = {
+      type: 'media',
+      data: {
+        url: link_url,
+        type: 'item'
+      }
+    }.to_json
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
+    
+    pm_link = create_project_media(set_original_claim: link_url)
+    media = pm_link.media
+    
+    assert_not_nil media.original_claim
+    assert_not_nil media.original_claim_hash
+    assert_equal link_url, media.original_claim
+  end
+
+  test "should save the original_claim text and original_claim_hash when Claim media is created from original_claim" do
+    claim = 'This is a claim.'
+    pm_claim = create_project_media(set_original_claim: claim)
+    media = pm_claim.media
+    
+    assert_not_nil media.original_claim
+    assert_not_nil media.original_claim_hash
+    assert_equal claim, media.original_claim
+  end
+
+  test "should save the original_claim url and original_claim_hash when UploadedAudio Media is created from original_claim" do
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+      
+      pm_audio = create_project_media(set_original_claim: audio_url)
+      media = pm_audio.media
+      
+      assert_not_nil media.original_claim
+      assert_not_nil media.original_claim_hash
+      assert_equal audio_url, media.original_claim
+    end
+  end
+
+  test "should check if the original_claim text exists and return that instance when trying to create claim media" do
+    text = 'This is a claim.'
+
+    claim = Claim.create!(quote: text, original_claim: text)
+    pm = create_project_media(set_original_claim: text)
+
+    assert_equal claim.id, pm.media.id
+  end
+
+  test "should check if the original_claim url exists and return that instance when trying to create UploadedAudio media" do
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+
+      audio = UploadedAudio.create!(file: file, original_claim: audio_url)
+      pm = create_project_media(set_original_claim: audio_url)
+
+      assert_equal audio.id, pm.media.id
     end
   end
 end
