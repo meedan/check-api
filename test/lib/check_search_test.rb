@@ -26,4 +26,9 @@ class CheckSearchTest < ActiveSupport::TestCase
     search = CheckSearch.new({ users: [1, nil] }.to_json, nil, @team.id)
     assert_not_nil search.send(:doc_conditions)
   end
+
+  test "should adjust social media filter" do
+    search = CheckSearch.new({ show: ['social_media', 'images'] }.to_json, nil, @team.id)
+    assert_equal ['images', 'twitter', 'youtube', 'tiktok', 'instagram', 'facebook', 'telegram'].sort, search.instance_variable_get('@options')['show'].sort
+  end
 end
