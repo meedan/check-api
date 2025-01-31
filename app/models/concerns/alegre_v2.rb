@@ -129,6 +129,7 @@ module AlegreV2
           self.request(method, path, params, retries - 1)
         end
         Rails.logger.error("[Alegre Bot] Alegre error: (#{method}, #{path}, #{params.inspect}, #{retries}), #{e.inspect} #{e.message}")
+        CheckSentry.notify(e, bot: 'alegre', method: method, path: path, params: params, retries: retries)
         { 'type' => 'error', 'data' => { 'message' => e.message } }
       end
     end
