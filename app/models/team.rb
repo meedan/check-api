@@ -577,14 +577,10 @@ class Team < ApplicationRecord
     fc_items = []
     ex_items = []
     threads << Thread.new {
-      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, language, false, settings).map(&:id)
+      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, language, pm.nil?, settings).map(&:id)
       unless result_ids.blank?
         fc_items = FactCheck.joins(claim_description: :project_media).where('project_medias.id': result_ids)
-        if pm.nil?
-          # This means we obtain relevant items for the Bot preview, so we should limit FactChecks to published articles;
-          # otherwise, relevant articles for ProjectMedia should include all FactChecks.
-          fc_items = fc_items.where(report_status: 'published')
-        elsif !pm.fact_check_id.nil?
+        if !pm&.fact_check_id.nil?
           # Exclude the ones already applied to a target item if exists.
           fc_items = fc_items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
         end
