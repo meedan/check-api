@@ -124,12 +124,12 @@ module AlegreV2
         Rails.logger.info("[Alegre Bot] Alegre response: #{parsed_response.inspect}")
         parsed_response
       rescue StandardError => e
+        Rails.logger.error("[Alegre Bot] Alegre error: (#{method}, #{path}, #{params.inspect}, #{retries}), #{e.inspect} #{e.message}")
+        CheckSentry.notify(e, bot: 'alegre', method: method, path: path, params: params, retries: retries)
         if retries > 0
-          Rails.logger.error("[Alegre Bot] Alegre error: (#{method}, #{path}, #{params.inspect}, #{retries}), #{e.inspect} #{e.message}")
           sleep 1
           self.request(method, path, params, retries - 1)
         end
-        CheckSentry.notify(e, bot: 'alegre', method: method, path: path, params: params, retries: retries)
         { 'type' => 'error', 'data' => { 'message' => e.message } }
       end
     end
