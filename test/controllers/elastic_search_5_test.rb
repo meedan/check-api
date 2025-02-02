@@ -67,6 +67,24 @@ class ElasticSearch5Test < ActionController::TestCase
     assert_equal 1, results.size
   end
 
+  test "should destroy related items" do
+    t = create_team
+    p = create_project team: t
+    m = create_claim_media
+    Sidekiq::Testing.inline! do
+      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      c = create_comment annotated: pm, disable_es_callbacks: false
+      id = pm.id
+      m.destroy
+      assert_equal 0, ProjectMedia.where(media_id: id).count
+      assert_equal 0, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
+      sleep 1
+      assert_raise Elasticsearch::Persistence::Repository::DocumentNotFound do
+        $repository.find(get_es_id(pm))
+      end
+    end
+  end
+
   test "should destroy related items 2" do
     t = create_team
     p = create_project team: t
@@ -126,9 +144,8 @@ class ElasticSearch5Test < ActionController::TestCase
 
   test "should create parent if not exists" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    c = create_comment annotated: pm, disable_es_callbacks: false
+    pm = create_project_media team: t
+    t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
     sleep 1
     result = $repository.find(get_es_id(pm))
     assert_not_nil result
