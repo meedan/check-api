@@ -75,7 +75,7 @@ class Bot::Smooch < BotUser
 
           # A relationship created by the Smooch Bot or Alegre Bot is related to search results (unless it's a suggestion that was confirmed), so the user has already received the report as a search result... no need to send another report
           # Only send a report for (1) Confirmed matches created manually OR (2) Suggestions accepted
-          created_by_bot = [BotUser.smooch_user&.id, BotUser.alegre_user&.id].include?(relationship.user_id)
+          created_by_bot = BotUser.where(login: ['alegre', 'smooch'], id: relationship.user_id).exists?
           ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id) if !created_by_bot || relationship.confirmed_by
         end
       end
