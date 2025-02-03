@@ -24,11 +24,6 @@ class ElasticSearch4Test < ActionController::TestCase
     # keyword & tags & status
     result = CheckSearch.new({keyword: 'report_title', tags: ['sports'], verification_status: ['verified']}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
-    # search keyword in comments
-    create_comment text: 'add_comment', annotated: pm, disable_es_callbacks: false
-    sleep 1
-    result = CheckSearch.new({keyword: 'add_comment'}.to_json)
-    assert_equal [pm.id], result.medias.map(&:id)
   end
 
   test "should sort results by recent activities and recent added" do

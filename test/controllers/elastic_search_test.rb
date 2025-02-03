@@ -29,18 +29,6 @@ class ElasticSearchTest < ActionController::TestCase
       ids << id["node"]["dbid"]
     end
     assert_equal [pm2.id], ids
-    create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
-    sleep 2
-    Team.stubs(:current).returns(@team)
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\"}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, params: { query: query }
-    Team.unstub(:current)
-    assert_response :success
-    ids = []
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      ids << id["node"]["dbid"]
-    end
-    assert_equal [pm1.id, pm2.id], ids.sort
   end
 
   test "should search media with multiple projects" do

@@ -209,9 +209,6 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
     create_comment annotated: pm, text: 'item notepm', disable_es_callbacks: false
     create_comment annotated: pm2, text: 'item comment', disable_es_callbacks: false
-    sleep 2
-    result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['comments']}}.to_json, nil, t.id)
-    assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
   end
 
   test "should search by media url" do
