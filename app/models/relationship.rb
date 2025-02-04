@@ -158,6 +158,7 @@ class Relationship < ApplicationRecord
 
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
     r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
+    r = Relationship.where(target_id: target_id).last if r.nil?
     exception_message = nil
     exception_class = nil
     if r.nil?
