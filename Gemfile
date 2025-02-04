@@ -11,6 +11,7 @@ group :test do
   gem 'parallel_tests', '3.13.0'
   gem 'minitest', '~> 5.14'
   gem 'minitest-hooks'
+  gem 'minitest-reporters'
   gem 'simplecov', '0.17.0', require: false
   gem 'simplecov-console', require: false
   gem 'codeclimate-test-reporter', '1.0.7', require: nil

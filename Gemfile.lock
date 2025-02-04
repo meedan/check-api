@@ -424,6 +424,11 @@ GEM
     minitest (5.19.0)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
+    minitest-reporters (1.7.1)
+      ansi
+      builder
+      minitest (>= 5.0)
+      ruby-progressbar
     minitest-retry (0.2.2)
       minitest (>= 5.0)
     mocha (2.1.0)
@@ -938,6 +943,7 @@ DEPENDENCIES
   mini_magick (= 4.10.1)
   minitest (~> 5.14)
   minitest-hooks
+  minitest-reporters
   minitest-retry
   mocha (~> 2.0)
   multi_json (= 1.15.0)
@@ -1036,4 +1042,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.19
+   2.5.23
