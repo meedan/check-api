@@ -1,16 +1,4 @@
 require 'minitest/hooks/test'
-require 'minitest/reporters'
-
-Minitest::Reporters.use! Minitest::Reporters::DefaultReporter.new
-
-# Capture start time
-$start_time = Time.now
-
-# Hook to print the total execution time after tests finish
-Minitest.after_run do
-  total_time = Time.now - $start_time
-  puts "\nTotal test time: #{total_time.round(2)} seconds"
-end
 
 # Avoid coverage report when running a single test
 unless ARGV.include?('-n')
