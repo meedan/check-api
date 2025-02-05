@@ -395,8 +395,8 @@ module SmoochMessages
     end
 
     def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_id = nil, associated_class = nil)
-    # associated: is the the "first media" and will be the source of the Relationship
-    # associated_obj: is used for TiplineRequest (smooch_resource_id field)
+      # associated: is the the "first media" and will be the source of the Relationship
+      # associated_obj: is used for TiplineRequest (smooch_resource_id field)
       message = JSON.parse(message_json)
       return if TiplineRequest.where(smooch_message_id: message['_id']).exists?
       associated_obj = nil
