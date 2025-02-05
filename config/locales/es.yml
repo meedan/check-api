@@ -73,6 +73,7 @@ es:
         description: 'Conclusión: la fuente es un farsante  '
   errors:
     messages:
+      extension_whitelist_error: extensión no es admitida
       invalid_password: Contraseña incorrecta
       invalid_qrcode: Código de validación incorrecto
       extension_white_list_error: 'no puede ser de tipo %{extension}, tipos permitidos: %{allowed_types}'
@@ -93,9 +94,10 @@ es:
       invalid_project_media_channel_value: Lo sentimos, el valor del canal no es compatible
       invalid_project_media_channel_update: Lo sentimos, no pudiste actualizar el valor del canal
       invalid_project_media_archived_value: Lo sentimos, el valor archivado no es compatible
-      invalid_fact_check_language_value: Lo sentimos, valor de idioma no admitido
+      invalid_article_language_value: Lo sentimos, valor de idioma no admitido
       fact_check_empty_title_and_summary: Lo sentimos, debes llenar el título o resumen
       invalid_feed_saved_search_value: debe pertenecer a un área de trabajo que sea parte de este feed
+      platform_allowed_values_error: 'no puede ser del tipo %{type}, tipos permitidos: %{allowed_types}'
   activerecord:
     models:
       link: Enlace
@@ -146,6 +148,10 @@ es:
           attributes:
             slug:
               slug_format: acepta solo letras, números y guiones
+        user:
+          attributes:
+            email:
+              taken: Por favor, revisa tu correo electrónico. Si no existe una cuenta con ese correo, deberías haber recibido un correo de confirmación. Si no recibes un correo de confirmación, intenta restablecer tu contraseña o contáctate con nuestro soporte.
       messages:
         record_invalid: "%{errors}"
         improbable_phone: 'es un número inválido '
@@ -282,7 +288,8 @@ es:
   account_exists: Esta cuenta ya existe
   media_exists: Este ítem ya existe
   source_exists: Esta fuente ya existe
-  email_exists: Por favor, revise su correo electrónico. Si no existe una cuenta con ese correo, debería haber recibido un correo de confirmación. Si no recibe un correo de confirmación, intente restablecer su contraseña o póngase en contacto con nuestro soporte.
+  email_exists: Por favor, revisa tu correo electrónico. Si no existe una cuenta con ese correo, deberías haber recibido un correo de confirmación. Si no recibes un correo de confirmación, intenta restablecer tu contraseña o contáctate con nuestro soporte.
+  error_password_not_strong: "No cumple con el requisito de complejidad. La longitud debe ser 8-70 caracteres e incluir al menos: 1 mayúscula, 1 minúscula, 1 dígito y 1 carácter especial"
   banned_user: Lo sentimos, tu cuenta ha sido suspendida de %{app_name}. Por favor comunícate con nuestro equipo de soporte técnico si crees que ha sido un error.
   devise:
     mailer:
@@ -306,7 +313,7 @@ es:
         ignore: Si no desea aceptar la invitación, ignore este correo electrónico.
         app_team: "%{app} Área de trabajo"
     failure:
-      unconfirmed: Por favor consulta tu correo electrónico para verificar tu cuenta.
+      unconfirmed: Por favor, revisa tu correo electrónico. Si no existe una cuenta con ese correo, deberías haber recibido un correo de confirmación. Si no recibes un correo de confirmación, intenta restablecer tu contraseña o contáctate con nuestro soporte.
   user_invitation:
     invited: "%{email} : ya ha sido invitado(a) a esta área de trabajo."
     member: "%{email} : ya es miembro."
@@ -420,6 +427,24 @@ es:
       approved_text: Tu solicitud para unirte a área de trabajo %{team} en %{app_name}fue aprobada. Puedes ir a %{url} y empezar a contribuir.
       rejected_title: Solicitud denegada
       rejected_text: Lo sentimos, pero tu solicitud para unirte a área de trabajo %{team} en %{app_name} no fue aprobada.
+    feed_invitation:
+      subject: "%{user} invitó a tu organización a contribuir a %{feed}"
+      hello: Hola %{email}
+      body: "%{name},%{email} ha invitado a tu organización a contribuir a un Feed Compartido de Check"
+      view_button: Ver invitación
+    updated_terms:
+      subject: Términos del Servicio de Check Actualizados
+      hello: Hola %{name}
+      title: Términos del Servicio Actualizados
+      body: Hemos hecho actualizaciones a nuestros Términos del Servicio para usuaria(o)s de Check. Enviamos esta notificación a toda(o)s las personas que tengan una cuenta de Check. El uso contínuo de Check después de la actualización constituye la aceptación de nuestros Términos de Servicio actualizados.
+      term_button: Términos del Servicio
+      more_info: Este es un aviso legal requerido que se envía una vez a toda(o)s la(o)s usuaria(o)s de Check, incluso a quienes se han dado de baja  a través de anuncios opcionales.
+    export_list:
+      hello: Hola %{name}
+      subject: Exportación de Datos de Check
+      body: Tu exportación de datos de Check solicitada está disponible para descargar.
+      button_label: Descargar Exportación
+      footer: Este enlace de descarga expirará en %{date}.
   mail_security:
     device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}'
     ip_subject: 'Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} '
@@ -564,14 +589,16 @@ es:
   bot_request_url_invalid: El URL del bot es inválido
   smooch_facebook_success: |
       ¡Éxito!
-      Tu Tipline está ahora connectada a Facebook Messenger.
-      Cualquier mensaje recibido por esta Página de Facebook va a ser manejado por la Tipline.
+      Tu tipline ahora está conectada al perfil.
+      Cualquier mensaje recibido por este perfil será manejado por la tipline.
+      Por favor vuelve a cargar la página de configuración de tu tipline para ver los nuevos cambios.
   smooch_twitter_success: |
       ¡Éxito!
       Tu Tipline está ahora connectada a Twitter.
       Cualquier mensaje recibido por este perfil de Twitter va a ser manejado por la Tipline.
       Por favor vuelve a cargar la página de configuración de tu Tipline para ver cambios nuevos
   must_select_exactly_one_facebook_page: Por favor selecciona exactamente la página de Facebook que quieres integrar con la Tipline.
+  invalid_facebook_authdata: No fue posible autenticar tu cuenta de Facebook, por favor contacta a nuestro equipo de soporte.
   invalid_task_answer: Formato de respuesta de tarea inválido
   team_rule_name: Un nombre único que identifica lo que hace esta regla
   team_rule_project_ids: Aplicar a carpeta
@@ -720,6 +747,13 @@ es:
       Para dejar de recibir este boletín, escribe "%{unsubscribe}".
   send_every_must_be_a_list_of_days_of_the_week: debe ser una lista de días de la semana.
   send_on_must_be_in_the_future: no puede estar en pasado.
+  cant_delete_default_folder: La carpeta por defecto no puede ser eliminada
+  explainer_and_item_must_be_from_the_same_team: Explicativo e ítem deben estar en la misma área de trabajo.
+  cant_apply_article_to_item_if_article_is_in_the_trash: Este artículo está en la papelera por lo que no puede ser añadido a este conjunto de medios. Por favor primero restáuralo de la papelera.
+  shared_feed_imported_media_already_exist: |-
+      Ningún medio elegible para ser importado a tu área de trabajo.
+      El medio seleccionado para importar ya existe en tu área de trabajo en los siguientes ítems:
+      %{urls}
   info:
     messages:
       sent_to_trash_by_rule: '%{item_title}" ha sido enviado a la papelera por una regla de automatización.'
