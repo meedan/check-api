@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_23_135242) do
+ActiveRecord::Schema.define(version: 2025_01_24_155814) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -457,6 +457,9 @@ ActiveRecord::Schema.define(version: 2024_11_23_135242) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "uuid", default: 0, null: false
+    t.text "original_claim"
+    t.string "original_claim_hash"
+    t.index ["original_claim_hash"], name: "index_medias_on_original_claim_hash", unique: true
     t.index ["url"], name: "index_medias_on_url", unique: true
   end
 
@@ -618,6 +621,27 @@ ActiveRecord::Schema.define(version: 2024_11_23_135242) do
     t.index ["target_id", "relationship_type"], name: "index_relationships_on_target_id_and_relationship_type"
     t.index ["target_id"], name: "index_relationships_on_target_id", unique: true
     t.check_constraint "source_id <> target_id", name: "source_target_must_be_different"
+  end
+
+  create_table "relevant_results_items", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "team_id"
+    t.string "relevant_results_render_id"
+    t.string "user_action"
+    t.integer "query_media_parent_id"
+    t.integer "query_media_ids", default: [], array: true
+    t.jsonb "similarity_settings", default: {}
+    t.integer "matched_media_id"
+    t.integer "selected_count"
+    t.integer "display_rank"
+    t.string "article_type", null: false
+    t.bigint "article_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["article_type", "article_id"], name: "index_relevant_results_items_on_article"
+    t.index ["article_type", "article_id"], name: "index_relevant_results_items_on_article_type_and_article_id"
+    t.index ["team_id"], name: "index_relevant_results_items_on_team_id"
+    t.index ["user_id"], name: "index_relevant_results_items_on_user_id"
   end
 
   create_table "requests", force: :cascade do |t|
@@ -984,6 +1008,6 @@ ActiveRecord::Schema.define(version: 2024_11_23_135242) do
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE FUNCTION validate_relationships()
   SQL
 end

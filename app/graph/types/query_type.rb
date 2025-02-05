@@ -50,7 +50,8 @@ class QueryType < BaseObject
           "#{SizeValidator.config("max_width")}x#{SizeValidator.config("max_height")}",
         languages_supported: CheckCldr.localized_languages.to_json,
         terms_last_updated_at: User.terms_last_updated_at,
-        channels: CheckChannels::ChannelCodes.all_channels
+        channels: CheckChannels::ChannelCodes.all_channels,
+        media_cluster_origins: CheckMediaClusterOrigins::OriginCodes.all_origins
       }
     )
   end

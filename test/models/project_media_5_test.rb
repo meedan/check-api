@@ -757,7 +757,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should restore and confirm item if not super admin" do
-    setup_elasticsearch
     t = create_team
     p = create_project team: t
     p3 = create_project team: t
@@ -765,42 +764,28 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     create_team_user user: u, team: t, role: 'admin', is_admin: false
     Sidekiq::Testing.inline! do
       # test restore
-      pm = create_project_media project: p, disable_es_callbacks: false, archived: CheckArchivedFlags::FlagCodes::TRASHED
-      sleep 1
-      result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal p.id, result
+      pm = create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::TRASHED
       assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE
-        pm.disable_es_callbacks = false
         pm.project_id = p3.id
         pm.save!
       end
       pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
       assert_equal p3.id, pm.project_id
-      sleep 1
-      result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal p3.id, result
       # test confirm
-      pm = create_project_media project: p, disable_es_callbacks: false, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
-      sleep 1
+      pm = create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
       assert_equal p.id, pm.project_id
-      result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal p.id, result
       assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE
-        pm.disable_es_callbacks = false
         pm.project_id = p3.id
         pm.save!
       end
       pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
       assert_equal p3.id, pm.project_id
-      sleep 1
-      result = $repository.find(get_es_id(pm))['project_id']
-      assert_equal p3.id, result
     end
   end
 

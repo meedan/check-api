@@ -4,6 +4,7 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
   include Pact::Consumer::Minitest
 
   def setup
+    Sidekiq::Testing.fake!
     # Set up annotation types that we need that were previously provided by migrations
     create_metadata_stuff
     create_extracted_text_annotation_type

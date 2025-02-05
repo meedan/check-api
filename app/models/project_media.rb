@@ -352,14 +352,16 @@ class ProjectMedia < ApplicationRecord
   def replace_merge_assignments(assignments_ids)
     unless assignments_ids.blank?
       status = self.last_status_obj
-      assignments_uids = status.assignments.map(&:user_id)
-      Assignment.where(id: assignments_ids).find_each do |as|
-        if assignments_uids.include?(as.user_id)
-          as.skip_check_ability = true
-          as.delete
-        else
-          as.update_columns(assigned_id: status.id)
-          as.send(:increase_assignments_count)
+      unless status.nil?
+        assignments_uids = status.assignments.map(&:user_id)
+        Assignment.where(id: assignments_ids).find_each do |as|
+          if assignments_uids.include?(as.user_id)
+            as.skip_check_ability = true
+            as.delete
+          else
+            as.update_columns(assigned_id: status.id)
+            as.send(:increase_assignments_count)
+          end
         end
       end
     end
@@ -456,7 +458,120 @@ class ProjectMedia < ApplicationRecord
     self.save!
   end
 
+  def get_similar_articles
+    # Get search query based on Media type
+    # Quote for Claim
+    # Transcription for UploadedVideo , UploadedAudio and UploadedImage
+    # Title and/or description for Link
+    results = []
+    items = Rails.cache.fetch("relevant-items-#{self.id}", expires_in: 2.hours) do
+      media = self.media
+      search_query = case media.type
+                     when 'Claim'
+                       media.quote
+                     when 'UploadedVideo', 'UploadedAudio'
+                       self.transcription
+                     when 'UploadedImage'
+                       self.extracted_text
+                     end
+      search_query ||= self.title
+      results = self.team.search_for_similar_articles(search_query, self)
+      fact_check_ids = results.select{|article| article.is_a?(FactCheck)}.map(&:id)
+      fc_pm = {}
+      unless fact_check_ids.blank?
+        # Get ProjectMedia for FactCheck for RelevantResultsItem logs and should use sort_by to keep existing order
+        FactCheck.select('fact_checks.id AS fc_id, claim_descriptions.project_media_id AS pm_id')
+        .where(id: fact_check_ids).joins(:claim_description).each do |raw|
+          fc_pm[raw.fc_id] = raw.pm_id
+        end
+      end
+      explainer_ids = results.select{|article| article.is_a?(Explainer)}.map(&:id)
+      ex_pm = {}
+      unless explainer_ids.blank?
+        # Intiate the ex_pm with nil values as some Explainer not assinged to existing items
+        default_pm = nil
+        ex_pm = explainer_ids.each_with_object(default_pm).to_h
+        # Get ProjectMedia for Explainer for RelevantResultsItem logs and should use sort_by to keep existing order
+        ExplainerItem.where(explainer_id: explainer_ids).find_each do |raw|
+          ex_pm[raw.explainer_id] = raw.project_media_id
+        end
+      end
+      {
+        fact_check: fc_pm.sort_by { |k, _v| fact_check_ids.index(k) }.to_h,
+        explainer: ex_pm.sort_by { |k, _v| explainer_ids.index(k) }.to_h
+      }.to_json
+    end
+    if results.blank?
+      # This indicates a cache hit, so we should retrieve the items according to the cached values while maintaining the same sort order.
+      items = JSON.parse(items)
+      items.each do |klass, data|
+        ids = data.keys
+        results += klass.camelize.constantize.where(id: ids).sort_by { |result| ids.index(result.id) }
+      end
+    end
+    results
+  end
+
+  def log_relevant_results(klass, id, author_id, actor_session_id)
+    actor_session_id = Digest::MD5.hexdigest("#{actor_session_id}-#{Time.now.to_i}")
+    article = klass.constantize.find_by_id id
+    return if article.nil?
+    data = begin JSON.parse(Rails.cache.read("relevant-items-#{self.id}")) rescue {} end
+    type = klass.underscore
+    unless data[type].blank?
+      user_action = data[type].keys.map(&:to_i).include?(article.id) ? 'relevant_articles' : 'article_search'
+      tbi = Bot::Alegre.get_alegre_tbi(self.team_id)
+      similarity_settings = tbi&.settings&.to_h || {}
+      # Retrieve the user's selection, which can be either FactCheck or Explainer,
+      # as this type encompasses the user's choice, and then define the shared field based on this type.
+      # i.e selected_count either 0/1
+      items = data[type]
+      items.keys.each_with_index do |value, index|
+        selected_count = (value.to_i == article.id).to_i
+        fields = {
+          article_id: value,
+          article_type: article.class.name,
+          matched_media_id: items[value],
+          selected_count: selected_count,
+          display_rank: index + 1,
+        }
+        self.create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)
+      end
+      # Retrieve the alternative type (the non-selected type) since all items in this category are marked as non-selected items
+      # i.e selected_count = 0
+      other_type = (['fact_check', 'explainer'] - [type]).first
+      items = data[other_type]
+      items.keys.each_with_index do |value, index|
+        fields = {
+          article_id: value,
+          article_type: other_type.camelize,
+          matched_media_id: items[value],
+          selected_count: 0,
+          display_rank: index + 1,
+        }
+        self.create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)
+      end
+    end
+    Rails.cache.delete("relevant-items-#{self.id}")
+  end
+
   protected
+
+  def create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)
+    rr = RelevantResultsItem.new
+    rr.team_id = self.team_id
+    rr.user_id = author_id
+    rr.relevant_results_render_id = actor_session_id
+    rr.query_media_parent_id = self.id
+    rr.query_media_ids = [self.id]
+    rr.user_action = user_action
+    rr.similarity_settings = similarity_settings
+    rr.skip_check_ability = true
+    fields.each do |k, v|
+      rr.send("#{k}=", v) if rr.respond_to?("#{k}=")
+    end
+    rr.save!
+  end
 
   def add_extra_elasticsearch_data(ms)
     analysis = self.analysis
@@ -482,7 +597,7 @@ class ProjectMedia < ApplicationRecord
     # set fields with integer value including cached fields
     fields_i = [
       'archived', 'sources_count', 'linked_items_count', 'share_count','last_seen', 'demand', 'user_id',
-      'read', 'suggestions_count','related_count', 'reaction_count', 'comment_count', 'media_published_at',
+      'read', 'suggestions_count','related_count', 'reaction_count', 'media_published_at',
       'unmatched', 'fact_check_published_on'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }

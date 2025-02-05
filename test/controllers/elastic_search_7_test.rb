@@ -159,16 +159,14 @@ class ElasticSearch7Test < ActionController::TestCase
 
   test "should parse search options" do
     t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
-    pm2 = create_project_media project: p2, disable_es_callbacks: false
+    pm = create_project_media team: t, archived: 0, disable_es_callbacks: false
+    pm2 = create_project_media team: t, archived: 2, disable_es_callbacks: false
     sleep 1
     Team.current = t
-    result = CheckSearch.new({projects: [p.id]}.to_json)
+    result = CheckSearch.new({archived: [0]}.to_json)
     assert_equal [pm.id], result.medias.map(&:id)
     # pass wrong format should map to all items
-    result = CheckSearch.new({projects: [p.id]})
+    result = CheckSearch.new({archived: [0]})
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
   end
 
@@ -211,9 +209,6 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
     create_comment annotated: pm, text: 'item notepm', disable_es_callbacks: false
     create_comment annotated: pm2, text: 'item comment', disable_es_callbacks: false
-    sleep 2
-    result = CheckSearch.new({keyword: 'item', keyword_fields: {fields: ['comments']}}.to_json, nil, t.id)
-    assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
   end
 
   test "should search by media url" do

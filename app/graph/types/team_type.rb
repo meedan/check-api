@@ -399,4 +399,32 @@ class TeamType < DefaultObject
   def statistics(period:, language: nil, platform: nil)
     TeamStatistics.new(object, period, language, platform)
   end
+
+  field :bot_query, [TiplineSearchResultType], null: true do
+    argument :search_text, GraphQL::Types::String, required: true
+    argument :threshold, GraphQL::Types::Float, required: false
+    argument :max_number_of_words, GraphQL::Types::Int, required: false
+    argument :enable_language_detection, GraphQL::Types::Boolean, required: false
+    argument :should_restrict_by_language, GraphQL::Types::Boolean, required: false
+    argument :enable_link_shortening, GraphQL::Types::Boolean, required: false
+    argument :utm_code, GraphQL::Types::String, required: false
+  end
+
+  def bot_query(search_text:, threshold: nil, max_number_of_words: nil, enable_language_detection: nil, should_restrict_by_language: nil, enable_link_shortening: nil, utm_code: nil)
+    return nil unless User.current&.is_admin # Feature flag
+
+    settings = {
+      threshold: threshold,
+      max_number_of_words: max_number_of_words,
+      enable_language_detection: enable_language_detection,
+      should_restrict_by_language: should_restrict_by_language,
+      enable_link_shortening: enable_link_shortening,
+      utm_code: utm_code
+    }.with_indifferent_access
+
+    language = (enable_language_detection ? Bot::Smooch.get_language({ 'text' => search_text }, object.default_language) : object.default_language)
+
+    results = object.search_for_similar_articles(search_text, nil, language, settings)
+    results.collect{ |result| result.as_tipline_search_result(settings) }.select{ |result| result.should_send_in_language?(language, should_restrict_by_language) }
+  end
 end
