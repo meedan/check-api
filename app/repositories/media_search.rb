@@ -4,7 +4,6 @@ class MediaSearch
 
   mapping do
     indexes :team_id, { type: 'integer' }
-    indexes :project_id, { type: 'integer' }
     indexes :annotated_type, { type: 'text' }
     indexes :annotated_id, { type: 'integer' }
     indexes :parent_id, { type: 'integer' }
@@ -21,13 +20,6 @@ class MediaSearch
     indexes :created_at, { type: 'date' }
     indexes :updated_at, { type: 'date' }
     indexes :language, { type: 'text', analyzer: 'keyword' }
-    indexes :comments, {
-      type: 'nested',
-      properties: {
-        id: { type: 'text'},
-        text: { type: 'text', analyzer: 'check'}
-      }
-    }
     indexes :tags, {
       type: 'nested',
       properties: {
@@ -82,8 +74,6 @@ class MediaSearch
     indexes :annotated_by, { type: 'long' }
 
     indexes :reaction_count, { type: 'long' }
-
-    indexes :comment_count, { type: 'long' }
 
     indexes :related_count, { type: 'long' }
 

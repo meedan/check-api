@@ -22,6 +22,7 @@ class CheckSearch
     @options['esoffset'] ||= 0
     adjust_es_window_size
 
+    adjust_show_filter
     adjust_channel_filter
     adjust_numeric_range_filter
     adjust_archived_filter
@@ -42,7 +43,7 @@ class CheckSearch
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
     'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
     'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
-    'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count', 'comment_count' => 'comment_count',
+    'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count',
     'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
     'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name',
     'cluster_size' => 'cluster_size', 'cluster_first_item_at' => 'cluster_first_item_at',
@@ -166,7 +167,7 @@ class CheckSearch
       status_blank = false unless @options[field].blank?
     end
     filters_blank = true
-    ['tags', 'keyword', 'rules', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
+    ['tags', 'keyword', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
       'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
@@ -429,6 +430,13 @@ class CheckSearch
     end
   end
 
+  def adjust_show_filter
+    if @options['show'].is_a?(Array) && @options['show'].include?('social_media')
+      @options['show'].concat(%w[twitter youtube tiktok instagram facebook telegram]).delete('social_media')
+      @options['show'].uniq!
+    end
+  end
+
   def adjust_numeric_range_filter
     @options['range_numeric'] = {}
     [:linked_items_count, :suggestions_count, :demand, :positive_tipline_search_results_count, :negative_tipline_search_results_count, :tags_as_sentence].each do |field|
@@ -463,15 +471,6 @@ class CheckSearch
     keyword_c = []
     field_conditions = build_keyword_conditions_media_fields
     keyword_c.concat field_conditions
-    # Search in comments
-    keyword_c << {
-      nested: {
-        path: "comments",
-        query: {
-          simple_query_string: { query: @options["keyword"], fields: ["comments.text"], default_operator: "AND" }
-        }
-      }
-    } if should_include_keyword_field?('comments')
     # Search in requests
     [['request_username', 'username'], ['request_identifier', 'identifier'], ['request_content', 'content']].each do |pair|
       keyword_c << {

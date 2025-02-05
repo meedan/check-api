@@ -11,7 +11,7 @@ class Media < ApplicationRecord
   has_many :requests, dependent: :destroy
   has_annotations
 
-  before_validation :set_type, :set_url_nil_if_empty, :set_user, on: :create
+  before_validation :set_type, :set_url_nil_if_empty, :set_user, :set_original_claim_hash, on: :create
 
   after_create :set_uuid
 
@@ -20,6 +20,7 @@ class Media < ApplicationRecord
   end
 
   validates_inclusion_of :type, in: Media.types
+  validates_uniqueness_of :original_claim_hash, allow_nil: true
 
   def class_name
     'Media'
@@ -76,6 +77,27 @@ class Media < ApplicationRecord
     ''
   end
 
+  def self.find_or_create_from_original_claim(claim, project_media_team)
+    if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(claim)
+      content_type = Net::HTTP.get_response(uri)['content-type']
+      ext = File.extname(uri.path)
+
+      case content_type
+      when /^image\//
+        find_or_create_uploaded_file_media_from_original_claim('UploadedImage', claim, ext)
+      when /^video\//
+        find_or_create_uploaded_file_media_from_original_claim('UploadedVideo', claim, ext)
+      when /^audio\//
+        find_or_create_uploaded_file_media_from_original_claim('UploadedAudio', claim, ext)
+      else
+        find_or_create_link_media_from_original_claim(claim, project_media_team)
+      end
+    else
+      find_or_create_claim_media_from_original_claim(claim)
+    end
+  end
+
   private
 
   def set_url_nil_if_empty
@@ -102,5 +124,41 @@ class Media < ApplicationRecord
 
   def set_uuid
     self.update_column(:uuid, self.id)
+  end
+
+  def set_original_claim_hash
+    self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
+  end
+
+  def self.find_or_create_uploaded_file_media_from_original_claim(media_type, url, ext)
+    klass = media_type.constantize
+    existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
+
+    if existing_media
+      existing_media
+    else
+      file = download_file(url, ext)
+      klass.create!(file: file, original_claim: url)
+    end
+  end
+
+  def self.download_file(url, ext)
+    raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
+
+    file = Tempfile.new(['download', ext])
+    file.binmode
+    file.write(URI(url).open.read)
+    file.rewind
+    file
+  end
+
+  def self.find_or_create_claim_media_from_original_claim(text)
+    Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text)
+  end
+
+  def self.find_or_create_link_media_from_original_claim(url, project_media_team)
+    pender_key = project_media_team.get_pender_key if project_media_team
+    url_from_pender = Link.normalized(url, pender_key)
+    Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url)
   end
 end

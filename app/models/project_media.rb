@@ -352,14 +352,16 @@ class ProjectMedia < ApplicationRecord
   def replace_merge_assignments(assignments_ids)
     unless assignments_ids.blank?
       status = self.last_status_obj
-      assignments_uids = status.assignments.map(&:user_id)
-      Assignment.where(id: assignments_ids).find_each do |as|
-        if assignments_uids.include?(as.user_id)
-          as.skip_check_ability = true
-          as.delete
-        else
-          as.update_columns(assigned_id: status.id)
-          as.send(:increase_assignments_count)
+      unless status.nil?
+        assignments_uids = status.assignments.map(&:user_id)
+        Assignment.where(id: assignments_ids).find_each do |as|
+          if assignments_uids.include?(as.user_id)
+            as.skip_check_ability = true
+            as.delete
+          else
+            as.update_columns(assigned_id: status.id)
+            as.send(:increase_assignments_count)
+          end
         end
       end
     end
@@ -595,7 +597,7 @@ class ProjectMedia < ApplicationRecord
     # set fields with integer value including cached fields
     fields_i = [
       'archived', 'sources_count', 'linked_items_count', 'share_count','last_seen', 'demand', 'user_id',
-      'read', 'suggestions_count','related_count', 'reaction_count', 'comment_count', 'media_published_at',
+      'read', 'suggestions_count','related_count', 'reaction_count', 'media_published_at',
       'unmatched', 'fact_check_published_on'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }
