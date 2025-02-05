@@ -157,8 +157,11 @@ class Relationship < ApplicationRecord
   end
 
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
+    # Verify that the target is not part of another source; in this case, we should return the existing relationship.
     r = Relationship.where(target_id: target_id).where.not(source_id: source_id).last
-    r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last unless r.nil?
+    return r unless r.nil?
+    # otherwise we should get the existing relationship based on source, target and type
+    r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
     exception_message = nil
     exception_class = nil
     if r.nil?
