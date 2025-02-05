@@ -1073,6 +1073,7 @@ class TeamTest < ActiveSupport::TestCase
     value[:statuses][1][:locales][:en][:label] = 'Custom Status 2 Changed'
     t.media_verification_statuses = value
     t.save!
+    Sidekiq::Worker.drain_all
     assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 'status_label')
   end
 

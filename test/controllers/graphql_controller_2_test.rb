@@ -352,56 +352,60 @@ class GraphqlController2Test < ActionController::TestCase
   end
 
   test "should get number of results without similar items" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    pm1 = create_project_media team: t, quote: 'Test 1 Bar', disable_es_callbacks: false
-    pm2 = create_project_media team: t, quote: 'Test 2 Foo', disable_es_callbacks: false
-    create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
-    pm3 = create_project_media team: t, quote: 'Test 3 Bar', disable_es_callbacks: false
-    pm4 = create_project_media team: t, quote: 'Test 4 Foo', disable_es_callbacks: false
-    create_relationship source_id: pm3.id, target_id: pm4.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
-    sleep 1
+    Sidekiq::Testing.inline! do
+      u = create_user
+      authenticate_with_user(u)
+      t = create_team slug: 'team'
+      create_team_user user: u, team: t
+      pm1 = create_project_media team: t, quote: 'Test 1 Bar', disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'Test 2 Foo', disable_es_callbacks: false
+      create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
+      pm3 = create_project_media team: t, quote: 'Test 3 Bar', disable_es_callbacks: false
+      pm4 = create_project_media team: t, quote: 'Test 4 Foo', disable_es_callbacks: false
+      create_relationship source_id: pm3.id, target_id: pm4.id, relationship_type: Relationship.confirmed_type, disable_es_callbacks: false
+      sleep 1
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }'
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+      query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\"}") { number_of_results } }'
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }'
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+      query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":false}") { number_of_results } }'
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }'
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
+      query = 'query CheckSearch { search(query: "{\"keyword\":\"Test\",\"show_similar\":true}") { number_of_results } }'
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_equal 4, JSON.parse(@response.body)['data']['search']['number_of_results']
 
-    query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":true}") { number_of_results } }'
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+      query = 'query CheckSearch { search(query: "{\"keyword\":\"Foo\",\"show_similar\":true}") { number_of_results } }'
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_equal 2, JSON.parse(@response.body)['data']['search']['number_of_results']
+    end
   end
 
   test "should replace blank project media by another" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    old = create_project_media team: t, media: Blank.create!
-    r = publish_report(old)
-    new = create_project_media team: t
-    authenticate_with_user(u)
+    Sidekiq::Testing.inline! do
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'admin'
+      old = create_project_media team: t, media: Blank.create!
+      r = publish_report(old)
+      new = create_project_media team: t
+      authenticate_with_user(u)
 
-    query = 'mutation { replaceProjectMedia(input: { clientMutationId: "1", project_media_to_be_replaced_id: "' + old.graphql_id + '", new_project_media_id: "' + new.graphql_id + '" }) { old_project_media_deleted_id, new_project_media { dbid } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['replaceProjectMedia']
-    assert_equal old.graphql_id, data['old_project_media_deleted_id']
-    assert_equal new.id, data['new_project_media']['dbid']
-    assert_nil ProjectMedia.find_by_id(old.id)
-    assert_equal r, new.get_dynamic_annotation('report_design')
+      query = 'mutation { replaceProjectMedia(input: { clientMutationId: "1", project_media_to_be_replaced_id: "' + old.graphql_id + '", new_project_media_id: "' + new.graphql_id + '" }) { old_project_media_deleted_id, new_project_media { dbid } } }'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['replaceProjectMedia']
+      assert_equal old.graphql_id, data['old_project_media_deleted_id']
+      assert_equal new.id, data['new_project_media']['dbid']
+      assert_nil ProjectMedia.find_by_id(old.id)
+      assert_equal r, new.get_dynamic_annotation('report_design')
+    end
   end
 
   test "should set and get Slack settings for team" do
