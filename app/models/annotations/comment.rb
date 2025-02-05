@@ -8,9 +8,6 @@ class Comment < ApplicationRecord
 
   before_save :extract_check_entities, unless: proc { |p| p.is_being_copied }
   after_commit :send_slack_notification, on: [:create, :update]
-  after_commit :add_elasticsearch_comment, on: :create
-  after_commit :update_elasticsearch_comment, on: :update
-  after_commit :destroy_elasticsearch_comment, on: :destroy
 
   notifies_pusher on: :destroy,
                   event: 'media_updated',
@@ -85,24 +82,5 @@ class Comment < ApplicationRecord
       end
     end
     self.entities = ids
-  end
-
-  def add_elasticsearch_comment
-    add_update_elasticsearch_comment('create')
-  end
-
-  def update_elasticsearch_comment
-    add_update_elasticsearch_comment('update')
-  end
-
-  def add_update_elasticsearch_comment(op)
-    # add item/task notes
-    if self.annotated_type == 'ProjectMedia'
-      add_update_nested_obj({ op: op, nested_key: 'comments', keys: ['text'], pm_id: self.annotated_id })
-    end
-  end
-
-  def destroy_elasticsearch_comment
-    destroy_es_items('comments', 'destroy_doc_nested', self.annotated_id) if self.annotated_type == 'ProjectMedia'
   end
 end

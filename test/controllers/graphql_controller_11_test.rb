@@ -301,4 +301,80 @@ class GraphqlController11Test < ActionController::TestCase
     assert_response :success
     assert_equal 2, JSON.parse(@response.body).dig('data', 'team', 'tipline_requests', 'edges').size
   end
+
+  test "super admin user should receive 3 matching fact-checks or explainers based on search text and arguments sent to bot query" do
+    t = create_team
+    # Create a super admin user
+    super_admin = create_user(is_admin: true)
+    create_team_user team: t, user: super_admin, role: 'admin'
+
+    # Authenticate with super admin user
+    authenticate_with_user(super_admin)
+
+    # Create a project under the team
+    project = create_project(team: t)
+
+    # Create ProjectMedia instances
+    pm1 = create_project_media quote: 'Foo Bar', team: t
+    pm2 = create_project_media quote: 'Foo Bar Test', team: t
+    pm3 = create_project_media quote: 'Foo Bar Test Testing', team: t
+
+    # Create Explainers and attach them to PMs
+    ex1 = create_explainer language: 'en', team: t, title: 'Foo Bar'
+    ex2 = create_explainer language: 'en', team: t, title: 'Foo Bar Test'
+    ex3 = create_explainer language: 'en', team: t, title: 'Foo Bar Test Testing'
+    ex4 = create_explainer language: 'en', team: t, title: 'Explainer Test Testing'
+    ex5 = create_explainer language: 'en', team: t, title: 'Explainer 5 Test Testing'
+    ex6 = create_explainer language: 'en', team: t, title: 'Explainer 6 Test Testing'
+    pm1.explainers << ex1
+    pm2.explainers << ex2
+    pm3.explainers << ex3
+    pm3.explainers << ex4
+    pm3.explainers << ex5
+    pm3.explainers << ex6
+
+    # Perform the GraphQL query with searchText "Foo"
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}") {
+          bot_query(searchText: "Foo", threshold: 0.75, maxNumberOfWords: 2, enableLanguageDetection: false, shouldRestrictByLanguage: true, enableLinkShortening: true, utmCode: "test") {
+            title
+            type
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+
+    data = JSON.parse(@response.body)['data']['team']['bot_query']
+    assert_equal 3, data.size, "Expected 3 matching results"
+
+    expected_titles = [ex1.title, ex2.title, ex3.title]
+    actual_titles = data.map { |result| result['title'] }
+    assert_equal expected_titles.sort, actual_titles.sort, "Results should match the search query"
+  end
+
+  test "should get media cluster origin fields for an item" do
+    Sidekiq::Testing.fake!
+    Relationship.delete_all
+
+    u = create_user is_admin: true
+    t = create_team
+    pm1 = create_project_media team: t, user: u
+    pm2 = create_project_media team: t
+    r = create_relationship source: pm1, target: pm2, user: u
+
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm1.id},nil,#{t.id}\") { media_cluster_relationship { dbid, user_id, confirmed_at, weight, source_field, target_field, model, user { name }, confirmed_by { name } }, media_cluster_origin, media_cluster_origin_user { dbid }, media_cluster_origin_timestamp } }"
+    post :create, params: { query: query }
+    assert_response :success
+
+    response = JSON.parse(@response.body)['data']['project_media']
+    assert_equal r.id, response['media_cluster_relationship']['dbid']
+    assert_equal u.id, response['media_cluster_origin_user']['dbid']
+    assert_equal pm1.created_at.to_i, response['media_cluster_origin_timestamp']
+    assert_equal CheckMediaClusterOrigins::OriginCodes::USER_ADDED, response['media_cluster_origin']
+  end
 end

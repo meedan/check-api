@@ -394,4 +394,36 @@ class ProjectMediaType < DefaultObject
     count += 1 if object.fact_check
     count
   end
+
+  field :relevant_articles, ::ArticleUnion.connection_type, null: true
+
+  def relevant_articles
+    object.get_similar_articles
+  end
+
+  field :relevant_articles_count, GraphQL::Types::Int, null: true
+
+  def relevant_articles_count
+    object.get_similar_articles.count
+  end
+
+  field :media_cluster_origin, GraphQL::Types::Int, null: true
+  field :media_cluster_origin_timestamp, GraphQL::Types::Int, null: true
+  field :media_cluster_origin_user, UserType, null: true
+
+  def media_cluster_origin_user
+    RecordLoader
+      .for(User)
+      .load(object.media_cluster_origin_user_id)
+      .then do |user|
+        ability = context[:ability] || Ability.new
+        user if ability.can?(:read, user)
+      end
+  end
+
+  field :media_cluster_relationship, RelationshipType, null: true
+
+  def media_cluster_relationship
+    Relationship.where(target_id: object.id).last || Relationship.where(source_id: object.id).last
+  end
 end

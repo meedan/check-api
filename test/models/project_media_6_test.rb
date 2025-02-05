@@ -96,10 +96,8 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal CheckArchivedFlags::FlagCodes::TRASHED, result['archived']
     result = $repository.find(get_es_id(pm1_s))
     assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
-    assert_equal p.id, result['project_id']
     result = $repository.find(get_es_id(pm2_s))
     assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
-    assert_equal p.id, result['project_id']
   end
 
   test "should detach similar items when spam parent item" do
@@ -136,10 +134,8 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal CheckArchivedFlags::FlagCodes::SPAM, result['archived']
     result = $repository.find(get_es_id(pm1_s))
     assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
-    assert_equal p.id, result['project_id']
     result = $repository.find(get_es_id(pm2_s))
     assert_equal CheckArchivedFlags::FlagCodes::NONE, result['archived']
-    assert_equal p.id, result['project_id']
   end
 
   test "should complete media if there are pending tasks" do

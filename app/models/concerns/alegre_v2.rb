@@ -124,11 +124,12 @@ module AlegreV2
         Rails.logger.info("[Alegre Bot] Alegre response: #{parsed_response.inspect}")
         parsed_response
       rescue StandardError => e
+        Rails.logger.error("[Alegre Bot] Alegre error: (#{method}, #{path}, #{params.inspect}, #{retries}), #{e.inspect} #{e.message}")
+        CheckSentry.notify(e, bot: 'alegre', method: method, path: path, params: params, retries: retries)
         if retries > 0
           sleep 1
           self.request(method, path, params, retries - 1)
         end
-        Rails.logger.error("[Alegre Bot] Alegre error: (#{method}, #{path}, #{params.inspect}, #{retries}), #{e.inspect} #{e.message}")
         { 'type' => 'error', 'data' => { 'message' => e.message } }
       end
     end
@@ -358,7 +359,7 @@ module AlegreV2
             context: result["context"],
             model: result["model"],
             source_field: get_target_field(project_media, field),
-            target_field: get_target_field(project_media, result["field"] || result["context"]["field"]),
+            target_field: get_target_field(project_media, result["field"] || result.dig("context", "field")),
             relationship_type: relationship_type
           }
         ]

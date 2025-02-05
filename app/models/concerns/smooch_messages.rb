@@ -395,6 +395,8 @@ module SmoochMessages
     end
 
     def save_message(message_json, app_id, author = nil, request_type = 'default_requests', associated_id = nil, associated_class = nil)
+    # associated: is the the "first media" and will be the source of the Relationship
+    # associated_obj: is used for TiplineRequest (smooch_resource_id field)
       message = JSON.parse(message_json)
       return if TiplineRequest.where(smooch_message_id: message['_id']).exists?
       associated_obj = nil
@@ -413,13 +415,13 @@ module SmoochMessages
           associated = self.create_project_media_from_message(message)
         end
         unless associated.nil?
-          self.smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
+          self.smooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
           self.smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
         end
       end
     end
 
-    def smoooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
+    def smooch_post_save_message_actions(message, associated, app_id, author, request_type, associated_obj)
       # Remember that we received this message.
       hash = self.message_hash(message)
       Rails.cache.write("smooch:message:#{hash}", associated.id)
@@ -430,6 +432,7 @@ module SmoochMessages
     end
 
     def smooch_relate_items_for_same_message(message, associated, app_id, author, request_type, associated_obj)
+      return unless associated.is_a?(ProjectMedia)
       if !message['caption'].blank?
         # Check if message contains caption then create an item and force relationship
         self.relate_item_and_text(message, associated, app_id, author, request_type, associated_obj, Relationship.confirmed_type)
@@ -457,7 +460,7 @@ module SmoochMessages
       message.delete('mediaUrl')
       target = self.create_project_media_from_message(message)
       unless target.nil?
-        smoooch_post_save_message_actions(message, target, app_id, author, request_type, associated_obj)
+        smooch_post_save_message_actions(message, target, app_id, author, request_type, associated_obj)
         Relationship.create_unless_exists(associated.id, target.id, relationship_type)
       end
     end

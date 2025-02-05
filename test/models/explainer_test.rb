@@ -158,6 +158,12 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
+  test "should get alegre models_and_thresholds in hash format" do
+    ex = create_explainer
+    models_thresholds = Explainer.get_alegre_models_and_thresholds(ex.team_id)
+    assert_kind_of Hash, models_thresholds
+  end
+
   test "should set default language when language is not set" do
     ex = create_explainer language: nil
     assert_equal 'en', ex.reload.language

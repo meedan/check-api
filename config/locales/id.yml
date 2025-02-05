@@ -73,6 +73,7 @@ id:
         description: 'Kesimpulan: sumber ini adalah identitas palsu'
   errors:
     messages:
+      extension_whitelist_error: ekstensi tidak didukung
       invalid_password: Kata sandi salah
       invalid_qrcode: Kode validasi salah
       extension_white_list_error: 'tidak dapat memiliki tipe format %{extension}, tipe-tipe yang diijinkan: %{allowed_types}'
@@ -93,9 +94,10 @@ id:
       invalid_project_media_channel_value: Maaf, nilai saluran tidak didukung
       invalid_project_media_channel_update: Maaf, Anda tidak dapat memperbarui nilai saluran
       invalid_project_media_archived_value: Maaf, nilai yang diarsipkan tidak didukung
-      invalid_fact_check_language_value: Maaf, bahasa tidak didukung
+      invalid_article_language_value: Maaf, bahasa tidak didukung
       fact_check_empty_title_and_summary: Maaf, Anda harus mengisi judul atau ringkasan
       invalid_feed_saved_search_value: harus menjadi milik ruang kerja yang merupakan bagian dari umpan ini
+      platform_allowed_values_error: 'tidak dapat memiliki tipe format %{type}, tipe-tipe yang diijinkan: %{allowed_types}'
   activerecord:
     models:
       link: Tautan
@@ -146,6 +148,10 @@ id:
           attributes:
             slug:
               slug_format: hanya menerima huruf, angka dan tanda hubung
+        user:
+          attributes:
+            email:
+              taken: Silakan periksa surel Anda. Jika tidak ada akun dengan surel tersebut, Anda seharusnya menerima surel konfirmasi. Jika Anda tidak menerima surel konfirmasi, coba atur ulang kata sandi Anda atau hubungi dukungan kami.
       messages:
         record_invalid: "%{errors}"
         improbable_phone: salah nomor
@@ -274,7 +280,8 @@ id:
   account_exists: Akun ini sudah ada
   media_exists: Perihal ini sudah ada
   source_exists: Sumber ini sudah ada
-  email_exists: sudah diambil
+  email_exists: Silakan periksa surel Anda. Jika tidak ada akun dengan surel tersebut, Anda seharusnya menerima surel konfirmasi. Jika Anda tidak menerima surel konfirmasi, coba atur ulang kata sandi Anda atau hubungi dukungan kami.
+  error_password_not_strong: "Persyaratan kerumitan belum terpenuhi. Panjang harus 8-70 karakter dan mencakup setidaknya: 1 huruf besar, 1 huruf kecil, 1 angka, dan 1 karakter khusus."
   banned_user: 'Maaf, akun Anda telah dilarang dari %{app_name}. Mohon hubungi tim dukungan jika Anda merasa ini adalah sebuah kesalahan. '
   devise:
     mailer:
@@ -298,7 +305,7 @@ id:
         ignore: Jika Anda tidak ingin menerima undangan tersebut, abaikan surel ini.
         app_team: "%{app} Ruang kerja"
     failure:
-      unconfirmed: Mohon periksa surel Anda untuk memverifikasi akun Anda
+      unconfirmed: Silakan periksa surel Anda. Jika tidak ada akun dengan surel tersebut, Anda seharusnya menerima surel konfirmasi. Jika Anda tidak menerima surel konfirmasi, coba atur ulang kata sandi Anda atau hubungi dukungan kami.
   user_invitation:
     invited: "%{email} sudah diundang ke ruang kerja ini."
     member: "%{email} sudah menjadi anggota."
@@ -413,6 +420,24 @@ id:
       approved_text: Permintaan Anda untuk bergabung  ke ruang kerja %{team} pada %{app_name} telah disetujui. Sekarang Anda dapat pergi ke %{url} dan mulai berkontribusi.
       rejected_title: Permintaan Ditolak
       rejected_text: Maaf, permintaan Anda untuk bergabung ke ruang kerja %{team}pada %{app_name} tidak disetujui.
+    feed_invitation:
+      subject: "%{user} telah mengundang organisasi Anda untuk berkontribusi ke %{feed}"
+      hello: Halo %{email}
+      body: "%{name}, %{email} telah mengundang organisasi Anda untuk berkontribusi ke Umpan Bersama Check "
+      view_button: Lihat undangan
+    updated_terms:
+      subject: Persyaratan Layanan Check yang Diperbarui
+      hello: Halo %{name}
+      title: Persyaratan Layanan yang Diperbarui
+      body: Kami telah melakukan pembaruan pada Persyaratan Layanan kami untuk para pengguna Check. Kami mengirimkan notifikasi ini kepada semua orang yang memiliki akun Check. Penggunaan Check secara terus-menerus setelah pembaruan ini merupakan bentuk penerimaan terhadap Persyaratan Layanan kami yang telah diperbarui.
+      term_button: Persyaratan Layanan
+      more_info: Ini adalah pemberitahuan hukum wajib satu-kali yang dikirimkan kepada semua pengguna Check, bahkan ke mereka yang telah berhenti berlangganan melalui pengumuman opsional.
+    export_list:
+      hello: Halo %{name}
+      subject: Ekspor Data Check
+      body: Ekspor data Check yang Anda minta telah tersedia untuk diunduh.
+      button_label: Unduh Ekspor
+      footer: Tautan unduhan ini akan kedaluwarsa pada %{date}.
   mail_security:
     device_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} dari %{browser} pada %{platform}'
     ip_subject: 'Peringatan keamanan: Percobaan masuk baru atau tidak biasa dari %{app_name}'
@@ -558,15 +583,16 @@ id:
   bot_request_url_invalid: URL bot salah
   smooch_facebook_success: |
       Sukses!
-      Tipline Anda sekarang terhubung dengan Facebook Messenger.
-      Pesan yang diterima oleh Halaman Facebook ini akan ditangani oleh tipline.
-      Mohon muat ulang halaman pengaturan tipline Anda untuk melihat pengubahan baru.
+      Tipline Anda sekarang terhubung dengan profil.
+      Semua pesan yang diterima oleh profil ini akan ditangani oleh tipline.
+      Silakan muat ulang halaman pengaturan tipline Anda untuk melihat perubahan yang baru.
   smooch_twitter_success: |
       Sukses!
       Tipline Anda sekarang terhubung dengan Twitter.
       Semua pesan yang diterima oleh profil Twitter ini akan ditangani oleh tipline.
-      Mohon muat ulang halaman pengaturan tipline Anda untuk melihat pengubahan baru.
+      Silakan muat ulang halaman pengaturan tipline Anda untuk melihat perubahan yang baru.
   must_select_exactly_one_facebook_page: Silakan pilih salah satu halaman Facebook yang Anda ingin integrasikan dengan Tipline.
+  invalid_facebook_authdata: Tidak memungkinkan untuk mengautentikasi akun Facebook Anda, silakan hubungi tim dukungan kami.
   invalid_task_answer: Format jawaban dari tugas salah
   team_rule_name: Nama unik yang dapat mengidentifikasi apa yang aturan ini lakukan
   team_rule_project_ids: Terapkan pada folder
@@ -718,6 +744,12 @@ id:
   send_every_must_be_a_list_of_days_of_the_week: harus berupa daftar hari dalam seminggu.
   send_on_must_be_in_the_future: tidak bisa ke masa lalu.
   cant_delete_default_folder: Folder bawaan tidak dapat dihapus
+  explainer_and_item_must_be_from_the_same_team: Penjelasan dan perihal harus berasal dari ruang kerja yang sama.
+  cant_apply_article_to_item_if_article_is_in_the_trash: Artikel ini ada di tong sampah sehingga ia tidak dapat ditambahkan ke klaster media ini. Silakan kembalikan terlebih dahulu dari tong sampah.
+  shared_feed_imported_media_already_exist: |-
+      Tidak ada media yang memenuhi syarat untuk diimpor ke ruang kerja Anda..
+      Media yang dipilih untuk diimpor sudah ada di ruang kerja Anda dalam perihal-perihal berikut:
+      %{urls}
   info:
     messages:
       sent_to_trash_by_rule: '"%{item_title}" telah dibuang ke tong sampah oleh aturan otomasi.'

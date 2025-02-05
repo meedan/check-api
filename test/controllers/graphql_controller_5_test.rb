@@ -405,6 +405,25 @@ class GraphqlController5Test < ActionController::TestCase
     assert_equal 'Test', JSON.parse(@response.body)['data']['createTag']['tag_text_object']['text']
   end
 
+  test "should get relevant articles for ProjectMedia item" do
+    t = create_team
+    pm = create_project_media quote: 'Foo Bar', team: t
+    ex = create_explainer language: 'en', team: t, title: 'Foo Bar'
+    pm.explainers << ex
+    cd = create_claim_description description: pm.title, project_media: pm
+    fc = create_fact_check claim_description: cd, title: pm.title
+    items = FactCheck.where(id: fc.id) + Explainer.where(id: ex.id)
+    ProjectMedia.any_instance.stubs(:get_similar_articles).returns(items)
+    query = "query { project_media(ids: \"#{pm.id}\") { relevant_articles_count, relevant_articles {  edges { node { ... on FactCheck { dbid }, ... on Explainer { dbid } } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 2, data['relevant_articles_count']
+    item_ids = data['relevant_articles']['edges'].collect{ |i| i['node']['dbid'] }
+    assert_equal items.map(&:id).sort, item_ids.sort
+    ProjectMedia.any_instance.unstub(:get_similar_articles)
+  end
+
   protected
 
   def assert_error_message(expected)

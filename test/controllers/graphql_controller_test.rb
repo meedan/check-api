@@ -242,7 +242,9 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should destroy project" do
-    assert_graphql_destroy('project')
+    Sidekiq::Testing.inline! do
+      assert_graphql_destroy('project')
+    end
   end
 
   test "should create source" do
@@ -262,7 +264,9 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should destroy team" do
-    assert_graphql_destroy('team')
+    Sidekiq::Testing.inline! do
+      assert_graphql_destroy('team')
+    end
   end
 
   test "should update user" do

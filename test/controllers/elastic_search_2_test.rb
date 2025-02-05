@@ -5,32 +5,6 @@ class ElasticSearch2Test < ActionController::TestCase
     super
     setup_elasticsearch
   end
-  
-  test "should update elasticsearch after move media to other projects" do
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    p2 = create_project team: t
-    m = create_valid_media
-    User.stubs(:current).returns(u)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    create_comment annotated: pm
-    create_tag annotated: pm
-    sleep 1
-    id = get_es_id(pm)
-    ms = $repository.find(id)
-    assert_equal ms['project_id'].to_i, p.id
-    assert_equal ms['team_id'].to_i, t.id
-    pm = ProjectMedia.find pm.id
-    pm.project_id = p2.id
-    pm.save!
-    # confirm annotations log
-    sleep 1
-    ms = $repository.find(id)
-    assert_equal ms['project_id'].to_i, p2.id
-    assert_equal ms['team_id'].to_i, t.id
-  end
 
   test "should destroy elasticseach project media" do
     t = create_team

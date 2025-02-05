@@ -225,6 +225,42 @@ class TestController < ApplicationController
     render_success 'suggest_similarity', pm1
   end
 
+  def create_imported_standalone_fact_check
+    team = Team.current = Team.find(params[:team_id])
+    user = User.where(email: params[:email]).last
+    description = params[:description]
+    context = params[:context]
+    title = params[:title]
+    summary = params[:summary]
+    url = params[:url]
+    language = params[:language] || 'en'
+
+    project_media = ProjectMedia.create!(media: Blank.create!, team: team, user: user)
+
+    # Create ClaimDescription
+    claim_description = ClaimDescription.create!(
+      description: description,
+      context: context,
+      user: user,
+      team: team,
+      project_media: project_media
+    )
+
+    # Set up FactCheck
+    fact_check = FactCheck.new(
+      claim_description: claim_description,
+      title: title,
+      summary: summary,
+      url: url,
+      language: language,
+      user: user,
+      publish_report: true,
+      report_status: 'published'
+    )
+    fact_check.save!
+    render_success 'fact_check', fact_check
+  end
+
   def random
     render html: "<!doctype html><html><head><title>Test #{rand(100000).to_i}</title></head><body>Test</body></html>".html_safe
   end

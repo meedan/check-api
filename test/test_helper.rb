@@ -159,6 +159,7 @@ class ActiveSupport::TestCase
   # This will run before any test
 
   def setup
+    Sidekiq::Testing.fake!
     [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, TiplineResource, TiplineRequest].each{ |klass| klass.delete_all }
 
     # Some of our non-GraphQL tests rely on behavior that this requires. As a result,

@@ -137,4 +137,71 @@ module TeamPrivate
     data_structure["Org"] = self.name
     [data_structure]
   end
+
+  def get_dashboard_export_headers(ts, dashboard_type)
+    # Get dashboard headers for both types (articles_dashboard & tipline_dashboard) in format { key: value }
+    # key(string): header label
+    # Value(Hash): { method_name: 'callback that should apply to the method output'}
+    # In some cases, the value may be empty ({}) as some methods will populate more than one row.
+
+    # Common header between articles_dashboard and tipline_dashboard
+    header = {
+      'Articles Sent': { number_of_articles_sent: 'to_i' },
+      'Matched Results (Fact-Checks)': { number_of_matched_results_by_article_type: 'values' },
+      'Matched Results (Explainers)': {},
+    }
+    # Hash to include top items as the header label depend on top_items size
+    top_items = {}
+    # tipline_dashboard columns
+    if dashboard_type.to_sym == :tipline_dashboard
+      header.merge!({
+        'Conversations': { number_of_conversations: 'to_i' },
+        'Messages': { number_of_messages: 'to_i' },
+        'Conversations (Positive)': { number_of_search_results_by_feedback_type: 'values' },
+        'Conversations (Negative)': {}, 'Conversations (No Response)': {},
+        'Avg. Response Time': { average_response_time: 'to_i' },
+        'Users (Total)': { number_of_total_users: 'to_i' },
+        'Users (Unique)': { number_of_unique_users: 'to_i' },
+        'Users (Returning)': { number_of_returning_users: 'to_i' },
+        'Subscribers': { number_of_subscribers: 'to_i' },
+        'Subscribers (New)': { number_of_new_subscribers: 'to_i' },
+        'Newsletters (Sent)': { number_of_newsletters_sent: 'to_i' },
+        'Newsletters (Delivered)': { number_of_newsletters_delivered: 'to_i' },
+        'Media Received (Text)': { number_of_media_received_by_media_type: 'values' },
+        'Media Received (Link)': {}, 'Media Received (Audio)': {}, 'Media Received (Image)': {}, 'Media Received (Video)': {},
+      })
+      top_items = { top_media_tags: 'Top tag', top_requested_media_clusters: 'Top Requested' }
+    else
+      # article_dashboard columns
+      header.merge!({
+        'Published Fact-Checks': { number_of_published_fact_checks: 'to_i' },
+        'Explainers Created': { number_of_explainers_created: 'to_i' },
+        'Fact-Checks Created': { number_of_fact_checks_created: 'to_i' },
+      })
+      rates = ts.send('number_of_fact_checks_by_rating').keys
+      unless rates.blank?
+        # Get the first element to fill the label and callback methods as other element will calling with empty callbacks
+        f_rate = rates.delete_at(0)
+        header.merge!({ "Claim & Fact-Checks (#{f_rate})": { number_of_fact_checks_by_rating: 'values' }})
+        rates.each{ |rate| header.merge!({"Claim & Fact-Checks (#{rate})": {}}) }
+      end
+      top_items = { top_articles_tags: 'Top Article Tags', top_articles_sent: 'Top Fact-Checks Sent' }
+    end
+    unless top_items.blank?
+      top_callback = proc { |output| output.collect{|item| "#{item[:label]} (#{item[:value]})"} }
+      # Append Top tags/requested header based on result count
+      top_items.each do |method, prefix|
+        col_numbers = ts.send(method).size
+        if col_numbers > 0
+          # Add a first one with method callback
+          header.merge!({"#{prefix} (1)": { "#{method}": top_callback } })
+          (col_numbers - 1).times do |i|
+            # Append other columns with empty method
+            header.merge!({"#{prefix} (#{i+2})": {} })
+          end
+        end
+      end
+    end
+    header
+  end
 end

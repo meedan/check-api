@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+  class RelevantArticlesError < StandardError; end
+
   # These two callbacks must be in the top
   after_create :create_team_partition
   before_destroy :delete_created_bots, :remove_is_default_project_flag
@@ -561,6 +563,74 @@ class Team < ApplicationRecord
       tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || ' ' || coalesce(url, ''))"
     end
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
+  end
+
+  def similar_articles_search_limit(pm = nil)
+    pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
+  end
+
+  def search_for_similar_articles(query, pm = nil, language = nil, settings = nil)
+    # query:  expected to be text
+    # pm: to request a most relevant to specific item and also include both FactCheck & Explainer
+    limit = self.similar_articles_search_limit(pm)
+    threads = []
+    fc_items = []
+    ex_items = []
+    threads << Thread.new {
+      result_ids = Bot::Smooch.search_for_similar_published_fact_checks_no_cache('text', query, [self.id], limit, nil, nil, language, pm.nil?, settings).map(&:id)
+      unless result_ids.blank?
+        fc_items = FactCheck.joins(claim_description: :project_media).where('project_medias.id': result_ids)
+        if !pm&.fact_check_id.nil?
+          # Exclude the ones already applied to a target item if exists.
+          fc_items = fc_items.where.not('fact_checks.id' => pm.fact_check_id) unless pm&.fact_check_id.nil?
+        end
+      end
+    }
+    threads << Thread.new {
+      ex_items = Bot::Smooch.search_for_explainers(nil, query, self.id, limit, language, settings).distinct
+      # Exclude the ones already applied to a target item
+      ex_items = ex_items.where.not(id: pm.explainer_ids) unless pm&.explainer_ids.blank?
+    }
+    threads.map(&:join)
+    items = fc_items
+    # Get Explainers if no fact-check returned or get similar_articles for a ProjectMedia
+    items += ex_items if items.blank? || !pm.nil?
+    Rails.logger.info("Relevant articles found for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}: #{items.map(&:graphql_id)}")
+    items
+  rescue StandardError => e
+    Rails.logger.warn("Error when trying to retrieve relevant articles for team slug #{self.slug}, project media with ID #{pm&.id} and query #{query}.")
+    CheckSentry.notify(RelevantArticlesError.new('Error when trying to retrieve relevant articles'), team_slug: self.slug, project_media_id: pm&.id, query: query, exception_message: e.message, exception: e)
+    []
+  end
+
+  def get_shorten_outgoing_urls
+    self.settings.to_h.with_indifferent_access[:shorten_outgoing_urls] || self.tipline_newsletters.where(content_type: 'rss', enabled: true).exists?
+  end
+
+  def get_dashboard_exported_data(filters, dashboard_type)
+    filters = filters.with_indifferent_access
+    ts = TeamStatistics.new(self, filters[:period], filters[:language], filters[:platform])
+    headers = get_dashboard_export_headers(ts, dashboard_type)
+    data = []
+    # Add header labels
+    data << headers.keys
+    header_methods = headers.values.delete_if{|v| v.blank?}
+    # Merging multiple hashes as single hash
+    header_methods = Hash[*header_methods.map{|v|v.to_a}.flatten]
+    raw = []
+    header_methods.each do |method, type|
+      unless type.blank?
+        output = ts.send(method) if ts.respond_to?(method)
+        if type.is_a?(Proc)
+          output = type.call(output)
+        else
+          output = output.send(type)
+        end
+        raw << output
+      end
+    end
+    data << raw.flatten
+    data
   end
 
   # private

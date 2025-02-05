@@ -29,4 +29,5 @@ class AboutType < BaseObject
 
   field :channels, JsonStringType, "List check channels", null: true
   field :countries, JsonStringType, "List of workspace countries", null: true
+  field :media_cluster_origins, JsonStringType, "List of media cluster origins", null: true
 end

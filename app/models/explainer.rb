@@ -1,12 +1,6 @@
 class Explainer < ApplicationRecord
   include Article
 
-  # FIXME: Read from workspace settings
-  ALEGRE_MODELS_AND_THRESHOLDS = {
-    # Bot::Alegre::ELASTICSEARCH_MODEL => 0.8 # Sometimes this is easier for local development
-    Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 0.7
-  }
-
   belongs_to :team
 
   has_annotations
@@ -29,8 +23,9 @@ class Explainer < ApplicationRecord
     # Let's not use the same callbacks from article.rb
   end
 
-  def as_tipline_search_result
+  def as_tipline_search_result(settings = nil)
     TiplineSearchResult.new(
+      id: self.id,
       team: self.team,
       title: self.title,
       body: self.description,
@@ -38,7 +33,8 @@ class Explainer < ApplicationRecord
       language: self.language,
       url: self.url,
       type: :explainer,
-      format: :text
+      format: :text,
+      link_settings: settings
     )
   end
 
@@ -66,18 +62,19 @@ class Explainer < ApplicationRecord
 
     base_context = {
       type: 'explainer',
-      team: explainer.team.slug,
+      team_id: explainer.team_id,
       language: explainer.language,
       explainer_id: explainer.id
     }
 
+    models_thresholds = Explainer.get_alegre_models_and_thresholds(explainer.team_id).keys
     # Index title
     params = {
       content_hash: Bot::Alegre.content_hash_for_value(explainer.title),
       doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'title'].join(':')),
       context: base_context.merge({ field: 'title' }),
       text: explainer.title,
-      models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
+      models: models_thresholds,
     }
     Bot::Alegre.index_async_with_params(params, "text")
 
@@ -90,7 +87,7 @@ class Explainer < ApplicationRecord
         doc_id: Digest::MD5.hexdigest(['explainer', explainer.id, 'paragraph', count].join(':')),
         context: base_context.merge({ paragraph: count }),
         text: paragraph.strip,
-        models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
+        models: models_thresholds,
       }
       Bot::Alegre.index_async_with_params(params, "text")
     end
@@ -107,21 +104,33 @@ class Explainer < ApplicationRecord
     end
   end
 
-  def self.search_by_similarity(text, language, team_id)
+  def self.search_by_similarity(text, language, team_id, limit, custom_threshold = nil)
+    models_thresholds = Explainer.get_alegre_models_and_thresholds(team_id)
+    models_thresholds.each { |model, _threshold| models_thresholds[model] = custom_threshold } unless custom_threshold.blank?
+    context = {
+      type: 'explainer',
+      team_id: team_id
+    }
+    context[:language] = language unless language.nil?
     params = {
       text: text,
-      models: ALEGRE_MODELS_AND_THRESHOLDS.keys,
-      per_model_threshold: ALEGRE_MODELS_AND_THRESHOLDS,
-      context: {
-        type: 'explainer',
-        team: Team.find(team_id).slug,
-        language: language
-      }
+      models: models_thresholds.keys,
+      per_model_threshold: models_thresholds,
+      context: context
     }
-    response = Bot::Alegre.query_sync_with_params(params, "text")
-    results = response['result'].to_a.sort_by{ |result| result['_score'] }
-    explainer_ids = results.collect{ |result| result.dig('context', 'explainer_id').to_i }.uniq.first(3)
+    response = Bot::Alegre.query_sync_with_params(params, 'text')
+    results = response['result'].to_a.sort_by{ |result| [result['model'] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, result['_score']] }.reverse
+    explainer_ids = results.collect{ |result| result.dig('context', 'explainer_id').to_i }.uniq.first(limit)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
+  end
+
+  def self.get_alegre_models_and_thresholds(team_id)
+    models_thresholds = {}
+    Bot::Alegre.get_similarity_methods_and_models_given_media_type_and_team_id("text", team_id, true).map do |similarity_method, model_name|
+      _, value = Bot::Alegre.get_threshold_given_model_settings(team_id, "text", similarity_method, true, model_name)
+      models_thresholds[model_name] = value
+    end
+    models_thresholds
   end
 
   private
