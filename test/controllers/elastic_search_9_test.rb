@@ -16,13 +16,18 @@ class ElasticSearch9Test < ActionController::TestCase
       pm2 = create_project_media team: t, disable_es_callbacks: false
       pm3 = create_project_media team: t, disable_es_callbacks: false
       pm4 = create_project_media team: t, disable_es_callbacks: false
-      create_claim_description project_media: pm, disable_es_callbacks: false
+      cd = create_claim_description project_media: pm, disable_es_callbacks: false
       create_claim_description project_media: pm3, disable_es_callbacks: false
-      sleep 2
+      sleep 1
       results = CheckSearch.new({ has_claim: ['ANY_VALUE'] }.to_json)
       assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
       results = CheckSearch.new({ has_claim: ['NO_VALUE'] }.to_json)
       assert_equal [pm2.id, pm4.id], results.medias.map(&:id).sort
+      cd.project_media_id = nil
+      cd.save!
+      sleep 1
+      results = CheckSearch.new({ has_claim: ['NO_VALUE'] }.to_json)
+      assert_equal [pm.id, pm2.id, pm4.id], results.medias.map(&:id).sort
     end
   end
 

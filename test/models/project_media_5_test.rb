@@ -949,7 +949,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       # Verify ES
       result = $repository.find(get_es_id(new))
       assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
-      assert_equal [old_c.id, new_c.id], result['comments'].collect{ |c| c['id'] }.sort
       assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
       assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
       assert_equal [u.id, u2.id, u3.id], result['assigned_user_ids'].sort

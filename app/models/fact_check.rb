@@ -152,7 +152,7 @@ class FactCheck < ApplicationRecord
   end
 
   def article_elasticsearch_data(action = 'create_or_update')
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    return if self.project_media.nil? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     data = action == 'destroy' ? {
         'fact_check_title' => '',
         'fact_check_summary' => '',
@@ -164,7 +164,7 @@ class FactCheck < ApplicationRecord
         'fact_check_url' => self.url,
         'fact_check_languages' => [self.language]
       }
-    self.index_in_elasticsearch(data)
+    self.index_in_elasticsearch(self.project_media.id, data)
   end
 
   def set_initial_rating

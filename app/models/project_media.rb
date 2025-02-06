@@ -617,9 +617,6 @@ class ProjectMedia < ApplicationRecord
   end
 
   def add_nested_objects(ms)
-    # comments
-    comments = self.annotations('comment')
-    ms.attributes[:comments] = comments.collect{|c| {id: c.id, text: c.text}}
     # tags
     tags = self.get_annotations('tag').map(&:load)
     ms.attributes[:tags] = tags.collect{|t| {id: t.id, tag: t.tag_text}}

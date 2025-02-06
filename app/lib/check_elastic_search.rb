@@ -23,7 +23,7 @@ module CheckElasticSearch
     ms.attributes[:updated_at] = self.updated_at.utc
     ms.attributes[:source_id] = self.source_id
     # Intial nested objects with []
-    ['comments', 'tags', 'task_responses', 'assigned_user_ids', 'requests'].each{ |f| ms.attributes[f] = [] }
+    ['tags', 'task_responses', 'assigned_user_ids', 'requests'].each{ |f| ms.attributes[f] = [] }
     self.add_nested_objects(ms) if options[:force_creation]
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
@@ -35,6 +35,13 @@ module CheckElasticSearch
     options = { keys: keys, data: data, pm_id: pm_id, skip_get_data: skip_get_data }
     model = { klass: self.class.name, id: self.id }
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+  end
+
+  def remove_fields_from_elasticsearch_doc(keys, pm_id)
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    options = { keys: keys, pm_id: pm_id }
+    model = { klass: self.class.name, id: self.id }
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'remove_fields')
   end
 
   def update_recent_activity(obj)
@@ -61,8 +68,14 @@ module CheckElasticSearch
     if fields.count
       create_doc_if_not_exists(options)
       sleep 1
-      client = $repository.client
-      client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
+      $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
+    end
+  end
+
+  def remove_fields_from_elasticsearch_doc_bg(options)
+    options[:keys].each do |k|
+      source = "ctx._source.remove('#{k}')"
+      $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { script: { source: source } }
     end
   end
 
@@ -175,9 +188,8 @@ module CheckElasticSearch
     def destroy_elasticsearch_doc_nested(options)
       nested_type = options[:es_type]
       begin
-        client = $repository.client
         source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
-        client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id],
+        $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id],
                  body: { script: { source: source, params: { id: options[:model_id] } } }
       rescue
         Rails.logger.info "[ES destroy] doc with id #{options[:doc_id]} not exists"
