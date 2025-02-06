@@ -67,18 +67,6 @@ namespace :check do
         pm_responses
       end
 
-      def self.comments(_team, pm_ids)
-        pm_comments = Hash.new {|hash, key| hash[key] = [] }
-        Comment.where(annotation_type: 'comment', annotated_id: pm_ids, annotated_type: 'ProjectMedia')
-        .find_each do |c|
-          pm_comments[c.annotated_id] << {
-            id: c.id,
-            text: c.text
-          }
-        end
-        pm_comments
-      end
-
       def self.tags(_team, pm_ids)
         pm_tags = Hash.new {|hash, key| hash[key] = [] }
         Tag.where(annotation_type: 'tag', annotated_id: pm_ids, annotated_type: 'ProjectMedia')

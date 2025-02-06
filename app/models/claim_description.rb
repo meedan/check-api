@@ -35,15 +35,13 @@ class ClaimDescription < ApplicationRecord
   end
 
   def article_elasticsearch_data(action = 'create_or_update')
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    data = action == 'destroy' ? {
-      'claim_description_content' => '',
-      'claim_description_context' => ''
-    } : {
-      'claim_description_content' => self.description,
-      'claim_description_context' => self.context
-    }
-    self.index_in_elasticsearch(data)
+    return if self.project_media_id.nil? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    if action == 'destroy'
+      self.remove_fields_from_elasticsearch_doc(['claim_description_content', 'claim_description_context'], self.project_media_id)
+    else
+      data = { 'claim_description_content' => self.description, 'claim_description_context' => self.context }
+      self.index_in_elasticsearch(self.project_media_id, data)
+    end
   end
 
   def project_media_was
@@ -90,6 +88,14 @@ class ClaimDescription < ApplicationRecord
       if fact_check
         fact_check.report_status = 'paused'
         fact_check.save!
+      end
+      # update ES
+      # Remove claim_description fields
+      self.remove_fields_from_elasticsearch_doc(['claim_description_content', 'claim_description_context'], pm.id)
+      # clear fact-check values
+      unless self.fact_check.nil?
+        data = { 'fact_check_title' => '', 'fact_check_summary' => '', 'fact_check_url' => '', 'fact_check_languages' => [] }
+        self.fact_check.index_in_elasticsearch(pm.id, data)
       end
     end
   end
