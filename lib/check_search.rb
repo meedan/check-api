@@ -168,7 +168,7 @@ class CheckSearch
     end
     filters_blank = true
     ['tags', 'keyword', 'language', 'fc_language', 'request_language', 'report_language', 'team_tasks', 'assigned_to', 'report_status', 'range_numeric',
-      'has_claim', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
+      'has_article', 'cluster_teams', 'published_by', 'annotated_by', 'channels', 'cluster_published_reports'
     ].each do |filter|
       filters_blank = false unless @options[filter].blank?
     end
@@ -309,7 +309,7 @@ class CheckSearch
     custom_conditions.concat integer_terms_query('channel', 'channels')
     custom_conditions.concat integer_terms_query('source_id', 'sources')
     custom_conditions.concat doc_conditions
-    custom_conditions.concat has_claim_conditions
+    custom_conditions.concat has_article_conditions
     custom_conditions.concat file_filter
     custom_conditions.concat range_filter(:es)
     custom_conditions.concat numeric_range_filter
@@ -530,13 +530,18 @@ class CheckSearch
     [{ nested: { path: 'requests', query: { terms: { 'requests.language': @options['request_language'] } } } }]
   end
 
-  def has_claim_conditions
+  def has_article_conditions
     conditions = []
-    return conditions unless @options.has_key?('has_claim')
-    if @options['has_claim'].include?('NO_VALUE')
-      conditions << { bool: { must_not: [ { exists: { field: 'claim_description_content' } } ] } }
-    elsif @options['has_claim'].include?('ANY_VALUE')
-      conditions << { exists: { field: 'claim_description_content' } }
+    return conditions unless @options.has_key?('has_article')
+    # Build a condidtion with fields that define the item has_article
+    has_article_c = []
+    ['claim_description_content', 'explainer_title'].each do |field|
+      has_article_c << { exists: { field: field } }
+    end
+    if @options['has_article'].include?('NO_VALUE')
+      conditions << { bool: { must_not: has_article_c } }
+    elsif @options['has_article'].include?('ANY_VALUE')
+      conditions << { bool: { should: has_article_c } }
     end
     conditions
   end
