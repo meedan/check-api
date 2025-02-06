@@ -16,26 +16,6 @@ class ElasticSearch9Test < ActionController::TestCase
       pm2 = create_project_media team: t, disable_es_callbacks: false
       pm3 = create_project_media team: t, disable_es_callbacks: false
       pm4 = create_project_media team: t, disable_es_callbacks: false
-      create_claim_description project_media: pm, disable_es_callbacks: false
-      create_claim_description project_media: pm3, disable_es_callbacks: false
-      sleep 2
-      results = CheckSearch.new({ has_article: ['ANY_VALUE'] }.to_json)
-      assert_equal [pm.id, pm3.id], results.medias.map(&:id).sort
-      results = CheckSearch.new({ has_article: ['NO_VALUE'] }.to_json)
-      assert_equal [pm2.id, pm4.id], results.medias.map(&:id).sort
-    end
-  end
-
-  test "should filter items by has_article 2" do
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u ,t) do
-      pm = create_project_media team: t, disable_es_callbacks: false
-      pm2 = create_project_media team: t, disable_es_callbacks: false
-      pm3 = create_project_media team: t, disable_es_callbacks: false
-      pm4 = create_project_media team: t, disable_es_callbacks: false
       pm5 = create_project_media team: t, disable_es_callbacks: false
       cd = create_claim_description project_media: pm, disable_es_callbacks: false
       ex2_a = create_explainer team: t
