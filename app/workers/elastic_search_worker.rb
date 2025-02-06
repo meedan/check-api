@@ -15,7 +15,6 @@ class ElasticSearchWorker
         ops = {
           'create_doc' => 'create_elasticsearch_doc_bg',
           'update_doc' => 'update_elasticsearch_doc_bg',
-          'remove_fields' => 'remove_fields_from_elasticsearch_doc_bg',
           'update_doc_team' => 'update_elasticsearch_doc_team_bg',
           'create_update_doc_nested' => 'create_update_nested_obj_bg',
           'destroy_doc' => 'destroy_elasticsearch_doc',
