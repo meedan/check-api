@@ -69,10 +69,9 @@ class Bot::Smooch < BotUser
           s = target.annotations.where(annotation_type: 'verification_status').last&.load
           status = parent.last_verification_status
           if !s.nil? && s.status != status
-            RequestStore.store[:bypass_status_publish_check] = true
             s.status = status
+            s.bypass_status_publish_check = true
             s.save
-            RequestStore.store[:bypass_status_publish_check] = false
           end
 
           # A relationship created by the Smooch Bot or Alegre Bot is related to search results (unless it's a suggestion that was confirmed), so the user has already received the report as a search result... no need to send another report
