@@ -131,10 +131,9 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     s.save!
     publish_report(pm_t)
     s = s.reload
-    RequestStore.store[:bypass_status_publish_check] = true
     s.status = 'in_progress'
+    s.bypass_status_publish_check = true
     s.save!
-    RequestStore.store[:bypass_status_publish_check] = false
     assert_equal 'in_progress', s.reload.status
   end
 

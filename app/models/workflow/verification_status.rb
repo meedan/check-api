@@ -82,7 +82,7 @@ class Workflow::VerificationStatus < Workflow::Base
     end
 
     def check_if_item_is_published
-      return if RequestStore.store[:bypass_status_publish_check]
+      return if self.bypass_status_publish_check
       published = begin (self.annotation.annotated.get_annotations('report_design').last.load.get_field_value('state') == 'published') rescue false end
       if published
         error = {
