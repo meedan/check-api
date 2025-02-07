@@ -122,6 +122,21 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     end
   end
 
+  test "should inherit status from parent even child is published" do
+    pm_s = create_project_media team: @team
+    pm_t = create_project_media team: @team
+    r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
+    s = pm_t.annotations.where(annotation_type: 'verification_status').last.load
+    s.status = 'verified'
+    s.save!
+    publish_report(pm_t)
+    s = s.reload
+    s.status = 'in_progress'
+    s.bypass_status_publish_check = true
+    s.save!
+    assert_equal 'in_progress', s.reload.status
+  end
+
   test "should send message to user when status changes" do
     u = create_user is_admin: true
     uid = random_string
