@@ -30,11 +30,19 @@ class ExplainerItem < ApplicationRecord
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     pm = self.project_media
     explainer_titles = pm.explainer_items.map(&:explainer).map(&:title).join(' ')
-    data = explainer_titles.blank? ? { explainer_title: nil } : { explainer_title: explainer_titles }
-    updated_at = Time.now
-    pm.update_columns(updated_at: updated_at)
-    data[:updated_at] = updated_at.utc
-    pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    # touch item to update `updated_at` date
+    if ProjectMedia.exists?(pm.id)
+      updated_at = Time.now
+      pm.update_columns(updated_at: updated_at)
+      data = { updated_at: updated_at.utc }
+      data['explainer_title'] = {
+        method: "explainers_title",
+        klass: pm.class.name,
+        id: pm.id,
+        default: nil,
+      }
+      pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    end
   end
 
   def log_relevant_article_results

@@ -49,13 +49,11 @@ module CheckElasticSearch
     data = get_elasticsearch_data(options[:data], options[:skip_get_data])
     fields = {}
     options[:keys].each do |k|
-      unless data[k].nil?
-        if data[k].class.to_s == 'Hash'
-          value = get_fresh_value(data[k].with_indifferent_access)
-          fields[k] = value unless value.nil?
-        else
-          fields[k] = data[k]
-        end
+      if data[k].class.to_s == 'Hash'
+        value = get_fresh_value(data[k].with_indifferent_access)
+        fields[k] = value
+      else
+        fields[k] = data[k]
       end
     end
     if fields.count

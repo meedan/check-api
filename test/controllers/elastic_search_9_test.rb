@@ -34,16 +34,16 @@ class ElasticSearch9Test < ActionController::TestCase
       assert_equal [pm5.id], results.medias.map(&:id).sort
       # remove explainer
       ExplainerItem.where(explainer_id: ex2_a.id, project_media_id: pm2.id).destroy_all
-      ExplainerItem.where(explainer_id: ex3.id, project_media_id: pm2.id).destroy_all
-      cd4.project_id = nil
+      ExplainerItem.where(explainer_id: ex3.id, project_media_id: pm3.id).destroy_all
+      cd4.project_media_id = nil
       cd4.save!
       sleep 1
       results = CheckSearch.new({ has_article: ['ANY_VALUE'] }.to_json)
-      assert_equal [pm.id, pm2.id, pm4], results.medias.map(&:id).sort
+      assert_equal [pm.id, pm2.id, pm4.id], results.medias.map(&:id).sort
       results = CheckSearch.new({ has_article: ['NO_VALUE'] }.to_json)
       assert_equal [pm3.id, pm5.id], results.medias.map(&:id).sort
       # remove fact-check and explainer
-      cd.project_id = nil
+      cd.project_media_id = nil
       cd.save!
       ExplainerItem.where(explainer_id: ex2_b.id, project_media_id: pm2.id).destroy_all
       ExplainerItem.where(explainer_id: ex4.id, project_media_id: pm4.id).destroy_all
@@ -53,12 +53,12 @@ class ElasticSearch9Test < ActionController::TestCase
       results = CheckSearch.new({ has_article: ['NO_VALUE'] }.to_json)
       assert_equal [pm.id, pm2.id, pm3.id, pm4.id, pm5.id], results.medias.map(&:id).sort
       # re-assing fact or explainer
-      cd.project_id = pm2.id
+      cd.project_media_id = pm2.id
       cd.save!
-      pm5.explainers << ex
+      pm5.explainers << ex4
       sleep 1
       results = CheckSearch.new({ has_article: ['ANY_VALUE'] }.to_json)
-      assert_equal [pm2.id, pm5], results.medias.map(&:id).sort
+      assert_equal [pm2.id, pm5.id], results.medias.map(&:id).sort
       results = CheckSearch.new({ has_article: ['NO_VALUE'] }.to_json)
       assert_equal [pm.id, pm3.id, pm4.id], results.medias.map(&:id).sort
     end

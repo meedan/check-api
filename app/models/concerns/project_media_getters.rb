@@ -213,4 +213,10 @@ module ProjectMediaGetters
   def fact_check
     self.claim_description&.fact_check
   end
+
+  def explainers_title
+    # Get the title for all explainer assinged to the item
+    explainer_titles = self.explainer_items.map(&:explainer).map(&:title).join(' ')
+    explainer_titles.blank? ? nil : explainer_titles
+  end
 end
