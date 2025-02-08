@@ -6,7 +6,7 @@ class Dynamic < ApplicationRecord
   mount_uploaders :file, ImageUploader
   serialize :file, JSON
 
-  attr_accessor :set_fields, :set_attribution, :action, :action_data
+  attr_accessor :set_fields, :set_attribution, :action, :action_data, :bypass_status_publish_check
 
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type', optional: true
   has_many :fields, class_name: 'DynamicAnnotation::Field', foreign_key: 'annotation_id', primary_key: 'id', dependent: :destroy
@@ -235,6 +235,7 @@ class Dynamic < ApplicationRecord
         next if value.blank?
         f = fields.select{ |x| x.field_name == field }.last || create_field(field, nil)
         f.value = value
+        f.bypass_status_publish_check = self.bypass_status_publish_check
         f.skip_check_ability = self.skip_check_ability unless self.skip_check_ability.nil?
         begin
           f.save!
