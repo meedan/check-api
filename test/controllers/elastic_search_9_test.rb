@@ -12,7 +12,7 @@ class ElasticSearch9Test < ActionController::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u ,t) do
-      pm = create_project_media team: t, disable_es_callbacks: false
+      pm = create_project_media team: t, quote: 'explainer_search', disable_es_callbacks: false
       pm2 = create_project_media team: t, disable_es_callbacks: false
       pm3 = create_project_media team: t, disable_es_callbacks: false
       pm4 = create_project_media team: t, disable_es_callbacks: false
@@ -24,7 +24,7 @@ class ElasticSearch9Test < ActionController::TestCase
       pm2.explainers << ex2_a
       pm2.explainers << ex2_b
       pm3.explainers << ex3
-      ex4 = create_explainer team: t
+      ex4 = create_explainer team: t, title: 'explainer_search'
       cd4 = create_claim_description project_media: pm4, disable_es_callbacks: false
       pm4.explainers << ex4
       sleep 1
@@ -61,6 +61,11 @@ class ElasticSearch9Test < ActionController::TestCase
       assert_equal [pm2.id, pm5.id], results.medias.map(&:id).sort
       results = CheckSearch.new({ has_article: ['NO_VALUE'] }.to_json)
       assert_equal [pm.id, pm3.id, pm4.id], results.medias.map(&:id).sort
+      # Verify search by explainer_title field
+      result = CheckSearch.new({keyword: 'explainer_search'}.to_json, nil, t.id)
+      assert_equal [pm.id, pm5.id], result.medias.map(&:id).sort
+      result = CheckSearch.new({keyword: 'explainer_search', keyword_fields: {fields: ['explainer_title']}}.to_json, nil, t.id)
+      assert_equal [pm5.id], result.medias.map(&:id)
     end
   end
 

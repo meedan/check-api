@@ -469,8 +469,7 @@ class CheckSearch
     return [] if @options["keyword"].blank? || @options["keyword"].class.name != 'String'
     set_keyword_fields
     keyword_c = []
-    field_conditions = build_keyword_conditions_media_fields
-    keyword_c.concat field_conditions
+    keyword_c.concat build_keyword_conditions_media_fields
     # Search in requests
     [['request_username', 'username'], ['request_identifier', 'identifier'], ['request_content', 'content']].each do |pair|
       keyword_c << {
@@ -497,7 +496,7 @@ class CheckSearch
   def build_keyword_conditions_media_fields
     es_fields = []
     conditions = []
-    %w(title description url claim_description_content fact_check_title fact_check_summary claim_description_context fact_check_url source_name).each do |f|
+    %w(title description url claim_description_content fact_check_title fact_check_summary claim_description_context fact_check_url source_name explainer_title).each do |f|
       es_fields << f if should_include_keyword_field?(f)
     end
     es_fields << 'analysis_title' if should_include_keyword_field?('title')
