@@ -29,7 +29,6 @@ class ExplainerItem < ApplicationRecord
   def update_elasticsearch_data
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     pm = self.project_media
-    explainer_titles = pm.explainer_items.map(&:explainer).map(&:title).join(' ')
     # touch item to update `updated_at` date
     if ProjectMedia.exists?(pm.id)
       updated_at = Time.now
