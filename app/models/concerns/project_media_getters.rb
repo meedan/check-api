@@ -216,7 +216,7 @@ module ProjectMediaGetters
 
   def explainers_title
     # Get the title for all explainer assinged to the item
-    explainer_titles = self.explainer_items.map(&:explainer).map(&:title).join(' ')
-    explainer_titles.blank? ? nil : explainer_titles
+    titles = Explainer.joins(:explainer_items).where('explainer_items.project_media_id = ?', self.id).map(&:title).join(' ')
+    titles.blank? ? nil : titles
   end
 end
