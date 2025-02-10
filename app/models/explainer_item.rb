@@ -35,7 +35,7 @@ class ExplainerItem < ApplicationRecord
       pm.update_columns(updated_at: updated_at)
       data = { updated_at: updated_at.utc }
       data['explainer_title'] = {
-        method: "explainers_title",
+        method: "explainers_titles",
         klass: pm.class.name,
         id: pm.id,
         default: nil,

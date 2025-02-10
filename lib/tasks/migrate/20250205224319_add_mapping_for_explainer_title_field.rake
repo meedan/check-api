@@ -9,8 +9,7 @@ namespace :check do
         next if skip_pmids.include?(raw.project_media_id)
         pm = raw.project_media
         doc_id =  Base64.encode64("ProjectMedia/#{pm.id}")
-        explainers_title = pm.explainers_title
-        fields = { 'explainer_title' => pm.explainers_title }
+        fields = { 'explainer_title' => pm.explainers_titles }
         es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
         skip_pmids << pm.id
       end
