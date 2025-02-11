@@ -377,4 +377,24 @@ class GraphqlController11Test < ActionController::TestCase
     assert_equal pm1.created_at.to_i, response['media_cluster_origin_timestamp']
     assert_equal CheckMediaClusterOrigins::OriginCodes::USER_ADDED, response['media_cluster_origin']
   end
+
+  test "should not crash if workspace doesn't exist" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    t.delete
+
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}", random: "123456") {
+          name
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_match /ActiveRecord::RecordNotFound/, @response.body
+  end
 end
