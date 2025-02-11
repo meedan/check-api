@@ -132,5 +132,7 @@ class MediaSearch
     indexes :negative_tipline_search_results_count, { type: 'long' }
 
     indexes :tipline_search_results_count, { type: 'long' }
+
+    indexes :explainer_title, { type: 'text', analyzer: 'check' }
   end
 end

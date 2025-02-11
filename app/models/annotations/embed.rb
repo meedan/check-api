@@ -5,8 +5,6 @@ class Embed < Dynamic
 end
 
 Dynamic.class_eval do
-  after_commit :update_elasticsearch_metadata, on: [:create, :update], if: proc { |d| ['metadata', 'verification_status'].include?(d.annotation_type) }
-
   def title=(title)
     self.set_metadata_field('title', title)
   end
@@ -34,26 +32,6 @@ Dynamic.class_eval do
     return unless self.annotation_type == 'metadata'
     data = begin JSON.parse(self.get_field_value('metadata_value')) rescue {} end
     data[field.to_s]
-  end
-
-  def update_elasticsearch_metadata
-    unless self.annotated.nil?
-      keys = %w(title description)
-      if self.annotated_type == 'ProjectMedia'
-        self.update_es_metadata_pm_annotation(keys, self.annotated)
-      elsif self.annotated_type == 'Media' && self.annotated.type == 'Link'
-        self.annotated.project_medias.each do |pm|
-          m = pm.get_annotations('metadata').last
-          self.update_elasticsearch_doc(keys, { 'title' => pm.title, 'description' => pm.description }, pm.id) if m.nil?
-        end
-      end
-    end
-  end
-
-  def update_es_metadata_pm_annotation(keys, pm)
-    data = {}
-    keys.each { |k| data[k] = self.send(k) }
-    self.update_elasticsearch_doc(keys, data, pm.id)
   end
 
   def metadata_for_registration_account(data)
