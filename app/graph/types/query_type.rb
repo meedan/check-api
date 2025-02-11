@@ -82,11 +82,12 @@ class QueryType < BaseObject
 
   def team(id: nil, slug: nil, random: nil)
     tid = id.to_i
+    team = nil
     unless slug.blank?
       team = Team.where(slug: slug).first
       tid = team.id unless team.nil?
     end
-    team.reload if random
+    team.reload if team && random
     tid = Team.current&.id || User.current&.teams&.first&.id if tid === 0
     GraphqlCrudOperations.load_if_can(Team, tid.to_i, context)
   end
