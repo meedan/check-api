@@ -36,12 +36,14 @@ class ClaimDescription < ApplicationRecord
 
   def article_elasticsearch_data(action = 'create_or_update')
     return if self.project_media_id.nil? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    if action == 'destroy'
-      self.remove_fields_from_elasticsearch_doc(['claim_description_content', 'claim_description_context'], self.project_media_id)
-    else
-      data = { 'claim_description_content' => self.description, 'claim_description_context' => self.context }
-      self.index_in_elasticsearch(self.project_media_id, data)
-    end
+    data = action == 'destroy' ? {
+      'claim_description_content' => nil,
+      'claim_description_context' => nil
+    } : {
+      'claim_description_content' => self.description,
+      'claim_description_context' => self.context
+    }
+    self.index_in_elasticsearch(self.project_media_id, data)
   end
 
   def project_media_was
@@ -90,13 +92,11 @@ class ClaimDescription < ApplicationRecord
         fact_check.save!
       end
       # update ES
-      # Remove claim_description fields
-      self.remove_fields_from_elasticsearch_doc(['claim_description_content', 'claim_description_context'], pm.id)
+      # clear claim_description fields
+      data = { 'claim_description_content' => nil, 'claim_description_context' => nil }
       # clear fact-check values
-      unless self.fact_check.nil?
-        data = { 'fact_check_title' => '', 'fact_check_summary' => '', 'fact_check_url' => '', 'fact_check_languages' => [] }
-        self.fact_check.index_in_elasticsearch(pm.id, data)
-      end
+      data.merge!({ 'fact_check_title' => '', 'fact_check_summary' => '', 'fact_check_url' => '', 'fact_check_languages' => [] }) unless self.fact_check.nil?
+      self.index_in_elasticsearch(pm.id, data)
     end
   end
 
@@ -128,7 +128,7 @@ class ClaimDescription < ApplicationRecord
 
   def log_relevant_article_results
     fc = self.fact_check
-    self.project_media.delay.log_relevant_results(fc.class.name, fc.id, User.current&.id, self.class.actor_session_id)
+    self.project_media.delay.log_relevant_results(fc.class.name, fc.id, User.current&.id, self.class.actor_session_id) unless fc.nil?
   end
 
   def cant_apply_article_to_item_if_article_is_in_the_trash

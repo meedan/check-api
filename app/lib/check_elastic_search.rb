@@ -37,13 +37,6 @@ module CheckElasticSearch
     ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
   end
 
-  def remove_fields_from_elasticsearch_doc(keys, pm_id)
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-    options = { keys: keys, pm_id: pm_id }
-    model = { klass: self.class.name, id: self.id }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'remove_fields')
-  end
-
   def update_recent_activity(obj)
     # update `updated_at` date for both PG & ES
     updated_at = Time.now
@@ -56,26 +49,17 @@ module CheckElasticSearch
     data = get_elasticsearch_data(options[:data], options[:skip_get_data])
     fields = {}
     options[:keys].each do |k|
-      unless data[k].nil?
-        if data[k].class.to_s == 'Hash'
-          value = get_fresh_value(data[k].with_indifferent_access)
-          fields[k] = value unless value.nil?
-        else
-          fields[k] = data[k]
-        end
+      if data[k].class.to_s == 'Hash'
+        value = get_fresh_value(data[k].with_indifferent_access)
+        fields[k] = value
+      else
+        fields[k] = data[k]
       end
     end
     if fields.count
       create_doc_if_not_exists(options)
       sleep 1
       $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
-    end
-  end
-
-  def remove_fields_from_elasticsearch_doc_bg(options)
-    options[:keys].each do |k|
-      source = "ctx._source.remove('#{k}')"
-      $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { script: { source: source } }
     end
   end
 
