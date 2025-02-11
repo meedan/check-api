@@ -73,6 +73,7 @@ fr:
         description: 'Conclusion : la source est une désinformation populaire planifiée'
   errors:
     messages:
+      extension_whitelist_error: l’extension n’est pas prise en charge
       invalid_password: Le mot de passe est invalide
       invalid_qrcode: Le code de validation est invalide
       extension_white_list_error: 'ne peut pas être de type %{extension}, les types autorisés sont :%{allowed_types}'
@@ -93,9 +94,10 @@ fr:
       invalid_project_media_channel_value: Désolé, la valeur de canal n’est pas prise en charge
       invalid_project_media_channel_update: Désolé, il ne vous a pas été possible de mettre à jour la valeur du canal
       invalid_project_media_archived_value: Désolé, la valeur archivée n’est pas prise en charge
-      invalid_fact_check_language_value: Désolé, la valeur de langue n’est pas prise en charge
-      fact_check_empty_title_and_summary: Désolé, vous devez remplir le titre ou le résumé
+      invalid_article_language_value: Désolé, la valeur de langue n’est pas prise en charge#
+      fact_check_empty_title_and_summary: Désolé, vous devez saisir le titre ou le résumé
       invalid_feed_saved_search_value: doit appartenir à un espace de travail qui fait partie de ce fil
+      platform_allowed_values_error: 'ne peut pas être de type %{type}, les types autorisés sont :%{allowed_types}'
   activerecord:
     models:
       link: Lien
@@ -146,6 +148,10 @@ fr:
           attributes:
             slug:
               slug_format: n’accepte que les lettres, les chiffres et les tirets
+        user:
+          attributes:
+            email:
+              taken: Vérifiez vos courriels. Si aucun compte n'existe pour cette adresse de courriel, vous devriez avoir reçu un courriel de confirmation. Si vous ne le recevez pas, essayez de réinitialiser votre mot de passe ou contactez notre équipe d’assistance.
       messages:
         record_invalid: "%{errors}"
         improbable_phone: est un numéro invalide
@@ -282,7 +288,8 @@ fr:
   account_exists: Ce compte existe déjà
   media_exists: Cet élément existe déjà
   source_exists: Cette source existe déjà
-  email_exists: Veuillez vérifier votre courriel. Si aucun compte n'existe avec ce courriel, vous devriez avoir reçu un courriel de confirmation. Si vous ne recevez pas de courriel de confirmation, essayez de réinitialiser votre mot de passe ou contactez notre support.
+  email_exists: Vérifiez vos courriels. Si aucun compte n'existe pour cette adresse de courriel, vous devriez avoir reçu un courriel de confirmation. Si vous ne le recevez pas, essayez de réinitialiser votre mot de passe ou contactez notre équipe d’assistance.
+  error_password_not_strong: "L’exigence de complexité n’est pas satisfaite. La longueur doit être de 8 à 70 caractères et comprendre au moins : 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial."
   banned_user: Désolé, votre compte a été banni de %{app_name}. Contactez l’équipe d’assistance si vous pensez que c’est une erreur.
   devise:
     mailer:
@@ -306,7 +313,7 @@ fr:
         ignore: Si vous ne souhaitez pas accepter l’invitation, ignorez ce courriel.
         app_team: "Espace de travail %{app}"
     failure:
-      unconfirmed: Consultez vos courriels afin de confirmer votre compte.
+      unconfirmed: Vérifiez vos courriels. Si aucun compte n'existe pour cette adresse de courriel, vous devriez avoir reçu un courriel de confirmation. Si vous ne le recevez pas, essayez de réinitialiser votre mot de passe ou contactez notre équipe d’assistance.
   user_invitation:
     invited: "%{email} a déjà été invité dans cet espace de travail."
     member: "%{email} est déjà membre."
@@ -419,6 +426,24 @@ fr:
       approved_text: Votre demande à vous joindre à l’espace de travail %{team} sur %{app_name} a été approuvée. Vous pouvez maintenant accéder à %{url} et commencer à contribuer.
       rejected_title: Demande refusée
       rejected_text: Désolé, votre demande de vous joindre à l’espace de travail %{team} sur %{app_name} n’a pas été approuvée.
+    feed_invitation:
+      subject: "%{user} a invité votre organisme à contribuer à %{feed}"
+      hello: Bonjour, %{email}
+      body: "%{name}, %{email} a invité votre organisme à contribuer à un fil Check partagé"
+      view_button: Afficher l’invitation
+    updated_terms:
+      subject: Mise à jour des Conditions générales d’utilisation de Check
+      hello: Bonjour, %{name}
+      title: Mise à jour des Conditions générales d’utilisation
+      body: Nous avons mis à jour nos Conditions générales d’utilisation pour les utilisateurs de Check. Nous envoyons cette notification à toutes les personnes inscrites à Check. Le fait de continuer à utiliser Check après la mise à jour implique l’acceptation de nos nouvelles Conditions générales d’utilisation.
+      term_button: Conditions générales d’utilisation
+      more_info: Il s’agit d’un avis légal unique envoyé à toutes les personnes qui utilisent Check, même à celles qui se sont désabonnées de nos annonces.
+    export_list:
+      hello: Bonjour, %{name}
+      subject: Exportation des données de Check
+      body: L’exportation des données de Check que vous avez demandée est prête à être téléchargée.
+      button_label: Télécharger l’exportation
+      footer: Ce lien de téléchargement expirera le %{date}.
   mail_security:
     device_subject: 'Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}'
     ip_subject: 'Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle'
@@ -564,15 +589,16 @@ fr:
   bot_request_url_invalid: L’URL du robot est invalide
   smooch_facebook_success: |
       C’est réussi !
-      Votre ligne info Tipline est désormais connectée à Facebook Messenger.
-      Tout message reçu par cette page Facebook sera traité par la ligne info.
-      Afin de voir les nouveaux changements, rechargez la page des paramètres du service Tipline.
+      Votre ligne info Tipline est désormais connectée au profil.
+      Tout message reçu par ce profil sera traité par le service Tipline.
+      Rechargez la page des paramètres du service Tipline pour voir les nouveaux changements.
   smooch_twitter_success: |
       C’est réussi !
       Votre ligne info Tipline est désormais connectée à Twitter.
       Tout message direct reçu par ce profil Twitter sera traité par le service Tipline.
       Rechargez la page des paramètres du service Tipline pour voir les nouveaux changements.
   must_select_exactly_one_facebook_page: Sélectionnez la page précise et unique de Facebook que vous voulez intégrer au service Tipline.
+  invalid_facebook_authdata: Il n’a pas été possible d’authentifier votre compte Facebook. Prenez contact avec notre équipe d’assistance.
   invalid_task_answer: Le format de réponse de la tâche est invalide
   team_rule_name: Un nom unique qui décrit ce que cette règle fait
   team_rule_project_ids: Appliquer au dossier
@@ -688,7 +714,7 @@ fr:
   list_column_tags_as_sentence: Étiquettes
   list_column_media_published_at: Média publié
   list_column_published_by: Rapport publié par
-  list_column_fact_check_published_on: Vérification des faits publiés le
+  list_column_fact_check_published_on: Vérification des faits publiée le
   list_column_related_count: Associés
   list_column_suggestions_count: Suggestions
   list_column_folder: Dossier
@@ -722,6 +748,12 @@ fr:
   send_every_must_be_a_list_of_days_of_the_week: doit être une liste de jours de la semaine.
   send_on_must_be_in_the_future: ne peut pas être dans le passé.
   cant_delete_default_folder: Le dossier par défaut ne peut pas être supprimé
+  explainer_and_item_must_be_from_the_same_team: L’article explicatif et l’élément doivent provenir du même espace de travail.
+  cant_apply_article_to_item_if_article_is_in_the_trash: Cet article se trouve dans la corbeille et ne peut donc pas être ajouté à ce groupe de médias. Restaurez-le d’abord de la corbeille.
+  shared_feed_imported_media_already_exist: |-
+      Aucun média ne peut être importé dans votre espace de travail.
+      Les médias sélectionnés pour l’importation existent déjà dans votre espace de travail dans les éléments suivants :
+      %{urls}
   info:
     messages:
       sent_to_trash_by_rule: '« %{item_title} » a été mis dans la corbeille par une règle d’automatisation.'

@@ -70,6 +70,7 @@ class Bot::Smooch < BotUser
           status = parent.last_verification_status
           if !s.nil? && s.status != status
             s.status = status
+            s.bypass_status_publish_check = true
             s.save
           end
 
@@ -1058,6 +1059,7 @@ class Bot::Smooch < BotUser
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
       next if s.nil? || s.status == status
       s.status = status
+      s.bypass_status_publish_check = true
       s.save!
     end
     User.current = nil

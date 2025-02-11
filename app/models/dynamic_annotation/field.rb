@@ -2,7 +2,7 @@ class DynamicAnnotation::Field < ApplicationRecord
   include CheckElasticSearch
   has_paper_trail on: [:create, :update], save_changes: true, ignore: [:updated_at, :created_at], if: proc { |f| User.current.present? && (['verification_status_status', 'team_bot_response_formatted_data', 'language'].include?(f.field_name) || f.annotation_type == 'archiver' || f.annotation_type =~ /^task_response/) }, versions: { class_name: 'Version' }
 
-  attr_accessor :disable_es_callbacks
+  attr_accessor :disable_es_callbacks, :bypass_status_publish_check
 
   belongs_to :annotation, optional: true
   belongs_to :annotation_type_object, class_name: 'DynamicAnnotation::AnnotationType', foreign_key: 'annotation_type', primary_key: 'annotation_type', optional: true

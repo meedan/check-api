@@ -181,31 +181,33 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should search for dynamic annotations" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
+    Sidekiq::Testing.inline! do
+      u = create_user
+      authenticate_with_user(u)
+      t = create_team slug: 'team'
+      create_team_user user: u, team: t
+      p = create_project team: t
 
-    pm1 = create_project_media disable_es_callbacks: false, project: p
-    create_dynamic_annotation annotation_type: 'language', annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
-    pm2 = create_project_media disable_es_callbacks: false, project: p
-    create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
+      pm1 = create_project_media disable_es_callbacks: false, project: p
+      create_dynamic_annotation annotation_type: 'language', annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
+      pm2 = create_project_media disable_es_callbacks: false, project: p
+      create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
 
-    sleep 2
-    query = 'query CheckSearch { search(query: "{\"language\":[\"en\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
-    assert_equal 1, pmids.size
-    assert_equal pm1.id, pmids[0]
+      sleep 2
+      query = 'query CheckSearch { search(query: "{\"language\":[\"en\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      assert_equal 1, pmids.size
+      assert_equal pm1.id, pmids[0]
 
-    query = 'query CheckSearch { search(query: "{\"language\":[\"pt\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
-    assert_equal 1, pmids.size
-    assert_equal pm2.id, pmids[0]
+      query = 'query CheckSearch { search(query: "{\"language\":[\"pt\"]}") { id,medias(first:20){edges{node{dbid}}}}}';
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      pmids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      assert_equal 1, pmids.size
+      assert_equal pm2.id, pmids[0]
+    end
   end
 
   test "should not remove logo when update team" do
@@ -291,18 +293,20 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should empty trash" do
-    u = create_user
-    team = create_team
-    create_team_user team: team, user: u, role: 'admin'
-    p = create_project team: team
-    create_project_media archived: CheckArchivedFlags::FlagCodes::TRASHED, project: p
-    assert_equal 1, team.reload.trash_count
-    id = team.graphql_id
-    authenticate_with_user(u)
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", empty_trash: 1 }) { public_team { trash_count } } }'
-    post :create, params: { query: query, team: team.slug }
-    assert_response :success
-    assert_equal 0, JSON.parse(@response.body)['data']['updateTeam']['public_team']['trash_count']
+    Sidekiq::Testing.inline! do
+      u = create_user
+      team = create_team
+      create_team_user team: team, user: u, role: 'admin'
+      p = create_project team: team
+      create_project_media archived: CheckArchivedFlags::FlagCodes::TRASHED, project: p
+      assert_equal 1, team.reload.trash_count
+      id = team.graphql_id
+      authenticate_with_user(u)
+      query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", empty_trash: 1 }) { public_team { trash_count } } }'
+      post :create, params: { query: query, team: team.slug }
+      assert_response :success
+      assert_equal 0, JSON.parse(@response.body)['data']['updateTeam']['public_team']['trash_count']
+    end
   end
 
   test "should provide empty fallback only if deleted status has no items" do
@@ -364,155 +368,161 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should filter by link published date" do
-    RequestStore.store[:skip_cached_field_update] = false
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
+    Sidekiq::Testing.inline! do
+      RequestStore.store[:skip_cached_field_update] = false
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
 
-    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
-    url = 'http://test.com'
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    pm1 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
+      url = 'http://test.com'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+      response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      pm1 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
 
-    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
-    url = 'http://test.com/2'
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    pm2 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
+      url = 'http://test.com/2'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+      response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+      pm2 = create_project_media team: t, url: url, disable_es_callbacks: false ; sleep 1
 
-    authenticate_with_user(u)
+      authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-30\",\"end_time\":\"2020-11-01\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+      query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-30\",\"end_time\":\"2020-11-01\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
 
-    query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-20\",\"end_time\":\"2020-10-24\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+      query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-20\",\"end_time\":\"2020-10-24\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
 
-    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
-    url = 'http://test.com'
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
-    pm1 = ProjectMedia.find(pm1.id) ; pm1.disable_es_callbacks = false ; pm1.refresh_media = true ; pm1.save! ; sleep 1
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
+      url = 'http://test.com'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+      response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Fri Oct 23 14:41:05 +0000 2020"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+      pm1 = ProjectMedia.find(pm1.id) ; pm1.disable_es_callbacks = false ; pm1.refresh_media = true ; pm1.save! ; sleep 1
 
-    WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
-    url = 'http://test.com/2'
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
-    pm2 = ProjectMedia.find(pm2.id) ; pm2.disable_es_callbacks = false ; pm2.refresh_media = true ; pm2.save! ; sleep 1
+      WebMock.disable_net_connect! allow: [CheckConfig.get('elasticsearch_host').to_s + ':' + CheckConfig.get('elasticsearch_port').to_s, CheckConfig.get('storage_endpoint')]
+      url = 'http://test.com/2'
+      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+      response = '{"type":"media","data":{"url":"' + url + '","type":"item","published_at":"Sat Oct 31 15:11:49 +0000 2020"}}'
+      WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: response)
+      pm2 = ProjectMedia.find(pm2.id) ; pm2.disable_es_callbacks = false ; pm2.refresh_media = true ; pm2.save! ; sleep 1
 
-    query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-30\",\"end_time\":\"2020-11-01\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+      query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-30\",\"end_time\":\"2020-11-01\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
 
-    query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-20\",\"end_time\":\"2020-10-24\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+      query = 'query CheckSearch { search(query: "{\"range\":{\"media_published_at\":{\"start_time\":\"2020-10-20\",\"end_time\":\"2020-10-24\"}}}") { id,medias(first:20){edges{node{dbid}}}}}';
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm.dig('node', 'dbid') }
+    end
   end
 
   test "should search for tags using operator" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    authenticate_with_user(u)
-    pm1 = create_project_media team: t, disable_es_callbacks: false
-    create_tag annotated: pm1, tag: 'test tag 1', disable_es_callbacks: false
-    pm2 = create_project_media team: t, disable_es_callbacks: false
-    create_tag annotated: pm2, tag: 'test tag 2', disable_es_callbacks: false
-    pm3 = create_project_media team: t, disable_es_callbacks: false
-    create_tag annotated: pm3, tag: 'test tag 1', disable_es_callbacks: false
-    create_tag annotated: pm3, tag: 'test tag 2', disable_es_callbacks: false
-    pm4 = create_project_media team: t, disable_es_callbacks: false
-    create_tag annotated: pm4, tag: 'test tag 3', disable_es_callbacks: false
-    pm5 = create_project_media team: t, disable_es_callbacks: false
-    sleep 2
+    Sidekiq::Testing.inline! do
+      u = create_user
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      authenticate_with_user(u)
+      pm1 = create_project_media team: t, disable_es_callbacks: false
+      create_tag annotated: pm1, tag: 'test tag 1', disable_es_callbacks: false
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      create_tag annotated: pm2, tag: 'test tag 2', disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      create_tag annotated: pm3, tag: 'test tag 1', disable_es_callbacks: false
+      create_tag annotated: pm3, tag: 'test tag 2', disable_es_callbacks: false
+      pm4 = create_project_media team: t, disable_es_callbacks: false
+      create_tag annotated: pm4, tag: 'test tag 3', disable_es_callbacks: false
+      pm5 = create_project_media team: t, disable_es_callbacks: false
+      sleep 2
 
-    query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+      query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
 
-    query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"or\"}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+      query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"or\"}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
 
-    query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"and\"}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal [pm3.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
+      query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"and\"}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: 'team' }
+      assert_response :success
+      assert_equal [pm3.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
+    end
   end
 
   test "should search by user assigned to item" do
-    u = create_user is_admin: true
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    authenticate_with_user(u)
+    Sidekiq::Testing.inline! do
+      u = create_user is_admin: true
+      t = create_team
+      create_team_user user: u, team: t, role: 'admin'
+      authenticate_with_user(u)
 
-    u1 = create_user
-    create_team_user user: u1, team: t
-    pm1 = create_project_media team: t, disable_es_callbacks: false
-    a1 = Assignment.create! user: u1, assigned: pm1.last_status_obj, disable_es_callbacks: false
-    u3 = create_user
-    create_team_user user: u3, team: t
-    Assignment.create! user: u3, assigned: pm1.last_status_obj, disable_es_callbacks: false
+      u1 = create_user
+      create_team_user user: u1, team: t
+      pm1 = create_project_media team: t, disable_es_callbacks: false
+      a1 = Assignment.create! user: u1, assigned: pm1.last_status_obj, disable_es_callbacks: false
+      u3 = create_user
+      create_team_user user: u3, team: t
+      Assignment.create! user: u3, assigned: pm1.last_status_obj, disable_es_callbacks: false
 
-    u2 = create_user
-    create_team_user user: u2, team: t
-    pm2 = create_project_media team: t, disable_es_callbacks: false
-    a2 = Assignment.create! user: u2, assigned: pm2.last_status_obj, disable_es_callbacks: false
-    u4 = create_user
-    create_team_user user: u4, team: t
-    Assignment.create! user: u4, assigned: pm2.last_status_obj, disable_es_callbacks: false
+      u2 = create_user
+      create_team_user user: u2, team: t
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      a2 = Assignment.create! user: u2, assigned: pm2.last_status_obj, disable_es_callbacks: false
+      u4 = create_user
+      create_team_user user: u4, team: t
+      Assignment.create! user: u4, assigned: pm2.last_status_obj, disable_es_callbacks: false
 
-    u5 = create_user
-    sleep 2
+      u5 = create_user
+      sleep 2
 
-    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u1.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u1.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u2.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u2.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"assigned_to\":[\"ANY_VALUE\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
-    assert_equal [pm1.id, pm2.id], ids.sort
+      query = 'query CheckSearch { search(query: "{\"assigned_to\":[\"ANY_VALUE\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      assert_equal [pm1.id, pm2.id], ids.sort
 
-    query = 'query CheckSearch { search(query: "{\"assigned_to\":[\"NO_VALUE\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
-    assert_empty ids
+      query = 'query CheckSearch { search(query: "{\"assigned_to\":[\"NO_VALUE\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      ids = JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      assert_empty ids
 
-    a1.destroy!
-    a2.destroy!
-    sleep 2
+      a1.destroy!
+      a2.destroy!
+      sleep 2
 
-    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u1.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u1.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u2.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+      query = 'query CheckSearch { search(query: "{\"assigned_to\":[' + u2.id.to_s + ',' + u5.id.to_s + ']}") { id,medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal [], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |pm| pm['node']['dbid'] }
+    end
   end
 
   test "should not access GraphQL mutation if not authenticated" do
@@ -521,32 +531,34 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should get project media assignments" do
-    u = create_user
-    u2 = create_user
-    t = create_team
-    create_team_user user: u, team: t, status: 'member'
-    create_team_user user: u2, team: t, status: 'member'
-    pm1 = create_project_media team: t
-    pm2 = create_project_media team: t
-    pm3 = create_project_media team: t
-    pm4 = create_project_media team: t
-    s1 = create_status status: 'in_progress', annotated: pm1
-    s2 = create_status status: 'in_progress', annotated: pm2
-    s3 = create_status status: 'in_progress', annotated: pm3
-    s4 = create_status status: 'verified', annotated: pm4
-    t1 = create_task annotated: pm1
-    t2 = create_task annotated: pm3
-    s1.assign_user(u.id)
-    s2.assign_user(u.id)
-    s3.assign_user(u.id)
-    s4.assign_user(u2.id)
-    authenticate_with_user(u)
-    post :create, params: { query: "query { me { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }" }
-    data = JSON.parse(@response.body)['data']['me']
-    assert_equal [pm3.id, pm2.id, pm1.id], data['assignments']['edges'].collect{ |x| x['node']['dbid'] }
-    assert_equal [t2.id], data['assignments']['edges'][0]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
-    assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']
-    assert_equal [t1.id], data['assignments']['edges'][2]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
+    Sidekiq::Testing.inline! do
+      u = create_user
+      u2 = create_user
+      t = create_team
+      create_team_user user: u, team: t, status: 'member'
+      create_team_user user: u2, team: t, status: 'member'
+      pm1 = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      pm4 = create_project_media team: t
+      s1 = create_status status: 'in_progress', annotated: pm1
+      s2 = create_status status: 'in_progress', annotated: pm2
+      s3 = create_status status: 'in_progress', annotated: pm3
+      s4 = create_status status: 'verified', annotated: pm4
+      t1 = create_task annotated: pm1
+      t2 = create_task annotated: pm3
+      s1.assign_user(u.id)
+      s2.assign_user(u.id)
+      s3.assign_user(u.id)
+      s4.assign_user(u2.id)
+      authenticate_with_user(u)
+      post :create, params: { query: "query { me { assignments(first: 10) { edges { node { dbid, assignments(first: 10, user_id: #{u.id}, annotation_type: \"task\") { edges { node { dbid } } } } } } } }" }
+      data = JSON.parse(@response.body)['data']['me']
+      assert_equal [pm3.id, pm2.id, pm1.id], data['assignments']['edges'].collect{ |x| x['node']['dbid'] }
+      assert_equal [t2.id], data['assignments']['edges'][0]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
+      assert_equal [], data['assignments']['edges'][1]['node']['assignments']['edges']
+      assert_equal [t1.id], data['assignments']['edges'][2]['node']['assignments']['edges'].collect{ |x| x['node']['dbid'].to_i }
+    end
   end
 
   test "should not get private team by slug" do

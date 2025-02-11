@@ -498,6 +498,7 @@ class Team < ApplicationRecord
 
     # Filter by date
     query = query.where(updated_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
+    query = query.where(created_at: Range.new(*format_times_search_range_filter(JSON.parse(filters[:created_at]), nil))) unless filters[:created_at].blank?
 
     # Filter by trashed
     query = query.where(trashed: !!filters[:trashed])
@@ -529,6 +530,7 @@ class Team < ApplicationRecord
 
     # Filter by date
     query = query.where('fact_checks.updated_at' => Range.new(*format_times_search_range_filter(JSON.parse(filters[:updated_at]), nil))) unless filters[:updated_at].blank?
+    query = query.where('fact_checks.created_at' => Range.new(*format_times_search_range_filter(JSON.parse(filters[:created_at]), nil))) unless filters[:created_at].blank?
 
     # Filter by publisher
     query = query.where('fact_checks.publisher_id' => filters[:publisher_ids].to_a.map(&:to_i)) unless filters[:publisher_ids].blank?
