@@ -5,7 +5,7 @@ module SmoochStatus
 
   module ClassMethods
     ::Workflow::VerificationStatus.class_eval do
-      check_workflow from: :any, to: :any, actions: [:replicate_status_to_children, :send_message]
+      check_workflow from: :any, to: :any, actions: [:send_message]
     end
 
     Team.class_eval do
@@ -34,12 +34,6 @@ module SmoochStatus
       end
 
       protected
-
-      def replicate_status_to_children
-        pm = self.annotation.annotated
-        return unless Bot::Smooch.team_has_smooch_bot_installed(pm)
-        ::Bot::Smooch.delay_for(1.second, { queue: 'smooch', retry: 0 }).replicate_status_to_children(self.annotation.annotated_id, self.value, User.current&.id, Team.current&.id)
-      end
 
       def send_message
         pm = self.annotation.annotated

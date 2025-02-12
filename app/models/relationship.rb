@@ -205,6 +205,23 @@ class Relationship < ApplicationRecord
     r
   end
 
+  def self.replicate_status_to_children(pm_id, status, uid, tid)
+    pm = ProjectMedia.find_by_id(id: pm_id)
+    return if pm.nil?
+    User.current = User.where(id: uid).last
+    Team.current = Team.where(id: tid).last
+    pm.source_relationships.confirmed.find_each do |relationship|
+      target = relationship.target
+      s = target.annotations.where(annotation_type: 'verification_status').last&.load
+      next if s.nil? || s.status == status
+      s.status = status
+      s.bypass_status_publish_check = true
+      s.save!
+    end
+    User.current = nil
+    Team.current = nil
+  end
+
   protected
 
   def update_elasticsearch_parent(action = 'create_or_update')
