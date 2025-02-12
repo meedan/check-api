@@ -15,4 +15,11 @@ class FactCheckType < DefaultObject
   field :imported, GraphQL::Types::Boolean, null: true
   field :report_status, GraphQL::Types::String, null: true
   field :trashed, GraphQL::Types::Boolean, null: true
+  
+  field :author, UserType, null: true
+
+  # FIXME: Return actual article creator
+  def author
+    object.user
+  end
 end
