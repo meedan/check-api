@@ -212,8 +212,7 @@ class Relationship < ApplicationRecord
     Team.current = Team.where(id: tid).last
     status = pm.last_verification_status
     pm.source_relationships.confirmed.find_each do |relationship|
-      target = relationship.target
-      s = last_status_obj
+      s = relationship.target.last_status_obj
       next if s.nil? || s.status == status
       s.status = status
       s.bypass_status_publish_check = true
