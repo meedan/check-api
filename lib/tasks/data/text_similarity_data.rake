@@ -38,7 +38,8 @@ namespace :check do
             body: article.send(body_method_mapping[type]),
             url: article.url,
             type: type,
-            claim: claim
+            claim: claim,
+            created_at: article.created_at
           }]
         }
       end
@@ -86,7 +87,8 @@ namespace :check do
           title: item.title,
           description: item.description,
           channel: channel_name(item),
-          origin: origin_name(item)
+          origin: origin_name(item),
+          created_at: item.created_at
         }
 
         # Explainers, if any
@@ -98,7 +100,8 @@ namespace :check do
             body: explainer.description,
             url: explainer.url,
             claim: nil,
-            type: 'explainer'
+            type: 'explainer',
+            created_at: explainer.created_at
           }
         end
 
@@ -111,7 +114,8 @@ namespace :check do
             body: fact_check.summary,
             url: fact_check.url,
             claim: fact_check.claim_description.description,
-            type: 'fact-check'
+            type: 'fact-check',
+            created_at: fact_check.created_at
           }
         end
 
