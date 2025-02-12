@@ -21,17 +21,16 @@ class Relationship < ApplicationRecord
 
   before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
-  after_create :move_to_same_project_as_main, prepend: true
   after_create :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
-  after_save :move_explainers_to_source, if: proc { |r| r.is_confirmed? }
+  after_save :move_explainers_to_source, :apply_status_to_children, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
-  after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
+  after_commit :destroy_elasticsearch_relation, on: :destroy
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
 
@@ -205,11 +204,12 @@ class Relationship < ApplicationRecord
     r
   end
 
-  def self.replicate_status_to_children(pm_id, status, uid, tid)
+  def self.replicate_status_to_children(pm_id, uid, tid)
     pm = ProjectMedia.find_by_id(id: pm_id)
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
+    status = pm.last_verification_status
     pm.source_relationships.confirmed.find_each do |relationship|
       target = relationship.target
       s = target.annotations.where(annotation_type: 'verification_status').last&.load
@@ -366,16 +366,6 @@ class Relationship < ApplicationRecord
     update_elasticsearch_parent('destroy')
   end
 
-  def move_to_same_project_as_main
-    main = self.source
-    secondary = self.target
-    if (self.is_confirmed? || self.is_suggested?) && secondary && main && secondary.project_id != main.project_id
-      secondary.project_id = main.project_id
-      secondary.save!
-      CheckNotification::InfoMessages.send('moved_to_private_folder', item_title: secondary.title)
-    end
-  end
-
   def move_explainers_to_source
     # Three cases to move explainers
     # 1) Relationship is new and confirmed
@@ -395,6 +385,10 @@ class Relationship < ApplicationRecord
         .update_all(associated_id: self.source_id)
       end
     end
+  end
+
+  def apply_status_to_children
+    Relationship.delay_for(1.second, { queue: 'smooch_priority' }).replicate_status_to_children(self.source_id, User.current&.id, Team.current&.id)
   end
 
   def destroy_same_suggested_item

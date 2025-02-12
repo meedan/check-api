@@ -121,7 +121,7 @@ class Workflow::VerificationStatus < Workflow::Base
     end
 
     def replicate_status_to_children
-      Relationship.delay_for(1.second, { queue: 'smooch', retry: 0 }).replicate_status_to_children(self.annotation.annotated_id, self.value, User.current&.id, Team.current&.id)
+      Relationship.delay_for(1.second, { queue: 'smooch', retry: 0 }).replicate_status_to_children(self.annotation.annotated_id, User.current&.id, Team.current&.id)
     end
   end
 
