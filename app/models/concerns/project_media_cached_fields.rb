@@ -214,6 +214,7 @@ module ProjectMediaCachedFields
       update_on: FACT_CHECK_EVENTS
 
     cached_field :description,
+      update_es: true,
       recalculate: :recalculate_description,
       update_on: title_or_description_update
 

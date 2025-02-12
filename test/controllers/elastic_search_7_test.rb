@@ -170,10 +170,10 @@ class ElasticSearch7Test < ActionController::TestCase
     assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
   end
 
-  test "should filter by keyword and tite description tags and notes fields fields" do
+  test "should filter by keyword and field settings(tite description tags)" do
+    RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff(false)
     t = create_team
-    p = create_project team: t
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "search_title", "description":"search_desc"}}'
@@ -183,20 +183,20 @@ class ElasticSearch7Test < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
     m1 = create_media(account: create_valid_account, url: url2)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm2 = create_project_media project: p, media: m1, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
+    pm2 = create_project_media team: t, media: m1, disable_es_callbacks: false
     # add analysis to pm2
     pm2.analysis = { title: 'override_title', content: 'override_description' }
     # add tags to pm3
-    pm3 = create_project_media project: p, disable_es_callbacks: false
+    pm3 = create_project_media team: t, disable_es_callbacks: false
     create_tag tag: 'search_title', annotated: pm3, disable_es_callbacks: false
     create_tag tag: 'another_desc', annotated: pm3, disable_es_callbacks: false
     create_tag tag: 'newtag', annotated: pm3, disable_es_callbacks: false
-    sleep 2
+    sleep 1
     result = CheckSearch.new({keyword: 'search_title'}.to_json, nil, t.id)
-    assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
+    assert_equal [pm.id, pm3.id], result.medias.map(&:id).sort
     result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['title']}}.to_json, nil, t.id)
-    assert_equal [pm.id, pm2.id], result.medias.map(&:id).sort
+    assert_equal [pm.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'search_desc', keyword_fields: {fields: ['description']}}.to_json, nil, t.id)
     assert_equal [pm.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'override_title', keyword_fields: {fields: ['title']}}.to_json, nil, t.id)
@@ -206,9 +206,7 @@ class ElasticSearch7Test < ActionController::TestCase
     result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['tags']}}.to_json, nil, t.id)
     assert_equal [pm3.id], result.medias.map(&:id)
     result = CheckSearch.new({keyword: 'another_desc', keyword_fields: {fields:['description', 'tags']}}.to_json, nil, t.id)
-    assert_equal [pm2.id, pm3.id], result.medias.map(&:id).sort
-    create_comment annotated: pm, text: 'item notepm', disable_es_callbacks: false
-    create_comment annotated: pm2, text: 'item comment', disable_es_callbacks: false
+    assert_equal [pm3.id], result.medias.map(&:id)
   end
 
   test "should search by media url" do

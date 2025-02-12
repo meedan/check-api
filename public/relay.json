@@ -69302,6 +69302,18 @@
                   "deprecationReason": null
                 },
                 {
+                  "name": "created_at",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null,
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                },
+                {
                   "name": "text",
                   "description": null,
                   "type": {
@@ -69484,6 +69496,18 @@
                 },
                 {
                   "name": "updated_at",
+                  "description": null,
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null,
+                  "isDeprecated": false,
+                  "deprecationReason": null
+                },
+                {
+                  "name": "created_at",
                   "description": null,
                   "type": {
                     "kind": "SCALAR",
