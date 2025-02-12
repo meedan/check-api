@@ -112,7 +112,10 @@ module RelationshipBulk
           r.send(callback)
         end
         # Send report if needed
-        Relationship.inherit_status_and_send_report(r.id) if extra_options['action'] == 'accept'
+        if extra_options['action'] == 'accept'
+          Relationship.smooch_send_report(r.id)
+          Relationship.replicate_status_to_children(r.source_id, whodunnit, team_id)
+        end
       end
       # Update un-matched field
       ProjectMedia.where(id: target_ids).update_all(unmatched: 0)

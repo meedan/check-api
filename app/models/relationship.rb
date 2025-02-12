@@ -21,6 +21,7 @@ class Relationship < ApplicationRecord
 
   before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
+  after_create :move_to_same_project_as_main, prepend: true
   after_create :update_counters, prepend: true
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
@@ -205,7 +206,7 @@ class Relationship < ApplicationRecord
   end
 
   def self.replicate_status_to_children(pm_id, uid, tid)
-    pm = ProjectMedia.find_by_id(id: pm_id)
+    pm = ProjectMedia.find_by_id(pm_id)
     return if pm.nil?
     User.current = User.where(id: uid).last
     Team.current = Team.where(id: tid).last
@@ -364,6 +365,16 @@ class Relationship < ApplicationRecord
 
   def destroy_elasticsearch_relation
     update_elasticsearch_parent('destroy')
+  end
+
+  def move_to_same_project_as_main
+    main = self.source
+    secondary = self.target
+    if (self.is_confirmed? || self.is_suggested?) && secondary && main && secondary.project_id != main.project_id
+      secondary.project_id = main.project_id
+      secondary.save!
+      CheckNotification::InfoMessages.send('moved_to_private_folder', item_title: secondary.title)
+    end
   end
 
   def move_explainers_to_source

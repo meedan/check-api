@@ -50,8 +50,9 @@ class FactCheck < ApplicationRecord
         s.save!
       end
       # update related items status
-      Relationship.confirmed.where(source_id: pm.id).find_each do |r|
-        Relationship.delay_for(2.seconds, { queue: 'smooch'}).inherit_status_and_send_report(r.id)
+      Relationship.delay_for(2.second, { queue: 'smooch' }).replicate_status_to_children(pm.id, User.current&.id, Team.current&.id)
+      pm.source_relationships.confirmed.find_each do |r|
+        Relationship.delay_for(2.seconds, { queue: 'smooch'}).smooch_send_report(r.id)
       end
     end
   end
