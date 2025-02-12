@@ -219,4 +219,12 @@ module ProjectMediaGetters
     titles = Explainer.joins(:explainer_items).where('explainer_items.project_media_id = ?', self.id).map(&:title).join("\n")
     titles.blank? ? nil : titles
   end
+
+  def language
+    self.get_dynamic_annotation('language')&.get_field('language')&.send(:to_s)
+  end
+
+  def language_code
+    self.get_dynamic_annotation('language')&.get_field_value('language')
+  end
 end

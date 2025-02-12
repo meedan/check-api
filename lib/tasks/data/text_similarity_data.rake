@@ -39,7 +39,8 @@ namespace :check do
             url: article.url,
             type: type,
             claim: claim,
-            created_at: article.created_at
+            created_at: article.created_at,
+            language: article.language
           }]
         }
       end
@@ -88,7 +89,8 @@ namespace :check do
           description: item.description,
           channel: channel_name(item),
           origin: origin_name(item),
-          created_at: item.created_at
+          created_at: item.created_at,
+          language: item.language_code
         }
 
         # Explainers, if any
@@ -101,7 +103,8 @@ namespace :check do
             url: explainer.url,
             claim: nil,
             type: 'explainer',
-            created_at: explainer.created_at
+            created_at: explainer.created_at,
+            language: explainer.language
           }
         end
 
@@ -115,7 +118,8 @@ namespace :check do
             url: fact_check.url,
             claim: fact_check.claim_description.description,
             type: 'fact-check',
-            created_at: fact_check.created_at
+            created_at: fact_check.created_at,
+            language: fact_check.language
           }
         end
 
@@ -159,9 +163,9 @@ namespace :check do
         body: JSON.pretty_generate(data)
       )
       if response.etag
-        puts "Uploaded to S3 successfully."
+        puts 'Uploaded to S3 successfully.'
       else
-        puts "Error uploading to S3."
+        puts 'Error uploading to S3.'
         exit 1
       end
     end
