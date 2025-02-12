@@ -26,7 +26,7 @@ class Relationship < ApplicationRecord
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
-  after_save :move_explainers_to_source, :apply_status_to_children, if: proc { |r| r.is_confirmed? }
+  after_save :move_explainers_to_source, :apply_status_to_target, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
@@ -213,7 +213,7 @@ class Relationship < ApplicationRecord
     status = pm.last_verification_status
     pm.source_relationships.confirmed.find_each do |relationship|
       target = relationship.target
-      s = target.annotations.where(annotation_type: 'verification_status').last&.load
+      s = last_status_obj
       next if s.nil? || s.status == status
       s.status = status
       s.bypass_status_publish_check = true
@@ -398,8 +398,15 @@ class Relationship < ApplicationRecord
     end
   end
 
-  def apply_status_to_children
-    Relationship.delay_for(1.second, { queue: 'smooch_priority' }).replicate_status_to_children(self.source_id, User.current&.id, Team.current&.id)
+  def apply_status_to_target
+    status = self.source.last_verification_status
+    target = self.target
+    s = target.last_status_obj
+    unless s.nil? || s.status == status
+      s.status = status
+      s.bypass_status_publish_check = true
+      s.save
+    end
   end
 
   def destroy_same_suggested_item

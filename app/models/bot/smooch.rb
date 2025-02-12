@@ -62,7 +62,6 @@ class Bot::Smooch < BotUser
       relationship = Relationship.find_by_id(rid)
       unless relationship.nil?
         target = relationship.target
-        # Always inherit status for confirmed matches
         if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
           # A relationship created by the Smooch Bot or Alegre Bot is related to search results (unless it's a suggestion that was confirmed), so the user has already received the report as a search result... no need to send another report
           # Only send a report for (1) Confirmed matches created manually OR (2) Suggestions accepted
