@@ -20,8 +20,12 @@ namespace :check do
           'explainer' => :description,
           'fact-check' => :summary
         }
+        claim = nil
+        claim = article.claim_description.description if type == 'fact-check'
         {
           id: nil,
+          team_id: nil,
+          team_slug: nil,
           media_id: nil,
           title: nil,
           description: nil,
@@ -33,7 +37,8 @@ namespace :check do
             title: article.title,
             body: article.send(body_method_mapping[type]),
             url: article.url,
-            type: type
+            type: type,
+            claim: claim
           }]
         }
       end
@@ -75,6 +80,8 @@ namespace :check do
         # Item data
         object = {
           id: item.id,
+          team_id: item.team_id,
+          team_slug: item.team.slug,
           media_id: item.media_id,
           title: item.title,
           description: item.description,
@@ -90,6 +97,7 @@ namespace :check do
             title: explainer.title,
             body: explainer.description,
             url: explainer.url,
+            claim: nil,
             type: 'explainer'
           }
         end
@@ -102,6 +110,7 @@ namespace :check do
             title: fact_check.title,
             body: fact_check.summary,
             url: fact_check.url,
+            claim: fact_check.claim_description.description,
             type: 'fact-check'
           }
         end
@@ -113,7 +122,7 @@ namespace :check do
             parent_id: relationship.source_id,
             child_id: relationship.target_id,
             user_name: relationship.user&.name
-          }
+          }.merge(relationship.as_json)
         end
 
         data << object
