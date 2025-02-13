@@ -194,33 +194,6 @@ module SampleData
     u.reload
   end
 
-  def create_comment(options = {})
-    user = options[:user] || create_user
-    options = { text: random_string(50), annotator: user, disable_es_callbacks: true }.merge(options)
-    unless options.has_key?(:annotated)
-      t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_media project: p
-    end
-    c = Comment.new
-    options.each do |key, value|
-      c.send("#{key}=", value) if c.respond_to?("#{key}=")
-    end
-
-    file = nil
-    if options.has_key?(:file)
-      file = options[:file]
-    end
-    unless file.nil?
-      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
-        c.file = f
-      end
-    end
-
-    c.save!
-    c
-  end
-
   def create_tag(options = {})
     options = {
       tag: random_string(50),
@@ -320,11 +293,7 @@ module SampleData
   end
 
   def create_annotation(options = {})
-    if options.has_key?(:annotation_type) && options[:annotation_type].blank?
-      Annotation.create!(options)
-    else
-      create_comment(options)
-    end
+    Annotation.create!(options)
   end
 
   def create_account(options = {})
