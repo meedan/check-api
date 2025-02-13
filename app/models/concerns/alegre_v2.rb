@@ -251,8 +251,10 @@ module AlegreV2
     end
 
     def store_package(project_media, field, params={})
+      type = get_type(project_media)
+      return if type.nil?
       generic_package(project_media, field).merge(
-        self.send("store_package_#{get_type(project_media)}", project_media, field, params)
+        self.send("store_package_#{type}", project_media, field, params)
       )
     end
 

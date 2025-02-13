@@ -82,4 +82,11 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     end
     Bot::Alegre.unstub.stubs(:request)
   end
+
+  test "should not try to store package for blank item" do
+    pm = create_project_media media: Blank.create!
+    assert_nothing_raised do
+      Bot::Alegre.store_package(pm, 'title')
+    end
+  end
 end
