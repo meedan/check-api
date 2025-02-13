@@ -240,15 +240,7 @@ class ProjectMediaType < DefaultObject
 
   field :language, GraphQL::Types::String, null: true
 
-  def language
-    object.get_dynamic_annotation("language")&.get_field "language"&.send(:to_s)
-  end
-
   field :language_code, GraphQL::Types::String, null: true
-
-  def language_code
-    object.get_dynamic_annotation("language")&.get_field_value("language")
-  end
 
   field :annotation, AnnotationType, null: true do
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
