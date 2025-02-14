@@ -7,7 +7,7 @@ module Article
     include CheckElasticSearch
 
     belongs_to :user
-    belongs_to :author, class_name: 'User', foreign_key: 'author_id'
+    belongs_to :author, class_name: 'User', foreign_key: 'author_id', optional: true
 
     before_validation :set_author, on: :create
     before_validation :set_user
