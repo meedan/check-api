@@ -7,7 +7,9 @@ module Article
     include CheckElasticSearch
 
     belongs_to :user
+    belongs_to :author, class_name: 'User', foreign_key: 'author_id'
 
+    before_validation :set_author, on: :create
     before_validation :set_user
     validates_presence_of :user
 
@@ -19,6 +21,10 @@ module Article
 
   def text_fields
     # Implement it in the child class
+  end
+
+  def set_author
+    self.author = User.current unless User.current.nil?
   end
 
   def set_user
