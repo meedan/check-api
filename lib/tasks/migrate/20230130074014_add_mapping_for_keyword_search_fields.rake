@@ -9,7 +9,7 @@ namespace :check do
       client = $repository.client
       last_team_id = Rails.cache.read('check:migrate:index_fact_check_fields:team_id') || 0
       Team.where('id > ?', last_team_id).find_each do |team|
-        team.claim_descriptions.find_in_batches(:batch_size => 1000) do |cds|
+        team.claim_descriptions.joins(:project_media).find_in_batches(:batch_size => 1000) do |cds|
           es_body = []
           ids = cds.map(&:id)
           ClaimDescription.select('claim_descriptions.project_media_id as pm_id, claim_descriptions.description, claim_descriptions.context, fact_checks.*')
