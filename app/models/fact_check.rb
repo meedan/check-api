@@ -154,9 +154,9 @@ class FactCheck < ApplicationRecord
   def article_elasticsearch_data(action = 'create_or_update')
     return if self.project_media.nil? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     data = action == 'destroy' ? {
-        'fact_check_title' => '',
-        'fact_check_summary' => '',
-        'fact_check_url' => '',
+        'fact_check_title' => nil,
+        'fact_check_summary' => nil,
+        'fact_check_url' => nil,
         'fact_check_languages' => []
       } : {
         'fact_check_title' => self.title,
