@@ -44674,6 +44674,20 @@
           "description": "Explainer type",
           "fields": [
             {
+              "name": "author",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "created_at",
               "description": null,
               "args": [
@@ -45485,6 +45499,20 @@
           "name": "FactCheck",
           "description": "FactCheck type",
           "fields": [
+            {
+              "name": "author",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
             {
               "name": "claim_description",
               "description": null,

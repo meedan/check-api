@@ -8261,6 +8261,7 @@ type Dynamic_annotation_verification_statusEdge {
 Explainer type
 """
 type Explainer implements Node {
+  author: User
   created_at: String
   dbid: Int
   description: String
@@ -8413,6 +8414,7 @@ type ExtractTextPayload {
 FactCheck type
 """
 type FactCheck implements Node {
+  author: User
   claim_description: ClaimDescription
   created_at: String
   dbid: Int
