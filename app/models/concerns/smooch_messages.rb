@@ -518,6 +518,25 @@ module SmoochMessages
       ['default_requests', 'irrelevant_search_result_requests'].include?(request_type) && (annotated.respond_to?(:is_being_created) && !annotated.is_being_created)
     end
 
+    def send_message_on_status_change(pm_id, status, request_actor_session_id = nil)
+      RequestStore[:actor_session_id] = request_actor_session_id unless request_actor_session_id.nil?
+      pm = ProjectMedia.find_by_id(pm_id)
+      return if pm.nil?
+      requestors_count = 0
+      parent = Relationship.where(target_id: pm.id).last&.source || pm
+      parent.get_deduplicated_tipline_requests.each do |tr|
+        data = tr.smooch_data
+        self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+        message = parent.team.get_status_message_for_language(status, data['language'])
+        unless message.blank?
+          response = self.send_message_to_user(data['authorId'], message, {}, false, true, 'status_change')
+          self.save_smooch_response(response, parent, data['received'].to_i, 'fact_check_status', data['language'], { message: message })
+          requestors_count += 1
+        end
+      end
+      CheckNotification::InfoMessages.send('sent_message_to_requestors_on_status_change', status: pm.status_i18n, requestors_count: requestors_count) if requestors_count > 0
+    end
+
     def send_message_to_user_on_timeout(uid, language)
       sm = CheckStateMachine.new(uid)
       redis = Redis.new(REDIS_CONFIG)
