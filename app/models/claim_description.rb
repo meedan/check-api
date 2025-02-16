@@ -95,7 +95,7 @@ class ClaimDescription < ApplicationRecord
       # clear claim_description fields
       data = { 'claim_description_content' => nil, 'claim_description_context' => nil }
       # clear fact-check values
-      data.merge!({ 'fact_check_title' => '', 'fact_check_summary' => '', 'fact_check_url' => '', 'fact_check_languages' => [] }) unless self.fact_check.nil?
+      data.merge!({ 'fact_check_title' => nil, 'fact_check_summary' => nil, 'fact_check_url' => nil, 'fact_check_languages' => [] }) unless self.fact_check.nil?
       self.index_in_elasticsearch(pm.id, data)
     end
   end
