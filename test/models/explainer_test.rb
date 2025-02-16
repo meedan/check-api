@@ -168,4 +168,12 @@ class ExplainerTest < ActiveSupport::TestCase
     ex = create_explainer language: nil
     assert_equal 'en', ex.reload.language
   end
+
+  test "should set author" do
+    u = create_user is_admin: true
+    User.current = u
+    ex = create_explainer
+    User.current = nil
+    assert_equal u, ex.author
+  end
 end

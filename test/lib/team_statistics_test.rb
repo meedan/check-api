@@ -2,6 +2,8 @@ require_relative '../test_helper'
 
 class TeamStatisticsTest < ActiveSupport::TestCase
   def setup
+    Sidekiq::Testing.fake!    
+    WebMock.stub_request(:post, /#{CheckConfig.get('alegre_host')}/).to_return(body: '{}')
     Explainer.delete_all
     @team = create_team
     @team.set_languages = ['en', 'pt']

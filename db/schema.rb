@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_01_24_155814) do
+ActiveRecord::Schema.define(version: 2025_02_14_142854) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -242,6 +242,8 @@ ActiveRecord::Schema.define(version: 2025_01_24_155814) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "team_id"
+    t.bigint "author_id"
+    t.index ["author_id"], name: "index_claim_descriptions_on_author_id"
     t.index ["project_media_id"], name: "index_claim_descriptions_on_project_media_id", unique: true
     t.index ["team_id"], name: "index_claim_descriptions_on_team_id"
     t.index ["user_id"], name: "index_claim_descriptions_on_user_id"
@@ -346,7 +348,9 @@ ActiveRecord::Schema.define(version: 2025_01_24_155814) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "tags", default: [], array: true
     t.boolean "trashed", default: false
+    t.bigint "author_id"
     t.index "date_trunc('day'::text, created_at)", name: "explainer_created_at_day"
+    t.index ["author_id"], name: "index_explainers_on_author_id"
     t.index ["created_at"], name: "index_explainers_on_created_at"
     t.index ["tags"], name: "index_explainers_on_tags", using: :gin
     t.index ["team_id"], name: "index_explainers_on_team_id"
@@ -369,7 +373,9 @@ ActiveRecord::Schema.define(version: 2025_01_24_155814) do
     t.string "rating"
     t.boolean "imported", default: false
     t.boolean "trashed", default: false
+    t.bigint "author_id"
     t.index "date_trunc('day'::text, created_at)", name: "fact_check_created_at_day"
+    t.index ["author_id"], name: "index_fact_checks_on_author_id"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["created_at"], name: "index_fact_checks_on_created_at"
     t.index ["imported"], name: "index_fact_checks_on_imported"
@@ -1008,6 +1014,6 @@ ActiveRecord::Schema.define(version: 2025_01_24_155814) do
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE FUNCTION validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
   SQL
 end

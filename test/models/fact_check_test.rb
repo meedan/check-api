@@ -733,4 +733,12 @@ class FactCheckTest < ActiveSupport::TestCase
     fc = create_fact_check
     assert_kind_of TiplineSearchResult, fc.as_tipline_search_result
   end
+
+  test "should set author" do
+    u = create_user is_admin: true
+    User.current = u
+    fc = create_fact_check
+    User.current = nil
+    assert_equal u, fc.author
+  end
 end
