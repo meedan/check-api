@@ -212,14 +212,19 @@ class Relationship < ApplicationRecord
     Team.current = Team.where(id: tid).last
     status = pm.last_verification_status
     pm.source_relationships.confirmed.find_each do |relationship|
-      s = relationship.target.last_status_obj
-      next if s.nil? || s.status == status
+      self.sync_statuses(relationship.target, status)
+    end
+    User.current = nil
+    Team.current = nil
+  end
+
+  def self.sync_statuses(item, status)
+    s = item.last_status_obj
+    unless s.nil? || s.status == status
       s.status = status
       s.bypass_status_publish_check = true
       s.save!
     end
-    User.current = nil
-    Team.current = nil
   end
 
   protected
@@ -398,14 +403,7 @@ class Relationship < ApplicationRecord
   end
 
   def apply_status_to_target
-    status = self.source.last_verification_status
-    target = self.target
-    s = target.last_status_obj
-    unless s.nil? || s.status == status
-      s.status = status
-      s.bypass_status_publish_check = true
-      s.save
-    end
+    Relationship.sync_statuses(self.target, self.source.last_verification_status)
   end
 
   def destroy_same_suggested_item
