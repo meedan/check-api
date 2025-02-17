@@ -79,7 +79,6 @@ class Media < ApplicationRecord
 
   # copied
   def self.create_media_associated_to(project_media)
-    puts '******************************** HIT Media'
     m = nil
     Media.set_media_type(project_media) if project_media.media_type.blank?
     media_type = project_media.media_type
@@ -98,7 +97,6 @@ class Media < ApplicationRecord
   end
 
   def self.find_or_create_from_original_claim(project_media)
-    puts '******************************** HIT Media BUT make it original'
     Media.set_media_type(project_media)
     media_type = project_media.media_type
 
@@ -122,7 +120,6 @@ class Media < ApplicationRecord
     self.user = User.current unless User.current.nil?
   end
 
-  # copied
   def self.set_media_type(project_media)
     original_claim = project_media.set_original_claim&.strip
 
@@ -171,14 +168,8 @@ class Media < ApplicationRecord
     self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
   end
 
-  # copied
-  def self.create_with_file(project_media, media_type = 'UploadedImage')
-    klass = media_type.constantize
-    m = klass.find_by(file: Media.filename(project_media.file)) || klass.new(file: project_media.file)
-    m.save! if m.new_record?
-    m
-  end
-
+  # we set it to UploadedImage by default, should we?
+  # def self.create_with_file(project_media, media_type = 'UploadedImage')
   def self.find_or_create_uploaded_file_media(project_media, media_type)
     klass = media_type.constantize
     original_claim = project_media.set_original_claim&.strip
@@ -212,7 +203,6 @@ class Media < ApplicationRecord
     file
   end
 
-  # copied
   def self.find_or_create_claim_media(project_media)
     original_claim = project_media.set_original_claim&.strip
 
@@ -221,18 +211,6 @@ class Media < ApplicationRecord
     else
       Claim.create!(quote: project_media.quote, quote_attributions: project_media.quote_attributions)
     end
-  end
-
-  # def self.find_or_create_claim_media_from_original_claim(text)
-  #   Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text)
-  # end
-
-  # copied
-  def self.create_link(project_media)
-    team = project_media.team || Team.current
-    pender_key = team.get_pender_key if team
-    url_from_pender = Link.normalized(project_media.url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.create(url: project_media.url, pender_key: pender_key)
   end
 
   def self.find_or_create_link_media(project_media)
