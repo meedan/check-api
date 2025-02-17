@@ -86,7 +86,7 @@ class Media < ApplicationRecord
 
     case media_type
     when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-      m = create_with_file(project_media,media_type)
+      m = find_or_create_uploaded_file_media(project_media, media_type)
     when 'Claim'
       m = find_or_create_claim_media(project_media)
     when 'Link'
@@ -100,21 +100,16 @@ class Media < ApplicationRecord
   def self.find_or_create_from_original_claim(project_media)
     puts '******************************** HIT Media BUT make it original'
     project_media_team = project_media.team
-    claim = project_media.set_original_claim.strip
+    original_claim = project_media.set_original_claim.strip
 
     Media.set_media_type(project_media)
     media_type = project_media.media_type
 
-    if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
-      uri = URI.parse(claim)
-      ext = File.extname(uri.path)
-    end
-
     case media_type
     when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-      find_or_create_uploaded_file_media_from_original_claim(media_type, claim, ext)
+      find_or_create_uploaded_file_media(project_media, media_type)
     when 'Link'
-      find_or_create_link_media_from_original_claim(claim, project_media_team)
+      find_or_create_link_media_from_original_claim(original_claim, project_media_team)
     when 'Claim'
       find_or_create_claim_media(project_media)
     end
@@ -132,10 +127,10 @@ class Media < ApplicationRecord
 
   # copied
   def self.set_media_type(project_media)
-    claim = project_media.set_original_claim&.strip
+    original_claim = project_media.set_original_claim&.strip
 
-    if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
-      uri = URI.parse(claim)
+    if original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(original_claim)
       content_type = Net::HTTP.get_response(uri)['content-type']
 
       case content_type
@@ -148,7 +143,7 @@ class Media < ApplicationRecord
       else
         project_media.media_type = 'Link'
       end
-    elsif claim
+    elsif original_claim
       project_media.media_type = 'Claim'
     elsif !project_media.url.blank?
       project_media.media_type = 'Link'
@@ -187,15 +182,26 @@ class Media < ApplicationRecord
     m
   end
 
-  def self.find_or_create_uploaded_file_media_from_original_claim(media_type, url, ext)
+  def self.find_or_create_uploaded_file_media(project_media, media_type)
     klass = media_type.constantize
-    existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
+    original_claim = project_media.set_original_claim&.strip
 
-    if existing_media
-      existing_media
+    if original_claim
+      uri = URI.parse(original_claim)
+      ext = File.extname(uri.path)
+
+      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim))
+
+      if existing_media
+        existing_media
+      else
+        file = download_file(original_claim, ext)
+        klass.create!(file: file, original_claim: original_claim)
+      end
     else
-      file = download_file(url, ext)
-      klass.create!(file: file, original_claim: url)
+      m = klass.find_by(file: Media.filename(project_media.file)) || klass.new(file: project_media.file)
+      m.save! if m.new_record?
+      m
     end
   end
 
@@ -211,10 +217,10 @@ class Media < ApplicationRecord
 
   # copied
   def self.find_or_create_claim_media(project_media)
-    claim = project_media.set_original_claim&.strip
+    original_claim = project_media.set_original_claim&.strip
 
-    if claim
-      Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(claim)) || Claim.create!(quote: claim, original_claim: claim)
+    if original_claim
+      Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim)) || Claim.create!(quote: original_claim, original_claim: original_claim)
     else
       Claim.create!(quote: project_media.quote, quote_attributions: project_media.quote_attributions)
     end
