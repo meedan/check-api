@@ -72539,6 +72539,20 @@
               "deprecationReason": null
             },
             {
+              "name": "number_of_incoming_messages",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "number_of_matched_results_by_article_type",
               "description": null,
               "args": [
@@ -72624,6 +72638,20 @@
             },
             {
               "name": "number_of_newsletters_sent",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "number_of_outgoing_messages",
               "description": null,
               "args": [
 
