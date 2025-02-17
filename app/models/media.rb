@@ -87,7 +87,7 @@ class Media < ApplicationRecord
     when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
       m = create_with_file(project_media,media_type)
     when 'Claim'
-      m = create_claim(project_media)
+      m = find_or_create_claim_media(project_media)
     when 'Link'
       m = create_link(project_media)
     when 'Blank'
@@ -117,7 +117,7 @@ class Media < ApplicationRecord
         find_or_create_link_media_from_original_claim(claim, project_media_team)
       end
     else
-      find_or_create_claim_media_from_original_claim(claim)
+      find_or_create_claim_media(project_media)
     end
   end
 
@@ -193,17 +193,19 @@ class Media < ApplicationRecord
   end
 
   # copied
-  def self.create_claim(project_media)
-    m = Claim.new
-    m.quote = project_media.quote
-    m.quote_attributions = project_media.quote_attributions
-    m.save!
-    m
+  def self.find_or_create_claim_media(project_media)
+    claim = project_media.set_original_claim&.strip
+
+    if claim
+      Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(claim)) || Claim.create!(quote: claim, original_claim: claim)
+    else
+      Claim.create!(quote: project_media.quote, quote_attributions: project_media.quote_attributions)
+    end
   end
 
-  def self.find_or_create_claim_media_from_original_claim(text)
-    Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text)
-  end
+  # def self.find_or_create_claim_media_from_original_claim(text)
+  #   Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text)
+  # end
 
   # copied
   def self.create_link(project_media)
