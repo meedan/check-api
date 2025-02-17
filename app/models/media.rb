@@ -83,6 +83,7 @@ class Media < ApplicationRecord
     m = nil
     Media.set_media_type(project_media) if project_media.media_type.blank?
     media_type = project_media.media_type
+
     case media_type
     when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
       m = create_with_file(project_media,media_type)
@@ -101,22 +102,20 @@ class Media < ApplicationRecord
     project_media_team = project_media.team
     claim = project_media.set_original_claim.strip
 
+    Media.set_media_type(project_media)
+    media_type = project_media.media_type
+
     if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(claim)
-      content_type = Net::HTTP.get_response(uri)['content-type']
       ext = File.extname(uri.path)
+    end
 
-      case content_type
-      when /^image\//
-        find_or_create_uploaded_file_media_from_original_claim('UploadedImage', claim, ext)
-      when /^video\//
-        find_or_create_uploaded_file_media_from_original_claim('UploadedVideo', claim, ext)
-      when /^audio\//
-        find_or_create_uploaded_file_media_from_original_claim('UploadedAudio', claim, ext)
-      else
-        find_or_create_link_media_from_original_claim(claim, project_media_team)
-      end
-    else
+    case media_type
+    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+      find_or_create_uploaded_file_media_from_original_claim(media_type, claim, ext)
+    when 'Link'
+      find_or_create_link_media_from_original_claim(claim, project_media_team)
+    when 'Claim'
       find_or_create_claim_media(project_media)
     end
   end
@@ -132,8 +131,26 @@ class Media < ApplicationRecord
   end
 
   # copied
-  def set_media_type(project_media)
-    if !project_media.url.blank?
+  def self.set_media_type(project_media)
+    claim = project_media.set_original_claim&.strip
+
+    if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(claim)
+      content_type = Net::HTTP.get_response(uri)['content-type']
+
+      case content_type
+      when /^image\//
+        project_media.media_type = 'UploadedImage'
+      when /^video\//
+        project_media.media_type = 'UploadedVideo'
+      when /^audio\//
+        project_media.media_type = 'UploadedAudio'
+      else
+        project_media.media_type = 'Link'
+      end
+    elsif claim
+      project_media.media_type = 'Claim'
+    elsif !project_media.url.blank?
       project_media.media_type = 'Link'
     elsif !project_media.quote.blank?
       project_media.media_type = 'Claim'
