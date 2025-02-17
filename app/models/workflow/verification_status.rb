@@ -2,7 +2,7 @@ class Workflow::VerificationStatus < Workflow::Base
 
   check_default_project_media_workflow
 
-  check_workflow from: :any, to: :any, actions: [:check_if_item_is_published, :apply_rules, :update_report_design_if_needed]
+  check_workflow from: :any, to: :any, actions: [:check_if_item_is_published, :apply_rules, :update_report_design_if_needed, :replicate_status_to_children]
   check_workflow on: :create, actions: :index_on_es_background
   check_workflow on: :update, actions: :index_on_es_foreground
 
@@ -118,6 +118,10 @@ class Workflow::VerificationStatus < Workflow::Base
           fc.save!
         end
       end
+    end
+
+    def replicate_status_to_children
+      Relationship.delay_for(1.second, { queue: 'smooch', retry: 0 }).replicate_status_to_children(self.annotation.annotated_id, User.current&.id, Team.current&.id)
     end
   end
 
