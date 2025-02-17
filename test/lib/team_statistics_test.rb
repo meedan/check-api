@@ -112,7 +112,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     pm2 = create_project_media team: team
 
     travel_to Time.parse('2024-01-01') do
-      2.times { create_tipline_message team_id: @team.id, language: 'en', platform: 'WhatsApp' }
+      2.times { |i| create_tipline_message team_id: @team.id, language: 'en', platform: 'WhatsApp', direction: (i % 2 == 0 ? 'incoming' : 'outgoing') }
       create_tipline_message team_id: @team.id, language: 'en', platform: 'Telegram'
       create_tipline_message team_id: @team.id, language: 'pt', platform: 'WhatsApp'
       create_tipline_message team_id: team.id, language: 'en', platform: 'WhatsApp'
@@ -124,7 +124,7 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     end
 
     travel_to Time.parse('2024-01-03') do
-      3.times { create_tipline_message team_id: @team.id, language: 'en', platform: 'WhatsApp' }
+      3.times { |i| create_tipline_message team_id: @team.id, language: 'en', platform: 'WhatsApp', direction: (i % 2 == 0 ? 'incoming' : 'outgoing') }
       create_tipline_message team_id: @team.id, language: 'en', platform: 'Telegram'
       create_tipline_message team_id: @team.id, language: 'pt', platform: 'WhatsApp'
       create_tipline_message team_id: team.id, language: 'en', platform: 'WhatsApp'
@@ -138,6 +138,8 @@ class TeamStatisticsTest < ActiveSupport::TestCase
     travel_to Time.parse('2024-01-08') do
       object = TeamStatistics.new(@team, 'past_week', 'en', 'whatsapp')
       assert_equal 5, object.number_of_messages
+      assert_equal 2, object.number_of_outgoing_messages
+      assert_equal 3, object.number_of_incoming_messages
       assert_equal({ '2024-01-01' => 2, '2024-01-02' => 0, '2024-01-03' => 3, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
                    object.number_of_messages_by_date)
       assert_equal 3, object.number_of_conversations
