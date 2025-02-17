@@ -90,7 +90,7 @@ class Media < ApplicationRecord
     when 'Claim'
       m = find_or_create_claim_media(project_media)
     when 'Link'
-      m = create_link(project_media)
+      m = find_or_create_link_media(project_media)
     when 'Blank'
       m = Blank.create!
     end
@@ -99,9 +99,6 @@ class Media < ApplicationRecord
 
   def self.find_or_create_from_original_claim(project_media)
     puts '******************************** HIT Media BUT make it original'
-    project_media_team = project_media.team
-    original_claim = project_media.set_original_claim.strip
-
     Media.set_media_type(project_media)
     media_type = project_media.media_type
 
@@ -109,7 +106,7 @@ class Media < ApplicationRecord
     when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
       find_or_create_uploaded_file_media(project_media, media_type)
     when 'Link'
-      find_or_create_link_media_from_original_claim(original_claim, project_media_team)
+      find_or_create_link_media(project_media)
     when 'Claim'
       find_or_create_claim_media(project_media)
     end
@@ -238,9 +235,18 @@ class Media < ApplicationRecord
     Link.find_by(url: url_from_pender) || Link.create(url: project_media.url, pender_key: pender_key)
   end
 
-  def self.find_or_create_link_media_from_original_claim(url, project_media_team)
+  def self.find_or_create_link_media(project_media)
+    project_media_team = project_media.team
     pender_key = project_media_team.get_pender_key if project_media_team
-    url_from_pender = Link.normalized(url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url)
+
+    original_claim = project_media.set_original_claim&.strip
+
+    if original_claim
+      url_from_pender = Link.normalized(original_claim, pender_key)
+      Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim)) || Link.create!(url: original_claim, pender_key: pender_key, original_claim: original_claim)
+    else
+      url_from_pender = Link.normalized(project_media.url, pender_key)
+      Link.find_by(url: url_from_pender) || Link.create(url: project_media.url, pender_key: pender_key)
+    end
   end
 end
