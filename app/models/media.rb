@@ -96,7 +96,11 @@ class Media < ApplicationRecord
     m
   end
 
-  def self.find_or_create_from_original_claim(claim, project_media_team)
+  def self.find_or_create_from_original_claim(project_media)
+    puts '******************************** HIT Media BUT make it original'
+    project_media_team = project_media.team
+    claim = project_media.set_original_claim.strip
+
     if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(claim)
       content_type = Net::HTTP.get_response(uri)['content-type']

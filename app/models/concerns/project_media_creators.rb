@@ -53,8 +53,7 @@ module ProjectMediaCreators
   end
 
   def create_original_claim
-    claim = self.set_original_claim.strip
-    self.media = Media.find_or_create_from_original_claim(claim, self.team)
+    self.media = Media.find_or_create_from_original_claim(self)
   end
 
   def create_media
