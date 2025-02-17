@@ -57,6 +57,10 @@ module ProjectMediaCreators
     self.media = Media.find_or_create_from_original_claim(claim, self.team)
   end
 
+  def create_media
+    self.media = Media.create_media_associated_to(self)
+  end
+
   def set_quote_metadata
     media = self.media
     case media.type
@@ -113,52 +117,6 @@ module ProjectMediaCreators
   end
 
   protected
-
-  def create_with_file(media_type = 'UploadedImage')
-    klass = media_type.constantize
-    m = klass.find_by(file: Media.filename(self.file)) || klass.new(file: self.file)
-    m.save! if m.new_record?
-    m
-  end
-
-  def create_claim
-    m = Claim.new
-    m.quote = self.quote
-    m.quote_attributions = self.quote_attributions
-    m.save!
-    m
-  end
-
-  def create_link
-    team = self.team || Team.current
-    pender_key = team.get_pender_key if team
-    url_from_pender = Link.normalized(self.url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.create(url: self.url, pender_key: pender_key)
-  end
-
-  def create_media
-    m = nil
-    self.set_media_type if self.media_type.blank?
-    case self.media_type
-    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-      m = self.create_with_file(media_type)
-    when 'Claim'
-      m = self.create_claim
-    when 'Link'
-      m = self.create_link
-    when 'Blank'
-      m = Blank.create!
-    end
-    m
-  end
-
-  def set_media_type
-    if !self.url.blank?
-      self.media_type = 'Link'
-    elsif !self.quote.blank?
-      self.media_type = 'Claim'
-    end
-  end
 
   def set_jsonld_response(task)
     jsonld = self.media.metadata['raw']['json+ld'] if self.media.metadata.has_key?('raw')
