@@ -335,7 +335,7 @@ class TeamType < DefaultObject
     if args[:article_type].blank?
       object.filtered_articles(args, args[:limit].to_i, args[:offset].to_i, order, order_type)
     else
-      articles = Explainer.none
+      articles = nil
       if args[:article_type] == 'explainer'
         articles = object.filtered_explainers(args)
       elsif args[:article_type] == 'fact-check'

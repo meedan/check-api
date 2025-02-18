@@ -489,10 +489,9 @@ class Team < ApplicationRecord
 
   def filtered_articles(filters = {}, limit = 10, offset = 0, order = 'created_at', order_type = 'DESC')
     columns = [:id, :title, :language, :created_at, :updated_at]
-    fact_checks = self.filtered_fact_checks(filters, false).select("'FactCheck' AS type, " + columns.collect{ |column| "fact_checks.#{column}" }.join(', '))
-    explainers = self.filtered_explainers(filters).select("'Explainer' AS type, " + columns.collect{ |column| "explainers.#{column}" }.join(', '))
+    fact_checks = self.filtered_fact_checks(filters, false).select(["'FactCheck' AS type"] + columns.collect{ |column| "fact_checks.#{column}" })
+    explainers = self.filtered_explainers(filters).select(["'Explainer' AS type"] + columns.collect{ |column| "explainers.#{column}" })
 
-    # FIXME: Make sure SQL injections are taken care off
     query = <<~SQL
       SELECT type, id FROM ( #{fact_checks.to_sql} UNION #{explainers.to_sql} ) AS articles
       ORDER BY #{order} #{order_type} LIMIT ? OFFSET ?
@@ -501,7 +500,7 @@ class Team < ApplicationRecord
     results = ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql([query, limit, offset]))
 
     # FIXME: Avoid N + 1 queries problem here
-    records = results.map{ |row| OpenStruct.new(row) }.collect{ |object| object.type.constantize.find(object.id) }
+    results.map{ |row| OpenStruct.new(row) }.collect{ |object| object.type.constantize.find(object.id) }
   end
 
   def filtered_explainers(filters = {})
