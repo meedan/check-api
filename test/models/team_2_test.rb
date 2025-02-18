@@ -1597,11 +1597,34 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    create_fact_check title: 'Foo', user: u, claim_description: create_claim_description(project_media: create_project_media(team: t))
+    pm = create_project_media team: t
+    fc = create_fact_check title: 'Foo Test', user: u, publisher_id: u.id, tags: ['test'], claim_description: create_claim_description(project_media: create_project_media(team: t, media: Blank.create!))
+    fc.updated_at = Time.now + 1
+    fc.save!
     sleep 1
-    create_explainer team: t, title: 'Bar', user: u
+    ex = create_explainer team: t, title: 'Bar Test', user: u, tags: ['test']
+    ex.updated_at = Time.now + 1
+    ex.save!
 
-    assert_equal ['Foo'], t.filtered_articles({ user_ids: [u.id] }, 1, 0, 'created_at', 'ASC').map(&:title)
-    assert_equal ['Bar'], t.filtered_articles({ user_ids: [u.id] }, 1, 0, 'created_at', 'DESC').map(&:title)
+    # Make sure we test for all filters
+    filters = {
+      user_ids: [u.id],
+      tags: ['test'],
+      language: ['en'],
+      created_at: { 'start_time' => Time.now.yesterday.to_datetime.to_s, 'end_time' => Time.now.tomorrow.to_datetime.to_s }.to_json,
+      updated_at: { 'start_time' => Time.now.yesterday.to_datetime.to_s, 'end_time' => Time.now.tomorrow.to_datetime.to_s }.to_json,
+      text: 'Test',
+      standalone: true,
+      publisher_ids: [u.id],
+      report_status: ['unpublished'],
+      rating: ['undetermined'],
+      imported: false,
+      target_id: pm.id,
+      trashed: false
+    }
+
+    assert_equal 2, t.filtered_articles(filters).count
+    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'created_at', 'ASC').map(&:title)
+    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 0, 'created_at', 'DESC').map(&:title)
   end
 end
