@@ -1590,4 +1590,18 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     assert_equal [], t.search_for_similar_articles('Test')
   end
+
+  # FIXME: Test with all possible filters
+  test "should return all articles" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    create_fact_check title: 'Foo', user: u, claim_description: create_claim_description(project_media: create_project_media(team: t))
+    sleep 1
+    create_explainer team: t, title: 'Bar', user: u
+
+    assert_equal ['Foo'], t.filtered_articles({ user_ids: [u.id] }, 1, 0, 'created_at', 'ASC').map(&:title)
+    assert_equal ['Bar'], t.filtered_articles({ user_ids: [u.id] }, 1, 0, 'created_at', 'DESC').map(&:title)
+  end
 end

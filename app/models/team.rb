@@ -487,6 +487,23 @@ class Team < ApplicationRecord
     available
   end
 
+  def filtered_articles(filters = {}, limit = 10, offset = 0, order = 'created_at', order_type = 'DESC')
+    columns = [:id, :title, :language, :created_at, :updated_at]
+    fact_checks = self.filtered_fact_checks(filters, false).select("'FactCheck' AS type, " + columns.collect{ |column| "fact_checks.#{column}" }.join(', '))
+    explainers = self.filtered_explainers(filters).select("'Explainer' AS type, " + columns.collect{ |column| "explainers.#{column}" }.join(', '))
+
+    # FIXME: Make sure SQL injections are taken care off
+    query = <<~SQL
+      SELECT type, id FROM ( #{fact_checks.to_sql} UNION #{explainers.to_sql} ) AS articles
+      ORDER BY #{order} #{order_type} LIMIT ? OFFSET ?
+    SQL
+
+    results = ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql([query, limit, offset]))
+
+    # FIXME: Avoid N + 1 queries problem here
+    records = results.map{ |row| OpenStruct.new(row) }.collect{ |object| object.type.constantize.find(object.id) }
+  end
+
   def filtered_explainers(filters = {})
     query = self.explainers
 
@@ -513,8 +530,9 @@ class Team < ApplicationRecord
     query
   end
 
-  def filtered_fact_checks(filters = {})
-    query = FactCheck.includes(:claim_description).where('claim_descriptions.team_id' => self.id)
+  def filtered_fact_checks(filters = {}, include_claim_descriptions = true)
+    query = (include_claim_descriptions ? FactCheck.includes(:claim_description) : FactCheck.joins(:claim_description))
+    query = query.where('claim_descriptions.team_id' => self.id)
 
     # Filter by standalone
     query = query.left_joins(claim_description: { project_media: :media }).where('claim_descriptions.project_media_id IS NULL OR medias.type = ?', 'Blank') if filters[:standalone]
