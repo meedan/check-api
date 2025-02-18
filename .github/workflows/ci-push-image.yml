@@ -30,9 +30,6 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    #- name: Set up QEMU
-    #  uses: docker/setup-qemu-action@v3
-
     - name: Cache Docker layers
       uses: actions/cache@v4
       id: cache
@@ -62,22 +59,6 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
         outputs: type=image,push=true
-        # platforms: linux/amd64,linux/arm64
-
-    #- name: Docker Buildx (+ push)
-    #  id: push-image-to-ecr
-    #  run: |
-    #    BRANCH=$(echo "${GITHUB_REF#refs/*/}" | sed 's/.*\///')
-    #    # push with git sha and branch
-    #    echo "Pushing to $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-    #    docker buildx build \
-    #      --cache-from "type=local,src=/tmp/.buildx-cache" \
-    #      --cache-to "type=local,dest=/tmp/.buildx-cache-new" \
-    #      --platform "linux/amd64,linux/arm64" \
-    #      --output "type=image,push=true" \
-    #      --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-    #      --tag $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH \
-    #      --file ./Dockerfile ./
 
     - name: Reset cache
       id: reset-cache
