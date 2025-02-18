@@ -630,7 +630,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "Claim Media: should save the original_claim and original_claim_hash when created from original claim" do
     claim = 'This is a claim.'
-    claim_media = Media.find_or_create_claim_media_from_original_claim(claim)
+    claim_media = Media.find_or_create_claim_media(claim)
 
     assert_not_nil claim_media.original_claim_hash
     assert_not_nil claim_media.original_claim
@@ -645,7 +645,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "Claim Media: should not create duplicate media if media with original_claim_hash exists" do
     assert_difference 'Claim.count', 1 do
-      2.times { Media.find_or_create_claim_media_from_original_claim('This is a claim.') }
+      2.times { Media.find_or_create_claim_media('This is a claim.') }
     end
   end
 
@@ -664,7 +664,7 @@ class MediaTest < ActiveSupport::TestCase
     }.to_json
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
 
-    link_media = Media.find_or_create_link_media_from_original_claim(link_url, team)
+    link_media = Media.find_or_create_link_media(link_url, team)
 
     assert_not_nil link_media.original_claim_hash
     assert_not_nil link_media.original_claim
@@ -706,7 +706,7 @@ class MediaTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
 
     assert_difference 'Link.count', 1 do
-      2.times { Media.find_or_create_link_media_from_original_claim(link_url, team) }
+      2.times { Media.find_or_create_link_media(link_url, team) }
     end
   end
 
@@ -718,7 +718,7 @@ class MediaTest < ActiveSupport::TestCase
       ext = File.extname(URI.parse(audio_url).path)
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
 
-      uploaded_media = Media.find_or_create_uploaded_file_media_from_original_claim('UploadedAudio', audio_url, ext)
+      uploaded_media = Media.find_or_create_uploaded_file_media('UploadedAudio', audio_url, ext)
 
       assert_not_nil uploaded_media.original_claim_hash
       assert_not_nil uploaded_media.original_claim
@@ -742,7 +742,7 @@ class MediaTest < ActiveSupport::TestCase
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
 
       assert_difference 'UploadedAudio.count', 1 do
-        2.times { Media.find_or_create_uploaded_file_media_from_original_claim('UploadedAudio', audio_url, ext) }
+        2.times { Media.find_or_create_uploaded_file_media('UploadedAudio', audio_url, ext) }
       end
     end
   end
