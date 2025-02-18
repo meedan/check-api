@@ -49,7 +49,7 @@ jobs:
       run: |
         BRANCH=$(echo "${GITHUB_REF#refs/*/}" | sed 's/.*\///')
         echo "ECR_TAG_SHA=${{ steps.login-ecr.outputs.registry }}/${{ github.event.repository.name }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
-        echo "ECR_TAG_BRANCH=${{ steps.login-ecr.outputs.registry }}/${{ github.event.repository.name }}:$BRANCH" >> "$GITHUB_OUTPUT"
+        echo "ECR_TAG_BRANCH=${{ steps.login-ecr.outputs.registry }}/${{ github.event.repository.name }}:"${BRANCH} >> "$GITHUB_OUTPUT"
 
     - name: Build and push
       uses: docker/build-push-action@v6
