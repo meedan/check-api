@@ -79,37 +79,36 @@ class Media < ApplicationRecord
     ''
   end
 
-  # copied
-  def self.create_media_associated_to(project_media)
+  def self.find_or_create_media_associated_to(project_media)
     m = nil
-    Media.set_media_type(project_media) if project_media.media_type.blank?
+    original_claim = project_media.set_original_claim&.strip
     media_type = project_media.media_type
+    team = project_media.team
 
-    case media_type
-    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-      m = find_or_create_uploaded_file_media(project_media, media_type)
-    when 'Claim'
-      m = find_or_create_claim_media(project_media)
-    when 'Link'
-      m = find_or_create_link_media(project_media)
-    when 'Blank'
-      m = Blank.create!
+    if original_claim
+      case media_type
+      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+        m = find_or_create_uploaded_file_media(original_claim, media_type, true)
+      when 'Claim'
+        m = find_or_create_claim_media(original_claim, nil, true)
+      when 'Link'
+        m = find_or_create_link_media(original_claim, team, true)
+      when 'Blank'
+        m = Blank.create!
+      end
+    else
+      case media_type
+      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+        m = find_or_create_uploaded_file_media(project_media.file, media_type)
+      when 'Claim'
+        m = find_or_create_claim_media(project_media.quote, project_media.quote_attributions)
+      when 'Link'
+        m = find_or_create_link_media(project_media.url, team)
+      when 'Blank'
+        m = Blank.create!
+      end
     end
     m
-  end
-
-  def self.find_or_create_from_original_claim(project_media)
-    Media.set_media_type(project_media)
-    media_type = project_media.media_type
-
-    case media_type
-    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-      find_or_create_uploaded_file_media(project_media, media_type)
-    when 'Link'
-      find_or_create_link_media(project_media)
-    when 'Claim'
-      find_or_create_claim_media(project_media)
-    end
   end
 
   private
@@ -120,32 +119,6 @@ class Media < ApplicationRecord
 
   def set_user
     self.user = User.current unless User.current.nil?
-  end
-
-  def self.set_media_type(project_media)
-    original_claim = project_media.set_original_claim&.strip
-
-    if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
-      uri = URI.parse(original_claim)
-      content_type = Net::HTTP.get_response(uri)['content-type']
-
-      case content_type
-      when /^image\//
-        project_media.media_type = 'UploadedImage'
-      when /^video\//
-        project_media.media_type = 'UploadedVideo'
-      when /^audio\//
-        project_media.media_type = 'UploadedAudio'
-      else
-        project_media.media_type = 'Link'
-      end
-    elsif original_claim
-      project_media.media_type = 'Claim'
-    elsif !project_media.url.blank?
-      project_media.media_type = 'Link'
-    elsif !project_media.quote.blank?
-      project_media.media_type = 'Claim'
-    end
   end
 
   def self.class_from_input(input)
@@ -170,31 +143,6 @@ class Media < ApplicationRecord
     self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
   end
 
-  # we set it to UploadedImage by default, should we?
-  # def self.create_with_file(project_media, media_type = 'UploadedImage')
-  def self.find_or_create_uploaded_file_media(project_media, media_type)
-    klass = media_type.constantize
-    original_claim = project_media.set_original_claim&.strip
-
-    if original_claim
-      uri = URI.parse(original_claim)
-      ext = File.extname(uri.path)
-
-      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim))
-
-      if existing_media
-        existing_media
-      else
-        file = download_file(original_claim, ext)
-        klass.create!(file: file, original_claim: original_claim)
-      end
-    else
-      m = klass.find_by(file: Media.filename(project_media.file)) || klass.new(file: project_media.file)
-      m.save! if m.new_record?
-      m
-    end
-  end
-
   def self.download_file(url, ext)
     raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
 
@@ -205,28 +153,46 @@ class Media < ApplicationRecord
     file
   end
 
-  def self.find_or_create_claim_media(project_media)
-    original_claim = project_media.set_original_claim&.strip
+  # we set it to UploadedImage by default, should we?
+  # def self.create_with_file(project_media, media_type = 'UploadedImage')
+  def self.find_or_create_uploaded_file_media(file_media, media_type, has_original_claim = false)
+    klass = media_type.constantize
 
-    if original_claim
-      Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim)) || Claim.create!(quote: original_claim, original_claim: original_claim)
+    if has_original_claim
+      uri = URI.parse(file_media)
+      ext = File.extname(uri.path)
+
+      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(file_media))
+
+      if existing_media
+        existing_media
+      else
+        file = download_file(file_media, ext)
+        klass.create!(file: file, original_claim: file_media)
+      end
     else
-      Claim.create!(quote: project_media.quote, quote_attributions: project_media.quote_attributions)
+      m = klass.find_by(file: Media.filename(file_media)) || klass.new(file: file_media)
+      m.save! if m.new_record?
+      m
     end
   end
 
-  def self.find_or_create_link_media(project_media)
-    project_media_team = project_media.team
-    pender_key = project_media_team.get_pender_key if project_media_team
-
-    original_claim = project_media.set_original_claim&.strip
-
-    if original_claim
-      url_from_pender = Link.normalized(original_claim, pender_key)
-      Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim)) || Link.create!(url: original_claim, pender_key: pender_key, original_claim: original_claim)
+  def self.find_or_create_claim_media(claim_media, quote_attributions = nil, has_original_claim = false)
+    if has_original_claim
+      Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(claim_media)) || Claim.create!(quote: claim_media, original_claim: claim_media)
     else
-      url_from_pender = Link.normalized(project_media.url, pender_key)
-      Link.find_by(url: url_from_pender) || Link.create(url: project_media.url, pender_key: pender_key)
+      Claim.create!(quote: claim_media, quote_attributions: quote_attributions)
+    end
+  end
+
+  def self.find_or_create_link_media(link_media, project_media_team, has_original_claim = false)
+    pender_key = project_media_team.get_pender_key if project_media_team
+    url_from_pender = Link.normalized(link_media, pender_key)
+
+    if has_original_claim
+      Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(link_media)) || Link.create!(url: link_media, pender_key: pender_key, original_claim: link_media)
+    else
+      Link.find_by(url: url_from_pender) || Link.create(url: link_media, pender_key: pender_key)
     end
   end
 end
