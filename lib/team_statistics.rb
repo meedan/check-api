@@ -125,6 +125,16 @@ class TeamStatistics
     number_of_tipline_data_points_by_date(data)
   end
 
+  def number_of_incoming_messages_by_date
+    data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', @platform_name, @language, 'incoming')
+    number_of_tipline_data_points_by_date(data)
+  end
+
+  def number_of_outgoing_messages_by_date
+    data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', @platform_name, @language, 'outgoing')
+    number_of_tipline_data_points_by_date(data)
+  end
+
   def number_of_conversations_by_date
     data = CheckDataPoints.tipline_requests(@team.id, @start_date_str, @end_date_str, 'day', @platform, @language)
     number_of_tipline_data_points_by_date(data)
