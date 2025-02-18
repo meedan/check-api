@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      image: ${{ steps.build-image.outputs.image }}
+      image: ${{ steps.build-push.outputs.imageid }}
+
     steps:
     - uses: actions/checkout@v4
 
@@ -44,17 +45,19 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - id: set-vars
+      run: |
+        BRANCH=$(echo "${GITHUB_REF#refs/*/}" | sed 's/.*\///')
+        echo "ECR_TAG_SHA=${{ steps.login-ecr.outputs.registry }}/${{ github.event.repository.name }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+        echo "ECR_TAG_BRANCH=${{ steps.login-ecr.outputs.registry }}/${{ github.event.repository.name }}:$BRANCH" >> "$GITHUB_OUTPUT"
+
     - name: Build and push
       uses: docker/build-push-action@v6
       id: build-push
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ github.event.repository.name }}
-        IMAGE_TAG: ${{ github.sha }}
       with:
         context: .
         push: true
-        tags: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG, $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH
+        tags: ${{ steps.set-vars.outputs.ECR_TAG_SHA }},${{ steps.set-vars.outputs.ECR_TAG_BRANCH }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
         outputs: type=image,push=true
