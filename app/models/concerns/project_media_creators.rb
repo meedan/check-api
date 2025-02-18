@@ -53,11 +53,39 @@ module ProjectMediaCreators
   end
 
   def create_original_claim
-    self.media = Media.find_or_create_from_original_claim(self)
+    self.set_media_type if self.media_type.blank?
+    self.media = Media.find_or_create_media_associated_to(self)
   end
 
   def create_media
-    self.media = Media.create_media_associated_to(self)
+    self.set_media_type if self.media_type.blank?
+    self.media = Media.find_or_create_media_associated_to(self)
+  end
+
+  def set_media_type
+    original_claim = self.set_original_claim&.strip
+
+    if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(original_claim)
+      content_type = Net::HTTP.get_response(uri)['content-type']
+
+      case content_type
+      when /^image\//
+        self.media_type = 'UploadedImage'
+      when /^video\//
+        self.media_type = 'UploadedVideo'
+      when /^audio\//
+        self.media_type = 'UploadedAudio'
+      else
+        self.media_type = 'Link'
+      end
+    elsif original_claim
+      self.media_type = 'Claim'
+    elsif !self.url.blank?
+      self.media_type = 'Link'
+    elsif !self.quote.blank?
+      self.media_type = 'Claim'
+    end
   end
 
   def set_quote_metadata
