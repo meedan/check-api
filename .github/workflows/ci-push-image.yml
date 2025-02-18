@@ -41,24 +41,45 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
 
-    - name: Docker Buildx (+ push)
-      id: push-image-to-ecr
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      id: build-push
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ github.event.repository.name }}
         IMAGE_TAG: ${{ github.sha }}
-      run: |
-        BRANCH=$(echo "${GITHUB_REF#refs/*/}" | sed 's/.*\///')
-        # push with git sha and branch
-        echo "Pushing to $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-        docker buildx build \
-          --cache-from "type=local,src=/tmp/.buildx-cache" \
-          --cache-to "type=local,dest=/tmp/.buildx-cache-new" \
-          --platform "linux/amd64,linux/arm64" \
-          --output "type=image,push=true" \
-          --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-          --tag $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH \
-          --file ./Dockerfile ./
+      with:
+        context: .
+        push: true
+        tags:
+          - $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          - $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH
+        cache-from:
+          - type=local,src=/tmp/.buildx-cache
+        cache-to:
+          - type=local,dest=/tmp/.buildx-cache-new
+        outputs:
+          - type=image,push=true
+        platforms:
+          - linux/amd64,linux/arm64
+
+    #- name: Docker Buildx (+ push)
+    #  id: push-image-to-ecr
+    #  run: |
+    #    BRANCH=$(echo "${GITHUB_REF#refs/*/}" | sed 's/.*\///')
+    #    # push with git sha and branch
+    #    echo "Pushing to $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    #    docker buildx build \
+    #      --cache-from "type=local,src=/tmp/.buildx-cache" \
+    #      --cache-to "type=local,dest=/tmp/.buildx-cache-new" \
+    #      --platform "linux/amd64,linux/arm64" \
+    #      --output "type=image,push=true" \
+    #      --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+    #      --tag $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH \
+    #      --file ./Dockerfile ./
 
     - name: Reset cache
       id: reset-cache
