@@ -100,12 +100,6 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_graphql_create('account_source', { source_id: s.id, url: url })
   end
 
-  test "should create comment" do
-    p = create_project team: @team
-    pm = create_project_media project: p
-    assert_graphql_create('comment', { text: 'test', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
-  end
-
   test "should create media" do
     p = create_project team: @team
     url = random_url
@@ -141,11 +135,9 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p
     u = create_user name: 'The Annotator'
     create_team_user user: u, team: @team
-    c = create_comment annotated: pm, annotator: u
-    c.assign_user(u.id)
-    tg = create_tag annotated: pm
+    tg = create_tag annotated: pm, annotator: u
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { dbid } } }, tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"comment,tag\") { edges { node { ... on Comment { dbid, assignments { edges { node { name } } }, annotator { user { name } } } ... on Tag { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { dbid } } }, tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"tag\") { edges { node { ... on Tag { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -153,7 +145,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_not_empty data['last_status_obj']['dbid']
     assert data.has_key?('language')
     assert data.has_key?('language_code')
-    assert_equal 2, data['annotations']['edges'].size
+    assert_equal 1, data['annotations']['edges'].size
     users = data['annotations']['edges'].collect{ |e| e['node']['annotator']['user']['name'] }
     assert users.include?('The Annotator')
     users = data['annotations']['edges'].collect{ |e| e['node']['assignments']['edges'][0]['node']['name'] }
@@ -400,7 +392,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    create_comment annotated: pm, annotator: u
+    create_tag annotated: pm, annotator: u
     query = "query GetById { project(id: \"#{p.id}\") { project_medias(first: 1) { edges { node { permissions } } } } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
@@ -442,7 +434,7 @@ class GraphqlControllerTest < ActionController::TestCase
     with_current_user_and_team(u, t) do
       n.times do
         pm = create_project_media project: p
-        m.times { create_comment annotated: pm, annotator: u }
+        m.times {  create_tag annotated: pm, annotator: u }
       end
     end
 
@@ -524,24 +516,6 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p
     fields = { geolocation_viewport: '', geolocation_location: { type: "Feature", properties: { name: "Dingbat Islands" } , geometry: { type: "Point", coordinates: [125.6, 10.1] } }.to_json }.to_json
     assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'geolocation' })
-  end
-
-  test "should create comment with image" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p
-    authenticate_with_user(u)
-    path = File.join(Rails.root, 'test', 'data', 'rails.png')
-    file = Rack::Test::UploadedFile.new(path, 'image/png')
-    query = 'mutation create { createComment(input: { text: "Comment with image", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '" }) { comment { id } } }'
-    assert_difference 'Comment.count' do
-      post :create, params: { query: query, file: file }
-    end
-    assert_response :success
-    data = JSON.parse(Comment.where(annotation_type: 'comment').last.content)
-    assert_match /\.png$/, data['file_path']
   end
 
   test "should not query invalid type" do

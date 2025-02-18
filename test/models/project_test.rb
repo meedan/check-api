@@ -123,12 +123,12 @@ class ProjectTest < ActiveSupport::TestCase
 
   test "should have annotations" do
     pm = create_project_media
-    c1 = create_comment annotated: nil
-    c2 = create_comment annotated: nil
-    c3 = create_comment annotated: nil
-    pm.add_annotation(c1)
-    pm.add_annotation(c2)
-    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
+    d1 = create_dynamic_annotation annotated: nil
+    d2 = create_dynamic_annotation annotated: nil
+    d3 = create_dynamic_annotation annotated: nil
+    pm.add_annotation(d1)
+    pm.add_annotation(d2)
+    assert_equal [d1.id, d2.id].sort, pm.reload.annotations('dynamic').map(&:id).sort
   end
 
   test "should get user id through callback" do
@@ -427,7 +427,7 @@ class ProjectTest < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p
       pm3 = create_project_media project: p
-      c = create_comment annotated: pm3
+      tag = create_tag annotated: pm3
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         p.destroy_later
@@ -436,7 +436,7 @@ class ProjectTest < ActiveSupport::TestCase
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_not_nil ProjectMedia.where(id: pm2.id, team_id: t.id).last
       assert_not_nil ProjectMedia.where(id: pm3.id, team_id: t.id).last
-      assert_not_nil Comment.where(id: c.id).last
+      assert_not_nil Tag.where(id: tag.id).last
     end
   end
 

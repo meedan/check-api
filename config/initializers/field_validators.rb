@@ -52,7 +52,7 @@ DynamicAnnotation::Field.class_eval do
       errormsg = I18n.t(:task_suggestion_invalid_value)
       begin
         json = JSON.parse(self.value)
-        errors.add(:base, errormsg) if json.keys != ['suggestion']
+        errors.add(:base, errormsg) if json.keys != ['suggestion', 'comment']
       rescue
         errors.add(:base, errormsg)
       end

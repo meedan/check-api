@@ -26,27 +26,6 @@ class AbilityTest < ActiveSupport::TestCase
       end
     end
 
-    test "#{role} permissions for comment" do
-      u = create_user
-      t = create_team
-      t2 = create_team
-      tu = create_team_user team: t, user: u, role: role
-      pm = create_project_media team: t
-      pm2 = create_project_media team: t2
-      mc = create_comment
-      pm.add_annotation mc
-      mc2 = create_comment
-      pm2.add_annotation mc2
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:create, Comment)
-        assert ability.can?(:update, mc)
-        assert ability.can?(:destroy, mc)
-        assert ability.cannot?(:update, mc2)
-        assert ability.cannot?(:destroy, mc2)
-      end
-    end
-
     test "#{role} permissions for status" do
       u = create_user
       t = create_team
@@ -580,11 +559,10 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'collaborator'
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm
-
+    task = create_task annotated: pm
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        c.save
+        task.save
       end
     end
 
@@ -592,18 +570,18 @@ class AbilityTest < ActiveSupport::TestCase
 
     with_current_user_and_team(u, create_team) do
       assert_raise RuntimeError do
-        c.save
+        task.save
       end
     end
 
     Rails.cache.clear
     u = User.find(u.id)
-    c.text = 'for testing';c.save!
-    assert_equal c.text, 'for testing'
+    task.label = 'for testing';task.save!
+    assert_equal task.label, 'for testing'
 
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
-        c.destroy
+        task.destroy
       end
     end
   end
@@ -633,8 +611,8 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media project: pa, media: m
     pmb = create_project_media project: pb, media: m
-    c1 = create_comment annotated: pma
-    c2 = create_comment annotated: pmb
+    task1 = create_task annotated: pma
+    task2 = create_task annotated: pmb
 
     with_current_user_and_team(u, t1) do
       ability = Ability.new
@@ -643,8 +621,8 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, pa)
       assert ability.cannot?(:read, pb)
       assert ability.can?(:read, m)
-      assert ability.can?(:read, c1)
-      assert ability.cannot?(:read, c2)
+      assert ability.can?(:read, task1)
+      assert ability.cannot?(:read, task2)
     end
   end
 
@@ -658,8 +636,8 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media project: pa, media: m
     pmb = create_project_media project: pb, media: m
-    c1 = create_comment annotated: pma
-    c2 = create_comment annotated: pmb
+    task1 = create_task annotated: pma
+    task2 = create_task annotated: pmb
     with_current_user_and_team(u, tu) do
       ability = Ability.new
       assert ability.can?(:read, t1)
@@ -667,8 +645,8 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, pa)
       assert ability.can?(:read, pb)
       assert ability.can?(:read, m)
-      assert ability.can?(:read, c1)
-      assert ability.can?(:read, c2)
+      assert ability.can?(:read, task1)
+      assert ability.can?(:read, task2)
     end
   end
 
@@ -682,8 +660,8 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media project: pa, media: m
     pmb = create_project_media project: pb, media: m
-    c1 = create_comment annotated: pma
-    c2 = create_comment annotated: pmb
+    task1 = create_task annotated: pma
+    task2 = create_task annotated: pmb
 
     with_current_user_and_team(u, t2) do
       ability = Ability.new
@@ -692,8 +670,8 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, pa)
       assert ability.cannot?(:read, pb)
       assert ability.can?(:read, m)
-      assert ability.can?(:read, c1)
-      assert ability.cannot?(:read, c2)
+      assert ability.can?(:read, task1)
+      assert ability.cannot?(:read, task2)
     end
   end
 
@@ -908,25 +886,25 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user team: t, user: u, role: 'admin'
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm
+    task1 = create_task annotated: pm
 
     u2 = create_user
     t2 = create_team
     tu2 = create_team_user team: t2, user: u2, role: 'admin'
     p2 = create_project team: t2
     pm2 = create_project_media project: p2
-    c2 = create_comment annotated: pm2
+    task2 = create_task annotated: pm2
 
     with_current_user_and_team(u2, t2) do
       ability = Ability.new
-      assert ability.cannot?(:create, c)
-      assert ability.can?(:create, c2)
+      assert ability.cannot?(:create, task1)
+      assert ability.can?(:create, task2)
     end
 
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.cannot?(:create, c2)
-      assert ability.can?(:create, c)
+      assert ability.cannot?(:create, task2)
+      assert ability.can?(:create, task1)
     end
   end
 
@@ -954,14 +932,14 @@ class AbilityTest < ActiveSupport::TestCase
       tu = create_team_user team: t, user: u, role: 'collaborator'
       p = create_project team: t
       pm = create_project_media project: p
-      c = create_comment annotated: pm, annotator: u
-      c2 = create_comment annotated: pm
+      task1 = create_task annotated: pm, annotator: u
+      task2 = create_task annotated: pm
       with_current_user_and_team(u, t) do
         ability = Ability.new
-        assert ability.can?(:update, c)
-        assert ability.can?(:destroy, c)
-        assert ability.can?(:update, c2)
-        assert ability.can?(:destroy, c2)
+        assert ability.can?(:update, task1)
+        assert ability.can?(:destroy, task1)
+        assert ability.can?(:update, task2)
+        assert ability.can?(:destroy, task2)
         c.destroy!
         v = PaperTrail::Version.last
         assert ability.cannot?(:destroy, v)
@@ -1156,8 +1134,8 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u
     pm = create_project_media project: p
-    c = create_comment annotated: pm
-    c.assign_user(u.id)
+    task1 = create_task annotated: pm
+    task.assign_user(u.id)
     a = c.assignments.last
 
     t2 = create_team
@@ -1165,9 +1143,9 @@ class AbilityTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user team: t2, user: u2
     pm2 = create_project_media project: p2
-    c2 = create_comment annotated: pm2
-    c2.assign_user(u2.id)
-    a2 = c2.assignments.last
+    task2 = create_task annotated: pm2
+    task2.assign_user(u2.id)
+    a2 = task2.assignments.last
 
     # admin, editor and collaborator can assign/unassign annotations of same team
     ['admin', 'editor', 'collaborator'].each do |role|

@@ -587,7 +587,7 @@ class Team2Test < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
-      c = create_comment annotated: pm2
+      tg = create_tag annotated: pm2
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         t.destroy_later
@@ -600,7 +600,7 @@ class Team2Test < ActiveSupport::TestCase
       assert_nil Project.where(id: p2.id).last
       assert_not_nil Source.where(id: s1.id).last
       assert_nil Source.where(id: s2.id).last.team_id
-      assert_nil Comment.where(id: c.id).last
+      assert_nil Tag.where(id: tg.id).last
     end
   end
 
@@ -796,11 +796,11 @@ class Team2Test < ActiveSupport::TestCase
     team = create_team
     user = create_user
     pm = create_project_media team: team, project: create_project(team: team)
-    c = create_comment annotated: pm
+    tg = create_tag annotated: pm
     File.open(File.join(Rails.root, 'test', 'data', 'rails-photo.jpg')) do |f|
-      c.file = f
+      tg.file = f
     end
-    c.save(validate: false)
+    tg.save(validate: false)
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
@@ -1030,7 +1030,7 @@ class Team2Test < ActiveSupport::TestCase
     assert_kind_of CheckSearch, t.search
   end
 
-  test "should not crash when emptying trash that has task comments" do
+  test "should not crash when emptying trash that has task tags" do
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
@@ -1038,7 +1038,7 @@ class Team2Test < ActiveSupport::TestCase
       p = create_project team: t
       pm = create_project_media project: p
       tk = create_task annotated: pm
-      create_comment annotated: tk
+      create_tag annotated: tk
       pm.archived = true
       pm.save!
       RequestStore.store[:disable_es_callbacks] = true

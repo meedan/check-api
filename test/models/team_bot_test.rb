@@ -227,7 +227,7 @@ class TeamBotTest < ActiveSupport::TestCase
     #assert_nil tb2a.reload.last_called_at
     #assert_nil tb2b.reload.last_called_at
 
-    c1 = create_comment annotated: pm1
+    tg1 = create_tag annotated: pm1
 
     #tb1at = tb1a.reload.last_called_at
     #assert_not_nil tb1at
@@ -235,7 +235,7 @@ class TeamBotTest < ActiveSupport::TestCase
     #assert_nil tb2a.reload.last_called_at
     #assert_nil tb2b.reload.last_called_at
 
-    c2 = create_comment annotated: pm2
+    tg2 = create_tag annotated: pm2
 
     #tb2at = tb2a.reload.last_called_at
     #assert_equal tb1at, tb1a.reload.last_called_at
@@ -243,8 +243,8 @@ class TeamBotTest < ActiveSupport::TestCase
     #assert_not_nil tb2at
     #assert_nil tb2b.reload.last_called_at
 
-    c1.updated_at = Time.now
-    c1.save!
+    tg1.updated_at = Time.now
+    tg1.save!
 
     #tb1bt = tb1b.reload.last_called_at
     #assert_equal tb1at, tb1a.reload.last_called_at
@@ -252,8 +252,8 @@ class TeamBotTest < ActiveSupport::TestCase
     #assert_equal tb2at, tb2a.reload.last_called_at
     #assert_nil tb2b.reload.last_called_at
 
-    c2.updated_at = Time.now
-    c2.save!
+    tg2.updated_at = Time.now
+    tg2.save!
 
     #tb2bt = tb2b.reload.last_called_at
     #assert_equal tb1at, tb1a.reload.last_called_at
@@ -267,12 +267,14 @@ class TeamBotTest < ActiveSupport::TestCase
     p = create_project team: t
     tb = create_team_bot team_author_id: t.id
     pm = create_project_media project: p
-    c = create_comment text: 'Test Comment'
+    tg = create_tag text: 'Test tag'
     s = create_source name: 'Test Source'
     assert_equal pm.id, tb.graphql_result('id, dbid', pm, t)['dbid']
     assert_equal 'Test Source', tb.graphql_result('id, dbid, name', s, t)['name']
-    assert_equal({ text: 'Test Comment' }.to_json, tb.graphql_result('id, dbid, content', c, t)['content'])
-    assert tb.graphql_result('invalid fragment', c, t).has_key?('error')
+    require 'byebug'
+    byebug
+    assert_equal({ tag: 'Test tag' }.to_json, tb.graphql_result('id, dbid, content', tg, t)['content'])
+    assert tb.graphql_result('invalid fragment', tg, t).has_key?('error')
   end
 
   test "should call bot over event subscription" do
