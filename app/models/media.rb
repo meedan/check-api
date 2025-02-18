@@ -1,3 +1,5 @@
+require 'byebug'
+
 class Media < ApplicationRecord
   include AnnotationBase::Association
 
@@ -123,7 +125,7 @@ class Media < ApplicationRecord
   def self.set_media_type(project_media)
     original_claim = project_media.set_original_claim&.strip
 
-    if original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+    if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(original_claim)
       content_type = Net::HTTP.get_response(uri)['content-type']
 
