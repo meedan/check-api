@@ -57,14 +57,10 @@ jobs:
         tags:
           - $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           - $ECR_REGISTRY/$ECR_REPOSITORY:$BRANCH
-        cache-from:
-          - type=local,src=/tmp/.buildx-cache
-        cache-to:
-          - type=local,dest=/tmp/.buildx-cache-new
-        outputs:
-          - type=image,push=true
-        platforms:
-          - linux/amd64,linux/arm64
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+        outputs: type=image,push=true
+        platforms: linux/amd64,linux/arm64
 
     #- name: Docker Buildx (+ push)
     #  id: push-image-to-ecr
