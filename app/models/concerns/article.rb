@@ -11,7 +11,11 @@ module Article
 
     before_validation :set_author, on: :create
     before_validation :set_user
+    before_validation :set_channel, on: :create
     validates_presence_of :user
+
+    validates :channel, inclusion: { in: %w[imported manual api zapier] }
+    enum channel: { imported: 0, manual: 1, api: 2, zapier: 3 }
 
     after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
     after_commit :destroy_elasticsearch_data, on: :destroy
@@ -29,6 +33,15 @@ module Article
 
   def set_user
     self.user = User.current unless User.current.nil?
+  end
+
+  def set_channel
+    return if self.channel.present?
+    if User.current && User.current.is_a?(BotUser)
+      self.channel = "api"
+    else
+      self.channel = "manual"
+    end
   end
 
   def update_elasticsearch_data
