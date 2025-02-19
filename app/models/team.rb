@@ -488,19 +488,28 @@ class Team < ApplicationRecord
   end
 
   def filtered_articles(filters = {}, limit = 10, offset = 0, order = 'created_at', order_type = 'DESC')
+    # Re-use existing methods to build the SQL queries for fact-checks and for explainers
+    # We must include all columns we may need to sort by
     columns = [:id, :title, :language, :created_at, :updated_at]
     fact_checks = self.filtered_fact_checks(filters, false).select(["'FactCheck' AS type"] + columns.collect{ |column| "fact_checks.#{column}" })
     explainers = self.filtered_explainers(filters).select(["'Explainer' AS type"] + columns.collect{ |column| "explainers.#{column}" })
 
+    # Combine the two queries using SQL UNION
     query = <<~SQL
-      SELECT type, id FROM ( #{fact_checks.to_sql} UNION #{explainers.to_sql} ) AS articles
+      SELECT type, id, title, language, created_at, updated_at FROM ( #{fact_checks.to_sql} UNION #{explainers.to_sql} ) AS articles
       ORDER BY #{order} #{order_type} LIMIT ? OFFSET ?
     SQL
+    results = ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql([query, limit, offset])).map{ |row| OpenStruct.new(row) }
 
-    results = ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql([query, limit, offset]))
+    # Pre-load objects in memory in order to avoid an N + 1 queries problem
+    preloaded_results = {}
+    fact_check_ids = results.select{ |result| result.type == 'FactCheck' }.map(&:id)
+    preloaded_results['FactCheck'] = FactCheck.includes(:claim_description).where(id: fact_check_ids).where('claim_descriptions.team_id' => self.id).to_a.to_h{ |object| [object[:id], object] }
+    explainer_ids = results.select{ |result| result.type == 'Explainer' }.map(&:id)
+    preloaded_results['Explainer'] = Explainer.where(id: explainer_ids, team_id: self.id).to_a.to_h{ |object| [object[:id], object] }
 
-    # FIXME: Avoid N + 1 queries problem here
-    results.map{ |row| OpenStruct.new(row) }.collect{ |object| object.type.constantize.find(object.id) }
+    # Load full objects from pre-loaded list while keeping the order
+    results.collect{ |object| preloaded_results[object.type][object.id] }
   end
 
   def filtered_explainers(filters = {})

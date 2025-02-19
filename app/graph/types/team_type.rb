@@ -333,7 +333,8 @@ class TeamType < DefaultObject
     order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
     if args[:article_type].blank?
-      object.filtered_articles(args, args[:limit].to_i, args[:offset].to_i, order, order_type)
+      limit = context[:current_arguments][:first] || args[:limit]
+      object.filtered_articles(args, limit.to_i, args[:offset].to_i, order, order_type)
     else
       articles = nil
       if args[:article_type] == 'explainer'
