@@ -72561,6 +72561,20 @@
               "deprecationReason": null
             },
             {
+              "name": "number_of_incoming_messages_by_date",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "JsonStringType",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "number_of_matched_results_by_article_type",
               "description": null,
               "args": [
@@ -72667,6 +72681,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "number_of_outgoing_messages_by_date",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
