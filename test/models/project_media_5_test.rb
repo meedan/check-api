@@ -401,7 +401,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
     perm_keys = [
-      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
+      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia",
       "create Tag", "create Task", "create Dynamic", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
       "create Source", "update Source", "create ClaimDescription"

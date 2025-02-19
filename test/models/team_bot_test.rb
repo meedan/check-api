@@ -209,72 +209,19 @@ class TeamBotTest < ActiveSupport::TestCase
     #assert_not_nil tb2bt
   end
 
-  test "should notify team bots in background when annotation is created or updated" do
-    t1 = create_team
-    p1 = create_project team: t1
-    pm1 = create_project_media project: p1
-    tb1a = create_team_bot team_author_id: t1.id, set_events: [{ event: 'create_annotation_comment', graphql: nil }]
-    tb1b = create_team_bot team_author_id: t1.id, set_events: [{ event: 'update_annotation_comment', graphql: nil }]
-
-    t2 = create_team
-    p2 = create_project team: t2
-    pm2 = create_project_media project: p2
-    tb2a = create_team_bot team_author_id: t2.id, set_events: [{ event: 'create_annotation_comment', graphql: nil }]
-    tb2b = create_team_bot team_author_id: t2.id, set_events: [{ event: 'update_annotation_comment', graphql: nil }]
-
-    #assert_nil tb1a.reload.last_called_at
-    #assert_nil tb1b.reload.last_called_at
-    #assert_nil tb2a.reload.last_called_at
-    #assert_nil tb2b.reload.last_called_at
-
-    tg1 = create_tag annotated: pm1
-
-    #tb1at = tb1a.reload.last_called_at
-    #assert_not_nil tb1at
-    #assert_nil tb1b.reload.last_called_at
-    #assert_nil tb2a.reload.last_called_at
-    #assert_nil tb2b.reload.last_called_at
-
-    tg2 = create_tag annotated: pm2
-
-    #tb2at = tb2a.reload.last_called_at
-    #assert_equal tb1at, tb1a.reload.last_called_at
-    #assert_nil tb1b.reload.last_called_at
-    #assert_not_nil tb2at
-    #assert_nil tb2b.reload.last_called_at
-
-    tg1.updated_at = Time.now
-    tg1.save!
-
-    #tb1bt = tb1b.reload.last_called_at
-    #assert_equal tb1at, tb1a.reload.last_called_at
-    #assert_not_nil tb1bt
-    #assert_equal tb2at, tb2a.reload.last_called_at
-    #assert_nil tb2b.reload.last_called_at
-
-    tg2.updated_at = Time.now
-    tg2.save!
-
-    #tb2bt = tb2b.reload.last_called_at
-    #assert_equal tb1at, tb1a.reload.last_called_at
-    #assert_equal tb1bt, tb1b.reload.last_called_at
-    #assert_equal tb2at, tb2a.reload.last_called_at
-    #assert_not_nil tb2bt
-  end
-
   test "should get GraphQL result" do
     t = create_team private: true
     p = create_project team: t
     tb = create_team_bot team_author_id: t.id
     pm = create_project_media project: p
-    tg = create_tag text: 'Test tag'
+    task = create_task label: 'Test task'
     s = create_source name: 'Test Source'
     assert_equal pm.id, tb.graphql_result('id, dbid', pm, t)['dbid']
     assert_equal 'Test Source', tb.graphql_result('id, dbid, name', s, t)['name']
-    require 'byebug'
-    byebug
-    assert_equal({ tag: 'Test tag' }.to_json, tb.graphql_result('id, dbid, content', tg, t)['content'])
-    assert tb.graphql_result('invalid fragment', tg, t).has_key?('error')
+    result = tb.graphql_result('id, dbid, content', task, t)
+    json_content = JSON.parse(result['content'])
+    assert_equal 'Test task', json_content['label']
+    assert tb.graphql_result('invalid fragment', task, t).has_key?('error')
   end
 
   test "should call bot over event subscription" do

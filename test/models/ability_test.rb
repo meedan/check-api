@@ -128,12 +128,12 @@ class AbilityTest < ActiveSupport::TestCase
       create_team_user user: u, team: t, role: 'admin'
       pm1 = create_project_media team: t
       pm2 = create_project_media team: t2
-      a1 = create_annotation annotated: pm1
-      a2 = create_annotation annotated: pm2
+      tag1 = create_tag annotated: pm1
+      tag2 = create_tag annotated: pm2
       with_current_user_and_team(u, t) do
         a = Ability.new
-        assert a.can?(:destroy, a1)
-        assert a.cannot?(:destroy, a2)
+        assert a.can?(:destroy, tag1)
+        assert a.cannot?(:destroy, tag2)
       end
     end
   end
@@ -940,7 +940,7 @@ class AbilityTest < ActiveSupport::TestCase
         assert ability.can?(:destroy, task1)
         assert ability.can?(:update, task2)
         assert ability.can?(:destroy, task2)
-        c.destroy!
+        task1.destroy!
         v = PaperTrail::Version.last
         assert ability.cannot?(:destroy, v)
       end
@@ -1135,8 +1135,8 @@ class AbilityTest < ActiveSupport::TestCase
     create_team_user team: t, user: u
     pm = create_project_media project: p
     task1 = create_task annotated: pm
-    task.assign_user(u.id)
-    a = c.assignments.last
+    task1.assign_user(u.id)
+    a = task1.assignments.last
 
     t2 = create_team
     p2 = create_project team: t2

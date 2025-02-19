@@ -413,7 +413,7 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    a = create_annotation annotated: pm
+    a = create_tag annotated: pm
     assert_difference 'Assignment.count', 1 do
       a.assign_user(u.id)
     end
