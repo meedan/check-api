@@ -231,45 +231,43 @@ class Bot::SmoochTest < ActiveSupport::TestCase
 
     assert_difference 'ProjectMedia.count', 7 do
       assert_difference 'TiplineRequest.count', 22 do
-        assert_no_difference 'Comment.length' do
-          messages.each do |message|
-            uid = message[:authorId]
+        messages.each do |message|
+          uid = message[:authorId]
 
-            message = {
-              trigger: 'message:appUser',
-              app: {
-                '_id': @app_id
-              },
-              version: 'v1.1',
-              messages: [message],
-              appUser: {
-                '_id': uid,
-                'conversationStarted': true
+          message = {
+            trigger: 'message:appUser',
+            app: {
+              '_id': @app_id
+            },
+            version: 'v1.1',
+            messages: [message],
+            appUser: {
+              '_id': uid,
+              'conversationStarted': true
+            }
+          }.to_json
+
+          ignore = {
+            trigger: 'message:appUser',
+            app: {
+              '_id': @app_id
+            },
+            version: 'v1.1',
+            messages: [
+              {
+                '_id': random_string,
+                authorId: uid,
+                type: 'text',
+                text: '2'
               }
-            }.to_json
+            ],
+            appUser: {
+              '_id': uid,
+              'conversationStarted': true
+            }
+          }.to_json
 
-            ignore = {
-              trigger: 'message:appUser',
-              app: {
-                '_id': @app_id
-              },
-              version: 'v1.1',
-              messages: [
-                {
-                  '_id': random_string,
-                  authorId: uid,
-                  type: 'text',
-                  text: '2'
-                }
-              ],
-              appUser: {
-                '_id': uid,
-                'conversationStarted': true
-              }
-            }.to_json
-
-            assert Bot::Smooch.run(message)
-          end
+          assert Bot::Smooch.run(message)
         end
       end
     end

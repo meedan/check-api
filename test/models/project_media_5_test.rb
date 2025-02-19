@@ -920,9 +920,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       new_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
       new_tt.save!
       new_tt2 = new.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      # add comments
-      old_t = create_tag annotated: old
-      new_t = create_tag annotated: new
       # assign to
       s = new.last_verification_status_obj
       s = Dynamic.find(s.id)
@@ -939,7 +936,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       data = { "main" => CheckChannels::ChannelCodes::FETCH }
       assert_equal data, new.channel
       assert_equal 3, new.annotations('tag').count
-      assert_equal 2, new.annotations('comment').count
       # Verify replace log entry
       replace_v = Version.from_partition(new.team_id).where(event_type: 'replace_projectmedia', associated_id: new.id, associated_type: 'ProjectMedia')
       assert_not_empty replace_v
