@@ -11,6 +11,7 @@ module ExplainerMutations
       argument :url, GraphQL::Types::String, required: false
       argument :language, GraphQL::Types::String, required: false
       argument :tags, [GraphQL::Types::String, null: true], required: false
+      argument :channel, GraphQL::Types::String, required: false
     end
   end
 
