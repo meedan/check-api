@@ -142,6 +142,10 @@ class TeamStatisticsTest < ActiveSupport::TestCase
       assert_equal 3, object.number_of_incoming_messages
       assert_equal({ '2024-01-01' => 2, '2024-01-02' => 0, '2024-01-03' => 3, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
                    object.number_of_messages_by_date)
+      assert_equal({ '2024-01-01' => 1, '2024-01-02' => 0, '2024-01-03' => 1, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
+                   object.number_of_outgoing_messages_by_date)
+      assert_equal({ '2024-01-01' => 1, '2024-01-02' => 0, '2024-01-03' => 2, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
+                   object.number_of_incoming_messages_by_date)
       assert_equal 3, object.number_of_conversations
       assert_equal({ '2024-01-01' => 1, '2024-01-02' => 0, '2024-01-03' => 2, '2024-01-04' => 0, '2024-01-05' => 0, '2024-01-06' => 0, '2024-01-07' => 0, '2024-01-08' => 0 },
                    object.number_of_conversations_by_date)

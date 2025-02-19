@@ -13749,6 +13749,7 @@ type TeamStatistics implements Node {
   number_of_fact_checks_by_rating: JsonStringType
   number_of_fact_checks_created: Int
   number_of_incoming_messages: Int
+  number_of_incoming_messages_by_date: JsonStringType
   number_of_matched_results_by_article_type: JsonStringType
   number_of_media_received_by_media_type: JsonStringType
   number_of_messages: Int
@@ -13757,6 +13758,7 @@ type TeamStatistics implements Node {
   number_of_newsletters_delivered: Int
   number_of_newsletters_sent: Int
   number_of_outgoing_messages: Int
+  number_of_outgoing_messages_by_date: JsonStringType
   number_of_published_fact_checks: Int
   number_of_returning_users: Int
   number_of_search_results_by_feedback_type: JsonStringType
