@@ -53,18 +53,18 @@ module ProjectMediaCreators
   end
 
   def create_original_claim
-    self.set_media_type if self.media_type.blank?
+    self.set_media_type if self.set_original_claim || self.media_type.blank?
     self.media = Media.find_or_create_media_associated_to(self)
   end
 
   def create_media
-    self.set_media_type if self.media_type.blank?
+    self.set_media_type if self.set_original_claim || self.media_type.blank?
     self.media = Media.find_or_create_media_associated_to(self)
   end
 
   def set_media_type
     original_claim = self.set_original_claim&.strip
-
+# byebug
     if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(original_claim)
       content_type = Net::HTTP.get_response(uri)['content-type']
