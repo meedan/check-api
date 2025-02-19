@@ -52,11 +52,6 @@ module ProjectMediaCreators
     end
   end
 
-  def create_original_claim
-    self.set_media_type if self.set_original_claim || self.media_type.blank?
-    self.media = Media.find_or_create_media_associated_to(self)
-  end
-
   def create_media
     self.set_media_type if self.set_original_claim || self.media_type.blank?
     self.media = Media.find_or_create_media_associated_to(self)
