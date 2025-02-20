@@ -1597,6 +1597,7 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal [], t.statistics_platforms
     create_tipline_request team_id: t.id, platform: 'telegram', associated: pm
     create_tipline_request team_id: t.id, platform: 'whatsapp', associated: pm
+    create_tipline_request team_id: t.id, platform: 'whatsapp', associated: pm
     assert_equal ['telegram', 'whatsapp'], t.reload.statistics_platforms.sort
   end
 end
