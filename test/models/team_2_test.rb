@@ -1591,6 +1591,65 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal [], t.search_for_similar_articles('Test')
   end
 
+  test "should return all articles" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    t.set_languages ['en', 'es']
+    t.save!
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    pm = create_project_media team: t
+    fc = create_fact_check title: 'Foo Test', user: u, publisher_id: u.id, tags: ['test'], claim_description: create_claim_description(project_media: create_project_media(team: t, media: Blank.create!)), language: 'en'
+    fc.updated_at = Time.now + 1
+    fc.save!
+    sleep 1
+    ex = create_explainer team: t, title: 'Bar Test', user: u, tags: ['test'], language: 'es'
+    ex.updated_at = Time.now + 1
+    ex.save!
+    create_explainer team: t
+    create_explainer team: t
+    create_explainer
+
+    # Ensure we test for all filters
+    filters = {
+      user_ids: [u.id],
+      tags: ['test'],
+      language: ['en', 'es'],
+      created_at: { 'start_time' => Time.now.yesterday.to_datetime.to_s, 'end_time' => Time.now.tomorrow.to_datetime.to_s }.to_json,
+      updated_at: { 'start_time' => Time.now.yesterday.to_datetime.to_s, 'end_time' => Time.now.tomorrow.to_datetime.to_s }.to_json,
+      text: 'Test',
+      standalone: true,
+      publisher_ids: [u.id],
+      report_status: ['unpublished'],
+      rating: ['undetermined'],
+      imported: false,
+      target_id: pm.id,
+      trashed: false
+    }
+    assert_equal 2, t.filtered_articles(filters).count
+
+    # Ensure we test pagination
+    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'created_at', 'ASC').map(&:title)
+    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 1, 'created_at', 'ASC').map(&:title)
+
+    # Ensure we test for all sorting options
+    # Sort by updated date
+    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'updated_at', 'ASC').map(&:title)
+    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 0, 'updated_at', 'DESC').map(&:title)
+    # Sort by language
+    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'language', 'ASC').map(&:title)
+    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 0, 'language', 'DESC').map(&:title)
+    # Sort by title
+    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 0, 'title', 'ASC').map(&:title)
+    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'title', 'DESC').map(&:title)
+
+    # Ensure we don't have a N + 1 queries problem
+    # 4 queries: 1 for the target item, 1 for the articles, 1 for all fact-checks and 1 for all explainers
+    assert_queries 4, '=' do
+      t.filtered_articles
+    end
+  end
+
   test "should return platforms for which statistics are available" do
     t = create_team
     pm = create_project_media team: t
