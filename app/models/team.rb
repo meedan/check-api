@@ -487,6 +487,31 @@ class Team < ApplicationRecord
     available
   end
 
+  def filtered_articles(filters = {}, limit = 10, offset = 0, order = 'created_at', order_type = 'DESC')
+    # Re-use existing methods to build the SQL queries for fact-checks and for explainers
+    # We must include all columns we may need to sort by
+    columns = [:id, :title, :language, :created_at, :updated_at]
+    fact_checks = self.filtered_fact_checks(filters, false).select(["'FactCheck' AS type"] + columns.collect{ |column| "fact_checks.#{column}" })
+    explainers = self.filtered_explainers(filters).select(["'Explainer' AS type"] + columns.collect{ |column| "explainers.#{column}" })
+
+    # Combine the two queries using SQL UNION
+    query = <<~SQL
+      SELECT type, id, title, language, created_at, updated_at FROM ( #{fact_checks.to_sql} UNION #{explainers.to_sql} ) AS articles
+      ORDER BY #{order} #{order_type} LIMIT ? OFFSET ?
+    SQL
+    results = ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql([query, limit, offset])).map{ |row| OpenStruct.new(row) }
+
+    # Pre-load objects in memory in order to avoid an N + 1 queries problem
+    preloaded_results = {}
+    fact_check_ids = results.select{ |result| result.type == 'FactCheck' }.map(&:id)
+    preloaded_results['FactCheck'] = FactCheck.includes(:claim_description).where(id: fact_check_ids).where('claim_descriptions.team_id' => self.id).to_a.to_h{ |object| [object[:id], object] }
+    explainer_ids = results.select{ |result| result.type == 'Explainer' }.map(&:id)
+    preloaded_results['Explainer'] = Explainer.where(id: explainer_ids, team_id: self.id).to_a.to_h{ |object| [object[:id], object] }
+
+    # Load full objects from pre-loaded list while keeping the order
+    results.collect{ |object| preloaded_results[object.type][object.id] }
+  end
+
   def filtered_explainers(filters = {})
     query = self.explainers
 
@@ -513,8 +538,9 @@ class Team < ApplicationRecord
     query
   end
 
-  def filtered_fact_checks(filters = {})
-    query = FactCheck.includes(:claim_description).where('claim_descriptions.team_id' => self.id)
+  def filtered_fact_checks(filters = {}, include_claim_descriptions = true)
+    query = (include_claim_descriptions ? FactCheck.includes(:claim_description) : FactCheck.joins(:claim_description))
+    query = query.where('claim_descriptions.team_id' => self.id)
 
     # Filter by standalone
     query = query.left_joins(claim_description: { project_media: :media }).where('claim_descriptions.project_media_id IS NULL OR medias.type = ?', 'Blank') if filters[:standalone]
@@ -560,9 +586,9 @@ class Team < ApplicationRecord
   def filter_by_keywords(query, filters, type = 'FactCheck')
     tsquery = Team.sanitize_sql_array(["websearch_to_tsquery(?)", filters[:text]])
     if type == 'FactCheck'
-      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(summary, '') || ' ' || coalesce(url, '') || ' ' || coalesce(claim_descriptions.description, '') || ' ' || coalesce(claim_descriptions.context, ''))"
-    else
-      tsvector = "to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(description, '') || ' ' || coalesce(url, ''))"
+      tsvector = "to_tsvector('simple', coalesce(fact_checks.title, '') || ' ' || coalesce(fact_checks.summary, '') || ' ' || coalesce(fact_checks.url, '') || ' ' || coalesce(claim_descriptions.description, '') || ' ' || coalesce(claim_descriptions.context, ''))"
+    elsif type == 'Explainer'
+      tsvector = "to_tsvector('simple', coalesce(explainers.title, '') || ' ' || coalesce(explainers.description, '') || ' ' || coalesce(explainers.url, ''))"
     end
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end

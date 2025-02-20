@@ -407,18 +407,22 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal [fc.id], data.collect{ |edge| edge['node']['dbid'] }
   end
 
-  test "should get team articles (all)" do
+  test "should get all team articles" do
     Sidekiq::Testing.fake!
     authenticate_with_user(@u)
     pm = create_project_media team: @t
     cd = create_claim_description project_media: pm
-    create_fact_check claim_description: cd, tags: ['foo', 'bar']
-    create_explainer team: @t
-    query = "query { team(slug: \"#{@t.slug}\") { articles_count } }"
+    create_fact_check claim_description: cd, title: 'Foo'
+    sleep 1
+    create_explainer team: @t, title: 'Test'
+    sleep 1
+    create_explainer team: @t, title: 'Bar'
+    query = "query { team(slug: \"#{@t.slug}\") { articles(first: 2, sort: \"title\", sort_type: \"asc\") { edges { node { ... on Explainer { title }, ... on FactCheck { title } } } }, articles_count } }"
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    team = JSON.parse(@response.body)['data']['team']
-    assert_equal 2, team['articles_count']
+    data = JSON.parse(@response.body)['data']
+    assert_equal 3, data.dig('team', 'articles_count')
+    assert_equal ['Bar', 'Foo'], data.dig('team', 'articles', 'edges').collect{ |node| node.dig('node', 'title') }
   end
 
   test "should create api key" do
