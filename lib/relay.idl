@@ -13418,6 +13418,11 @@ type Team implements Node {
   sources_count(keyword: String): Int
   spam_count: Int
   statistics(language: String, period: String!, platform: String): TeamStatistics
+
+  """
+  List of tipline platforms for which we have data.
+  """
+  statistics_platforms: [String!]
   tag_texts(
     """
     Returns the elements in the list that come after the specified cursor.
