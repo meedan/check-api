@@ -635,6 +635,11 @@ class Team < ApplicationRecord
     data
   end
 
+  # Platforms for which statistics are available (e.g., at least one media request)
+  def statistics_platforms
+    TiplineRequest.joins(:project_media).where('project_medias.team_id' => self.id).group('platform').count.keys
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb

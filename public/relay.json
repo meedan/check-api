@@ -71007,6 +71007,28 @@
               "deprecationReason": null
             },
             {
+              "name": "statistics_platforms",
+              "description": "List of tipline platforms for which we have data.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "tag_texts",
               "description": null,
               "args": [

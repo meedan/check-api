@@ -402,6 +402,8 @@ class TeamType < DefaultObject
     TeamStatistics.new(object, period, language, platform)
   end
 
+  field :statistics_platforms, [GraphQL::Types::String], null: true, description: 'List of tipline platforms for which we have data.'
+
   field :bot_query, [TiplineSearchResultType], null: true do
     argument :search_text, GraphQL::Types::String, required: true
     argument :threshold, GraphQL::Types::Float, required: false
