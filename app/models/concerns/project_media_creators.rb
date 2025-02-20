@@ -54,33 +54,9 @@ module ProjectMediaCreators
 
   def create_media!
     self.set_media_type if self.set_original_claim || self.media_type.blank?
-    self.media = Media.find_or_create_media_associated_to(self)
-  end
 
-  def set_media_type
-    original_claim = self.set_original_claim&.strip
-# byebug
-    if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
-      uri = URI.parse(original_claim)
-      content_type = Net::HTTP.get_response(uri)['content-type']
-
-      case content_type
-      when /^image\//
-        self.media_type = 'UploadedImage'
-      when /^video\//
-        self.media_type = 'UploadedVideo'
-      when /^audio\//
-        self.media_type = 'UploadedAudio'
-      else
-        self.media_type = 'Link'
-      end
-    elsif original_claim
-      self.media_type = 'Claim'
-    elsif !self.url.blank?
-      self.media_type = 'Link'
-    elsif !self.quote.blank?
-      self.media_type = 'Claim'
-    end
+    media_type, media_content, additional_args = self.media_arguments
+    self.media = Media.find_or_create_media_from_content(media_type, media_content, additional_args)
   end
 
   def set_quote_metadata
@@ -139,6 +115,59 @@ module ProjectMediaCreators
   end
 
   protected
+
+  def set_media_type
+    original_claim = self.set_original_claim&.strip
+
+    if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(original_claim)
+      content_type = Net::HTTP.get_response(uri)['content-type']
+
+      case content_type
+      when /^image\//
+        self.media_type = 'UploadedImage'
+      when /^video\//
+        self.media_type = 'UploadedVideo'
+      when /^audio\//
+        self.media_type = 'UploadedAudio'
+      else
+        self.media_type = 'Link'
+      end
+    elsif original_claim
+      self.media_type = 'Claim'
+    elsif !self.url.blank?
+      self.media_type = 'Link'
+    elsif !self.quote.blank?
+      self.media_type = 'Claim'
+    end
+  end
+
+  def media_arguments
+    media_type = self.media_type
+    original_claim = self.set_original_claim&.strip
+
+    if original_claim
+      case media_type
+      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+        return media_type, original_claim, { has_original_claim: true }
+      when 'Claim'
+        return media_type, original_claim, { has_original_claim: true }
+      when 'Link'
+        return media_type, original_claim, { team: self.team, has_original_claim: true }
+      end
+    else
+      case media_type
+      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+        return media_type, self.file
+      when 'Claim'
+        return media_type, self.quote, { quote_attributions: self.quote_attributions }
+      when 'Link'
+        return media_type, self.url, { team: self.team }
+      when 'Blank'
+        return media_type
+      end
+    end
+  end
 
   def set_jsonld_response(task)
     jsonld = self.media.metadata['raw']['json+ld'] if self.media.metadata.has_key?('raw')

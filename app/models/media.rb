@@ -79,36 +79,17 @@ class Media < ApplicationRecord
     ''
   end
 
-  def self.find_or_create_media_associated_to(project_media)
-    m = nil
-    original_claim = project_media.set_original_claim&.strip
-    media_type = project_media.media_type
-    team = project_media.team
-
-    if original_claim
-      case media_type
-      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-        m = find_or_create_uploaded_file_media(original_claim, media_type, true)
-      when 'Claim'
-        m = find_or_create_claim_media(original_claim, nil, true)
-      when 'Link'
-        m = find_or_create_link_media(original_claim, team, true)
-      when 'Blank'
-        m = Blank.create!
-      end
-    else
-      case media_type
-      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-        m = find_or_create_uploaded_file_media(project_media.file, media_type)
-      when 'Claim'
-        m = find_or_create_claim_media(project_media.quote, project_media.quote_attributions)
-      when 'Link'
-        m = find_or_create_link_media(project_media.url, team)
-      when 'Blank'
-        m = Blank.create!
-      end
+  def self.find_or_create_media_from_content(media_type, media_content = nil, additional_args = {})
+    case media_type
+    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+      find_or_create_uploaded_file_media(media_content, media_type, additional_args)
+    when 'Claim'
+      find_or_create_claim_media(media_content, additional_args)
+    when 'Link'
+      find_or_create_link_media(media_content, additional_args)
+    when 'Blank'
+      Blank.create!
     end
-    m
   end
 
   private
@@ -155,19 +136,20 @@ class Media < ApplicationRecord
 
   # we set it to UploadedImage by default, should we?
   # def self.create_with_file(project_media, media_type = 'UploadedImage')
-  def self.find_or_create_uploaded_file_media(file_media, media_type, has_original_claim = false)
+  def self.find_or_create_uploaded_file_media(file_media, media_type, additional_args = {})
+    has_original_claim = additional_args&.fetch(:has_original_claim, nil)
     klass = media_type.constantize
 
     if has_original_claim
-      uri = URI.parse(file_media)
-      ext = File.extname(uri.path)
-
       existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(file_media))
 
       if existing_media
         existing_media
       else
+        uri = URI.parse(file_media)
+        ext = File.extname(uri.path)
         file = download_file(file_media, ext)
+
         klass.create!(file: file, original_claim: file_media)
       end
     else
@@ -177,7 +159,10 @@ class Media < ApplicationRecord
     end
   end
 
-  def self.find_or_create_claim_media(claim_media, quote_attributions = nil, has_original_claim = false)
+  def self.find_or_create_claim_media(claim_media, additional_args = {})
+    has_original_claim = additional_args.fetch(:has_original_claim, nil)
+    quote_attributions = additional_args.fetch(:quote_attributions, nil)
+
     if has_original_claim
       Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(claim_media)) || Claim.create!(quote: claim_media, original_claim: claim_media)
     else
@@ -185,8 +170,11 @@ class Media < ApplicationRecord
     end
   end
 
-  def self.find_or_create_link_media(link_media, project_media_team, has_original_claim = false)
-    pender_key = project_media_team.get_pender_key if project_media_team
+  def self.find_or_create_link_media(link_media, additional_args = {})
+    has_original_claim = additional_args.fetch(:has_original_claim, nil)
+    project_media_team = additional_args.fetch(:team, nil)
+
+    pender_key = project_media_team&.get_pender_key if project_media_team
     url_from_pender = Link.normalized(link_media, pender_key)
 
     if has_original_claim
