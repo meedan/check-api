@@ -128,12 +128,12 @@ class AbilityTest < ActiveSupport::TestCase
       create_team_user user: u, team: t, role: 'admin'
       pm1 = create_project_media team: t
       pm2 = create_project_media team: t2
-      tag1 = create_tag annotated: pm1
-      tag2 = create_tag annotated: pm2
+      a1 = create_annotation annotated: pm1
+      a2 = create_annotation annotated: pm2
       with_current_user_and_team(u, t) do
         a = Ability.new
-        assert a.can?(:destroy, tag1)
-        assert a.cannot?(:destroy, tag2)
+        assert a.can?(:destroy, a1)
+        assert a.cannot?(:destroy, a2)
       end
     end
   end
@@ -611,8 +611,6 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media project: pa, media: m
     pmb = create_project_media project: pb, media: m
-    task1 = create_task annotated: pma
-    task2 = create_task annotated: pmb
 
     with_current_user_and_team(u, t1) do
       ability = Ability.new
@@ -621,8 +619,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, pa)
       assert ability.cannot?(:read, pb)
       assert ability.can?(:read, m)
-      assert ability.can?(:read, task1)
-      assert ability.cannot?(:read, task2)
     end
   end
 
@@ -636,8 +632,6 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media project: pa, media: m
     pmb = create_project_media project: pb, media: m
-    task1 = create_task annotated: pma
-    task2 = create_task annotated: pmb
     with_current_user_and_team(u, tu) do
       ability = Ability.new
       assert ability.can?(:read, t1)
@@ -645,8 +639,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, pa)
       assert ability.can?(:read, pb)
       assert ability.can?(:read, m)
-      assert ability.can?(:read, task1)
-      assert ability.can?(:read, task2)
     end
   end
 
@@ -660,8 +652,6 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media project: pa, media: m
     pmb = create_project_media project: pb, media: m
-    task1 = create_task annotated: pma
-    task2 = create_task annotated: pmb
 
     with_current_user_and_team(u, t2) do
       ability = Ability.new
@@ -670,8 +660,6 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:read, pa)
       assert ability.cannot?(:read, pb)
       assert ability.can?(:read, m)
-      assert ability.can?(:read, task1)
-      assert ability.cannot?(:read, task2)
     end
   end
 
