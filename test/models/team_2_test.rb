@@ -1590,4 +1590,14 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     assert_equal [], t.search_for_similar_articles('Test')
   end
+
+  test "should return platforms for which statistics are available" do
+    t = create_team
+    pm = create_project_media team: t
+    assert_equal [], t.statistics_platforms
+    create_tipline_request team_id: t.id, platform: 'telegram', associated: pm
+    create_tipline_request team_id: t.id, platform: 'whatsapp', associated: pm
+    create_tipline_request team_id: t.id, platform: 'whatsapp', associated: pm
+    assert_equal ['telegram', 'whatsapp'], t.reload.statistics_platforms.sort
+  end
 end
