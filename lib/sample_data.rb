@@ -293,7 +293,11 @@ module SampleData
   end
 
   def create_annotation(options = {})
-    Annotation.create!(options)
+    if options.has_key?(:annotation_type) && options[:annotation_type].blank?
+      Annotation.create!(options)
+    else
+      create_tag(options)
+    end
   end
 
   def create_account(options = {})
