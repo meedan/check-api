@@ -55,7 +55,7 @@ module ProjectMediaCreators
   def create_media!
     self.set_media_type if self.set_original_claim || self.media_type.blank?
 
-    media_type, media_content, additional_args = self.media_arguments
+    media_type, media_content, additional_args = *self.media_arguments
     self.media = Media.find_or_create_media_from_content(media_type, media_content, additional_args)
   end
 
@@ -149,22 +149,22 @@ module ProjectMediaCreators
     if original_claim
       case media_type
       when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-        return media_type, original_claim, { has_original_claim: true }
+         [media_type, original_claim, { has_original_claim: true }]
       when 'Claim'
-        return media_type, original_claim, { has_original_claim: true }
+         [media_type, original_claim, { has_original_claim: true }]
       when 'Link'
-        return media_type, original_claim, { team: self.team, has_original_claim: true }
+         [media_type, original_claim, { team: self.team, has_original_claim: true }]
       end
     else
       case media_type
       when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-        return media_type, self.file
+         [media_type, self.file]
       when 'Claim'
-        return media_type, self.quote, { quote_attributions: self.quote_attributions }
+         [media_type, self.quote, { quote_attributions: self.quote_attributions }]
       when 'Link'
-        return media_type, self.url, { team: self.team }
+         [media_type, self.url, { team: self.team }]
       when 'Blank'
-        return media_type
+         [media_type]
       end
     end
   end
