@@ -149,22 +149,22 @@ module ProjectMediaCreators
     if original_claim
       case media_type
       when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-         [media_type, original_claim, { has_original_claim: true }]
+        [media_type, original_claim, { has_original_claim: true }]
       when 'Claim'
-         [media_type, original_claim, { has_original_claim: true }]
+        [media_type, original_claim, { has_original_claim: true }]
       when 'Link'
-         [media_type, original_claim, { team: self.team, has_original_claim: true }]
+        [media_type, original_claim, { team: self.team, has_original_claim: true }]
       end
     else
       case media_type
       when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-         [media_type, self.file]
+        [media_type, self.file]
       when 'Claim'
-         [media_type, self.quote, { quote_attributions: self.quote_attributions }]
+        [media_type, self.quote, { quote_attributions: self.quote_attributions }]
       when 'Link'
-         [media_type, self.url, { team: self.team }]
+        [media_type, self.url, { team: self.team }]
       when 'Blank'
-         [media_type]
+        [media_type]
       end
     end
   end
