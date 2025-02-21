@@ -19,6 +19,9 @@ on:
   schedule:
     - cron: '31 22 * * 0'
 
+paths-ignore:
+  - data # Ignore the localization data directory, which contains unusual characters that cause parsing to fail.
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
