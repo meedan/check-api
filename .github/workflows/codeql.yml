@@ -19,9 +19,6 @@ on:
   schedule:
     - cron: '31 22 * * 0'
 
-paths-ignore:
-  - data # Ignore the localization data directory, which contains unusual characters that cause parsing to fail.
-
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
@@ -52,6 +49,8 @@ jobs:
           build-mode: none
         - language: ruby
           build-mode: none
+          paths-ignore:
+            - data # Ignore the localization data directory, which contains unusual characters that cause parsing to fail.
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
