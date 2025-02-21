@@ -133,12 +133,10 @@ module ProjectMediaCreators
       else
         self.media_type = 'Link'
       end
-    elsif original_claim
+    elsif original_claim || self.quote.present?
       self.media_type = 'Claim'
-    elsif !self.url.blank?
+    elsif self.url.present?
       self.media_type = 'Link'
-    elsif !self.quote.blank?
-      self.media_type = 'Claim'
     end
   end
 
