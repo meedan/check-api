@@ -38,7 +38,8 @@ class Request < ApplicationRecord
   def text_similarity_settings
     {
       ::Bot::Alegre::ELASTICSEARCH_MODEL => { 'threshold' => 0.85, 'min_words' => 4 },
-      ::Bot::Alegre::MEAN_TOKENS_MODEL =>  { 'threshold' => 0.9, 'min_words' => 2 }
+      ::Bot::Alegre::MEAN_TOKENS_MODEL =>  { 'threshold' => 0.9, 'min_words' => 2 },
+      ::Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => { 'threshold' => 0.875, 'min_words' => 2 }
     }
   end
 
