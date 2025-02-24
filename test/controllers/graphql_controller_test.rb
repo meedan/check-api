@@ -378,7 +378,7 @@ class GraphqlControllerTest < ActionController::TestCase
         create_tag annotated: pm, annotator: u
         create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'metadata'
       end
-      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
+      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
       post :create, params: { query: query, team: 'team' }
       assert_response :success
       assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
