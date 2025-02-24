@@ -663,7 +663,7 @@ class Team < ApplicationRecord
 
   # Platforms for which statistics are available (e.g., at least one media request)
   def statistics_platforms
-    TiplineRequest.joins(:project_media).where('project_medias.team_id' => self.id).group('platform').count.keys
+    TiplineRequest.joins(:project_media).where('project_medias.team_id' => self.id).distinct.pluck(:platform)
   end
 
   # private
