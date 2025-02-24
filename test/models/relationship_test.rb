@@ -428,4 +428,23 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 4, Relationship.where(source_id: pm1.id, relationship_type: Relationship.suggested_type).count
     assert_equal 0, Relationship.where(source_id: pm2.id, relationship_type: Relationship.suggested_type).count
   end
+
+  test "should update media origin when bulk-accepting suggestion" do
+    Sidekiq::Testing.inline!
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user is_admin: true
+
+    # Create suggestion
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.suggested_type
+    assert_equal CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED, pm2.media_cluster_origin
+
+    # Accept suggestion
+    with_current_user_and_team u, t do
+      Relationship.bulk_update([r.id], { source_id: pm1.id, action: 'accept' }, t)
+    end
+    assert_equal CheckMediaClusterOrigins::OriginCodes::USER_MATCHED, pm2.media_cluster_origin
+  end
 end
