@@ -20,7 +20,6 @@ module RelationshipBulk
         end
         relationships = Relationship.where(id: ids, source_id: source_id)
         relationships.update_all(update_columns)
-        delete_cached_field(pm_source.id, ids)
         # Run callbacks in background
         extra_options = {
           team_id: team&.id,
@@ -29,6 +28,7 @@ module RelationshipBulk
           action: updates[:action]
         }
         self.delay.run_update_callbacks(ids.to_json, extra_options.to_json)
+        delete_cached_fields(pm_source.id, relationships.map(&:target_id))
         { source_project_media: pm_source }
       end
     end
@@ -41,7 +41,7 @@ module RelationshipBulk
       relationships.find_each{ |r| relationship_target[r.id] = r.target_id}
       relationships.delete_all
       target_ids = relationship_target.values
-      delete_cached_field(pm_source.id, target_ids)
+      delete_cached_fields(pm_source.id, target_ids)
       # Run callbacks in background
       extra_options = {
         team_id: team&.id,
@@ -52,17 +52,9 @@ module RelationshipBulk
       { source_project_media: pm_source }
     end
 
-    def delete_cached_field(source_id, target_ids)
-      # Clear cached fields
-      # List fields with `model: Relationship`
-      cached_fields = [
-        'is_suggested', 'is_confirmed', 'linked_items_count', 'suggestions_count','report_status','related_count',
-        'demand', 'last_seen', 'sources_as_sentence', 'added_as_similar_by_name', 'confirmed_as_similar_by_name'
-      ]
-      cached_fields.each do |name|
-        Rails.cache.delete("check_cached_field:ProjectMedia:#{source_id}:#{name}")
-        target_ids.each { |id| Rails.cache.delete("check_cached_field:ProjectMedia:#{id}:#{name}") }
-      end
+    def delete_cached_fields(source_id, target_ids)
+      ids = [source_id, target_ids].flatten
+      ProjectMedia.where(id: ids).each { |pm| pm.clear_cached_fields }
     end
 
     def run_update_callbacks(ids_json, extra_options_json)
