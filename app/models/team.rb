@@ -661,6 +661,12 @@ class Team < ApplicationRecord
     data
   end
 
+  def get_articles_exported_data(query)
+    fact_check_data = FactCheck.get_exported_data(query, self)
+    explainer_data = Explainer.get_exported_data(query, self).drop(1) # Remove the header, we don't need a second header
+    fact_check_data + explainer_data
+  end
+
   # Platforms for which statistics are available (e.g., at least one media request)
   def statistics_platforms
     TiplineRequest.joins(:project_media).where('project_medias.team_id' => self.id).distinct.pluck(:platform)
