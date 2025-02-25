@@ -506,6 +506,9 @@ class Team < ApplicationRecord
     # Filter by text
     query = self.filter_by_keywords(query, filters, 'Explainer') if filters[:text].to_s.size > 2
 
+    # Filter by channel
+    query = query.where(channel: filters[:channel]) unless filters[:channel].blank?
+
     # Exclude the ones already applied to a target item
     target = ProjectMedia.find_by_id(filters[:target_id].to_i)
     query = query.where.not(id: target.explainer_ids) unless target.nil?
@@ -549,6 +552,9 @@ class Team < ApplicationRecord
 
     # Filter by text
     query = self.filter_by_keywords(query, filters) if filters[:text].to_s.size > 2
+
+    # Filter by channel
+    query = query.where(channel: filters[:channel]) unless filters[:channel].blank?
 
     # Exclude the ones already applied to a target item
     target = ProjectMedia.find_by_id(filters[:target_id].to_i)
