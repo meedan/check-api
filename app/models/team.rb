@@ -531,6 +531,9 @@ class Team < ApplicationRecord
     # Filter by text
     query = self.filter_by_keywords(query, filters, 'Explainer') if filters[:text].to_s.size > 2
 
+    # Filter by language
+    query = query.where('explainers.language' => filters[:language].to_a) unless filters[:language].blank?
+
     # Exclude the ones already applied to a target item
     target = ProjectMedia.find_by_id(filters[:target_id].to_i)
     query = query.where.not(id: target.explainer_ids) unless target.nil?
