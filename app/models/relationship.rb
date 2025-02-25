@@ -159,8 +159,8 @@ class Relationship < ApplicationRecord
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
     # Verify that the target is not part of another source; in this case, we should return the existing relationship.
     r = Relationship.where(target_id: target_id).where.not(source_id: source_id).last
-    # should update options if exists
-    unless r.nil? || !options.blank?
+    # should update options if exists and at least on field is blank
+    if !r.nil? && !options.blank? && r.model.blank?
       options.each do |key, value|
         r.send("#{key}=", value) if r.respond_to?("#{key}=")
       end
