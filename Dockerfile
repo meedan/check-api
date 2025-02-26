@@ -29,7 +29,7 @@ RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh |
 RUN useradd -m -s /bin/bash $DEPLOYUSER && \
     mkdir -p /opt/bin /app && \
     chown -R $DEPLOYUSER:$DEPLOYUSER /opt/bin /app
-    
+
 USER $DEPLOYUSER
 
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} production/bin /opt/bin
@@ -43,9 +43,9 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true 
 RUN bundle install --jobs 20 --retry 5
 
-RUN chown -R $DEPLOYUSER:$DEPLOYUSER /app 
+RUN chown -R $DEPLOYUSER:$DEPLOYUSER .
 # Copy application files
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . /app
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . .
 
 # remember the Rails console history
 RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \

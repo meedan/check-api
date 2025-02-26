@@ -58,16 +58,19 @@ jobs:
     - name: Build Docker Container
       run: |
         docker compose build
+
     - name: Run syntax checks
       run: |
         docker compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
+    
     - name: Run Container
       run: docker compose -f docker-compose.yml -f docker-test.yml up -d
 
-    # - name: Wait for the server to be ready
-    #   run: |
-    #     tail -f log/test.log &
-    #     until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+    - name: Wait for the server to be ready
+      run: |
+        tail -f log/test.log &
+        until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+    
     - name: Set up parallel environment
       run: docker compose exec -T api test/setup-parallel-env.sh
 
@@ -164,6 +167,7 @@ jobs:
     - name: Run syntax checks
       run: |
         docker compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
+    
     - name: Run Container
       run: docker compose -f docker-compose.yml -f docker-test.yml up -d
 
