@@ -41,6 +41,7 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true 
 RUN bundle install --jobs 20 --retry 5
 
+RUN chown -R $DEPLOYUSER:$DEPLOYUSER /app 
 # Copy application files
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . /app
 
