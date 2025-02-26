@@ -44,6 +44,7 @@ jobs:
         export LC_ALL=C.UTF-8
         export LANG=C.UTF-8
         export LANGUAGE=C.UTF-8
+        export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 
     - name: Set up Configuration Files
@@ -63,10 +64,10 @@ jobs:
     - name: Run Container
       run: docker compose -f docker-compose.yml -f docker-test.yml up -d
 
-    - name: Wait for the server to be ready
-      run: |
-        tail -f log/test.log &
-        until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
+    # - name: Wait for the server to be ready
+    #   run: |
+    #     tail -f log/test.log &
+    #     until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
     - name: Set up parallel environment
       run: docker compose exec -T api test/setup-parallel-env.sh
 
