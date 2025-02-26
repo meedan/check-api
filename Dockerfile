@@ -33,9 +33,7 @@ RUN useradd -m -s /bin/bash $DEPLOYUSER && \
 USER $DEPLOYUSER
 
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} production/bin /opt/bin
-RUN chown -R $DEPLOYUSER:$DEPLOYUSER .
-# Copy application files
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . .
+
 WORKDIR /app
 
 # Copy Gemfiles and install dependencies
@@ -45,8 +43,9 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true 
 RUN bundle install --jobs 20 --retry 5
 
-RUN touch /app/log/test.log && chmod 777 /app/log/test.log
-
+RUN chown -R $DEPLOYUSER:$DEPLOYUSER .
+# Copy application files
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . .
 
 # remember the Rails console history
 RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
