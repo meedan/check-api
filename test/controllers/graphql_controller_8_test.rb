@@ -321,6 +321,19 @@ class GraphqlController8Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
   end
 
+  test "should get tags from media" do
+    admin_user = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    c = create_tag annotated: pm, fragment: 't=10,20'
+    authenticate_with_user(admin_user)
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tags(first: 10) { edges { node { parsed_fragment } } } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['tags']['edges'][0]['node']['parsed_fragment'])
+  end
+
   test "should get OCR" do
     b = create_alegre_bot(name: 'alegre', login: 'alegre')
     b.approve!

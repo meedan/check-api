@@ -1590,4 +1590,15 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     assert_equal [], t.search_for_similar_articles('Test')
   end
+
+  test "should extract slug from URL using URI.extract" do
+    url = "https://example.com/my-team"
+    assert_equal "my-team", Team.slug_from_url(url)
+
+    text_with_url = "Some text [http://example.com/team-slug] more text"
+    assert_equal "team-slug", Team.slug_from_url(text_with_url)
+
+    complex_url = "https://example.com/team123/extra/info"
+    assert_equal "team123", Team.slug_from_url(complex_url)
+  end
 end
