@@ -161,7 +161,7 @@ class Relationship < ApplicationRecord
     r = Relationship.where(target_id: target_id).where.not(source_id: source_id).last
     return r unless r.nil?
     # otherwise we should get the existing relationship based on source, target and type
-    r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
+    r = Relationship.where(source_id: source_id, target_id: target_id).last
     exception_message = nil
     exception_class = nil
     if r.nil?
@@ -196,6 +196,9 @@ class Relationship < ApplicationRecord
         exception_message = e.message
         exception_class = e.class.name
       end
+    elsif r.relationship_type != relationship_type && relationship_type == Relationship.confirmed_type
+      r.relationship_type = relationship_type
+      r.save!
     end
     if r.nil?
       Rails.logger.error("[Relationship::create_unless_exists] returning nil: source_id #{source_id}, target_id #{target_id}, relationship_type #{relationship_type}.")
