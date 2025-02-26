@@ -6,7 +6,7 @@ class BotUser < User
   EVENTS = ['create_project_media', 'update_project_media', 'create_source', 'update_source', 'update_annotation_own', 'publish_report',
             'save_annotation', 'save_claim_description', 'save_fact_check']
   custom_annotation_types = begin DynamicAnnotation::AnnotationType.pluck(:annotation_type) rescue [] end
-  annotation_types = custom_annotation_types + ['comment', 'tag', 'task', 'geolocation']
+  annotation_types = custom_annotation_types + ['tag', 'task', 'geolocation']
   annotation_types.each do |type|
     EVENTS << "create_annotation_#{type}"
     EVENTS << "update_annotation_#{type}"

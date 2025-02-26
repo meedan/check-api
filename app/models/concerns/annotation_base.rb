@@ -91,7 +91,7 @@ module AnnotationBase
     validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }, if: proc { |_a| !User.current.nil? && User.current.type != 'BotUser' }
 
     def annotations
-      Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Tag', 'Comment'], annotated_id: self.id)
+      Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Tag'], annotated_id: self.id)
     end
 
     def start_serialized_fields

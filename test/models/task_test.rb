@@ -142,9 +142,9 @@ class TaskTest < ActiveSupport::TestCase
       assert tk.sent_to_slack
 
       tk = Task.find(tk.id)
-      c = create_comment annotated: tk
+      tg = create_tag annotated: tk
       assert_not tk.sent_to_slack
-      assert !c.sent_to_slack
+      assert !tg.sent_to_slack
     end
   end
 
