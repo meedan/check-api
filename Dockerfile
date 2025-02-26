@@ -44,8 +44,6 @@ RUN bundle install --jobs 20 --retry 5
 # Copy application files
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . /app
 
-
-
 # remember the Rails console history
 RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
     echo 'IRB.conf[:SAVE_HISTORY] = 200' >> ~/.irbrc && \
