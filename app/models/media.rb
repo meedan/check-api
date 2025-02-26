@@ -1,5 +1,3 @@
-require 'byebug'
-
 class Media < ApplicationRecord
   include AnnotationBase::Association
 
@@ -134,8 +132,6 @@ class Media < ApplicationRecord
     file
   end
 
-  # we set it to UploadedImage by default, should we?
-  # def self.create_with_file(project_media, media_type = 'UploadedImage')
   def self.find_or_create_uploaded_file_media(file_media, media_type, additional_args = {})
     has_original_claim = additional_args&.fetch(:has_original_claim, nil)
     klass = media_type.constantize
