@@ -7,8 +7,7 @@ ENV RAILS_ENV=development \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8 \
     LANGUAGE=C.UTF-8 \
-    DEPLOYUSER=checkdeploy \
-    APP_DIR=/app
+    DEPLOYUSER=checkdeploy 
 
 # Install necessary dependencies
 RUN apt-get update -qq && apt-get install --no-install-recommends -y \
@@ -27,9 +26,7 @@ RUN apt-get update -qq && apt-get install --no-install-recommends -y \
 # tx client
 RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
-RUN useradd -m -s /bin/bash $DEPLOYUSER
-
-RUN mkdir -p /opt/bin /app && chown -R $DEPLOYUSER:$DEPLOYUSER /opt/bin /app
+RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 USER $DEPLOYUSER
 
@@ -38,8 +35,8 @@ COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} production/bin /opt/bin
 WORKDIR /app
 
 # Copy Gemfiles and install dependencies
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile Gemfile.lock ./
-
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile /app/Gemfile
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile.lock /app/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true 
 RUN bundle install --jobs 20 --retry 5
@@ -47,12 +44,13 @@ RUN bundle install --jobs 20 --retry 5
 # Copy application files
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . /app
 
-RUN chmod +x /app/docker-entrypoint.sh /app/docker-background.sh
+
 
 # remember the Rails console history
 RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
     echo 'IRB.conf[:SAVE_HISTORY] = 200' >> ~/.irbrc && \
     echo 'IRB.conf[:HISTORY_FILE] = ENV["HOME"] + "/.irb-history"' >> ~/.irbrc
 
+RUN chmod +x /app/docker-entrypoint.sh /app/docker-background.sh
 EXPOSE 3000
 CMD ["/app/docker-entrypoint.sh"]
