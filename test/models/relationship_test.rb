@@ -326,9 +326,17 @@ class RelationshipTest < ActiveSupport::TestCase
     target = create_project_media team: t
     r = nil
     assert_difference 'Relationship.count' do
-      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type, { user_id: u.id })
+      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
-    assert_equal u.id, r.user_id
+    # should update options if relationship already exists
+    assert_nil r.model
+    another_source = create_project_media team: t
+    r2 = nil
+    assert_no_difference 'Relationship.count' do
+      r2 = Relationship.create_unless_exists(another_source.id, target.id, Relationship.confirmed_type, { model: 'elasticsearch' })
+    end
+    assert_equal r, r2
+    assert_equal 'elasticsearch', r2.model
     r2 = nil
     assert_no_difference 'Relationship.count' do
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
