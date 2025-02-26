@@ -26,8 +26,10 @@ RUN apt-get update -qq && apt-get install --no-install-recommends -y \
 # tx client
 RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
-RUN useradd ${DEPLOYUSER} -s /bin/bash -m
-
+RUN useradd -m -s /bin/bash $DEPLOYUSER && \
+    mkdir -p /opt/bin /app && \
+    chown -R $DEPLOYUSER:$DEPLOYUSER /opt/bin /app
+    
 USER $DEPLOYUSER
 
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} production/bin /opt/bin
