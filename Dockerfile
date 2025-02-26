@@ -44,7 +44,7 @@ RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
 
 # Copy application files
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . .
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . /app
 
 RUN chmod +x /app/docker-entrypoint.sh /app/docker-background.sh
 
