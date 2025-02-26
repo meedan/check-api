@@ -159,6 +159,7 @@ class Relationship < ApplicationRecord
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
     # Verify that the target is not part of another source; in this case, we should return the existing relationship.
     r = Relationship.where(target_id: target_id).where.not(source_id: source_id).last
+    r.update_options(options) unless r.nil?
     return r unless r.nil?
     # otherwise we should get the existing relationship based on source, target and type
     r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
@@ -196,6 +197,8 @@ class Relationship < ApplicationRecord
         exception_message = e.message
         exception_class = e.class.name
       end
+    else
+      r.update_options(options)
     end
     if r.nil?
       Rails.logger.error("[Relationship::create_unless_exists] returning nil: source_id #{source_id}, target_id #{target_id}, relationship_type #{relationship_type}.")
@@ -224,6 +227,16 @@ class Relationship < ApplicationRecord
       s.status = status
       s.bypass_status_publish_check = true
       s.save!
+    end
+  end
+
+  def update_options(options)
+    # should update options if exists and at least on field has a value
+    if self.model.blank? && !options.values.compact.empty?
+      options.each do |key, value|
+        self.send("#{key}=", value) if self.respond_to?("#{key}=")
+      end
+      self.save!
     end
   end
 
