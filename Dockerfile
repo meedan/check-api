@@ -11,7 +11,7 @@ ENV RAILS_ENV=development \
     APP_DIR=/app
 
 # Install necessary dependencies
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update -qq && apt-get install --no-install-recommends -y \
     build-essential \
     ffmpegthumbnailer \
     ffmpeg \
@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     inotify-tools \
     libpq-dev \
     libtag1-dev \
-    lsof 
+    lsof \
+    curl 
 
 # tx client
 RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
