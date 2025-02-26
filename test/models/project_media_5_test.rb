@@ -798,7 +798,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should create link and account using team pender key" do
     t = create_team
-    p = create_project(team: t)
+    create_project(team: t)
     Team.stubs(:current).returns(t)
 
     url1 = random_url
@@ -811,13 +811,13 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
     PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
 
-    pm = ProjectMedia.create url: url1
+    pm = ProjectMedia.create url: url1, team: t
     assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with default token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 
     t.set_pender_key = 'specific_token'; t.save!
 
-    pm = ProjectMedia.create! url: url2
+    pm = ProjectMedia.create! url: url2, team: t
     assert_equal 'Specific token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with specific token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 

@@ -77,24 +77,16 @@ class Media < ApplicationRecord
     ''
   end
 
-  def self.find_or_create_from_original_claim(claim, project_media_team)
-    if claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
-      uri = URI.parse(claim)
-      content_type = Net::HTTP.get_response(uri)['content-type']
-      ext = File.extname(uri.path)
-
-      case content_type
-      when /^image\//
-        find_or_create_uploaded_file_media_from_original_claim('UploadedImage', claim, ext)
-      when /^video\//
-        find_or_create_uploaded_file_media_from_original_claim('UploadedVideo', claim, ext)
-      when /^audio\//
-        find_or_create_uploaded_file_media_from_original_claim('UploadedAudio', claim, ext)
-      else
-        find_or_create_link_media_from_original_claim(claim, project_media_team)
-      end
-    else
-      find_or_create_claim_media_from_original_claim(claim)
+  def self.find_or_create_media_from_content(media_type, media_content = nil, additional_args = {})
+    case media_type
+    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+      find_or_create_uploaded_file_media(media_content, media_type, additional_args)
+    when 'Claim'
+      find_or_create_claim_media(media_content, additional_args)
+    when 'Link'
+      find_or_create_link_media(media_content, additional_args)
+    when 'Blank'
+      Blank.create!
     end
   end
 
@@ -130,18 +122,6 @@ class Media < ApplicationRecord
     self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
   end
 
-  def self.find_or_create_uploaded_file_media_from_original_claim(media_type, url, ext)
-    klass = media_type.constantize
-    existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(url))
-
-    if existing_media
-      existing_media
-    else
-      file = download_file(url, ext)
-      klass.create!(file: file, original_claim: url)
-    end
-  end
-
   def self.download_file(url, ext)
     raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
 
@@ -152,13 +132,51 @@ class Media < ApplicationRecord
     file
   end
 
-  def self.find_or_create_claim_media_from_original_claim(text)
-    Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(text)) || Claim.create!(quote: text, original_claim: text)
+  def self.find_or_create_uploaded_file_media(file_media, media_type, additional_args = {})
+    has_original_claim = additional_args&.fetch(:has_original_claim, nil)
+    klass = media_type.constantize
+
+    if has_original_claim
+      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(file_media))
+
+      if existing_media
+        existing_media
+      else
+        uri = URI.parse(file_media)
+        ext = File.extname(uri.path)
+        file = download_file(file_media, ext)
+
+        klass.create!(file: file, original_claim: file_media)
+      end
+    else
+      m = klass.find_by(file: Media.filename(file_media)) || klass.new(file: file_media)
+      m.save! if m.new_record?
+      m
+    end
   end
 
-  def self.find_or_create_link_media_from_original_claim(url, project_media_team)
-    pender_key = project_media_team.get_pender_key if project_media_team
-    url_from_pender = Link.normalized(url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(url)) || Link.create!(url: url, pender_key: pender_key, original_claim: url)
+  def self.find_or_create_claim_media(claim_media, additional_args = {})
+    has_original_claim = additional_args.fetch(:has_original_claim, nil)
+    quote_attributions = additional_args.fetch(:quote_attributions, nil)
+
+    if has_original_claim
+      Claim.find_by(original_claim_hash: Digest::MD5.hexdigest(claim_media)) || Claim.create!(quote: claim_media, original_claim: claim_media)
+    else
+      Claim.create!(quote: claim_media, quote_attributions: quote_attributions)
+    end
+  end
+
+  def self.find_or_create_link_media(link_media, additional_args = {})
+    has_original_claim = additional_args.fetch(:has_original_claim, nil)
+    project_media_team = additional_args.fetch(:team, nil)
+
+    pender_key = project_media_team&.get_pender_key if project_media_team
+    url_from_pender = Link.normalized(link_media, pender_key)
+
+    if has_original_claim
+      Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(link_media)) || Link.create!(url: link_media, pender_key: pender_key, original_claim: link_media)
+    else
+      Link.find_by(url: url_from_pender) || Link.create(url: link_media, pender_key: pender_key)
+    end
   end
 end
