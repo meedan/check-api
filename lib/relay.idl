@@ -13183,7 +13183,7 @@ type Team implements Node {
     Returns the elements in the list that come after the specified cursor.
     """
     after: String
-    article_type: String!
+    article_type: String
 
     """
     Returns the elements in the list that come before the specified cursor.
@@ -13202,6 +13202,7 @@ type Team implements Node {
     Returns the last _n_ elements from the list.
     """
     last: Int
+    limit: Int = 10
     offset: Int = 0
     publisher_ids: [Int]
     rating: [String]
@@ -13417,6 +13418,11 @@ type Team implements Node {
   sources_count(keyword: String): Int
   spam_count: Int
   statistics(language: String, period: String!, platform: String): TeamStatistics
+
+  """
+  List of tipline platforms for which we have data.
+  """
+  statistics_platforms: [String!]
   tag_texts(
     """
     Returns the elements in the list that come after the specified cursor.
