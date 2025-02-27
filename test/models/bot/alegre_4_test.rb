@@ -89,4 +89,77 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
       Bot::Alegre.store_package(pm, 'title')
     end
   end
+
+  test "CV2-6051" do
+    Bot::Alegre.stubs(:request).returns({
+      "result"=>[
+        {
+          "models"=>["elasticsearch", "xlm-r-bert-base-nli-stsb-mean-tokens", "paraphrase-multilingual-mpnet-base-v2"],
+          "context"=>{"type"=>"explainer", "team_id"=>15},
+          "content"=>"This is for testing alegre response",
+          "created_at"=>"2025-02-25T06:43:45.775739",
+          "language"=>nil,
+          "doc_id"=>"a664e22b-2738-4b98-b205-6239de244653",
+          "contexts"=>[
+            {"team_id"=>15, "type"=>"explainer"},
+            {"team_id"=>15, "type"=>"explainer"}
+          ],
+          "text"=>"This is for testing alegre response",
+          "model_xlm-r-bert-base-nli-stsb-mean-tokens"=>1,
+          "model_paraphrase-multilingual-mpnet-base-v2"=>1,
+          "model"=>"elasticsearch",
+          "_id"=>"a664e22b-2738-4b98-b205-6239de244653",
+          "id"=>"a664e22b-2738-4b98-b205-6239de244653",
+          "index"=>"alegre_similarity_multilingual",
+          "_score"=>46.06687,
+          "score"=>46.06687
+        },
+        {
+          "models"=>["elasticsearch", "xlm-r-bert-base-nli-stsb-mean-tokens", "paraphrase-multilingual-mpnet-base-v2"],
+          "context"=>{"type"=>"explainer", "team_id"=>15},
+          "content"=>"This is for testing alegre response #1",
+          "created_at"=>"2025-02-25T06:44:31.524063",
+          "language"=>nil,
+          "doc_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "contexts"=>[
+            {"team_id"=>15, "type"=>"explainer"},
+            {"team_id"=>15, "type"=>"explainer"}
+          ],
+          "text"=>"This is for testing alegre response #1",
+          "model_xlm-r-bert-base-nli-stsb-mean-tokens"=>1,
+          "model_paraphrase-multilingual-mpnet-base-v2"=>1,
+          "model"=>"elasticsearch",
+          "_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "index"=>"alegre_similarity_multilingual",
+          "_score"=>44.900833,
+          "score"=>44.900833
+        },
+        {
+          "models"=>["elasticsearch", "xlm-r-bert-base-nli-stsb-mean-tokens", "paraphrase-multilingual-mpnet-base-v2"],
+          "context"=>{"type"=>"explainer", "team_id"=>15},
+          "content"=>"This is for testing alegre response #1",
+          "created_at"=>"2025-02-25T06:44:31.524063",
+          "language"=>nil,
+          "doc_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "contexts"=>[
+            {"team_id"=>15, "type"=>"explainer"},
+            {"team_id"=>15, "type"=>"explainer"}
+          ],
+          "text"=>"This is for testing alegre response #1",
+          "model_xlm-r-bert-base-nli-stsb-mean-tokens"=>1,
+          "model_paraphrase-multilingual-mpnet-base-v2"=>1,
+          "model"=>"paraphrase-multilingual-mpnet-base-v2",
+          "_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "index"=>"alegre_similarity_multilingual",
+          "_score"=>1.9715481,
+          "score"=>1.9715481
+        }
+      ]
+    })
+    response = Bot::Alegre.get_similar_items_from_api("text", {})
+    pp response
+    Bot::Alegre.unstub(:request)
+  end
 end
