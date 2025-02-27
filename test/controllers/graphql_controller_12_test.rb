@@ -745,7 +745,7 @@ class GraphqlController12Test < ActionController::TestCase
 
     t = create_team
     p = create_project team: t
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
 
     assert_not_nil pm
 
@@ -807,7 +807,7 @@ class GraphqlController12Test < ActionController::TestCase
     t.settings[:languages] << 'pt'
     t.save!
     p = create_project team: t
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
     c = create_claim_description project_media: pm
     fc_1 = create_fact_check claim_description: c
 
@@ -870,7 +870,7 @@ class GraphqlController12Test < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
 
     t = create_team
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
     cd = create_claim_description project_media: pm
     fc = create_fact_check claim_description: cd
 
