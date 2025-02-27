@@ -304,9 +304,10 @@ class TeamType < DefaultObject
   end
 
   field :articles, ::ArticleUnion.connection_type, null: true do
-    argument :article_type, GraphQL::Types::String, required: true, camelize: false
+    argument :article_type, GraphQL::Types::String, required: false, camelize: false
 
     # Sort and pagination
+    argument :limit, GraphQL::Types::Int, required: false, default_value: 10
     argument :offset, GraphQL::Types::Int, required: false, default_value: 0
     argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
     argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
@@ -331,13 +332,18 @@ class TeamType < DefaultObject
     sort = args[:sort].to_s
     order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
-    articles = Explainer.none
-    if args[:article_type] == 'explainer'
-      articles = object.filtered_explainers(args)
-    elsif args[:article_type] == 'fact-check'
-      articles = object.filtered_fact_checks(args)
+    if args[:article_type].blank?
+      limit = context[:current_arguments][:first] || args[:limit]
+      object.filtered_articles(args, limit.to_i, args[:offset].to_i, order, order_type)
+    else
+      articles = nil
+      if args[:article_type] == 'explainer'
+        articles = object.filtered_explainers(args)
+      elsif args[:article_type] == 'fact-check'
+        articles = object.filtered_fact_checks(args)
+      end
+      articles.offset(args[:offset].to_i).order(order => order_type)
     end
-    articles.offset(args[:offset].to_i).order(order => order_type)
   end
 
   field :articles_count, GraphQL::Types::Int, null: true do
@@ -401,6 +407,8 @@ class TeamType < DefaultObject
   def statistics(period:, language: nil, platform: nil)
     TeamStatistics.new(object, period, language, platform)
   end
+
+  field :statistics_platforms, [GraphQL::Types::String], null: true, description: 'List of tipline platforms for which we have data.'
 
   field :bot_query, [TiplineSearchResultType], null: true do
     argument :search_text, GraphQL::Types::String, required: true
