@@ -138,4 +138,20 @@ class ListExportTest < ActiveSupport::TestCase
     assert_equal 1, csv_content.size
     assert_equal 1, export.number_of_rows
   end
+
+  test "should export articles CSV" do
+    t = create_team
+    create_explainer team: t
+    pm = create_project_media team: t
+    cd = create_claim_description project_media: pm
+    create_fact_check claim_description: cd
+
+    export = ListExport.new(:articles, '{}', t.id)
+    csv_url = export.generate_csv_and_send_email(create_user)
+    response = Net::HTTP.get_response(URI(csv_url))
+    assert_equal 200, response.code.to_i
+    csv_content = CSV.parse(response.body, headers: true)
+    assert_equal 2, csv_content.size
+    assert_equal 2, export.number_of_rows
+  end
 end

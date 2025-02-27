@@ -1,0 +1,2 @@
+paths-ignore:
+  - "data/**" # Ignore the localization data directory, which contains unusual characters that cause parsing to fail.

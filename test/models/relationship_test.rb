@@ -326,9 +326,17 @@ class RelationshipTest < ActiveSupport::TestCase
     target = create_project_media team: t
     r = nil
     assert_difference 'Relationship.count' do
-      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type, { user_id: u.id })
+      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
-    assert_equal u.id, r.user_id
+    # should update options if relationship already exists
+    assert_nil r.model
+    another_source = create_project_media team: t
+    r2 = nil
+    assert_no_difference 'Relationship.count' do
+      r2 = Relationship.create_unless_exists(another_source.id, target.id, Relationship.confirmed_type, { model: 'elasticsearch' })
+    end
+    assert_equal r, r2
+    assert_equal 'elasticsearch', r2.model
     r2 = nil
     assert_no_difference 'Relationship.count' do
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
@@ -341,7 +349,7 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_no_difference 'Relationship.count' do
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
-    assert_nil Relationship.where(id: r.id).last
+    assert_equal r.id, r2.id
     assert_equal Relationship.confirmed_type, r2.relationship_type
     Relationship.any_instance.stubs(:save!).raises(ActiveRecord::RecordNotUnique)
     target = create_project_media team: t
@@ -427,5 +435,24 @@ class RelationshipTest < ActiveSupport::TestCase
     create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_equal 4, Relationship.where(source_id: pm1.id, relationship_type: Relationship.suggested_type).count
     assert_equal 0, Relationship.where(source_id: pm2.id, relationship_type: Relationship.suggested_type).count
+  end
+
+  test "should update media origin when bulk-accepting suggestion" do
+    Sidekiq::Testing.inline!
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user is_admin: true
+
+    # Create suggestion
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.suggested_type
+    assert_equal CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED, pm2.media_cluster_origin
+
+    # Accept suggestion
+    with_current_user_and_team u, t do
+      Relationship.bulk_update([r.id], { source_id: pm1.id, action: 'accept' }, t)
+    end
+    assert_equal CheckMediaClusterOrigins::OriginCodes::USER_MATCHED, pm2.media_cluster_origin
   end
 end
