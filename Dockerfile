@@ -10,7 +10,9 @@ ENV RAILS_ENV=development \
     DEPLOYUSER=checkdeploy 
 
 # Install necessary dependencies
-RUN apt-get update -qq && apt-get install --no-install-recommends -y \
+RUN apt-get update -qq && apt-get install -y curl
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     ffmpegthumbnailer \
     ffmpeg \
@@ -32,7 +34,7 @@ RUN useradd -m -s /bin/bash $DEPLOYUSER && \
 
 USER $DEPLOYUSER
 
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} production/bin /opt/bin
+COPY --chown=root:root production/bin /opt/bin
 
 WORKDIR /app
 
@@ -52,6 +54,6 @@ RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
     echo 'IRB.conf[:SAVE_HISTORY] = 200' >> ~/.irbrc && \
     echo 'IRB.conf[:HISTORY_FILE] = ENV["HOME"] + "/.irb-history"' >> ~/.irbrc
 
-RUN chmod +x /app/docker-entrypoint.sh /app/docker-background.sh
+RUN chmod a+w /app/docker-entrypoint.sh /app/docker-background.sh
 EXPOSE 3000
 CMD ["/app/docker-entrypoint.sh"]
