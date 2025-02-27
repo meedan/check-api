@@ -176,4 +176,49 @@ class ExplainerTest < ActiveSupport::TestCase
     User.current = nil
     assert_equal u, ex.author
   end
+
+  test "should assign default channel 'manual' for a regular user" do
+    user = create_user
+    User.current = user
+    # When channel is not provided, it should default to "manual"
+    ex = create_explainer(channel: nil)
+    assert_equal "manual", ex.channel
+    User.current = nil
+  end
+
+  test "should assign default channel 'api' for a BotUser" do
+    bot = create_bot_user(default: true, approved: true)
+    User.current = bot
+    ex = create_explainer(channel: nil)
+    assert_equal "api", ex.channel
+    User.current = nil
+  end
+
+  test "should allow explicit override of channel" do
+    user = create_user
+    User.current = user
+    # Even if the default would be "manual", explicitly providing a valid value should keep it.
+    ex = create_explainer(channel: "imported")
+    assert_equal "imported", ex.channel
+    User.current = nil
+  end
+
+  test "should not allow an invalid channel value" do
+    user = create_user
+    User.current = user
+    assert_raises ActiveRecord::RecordInvalid do
+      create_explainer(channel: "invalid")
+    end
+    User.current = nil
+  end
+
+  test "should not change channel on update if already set" do
+    user = create_user
+    User.current = user
+    ex = create_explainer(channel: "imported")
+    ex.title = "Updated Title"
+    ex.save!
+    assert_equal "imported", ex.reload.channel
+    User.current = nil
+  end
 end
