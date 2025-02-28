@@ -10,11 +10,10 @@ ENV RAILS_ENV=development \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8 \
     LANGUAGE=C.UTF-8 \
-    DEPLOYUSER=checkdeploy \
+    DEPLOYUSER=checkdeploy\
     DEPLOYDIR=/app
 
-ARG UID
-ARG GID
+ARG DIRPATH=/app/check-api
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
@@ -33,28 +32,23 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 # CMD and helper scripts
-COPY --chown=root:root production/bin /opt/bin
+COPY --chown=${DEPLOYUSER} production/bin /opt/bin
 
 # tx client
 RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
-RUN mkdir -p ${DEPLOYDIR} \
-    && chown -R ${DEPLOYUSER}:${DEPLOYUSER} ${DEPLOYDIR} \
-    && chmod -R 775 ${DEPLOYDIR} \
-    && chmod g+s ${DEPLOYDIR}
-
 # install our app
-WORKDIR ${DEPLOYDIR}
+WORKDIR  ${DEPLOYDIR}
 
 USER ${DEPLOYUSER}
 
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile ${DEPLOYDIR}/Gemfile
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
+COPY --chown=${DEPLOYUSER} Gemfile ${DEPLOYDIR}/Gemfile
+COPY --chown=${DEPLOYUSER} Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
 
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . ${DEPLOYDIR}
+COPY --chown=${DEPLOYUSER} ./ .
 
 # remember the Rails console history
 USER ${DEPLOYUSER}
