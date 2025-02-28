@@ -13,8 +13,6 @@ ENV RAILS_ENV=development \
     DEPLOYUSER=checkdeploy\
     DEPLOYDIR=/app
 
-ARG DIRPATH=/app/check-api
-
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -49,6 +47,7 @@ RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
 
 COPY --chown=${DEPLOYUSER} ./ .
+COPY --chown=${DEPLOYUSER} ${DEPLOYDIR}/ ${DEPLOYDIR}/
 
 # remember the Rails console history
 USER ${DEPLOYUSER}
