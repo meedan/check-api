@@ -65,9 +65,11 @@ services:
       - redis
       - minio
     volumes:
-      - "app:/app"
+      - ":/app"
+    user: ${DEPLOYUSER}
     environment:
       RAILS_ENV: development
       SERVER_PORT: 3000
+      DEPLOYUSER: checkdeploy
     networks:
       - dev
