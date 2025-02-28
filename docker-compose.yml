@@ -66,6 +66,7 @@ services:
       - minio
     volumes:
       - ".:/app"
+    user: ${CURRENT_UID}
     environment:
       RAILS_ENV: development
       SERVER_PORT: 3000
