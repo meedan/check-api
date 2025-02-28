@@ -65,7 +65,7 @@ services:
       - redis
       - minio
     volumes:
-      - "./app:/app"
+      - ".:/app"
     user: checkdeploy
     environment:
       RAILS_ENV: development
