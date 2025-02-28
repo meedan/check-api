@@ -48,7 +48,7 @@ WORKDIR ${DEPLOYDIR}
 USER ${DEPLOYUSER}
 
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile ${DEPLOYDIR}/Gemfile
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile.lock$ {DEPLOYDIR}/Gemfile.lock
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
