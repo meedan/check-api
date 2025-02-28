@@ -30,7 +30,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libtag1-dev \
     lsof
 
-RUN addgroup --gid $GID ${DEPLOYUSER}
 RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 # CMD and helper scripts
