@@ -14,7 +14,7 @@ ENV RAILS_ENV=development \
     DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app
 
-RUN useradd ${DEPLOYUSER} -s /bin/bash -m
+RUN useradd --create-home ${DEPLOYUSER} -s /bin/bash 
 
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
