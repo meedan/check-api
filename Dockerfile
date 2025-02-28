@@ -3,7 +3,6 @@ LABEL Meedan="sysops@meedan.com"
 
 # the Rails stage can be overridden from the caller
 
-
 # https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
 
 ENV RAILS_ENV=development \
@@ -67,4 +66,6 @@ RUN chmod +x ${DEPLOYDIR}/docker-entrypoint.sh
 RUN chmod +x ${DEPLOYDIR}/docker-background.sh
 
 EXPOSE 3000
+
+USER ${DEPLOYUSER}
 CMD ["/app/docker-entrypoint.sh"]
