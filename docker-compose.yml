@@ -66,7 +66,7 @@ services:
       - minio
     volumes:
       - ".:/app"
-    user: "1000:1000" 
+    user: "checkdeploy:checkdeploy"
     environment:
       RAILS_ENV: development
       SERVER_PORT: 3000

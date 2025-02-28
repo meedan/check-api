@@ -13,8 +13,8 @@ ENV RAILS_ENV=development \
     DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app
 
-RUN useradd -u 1000 -g 1000  ${DEPLOYUSER} -s /bin/bash -m
-
+ARG UID
+ARG GID
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends curl
 
@@ -29,6 +29,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libpq-dev \
     libtag1-dev \
     lsof
+
+RUN addgroup --gid $GID ${DEPLOYUSER}
+RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 # CMD and helper scripts
 COPY --chown=root:root production/bin /opt/bin
