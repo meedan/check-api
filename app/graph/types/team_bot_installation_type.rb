@@ -52,4 +52,10 @@ class TeamBotInstallationType < DefaultObject
       I18n.t(:cant_preview_rss_feed)
     end
   end
+
+  field :smooch_default_messages, JsonStringType, null: true
+
+  def smooch_default_messages
+    object.smooch_default_messages
+  end
 end
