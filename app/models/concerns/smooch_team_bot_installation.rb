@@ -117,6 +117,14 @@ module SmoochTeamBotInstallation
           api_instance.delete_integration(self.get_smooch_app_id, integration_id) unless integration_id.blank?
         end
       end
+
+      def smooch_default_messages
+        messages = {}
+        self.team.get_languages.to_a.each do |language|
+          messages[language] = TIPLINE_STRINGS[language] if TIPLINE_STRINGS.has_key?(language)
+        end
+        messages
+      end
     end
   end
 end

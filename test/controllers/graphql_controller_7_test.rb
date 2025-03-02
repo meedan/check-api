@@ -462,6 +462,22 @@ class GraphqlController7Test < ActionController::TestCase
     assert_response :success
   end
 
+  test "should get Smooch default messages" do
+    t = create_team private: true
+    t.set_languages = ['es', 'fr']
+    t.save!
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_default_messages } } } } }"
+    post :create, params: { query: query }
+    assert_equal ['es', 'fr'].sort, json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_default_messages').keys
+  end
+
   protected
 
   def assert_error_message(expected)

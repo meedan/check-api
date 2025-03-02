@@ -72089,6 +72089,20 @@
               "deprecationReason": null
             },
             {
+              "name": "smooch_default_messages",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "JsonStringType",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "smooch_enabled_integrations",
               "description": null,
               "args": [
