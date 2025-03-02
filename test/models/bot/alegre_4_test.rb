@@ -89,4 +89,58 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
       Bot::Alegre.store_package(pm, 'title')
     end
   end
+
+  test "Should return similarity models separated by |" do
+    # I simulated a genuine response from QA using CloudWatch with a workspace
+    # that includes the paraphrase-multilingual-mpnet-base-v2 and Elasticsearch models.
+    Bot::Alegre.stubs(:request).returns({
+      "result"=>[
+        {
+          "models"=>["elasticsearch", "xlm-r-bert-base-nli-stsb-mean-tokens", "paraphrase-multilingual-mpnet-base-v2"],
+          "context"=>{"type"=>"explainer", "team_id"=>15},
+          "content"=>"This is for testing alegre response #1",
+          "created_at"=>"2025-02-25T06:44:31.524063",
+          "language"=>nil,
+          "doc_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "contexts"=>[
+            {"team_id"=>15, "type"=>"explainer"},
+            {"team_id"=>15, "type"=>"explainer"}
+          ],
+          "text"=>"This is for testing alegre response #1",
+          "model_xlm-r-bert-base-nli-stsb-mean-tokens"=>1,
+          "model_paraphrase-multilingual-mpnet-base-v2"=>1,
+          "model"=>"elasticsearch",
+          "_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "index"=>"alegre_similarity_multilingual",
+          "_score"=>44.900833,
+          "score"=>44.900833
+        },
+        {
+          "models"=>["elasticsearch", "xlm-r-bert-base-nli-stsb-mean-tokens", "paraphrase-multilingual-mpnet-base-v2"],
+          "context"=>{"type"=>"explainer", "team_id"=>15},
+          "content"=>"This is for testing alegre response #1",
+          "created_at"=>"2025-02-25T06:44:31.524063",
+          "language"=>nil,
+          "doc_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "contexts"=>[
+            {"team_id"=>15, "type"=>"explainer"},
+            {"team_id"=>15, "type"=>"explainer"}
+          ],
+          "text"=>"This is for testing alegre response #1",
+          "model_xlm-r-bert-base-nli-stsb-mean-tokens"=>1,
+          "model_paraphrase-multilingual-mpnet-base-v2"=>1,
+          "model"=>"paraphrase-multilingual-mpnet-base-v2",
+          "_id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "id"=>"a4f1d093-f38c-4cbd-9de1-a9d979713cfa",
+          "index"=>"alegre_similarity_multilingual",
+          "_score"=>1.9715481,
+          "score"=>1.9715481
+        }
+      ]
+    })
+    response = Bot::Alegre.get_similar_items_from_api("text", {})
+    assert_equal ["elasticsearch", "paraphrase-multilingual-mpnet-base-v2"], response[0][:model].split("|").sort
+    Bot::Alegre.unstub(:request)
+  end
 end
