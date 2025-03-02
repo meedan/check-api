@@ -750,7 +750,7 @@ module ProjectMediaCachedFields
           origin[:origin] = CheckMediaClusterOrigins::OriginCodes::USER_MATCHED
           origin[:user_id] = relationship.confirmed_by
           origin[:timestamp] = relationship.confirmed_at.to_i
-        elsif relationship.user == BotUser.alegre_user
+        elsif relationship.user.is_a?(BotUser)
           origin[:origin] = CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED
           origin[:user_id] = relationship.user_id
           origin[:timestamp] = relationship.created_at.to_i
