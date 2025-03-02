@@ -90,30 +90,11 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     end
   end
 
-  test "CV2-6051" do
+  test "Should return similarity models separated by |" do
+    # I simulated a genuine response from QA using CloudWatch with a workspace
+    # that includes the paraphrase-multilingual-mpnet-base-v2 and Elasticsearch models.
     Bot::Alegre.stubs(:request).returns({
       "result"=>[
-        {
-          "models"=>["elasticsearch", "xlm-r-bert-base-nli-stsb-mean-tokens", "paraphrase-multilingual-mpnet-base-v2"],
-          "context"=>{"type"=>"explainer", "team_id"=>15},
-          "content"=>"This is for testing alegre response",
-          "created_at"=>"2025-02-25T06:43:45.775739",
-          "language"=>nil,
-          "doc_id"=>"a664e22b-2738-4b98-b205-6239de244653",
-          "contexts"=>[
-            {"team_id"=>15, "type"=>"explainer"},
-            {"team_id"=>15, "type"=>"explainer"}
-          ],
-          "text"=>"This is for testing alegre response",
-          "model_xlm-r-bert-base-nli-stsb-mean-tokens"=>1,
-          "model_paraphrase-multilingual-mpnet-base-v2"=>1,
-          "model"=>"elasticsearch",
-          "_id"=>"a664e22b-2738-4b98-b205-6239de244653",
-          "id"=>"a664e22b-2738-4b98-b205-6239de244653",
-          "index"=>"alegre_similarity_multilingual",
-          "_score"=>46.06687,
-          "score"=>46.06687
-        },
         {
           "models"=>["elasticsearch", "xlm-r-bert-base-nli-stsb-mean-tokens", "paraphrase-multilingual-mpnet-base-v2"],
           "context"=>{"type"=>"explainer", "team_id"=>15},
@@ -159,7 +140,7 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
       ]
     })
     response = Bot::Alegre.get_similar_items_from_api("text", {})
-    pp response
+    assert_equal ["elasticsearch", "paraphrase-multilingual-mpnet-base-v2"], response[0][:model].split("|").sort
     Bot::Alegre.unstub(:request)
   end
 end
