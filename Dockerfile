@@ -45,13 +45,15 @@ WORKDIR  ${DEPLOYDIR}
 
 USER ${DEPLOYUSER}
 
-COPY --chown=${DEPLOYUSER} Gemfile ${DEPLOYDIR}/Gemfile
-COPY --chown=${DEPLOYUSER} Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
+# COPY --chown=${DEPLOYUSER} Gemfile ${DEPLOYDIR}/Gemfile
+# COPY --chown=${DEPLOYUSER} Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
+COPY --chown=checkdeploy:www-data Gemfile ${DEPLOYDIR}/Gemfile
+COPY --chown=checkdeploy:www-data Gemfile.lock ${DEPLOYDIR}/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
 
-COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . ${DEPLOYDIR}
+COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 
 # remember the Rails console history
 USER ${DEPLOYUSER}
@@ -60,11 +62,11 @@ RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
     echo 'IRB.conf[:SAVE_HISTORY] = 200' >> ~/.irbrc && \
     echo 'IRB.conf[:HISTORY_FILE] = ENV["HOME"] + "/.irb-history"' >> ~/.irbrc
 
+
+USER ${DEPLOYUSER}
 # startup
 RUN chmod +x ${DEPLOYDIR}/docker-entrypoint.sh
 RUN chmod +x ${DEPLOYDIR}/docker-background.sh
 
 EXPOSE 3000
-
-USER ${DEPLOYUSER}
 CMD ["/app/docker-entrypoint.sh"]
