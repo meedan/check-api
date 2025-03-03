@@ -350,4 +350,30 @@ class TagTest < ActiveSupport::TestCase
     Tag.create_project_media_tags(pm.id, ['one', 'two', 'three'].to_json)
     assert_equal 3, pm.reload.annotations('tag').count
   end
+
+  test "all_sorted returns tags sorted by created_at" do
+    t1 = create_tag(tag: 'a')
+    t1.update_columns(created_at: 2.days.ago)
+    t2 = create_tag(tag: 'b')
+    t2.update_columns(created_at: 1.day.ago)
+
+    sorted_asc = Tag.all_sorted('asc', 'created_at')
+    assert_operator sorted_asc.first.created_at, :<, sorted_asc.last.created_at
+
+    sorted_desc = Tag.all_sorted('desc', 'created_at')
+    assert_operator sorted_desc.first.created_at, :>, sorted_desc.last.created_at
+  end
+
+  test "current_team returns the team when annotated is ProjectMedia" do
+    u = create_user
+    team = create_team
+    p = create_project(team: team)
+    pm = create_project_media(project: p, user: u)
+    
+    tag = create_tag(annotated: pm)
+    tag.annotated_type = 'ProjectMedia'
+    tag.save
+    
+    assert_equal team, tag.current_team
+  end
 end
