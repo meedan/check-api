@@ -65,8 +65,8 @@ RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
 
 USER ${DEPLOYUSER}
 # startup
-RUN chmod +x ${DEPLOYDIR}/docker-entrypoint.sh
-RUN chmod +x ${DEPLOYDIR}/docker-background.sh
+RUN chmod a+x ${DEPLOYDIR}/docker-entrypoint.sh
+RUN chmod a+x ${DEPLOYDIR}/docker-background.sh
 
 EXPOSE 3000
 CMD ["/app/docker-entrypoint.sh"]
