@@ -279,6 +279,8 @@ jobs:
 
     - name: Wait for the server to be ready
       run: |
+        chmod 644 log/test.log
+        tail -f log/test.log &
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
 
     - name: Set up Parallel Environment
