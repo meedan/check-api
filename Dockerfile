@@ -32,6 +32,11 @@ RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 # CMD and helper scripts
 COPY --chown=${DEPLOYUSER} production/bin /opt/bin
 
+RUN mkdir -p ${DEPLOYDIR} \
+    && chown -R ${DEPLOYUSER}:www-data ${DEPLOYDIR} \
+    && chmod -R 775 ${DEPLOYDIR} \
+    && chmod g+s ${DEPLOYDIR}
+
 # tx client
 RUN curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
@@ -46,8 +51,7 @@ RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
 
-COPY --chown=${DEPLOYUSER} ./ .
-COPY --chown=${DEPLOYUSER} ${DEPLOYDIR}/ ${DEPLOYDIR}/
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . ${DEPLOYDIR}
 
 # remember the Rails console history
 USER ${DEPLOYUSER}
