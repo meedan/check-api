@@ -13475,6 +13475,7 @@ type TeamBotInstallation implements Node {
   lock_version: Int
   permissions: String
   smooch_bot_preview_rss_feed(number_of_articles: Int!, rss_feed_url: String!): String
+  smooch_default_messages: JsonStringType
   smooch_enabled_integrations(force: Boolean): JsonStringType
   team: Team
   updated_at: String
