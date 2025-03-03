@@ -1601,4 +1601,18 @@ class Team2Test < ActiveSupport::TestCase
     complex_url = "https://example.com/team123/extra/info"
     assert_equal "team123", Team.slug_from_url(complex_url)
   end
+
+  test "should return statistics platforms" do
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    create_tipline_request project_media: pm1, platform: 'whatsapp'
+    create_tipline_request project_media: pm2, platform: 'telegram'
+    assert_equal ['telegram', 'whatsapp'].sort, t.statistics_platforms.sort
+  end
+
+  test "should return empty array if no statistics platforms" do
+    t = create_team
+    assert_equal [], t.statistics_platforms
+  end
 end
