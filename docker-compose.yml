@@ -69,6 +69,6 @@ services:
     environment:
       RAILS_ENV: development
       SERVER_PORT: 3000
-    user: "${DEPLOYUSER}"
+      DEPLOYUSER: "${DEPLOYUSER}"
     networks:
       - dev
