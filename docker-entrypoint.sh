@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Wait for Elasticsearch
-CURRENT_UID=$(id -u):$(id -g)
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 
 # Rake tasks
@@ -17,6 +16,7 @@ bundle exec rails lapis:api_keys:create_default
 
 # App server
 mkdir -p /app/tmp/pids
+chown ${DEPLOYUSER}:${DEPLOYUSER} /app/tmp/pids
 rm -f /app/tmp/pids/server-$RAILS_ENV.pid
 if [ "$RAILS_ENV" == "test" ]
 then
