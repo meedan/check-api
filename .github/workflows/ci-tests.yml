@@ -255,6 +255,7 @@ jobs:
         export LC_ALL=C.UTF-8
         export LANG=C.UTF-8
         export LANGUAGE=C.UTF-8
+        export DEPLOYUSER=checkdeploy
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
 
     - name: Set up Configuration Files
