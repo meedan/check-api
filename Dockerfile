@@ -3,7 +3,7 @@ LABEL Meedan="sysops@meedan.com"
 
 # Setup a user account
 ENV DEPLOYUSER=checkdeploy \
-    DEPLOYDIR=/app/current \
+    DEPLOYDIR=/app \
     RAILS_ENV=development \
     MALLOC_ARENA_MAX=2 \
     LC_ALL=C.UTF-8 \
@@ -63,4 +63,4 @@ USER ${DEPLOYUSER}
 RUN chmod +x ${DEPLOYDIR}/docker-entrypoint.sh
 RUN chmod +x ${DEPLOYDIR}/docker-background.sh
 EXPOSE 3000
-CMD ["/app/current/docker-entrypoint.sh"]
+CMD ["/app/docker-entrypoint.sh"]
