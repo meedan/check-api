@@ -1,5 +1,5 @@
 FROM ruby:3.0-slim
-MAINTAINER Meedan <sysops@meedan.com>
+LABEL Meedan="sysops@meedan.com"
 
 # the Rails stage can be overridden from the caller
 
@@ -45,7 +45,9 @@ COPY Gemfile.lock /app/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc && gem install bundler
 RUN bundle config force_ruby_platform true
 RUN bundle install --jobs 20 --retry 5
-COPY . /app
+
+# Copy the application code and change ownership to the non-root user
+COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . /app
 
 # remember the Rails console history
 RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
@@ -55,5 +57,9 @@ RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
 # startup
 RUN chmod +x /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-background.sh
+
+# Switch to the non-root user
+USER ${DEPLOYUSER}
+
 EXPOSE 3000
 CMD ["/app/docker-entrypoint.sh"]
