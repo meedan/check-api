@@ -69,7 +69,5 @@ services:
     environment:
       RAILS_ENV: development
       SERVER_PORT: 3000
-      # DEPLOYUSER: checkdeploy
-      # user: checkdeploy
     networks:
       - dev
