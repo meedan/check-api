@@ -276,6 +276,9 @@ jobs:
     - name: Run Container
       run: docker compose -f docker-compose.yml -f docker-test.yml up -d
 
+    - name: verify user
+      run: docker compose exec -T api whoami
+
     - name: Wait for the server to be ready
       env:
         DEPLOYUSER: checkdeploy
