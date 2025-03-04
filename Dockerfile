@@ -56,9 +56,8 @@ RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
     echo 'IRB.conf[:SAVE_HISTORY] = 200' >> ~/.irbrc && \
     echo 'IRB.conf[:HISTORY_FILE] = ENV["HOME"] + "/.irb-history"' >> ~/.irbrc
 
-# COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
+COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 
-COPY . /app
 USER ${DEPLOYUSER}
 # startup
 RUN chmod +x ${DEPLOYDIR}/docker-entrypoint.sh
