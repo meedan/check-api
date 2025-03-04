@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wait for Elasticsearch
-CURRENT_UID=$(id -u):$(id -g)
+# CURRENT_UID=$(id -u):$(id -g)
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 
 # Rake tasks
