@@ -3,6 +3,10 @@
 # Wait for Elasticsearch
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 
+umask 022
+
+LOGFILE=${DEPLOYDIR}/log/${RAILS_ENV}.log
+
 # Rake tasks
 bin/rails db:environment:set RAILS_ENV=$RAILS_ENV || true
 if [ "$RAILS_ENV" == "test" ]
@@ -16,7 +20,7 @@ bundle exec rails lapis:api_keys:create_default
 
 # App server
 mkdir -p /app/tmp/pids
-chown ${DEPLOYUSER}:${DEPLOYUSER} /app/tmp/pids
+mkdir -p /app/log
 rm -f /app/tmp/pids/server-$RAILS_ENV.pid
 if [ "$RAILS_ENV" == "test" ]
 then
