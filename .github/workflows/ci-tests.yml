@@ -277,6 +277,8 @@ jobs:
       run: docker compose -f docker-compose.yml -f docker-test.yml up -d
 
     - name: Wait for the server to be ready
+      env:
+        DEPLOYUSER: checkdeploy
       run: |
         docker compose exec -T api tail -f log/test.log &
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
