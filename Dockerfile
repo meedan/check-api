@@ -60,7 +60,7 @@ COPY --chown=checkdeploy:www-data . ${DEPLOYDIR}
 
 USER ${DEPLOYUSER}
 # startup
-RUN chmod +x /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-background.sh
+RUN chmod +x /${DEPLOYDIR}/docker-entrypoint.sh
+RUN chmod +x /${DEPLOYDIR}/docker-background.sh
 EXPOSE 3000
-CMD ["/app/docker-entrypoint.sh"]
+CMD ["/app/current/docker-entrypoint.sh"]
