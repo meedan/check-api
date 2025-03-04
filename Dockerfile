@@ -48,6 +48,7 @@ RUN bundle install --jobs 20 --retry 5
 
 # Copy the application code and change ownership to the non-root user
 COPY --chown=${DEPLOYUSER}:${DEPLOYUSER} . /app
+RUN chown -R ${DEPLOYUSER}:${DEPLOYUSER} /app
 
 # remember the Rails console history
 RUN echo 'require "irb/ext/save-history"' > ~/.irbrc && \
