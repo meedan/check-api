@@ -906,4 +906,94 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response 400
     assert_equal 'This item already exists', JSON.parse(@response.body).dig('errors', 0, 'message')
   end
+
+  test "should return fact_check channel in team articles query when filtered by channel" do
+    # Create two fact-checks with different channel values.
+    pm1 = create_project_media team: @t
+    cd1 = create_claim_description(project_media: pm1)
+    fc_manual = create_fact_check(claim_description: cd1, channel: "manual", trashed: false)
+  
+    pm2 = create_project_media team: @t
+    cd2 = create_claim_description(project_media: pm2)
+    fc_api = create_fact_check(claim_description: cd2, channel: "api", trashed: false)
+
+    authenticate_with_user(@u)
+
+    query = <<-GRAPHQL
+      query {
+        team(slug: "#{@t.slug}") {
+          articles(article_type: "fact-check", channel: "manual") {
+            edges {
+              node {
+                ... on FactCheck {
+                  dbid
+                  channel
+                }
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    articles = JSON.parse(@response.body)['data']['team']['articles']['edges']
+    articles.each do |edge|
+      assert_equal "manual", edge['node']['channel']
+    end
+  end
+
+  test "should create explainer with default channel via GraphQL mutation" do
+    # When a regular user creates an explainer without an explicit channel,
+    # the Article concern callback should set it to "manual".
+    authenticate_with_user(@u)
+    query = <<-GRAPHQL
+      mutation {
+        createExplainer(input: {
+          title: "GraphQL Explainer Default",
+          description: "Test description",
+          url: "http://test.com",
+          language: "en"
+        }) {
+          explainer {
+            dbid
+            channel
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    result = JSON.parse(@response.body)['data']['createExplainer']['explainer']
+    assert_equal "manual", result["channel"]
+  end
+
+  test "should create fact_check with explicit channel via GraphQL mutation" do
+    authenticate_with_user(@u)
+    # Create a project media and claim description for the FactCheck
+    pm = create_project_media(team: @t)
+    cd = create_claim_description(project_media: pm)
+
+    query = <<-GRAPHQL
+      mutation {
+        createFactCheck(input: {
+          title: "GraphQL FactCheck Explicit",
+          summary: "Test summary",
+          language: "en",
+          url: "http://test.com",
+          channel: "zapier",
+          claim_description_id: #{cd.id}
+        }) {
+          fact_check {
+            dbid
+            channel
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success, @response.body
+    result = JSON.parse(@response.body)['data']['createFactCheck']['fact_check']
+    assert_equal "zapier", result["channel"]
+  end
 end
