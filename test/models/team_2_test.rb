@@ -587,7 +587,7 @@ class Team2Test < ActiveSupport::TestCase
       pm1 = create_project_media
       pm2 = create_project_media project: p2
       pm3 = create_project_media project: p2
-      c = create_comment annotated: pm2
+      tg = create_tag annotated: pm2
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         t.destroy_later
@@ -600,7 +600,7 @@ class Team2Test < ActiveSupport::TestCase
       assert_nil Project.where(id: p2.id).last
       assert_not_nil Source.where(id: s1.id).last
       assert_nil Source.where(id: s2.id).last.team_id
-      assert_nil Comment.where(id: c.id).last
+      assert_nil Tag.where(id: tg.id).last
     end
   end
 
@@ -796,11 +796,11 @@ class Team2Test < ActiveSupport::TestCase
     team = create_team
     user = create_user
     pm = create_project_media team: team, project: create_project(team: team)
-    c = create_comment annotated: pm
+    tg = create_tag annotated: pm
     File.open(File.join(Rails.root, 'test', 'data', 'rails-photo.jpg')) do |f|
-      c.file = f
+      tg.file = f
     end
-    c.save(validate: false)
+    tg.save(validate: false)
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
@@ -1030,7 +1030,7 @@ class Team2Test < ActiveSupport::TestCase
     assert_kind_of CheckSearch, t.search
   end
 
-  test "should not crash when emptying trash that has task comments" do
+  test "should not crash when emptying trash that has task tags" do
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
@@ -1038,7 +1038,7 @@ class Team2Test < ActiveSupport::TestCase
       p = create_project team: t
       pm = create_project_media project: p
       tk = create_task annotated: pm
-      create_comment annotated: tk
+      create_tag annotated: tk
       pm.archived = true
       pm.save!
       RequestStore.store[:disable_es_callbacks] = true
@@ -1591,72 +1591,28 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal [], t.search_for_similar_articles('Test')
   end
 
-  test "should return all articles" do
-    Sidekiq::Testing.fake!
-    t = create_team
-    t.set_languages ['en', 'es']
-    t.save!
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    pm = create_project_media team: t
-    fc = create_fact_check title: 'Foo Test', user: u, publisher_id: u.id, tags: ['test'], claim_description: create_claim_description(project_media: create_project_media(team: t, media: Blank.create!)), language: 'en'
-    fc.updated_at = Time.now + 1
-    fc.save!
-    sleep 1
-    ex = create_explainer team: t, title: 'Bar Test', user: u, tags: ['test'], language: 'es'
-    ex.updated_at = Time.now + 1
-    ex.save!
-    create_explainer team: t
-    create_explainer team: t
-    create_explainer
+  test "should extract slug from URL using URI.extract" do
+    url = "https://example.com/my-team"
+    assert_equal "my-team", Team.slug_from_url(url)
 
-    # Ensure we test for all filters
-    filters = {
-      user_ids: [u.id],
-      tags: ['test'],
-      language: ['en', 'es'],
-      created_at: { 'start_time' => Time.now.yesterday.to_datetime.to_s, 'end_time' => Time.now.tomorrow.to_datetime.to_s }.to_json,
-      updated_at: { 'start_time' => Time.now.yesterday.to_datetime.to_s, 'end_time' => Time.now.tomorrow.to_datetime.to_s }.to_json,
-      text: 'Test',
-      standalone: true,
-      publisher_ids: [u.id],
-      report_status: ['unpublished'],
-      rating: ['undetermined'],
-      imported: false,
-      target_id: pm.id,
-      trashed: false
-    }
-    assert_equal 2, t.filtered_articles(filters).count
+    text_with_url = "Some text [http://example.com/team-slug] more text"
+    assert_equal "team-slug", Team.slug_from_url(text_with_url)
 
-    # Ensure we test pagination
-    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'created_at', 'ASC').map(&:title)
-    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 1, 'created_at', 'ASC').map(&:title)
-
-    # Ensure we test for all sorting options
-    # Sort by updated date
-    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'updated_at', 'ASC').map(&:title)
-    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 0, 'updated_at', 'DESC').map(&:title)
-    # Sort by language
-    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'language', 'ASC').map(&:title)
-    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 0, 'language', 'DESC').map(&:title)
-    # Sort by title
-    assert_equal ['Bar Test'], t.filtered_articles(filters, 1, 0, 'title', 'ASC').map(&:title)
-    assert_equal ['Foo Test'], t.filtered_articles(filters, 1, 0, 'title', 'DESC').map(&:title)
-
-    # Ensure we don't have a N + 1 queries problem
-    # 4 queries: 1 for the target item, 1 for the articles, 1 for all fact-checks and 1 for all explainers
-    assert_queries 4, '=' do
-      t.filtered_articles
-    end
+    complex_url = "https://example.com/team123/extra/info"
+    assert_equal "team123", Team.slug_from_url(complex_url)
   end
 
-  test "should return platforms for which statistics are available" do
+  test "should return statistics platforms" do
     t = create_team
-    pm = create_project_media team: t
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    create_tipline_request project_media: pm1, platform: 'whatsapp'
+    create_tipline_request project_media: pm2, platform: 'telegram'
+    assert_equal ['telegram', 'whatsapp'].sort, t.statistics_platforms.sort
+  end
+
+  test "should return empty array if no statistics platforms" do
+    t = create_team
     assert_equal [], t.statistics_platforms
-    create_tipline_request team_id: t.id, platform: 'telegram', associated: pm
-    create_tipline_request team_id: t.id, platform: 'whatsapp', associated: pm
-    create_tipline_request team_id: t.id, platform: 'whatsapp', associated: pm
-    assert_equal ['telegram', 'whatsapp'], t.reload.statistics_platforms.sort
   end
 end

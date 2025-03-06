@@ -564,11 +564,11 @@ class UserTest < ActiveSupport::TestCase
 
   test "should get annotations from user" do
     u = create_user
-    c = create_comment annotator: u
-    create_comment
+    t = create_tag annotator: u
+    create_tag
     d = create_dynamic_annotation annotator: u
-    assert_equal [d, c], u.annotations.to_a
-    assert_equal [c], u.annotations('comment').to_a
+    assert_equal [d, t], u.annotations.to_a
+    assert_equal [t], u.annotations('tag').to_a
   end
 
   test "should have JSON settings" do
