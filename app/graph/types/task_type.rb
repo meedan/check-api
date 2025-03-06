@@ -7,7 +7,6 @@ class TaskType < BaseObject
 
   field :label, GraphQL::Types::String, null: true
   field :type, GraphQL::Types::String, null: true
-  field :annotated_type, GraphQL::Types::String, null: true
   field :description, GraphQL::Types::String, null: true
   field :json_schema, GraphQL::Types::String, null: true
   field :slug, GraphQL::Types::String, null: true
