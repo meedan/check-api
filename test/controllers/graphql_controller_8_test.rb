@@ -125,6 +125,50 @@ class GraphqlController8Test < ActionController::TestCase
     assert_no_match /items_count:0/, data['verification_statuses'].to_json
   end
 
+  test "should get nested tag" do
+    admin_user = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    tag1 = create_tag annotated: pm, tag: 'Parent'
+    tag2 = create_tag annotated: tag1, tag: 'Child'
+    authenticate_with_user(admin_user)
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          tags: annotations(first: 10000, annotation_type: "tag") {
+            edges {
+              node {
+                ... on Tag {
+                  id
+                  tag_text
+                  tags: annotations(first: 10000, annotation_type: "tag") {
+                    edges {
+                      node {
+                        ... on Tag {
+                          id
+                          tag_text
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    tags = JSON.parse(@response.body)['data']['project_media']['tags']['edges']
+    assert_equal 1, tags.size
+    assert_equal 'Parent', tags[0]['node']['tag_text']
+    child_tags = tags[0]['node']['tags']['edges']
+    assert_equal 1, child_tags.size
+    assert_equal 'Child', child_tags[0]['node']['tag_text']
+  end
+
   test "should get project using API key" do
     t = create_team
     a = create_api_key
