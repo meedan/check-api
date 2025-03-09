@@ -6,9 +6,6 @@ class MutationType < BaseObject
 
   graphql_name "MutationType"
 
-  field :createComment, mutation: CommentMutations::Create
-  field :updateComment, mutation: CommentMutations::Update
-
   field :createSource, mutation: SourceMutations::Create
   field :updateSource, mutation: SourceMutations::Update
 

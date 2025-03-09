@@ -189,15 +189,6 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     assert_equal 1, pm.completed_tasks_count
   end
 
-  test "should get comments for oEmbed" do
-    pm = create_project_media
-    assert_equal [], pm.comments
-    assert_equal 0, pm.comments_count
-    c = create_comment annotated: pm
-    assert_equal [c], pm.comments
-    assert_equal 1, pm.comments_count
-  end
-
   test "should get provider for oEmbed" do
     url = 'http://twitter.com/test/123456'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -273,7 +264,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     PenderClient::Request.expects(:get_medias).returns(nil).times(16)
 
     Sidekiq::Testing.inline! do
-      create_comment annotated: pm, user: u
+      create_tag annotated: pm, user: u
       create_task annotated: pm, user: u
     end
 
