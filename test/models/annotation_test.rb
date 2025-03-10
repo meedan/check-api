@@ -15,62 +15,62 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should get annotations with limit and offset" do
     s = create_project_media
-    c1 = create_comment annotated: s, text: '1'
-    c2 = create_comment annotated: s, text: '2'
-    c3 = create_comment annotated: create_project_media, text: '3'
-    c4 = create_comment annotated: s, text: '4'
-    assert_equal ['4', '2', '1'], s.annotation_relation.to_a.collect{ |a| a.data[:text] }
-    assert_equal ['2'], s.annotation_relation.offset(1).limit(1).collect{ |a| a.data[:text] }
+    t1 = create_task annotated: s, label: '1'
+    t2 = create_task annotated: s, label: '2'
+    t3 = create_task annotated: create_project_media, label: '3'
+    t4 = create_task annotated: s, label: '4'
+    assert_equal ['4', '2', '1'], s.annotation_relation.to_a.collect{ |a| a.data[:label] }
+    assert_equal ['2'], s.annotation_relation.offset(1).limit(1).collect{ |a| a.data[:label] }
   end
 
   test "should not load if does not exist" do
-    create_comment
-    c = Annotation.all.last
-    assert_equal c, c.load
-    c.disable_es_callbacks = true
-    c.destroy
-    assert_nil c.load
+    create_task
+    t = Annotation.all.last
+    assert_equal t, t.load
+    t.disable_es_callbacks = true
+    t.destroy
+    assert_nil t.load
   end
 
   test "should get annotations by type" do
-    c = create_comment annotated: nil
+    d = create_dynamic_annotation annotated: nil
     t = create_tag
     s = create_project_media
-    s.add_annotation c
+    s.add_annotation d
     s.add_annotation t
-    assert_equal [c], s.annotations('comment')
+    assert_equal [d], s.annotations('dynamic')
     assert_equal [t], s.annotations('tag')
   end
 
   test "should be an annotation" do
     s = create_source
     assert !s.is_annotation?
-    c = create_comment
-    assert c.is_annotation?
+    t = create_task
+    assert t.is_annotation?
   end
 
   test "should get annotation team" do
     t = create_team
     p = create_project team: t
     m = create_valid_media
-    mc = create_comment annotated: nil
+    m1 = create_metadata annotated: nil
     pm = create_project_media project: p, media: m
-    pm.add_annotation mc
-    assert_equal mc.team, t
-    c = create_comment annotated: nil
-    assert_nil c.team
+    pm.add_annotation m1
+    assert_equal m1.team, t
+    m2 = create_metadata annotated: nil
+    assert_nil m2.team
   end
 
   test "should have number of annotations" do
     s = create_project_media
-    3.times{ create_comment(annotated: s) }
+    3.times{ create_tag(annotated: s) }
     assert_equal 3, s.annotations_count
   end
 
   test "should get child annotations" do
-    c1 = create_comment annotated: nil
-    c2 = create_comment annotated: c1
-    assert_equal [c2], c1.annotations
+    m = create_metadata annotated: nil
+    m2 = create_metadata annotated: m
+    assert_equal [m2], m.annotations
   end
 
   test "should get permissions" do
@@ -79,10 +79,10 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user user: u, team: t
     p  = create_project team: t
     pm = create_project_media
-    c = create_comment
-    pm.add_annotation c
+    task = create_task
+    pm.add_annotation task
     with_current_user_and_team(u, t) do
-      assert_equal ['read Comment', 'update Comment', 'destroy Comment'], JSON.parse(c.permissions).keys
+      assert_equal ['read Task', 'update Task', 'destroy Task'], JSON.parse(task.permissions).keys
     end
   end
 
@@ -93,23 +93,23 @@ class AnnotationTest < ActiveSupport::TestCase
     p = create_project team: t
     m = create_media team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm
+    tag = create_tag annotated: pm
     pu = create_user
     pt = create_team private: true
     create_team_user team: pt, user: pu
     pp = create_project team: pt
     ppm = create_project_media project: pp
-    pc = create_comment annotated: ppm
+    tag2 = create_tag annotated: ppm
 
-    with_current_user_and_team(u, t) { Comment.find_if_can(c.id) }
+    with_current_user_and_team(u, t) { Tag.find_if_can(tag.id) }
     assert_raise CheckPermissions::AccessDenied do
-      with_current_user_and_team(u, pt) { Comment.find_if_can(pc.id) }
+      with_current_user_and_team(u, pt) { Tag.find_if_can(tag2.id) }
     end
-    with_current_user_and_team(pu, pt) { Comment.find_if_can(pc.id) }
+    with_current_user_and_team(pu, pt) { Tag.find_if_can(tag2.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
     assert_raise CheckPermissions::AccessDenied do
-      with_current_user_and_team(pu, pt) { Comment.find_if_can(pc.id) }
+      with_current_user_and_team(pu, pt) { Tag.find_if_can(tag2.id) }
     end
   end
 
@@ -122,13 +122,13 @@ class AnnotationTest < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     s = create_status annotated: pm, locked: true, status: 'undetermined'
-    c = create_comment annotated: pm, locked: true
+    tag = create_tag annotated: pm, locked: true
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
         s.status = 'false'; s.save!
       end
       assert_nothing_raised do
-        c.text = 'update comment'; c.save!
+        tag.tag = 'update tag'; tag.save!
       end
     end
     with_current_user_and_team(u2, t) do
@@ -142,27 +142,27 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should get right number of annotations" do
     f = create_flag
-    c = create_comment
+    t = create_task
     assert_equal 1, Dynamic.where(annotation_type: 'flag').count
-    assert_equal 1, Comment.length
+    assert_equal 1, Task.length
   end
 
   test "should get dbid" do
-    c = create_comment
-    assert_equal c.id, c.dbid
+    t = create_task
+    assert_equal t.id, t.dbid
   end
 
   test "should get annotations from multiple types" do
     pm = create_project_media
-    c = create_comment annotated: pm
+    t = create_task annotated: pm
     s = create_status annotated: pm, status: 'verified'
     f = create_flag annotated: pm
-    assert_equal 2, pm.annotations(['comment', 'flag']).size
+    assert_equal 2, pm.annotations(['task', 'flag']).size
   end
 
   test "should get core type class" do
-    c = create_comment
-    assert_equal Comment, Annotation.last.annotation_type_class
+    t = create_task
+    assert_equal Task, Annotation.last.annotation_type_class
   end
 
   test "should get dynamic type class" do
@@ -171,19 +171,19 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should get annotator id for migration" do
-    c = Comment.new
-    assert_nil c.send(:annotator_id_callback, 'test@test.com')
+    t = Tag.new
+    assert_nil t.send(:annotator_id_callback, 'test@test.com')
     u = create_user(email: 'test@test.com')
-    assert_equal u.id, c.send(:annotator_id_callback, 'test@test.com')
+    assert_equal u.id, t.send(:annotator_id_callback, 'test@test.com')
   end
 
   test "should get annotated id for migration" do
     pm = create_project_media
     mapping = Hash.new
-    c = Comment.new
-    assert_nil c.send(:annotated_id_callback, 1, mapping)
+    t = Tag.new
+    assert_nil t.send(:annotated_id_callback, 1, mapping)
     mapping[1] = pm.id
-    assert_equal pm.id, c.send(:annotated_id_callback, 1, mapping)
+    assert_equal pm.id, t.send(:annotated_id_callback, 1, mapping)
   end
 
   test "should create version when annotation is destroyed" do
@@ -263,9 +263,9 @@ class AnnotationTest < ActiveSupport::TestCase
     tu = create_team_user user: u, team: t, status: 'member'
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm
-    u.assign_annotation(c)
-    assert_equal [u], c.reload.assigned_users
+    task = create_task annotated: pm
+    u.assign_annotation(task)
+    assert_equal [u], task.reload.assigned_users
   end
 
   test "should not assign annotation to user if user is not a member of the same team as the annotation" do
@@ -273,11 +273,11 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm
+    task = create_task annotated: pm
     assert_raises ActiveRecord::RecordInvalid do
-      c.assign_user(u.id)
+      task.assign_user(u.id)
     end
-    assert_equal [], c.reload.assignments
+    assert_equal [], task.reload.assignments
   end
 
   test "should get annotations assigned to user" do
@@ -286,13 +286,13 @@ class AnnotationTest < ActiveSupport::TestCase
     tu = create_team_user user: u, team: t, status: 'member'
     p = create_project team: t
     pm = create_project_media project: p
-    c1 = create_comment annotated: pm
-    c2 = create_comment annotated: pm
-    c3 = create_comment annotated: pm
-    c1.assign_user(u.id)
-    c2.assign_user(u.id)
-    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u).sort
-    assert_equal [c1, c2].sort, Annotation.assigned_to_user(u.id).sort
+    task1 = create_task annotated: pm
+    task2 = create_task annotated: pm
+    task3 = create_task annotated: pm
+    task1.assign_user(u.id)
+    task2.assign_user(u.id)
+    assert_equal [task1, task2].sort, Annotation.assigned_to_user(u).sort
+    assert_equal [task1, task2].sort, Annotation.assigned_to_user(u.id).sort
   end
 
   test "should get project medias assigned to user" do
@@ -313,14 +313,14 @@ class AnnotationTest < ActiveSupport::TestCase
     s2 = create_status status: 'verified', annotated: pm2
     s3 = create_status status: 'verified', annotated: pm1
     s4 = create_status status: 'verified', annotated: pm4
-    c1 = create_comment annotated: pm1
-    c2 = create_comment annotated: pm3
+    task1 = create_task annotated: pm1
+    task2 = create_task annotated: pm3
     s1.assign_user(u.id)
     s2.assign_user(u.id)
     s3.assign_user(u.id)
     s4.assign_user(u2.id)
-    c1.assign_user(u.id)
-    c2.assign_user(u.id)
+    task1.assign_user(u.id)
+    task2.assign_user(u.id)
     Assignment.create! assigned: p2, user: u
     assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id').sort
   end
@@ -362,37 +362,37 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm
+    task = create_task annotated: pm
     u1 = create_user
     u2 = create_user
     u3 = create_user
     u4 = create_user
     [u1, u2, u3, u4].each{ |u| create_team_user(user: u, team: t) }
     assert_difference 'Assignment.count', 2 do
-      c.assigned_to_ids = [u1.id, u2.id].join(',')
-      c.save!
+      task.assigned_to_ids = [u1.id, u2.id].join(',')
+      task.save!
     end
-    assert_equal [u1, u2].sort, c.assigned_users.sort
+    assert_equal [u1, u2].sort, task.assigned_users.sort
     assert_no_difference 'Assignment.count' do
-      c.assigned_to_ids = [u3.id, u4.id].join(',')
-      c.save!
+      task.assigned_to_ids = [u3.id, u4.id].join(',')
+      task.save!
     end
-    assert_equal [u3, u4].sort, c.assigned_users.sort
+    assert_equal [u3, u4].sort, task.assigned_users.sort
     assert_difference 'Assignment.count', -1 do
-      c.assigned_to_ids = [u3.id].join(',')
-      c.save!
+      task.assigned_to_ids = [u3.id].join(',')
+      task.save!
     end
-    assert_equal [u3], c.assigned_users
+    assert_equal [u3], task.assigned_users
     assert_difference 'Assignment.count', 3 do
-      c.assigned_to_ids = [u1.id, u2.id, u3.id, u4.id].join(',')
-      c.save!
+      task.assigned_to_ids = [u1.id, u2.id, u3.id, u4.id].join(',')
+      task.save!
     end
-    assert_equal [u1, u2, u3, u4].sort, c.assigned_users.sort
+    assert_equal [u1, u2, u3, u4].sort, task.assigned_users.sort
     assert_difference 'Assignment.count', -1 do
       u1.destroy
     end
     assert_difference 'Assignment.count', -3 do
-      c.reload.destroy
+      task.reload.destroy
     end
   end
 
@@ -402,9 +402,9 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm
-    c.assign_user(u.id)
-    assert_equal t, c.assignments.last.team
+    task = create_task annotated: pm
+    task.assign_user(u.id)
+    assert_equal t, task.assignments.last.team
   end
 
   test "should not propagate assignments when generic annotations are assigned" do
@@ -413,7 +413,7 @@ class AnnotationTest < ActiveSupport::TestCase
     create_team_user user: u, team: t
     p = create_project team: t
     pm = create_project_media project: p
-    a = create_annotation annotated: pm
+    a = create_tag annotated: pm
     assert_difference 'Assignment.count', 1 do
       a.assign_user(u.id)
     end
@@ -432,8 +432,8 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should save annotation with null byte" do
-    assert_difference "Comment.where(annotation_type: 'comment').count" do
-      create_comment text: "*Dipa's Crush Loves him 97�\u0000, How Much Your Crush Loves You?* Check out now\nhttps://www.getlinks.info/love/c/tnxbmka"
+    assert_difference "Task.where(annotation_type: 'task').count" do
+      create_task label: "*Dipa's Crush Loves him 97�\u0000, How Much Your Crush Loves You?* Check out now\nhttps://www.getlinks.info/love/c/tnxbmka"
     end
   end
 

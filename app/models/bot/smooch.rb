@@ -58,36 +58,25 @@ class Bot::Smooch < BotUser
       self.relationship_type_before_last_save.to_json == Relationship.suggested_type.to_json && self.is_confirmed?
     end
 
-    def self.inherit_status_and_send_report(rid)
+    def self.smooch_send_report(rid)
       relationship = Relationship.find_by_id(rid)
       unless relationship.nil?
         target = relationship.target
-        parent = relationship.source
-
-        # Always inherit status for confirmed matches
         if ::Bot::Smooch.team_has_smooch_bot_installed(target) && relationship.is_confirmed?
-          s = target.annotations.where(annotation_type: 'verification_status').last&.load
-          status = parent.last_verification_status
-          if !s.nil? && s.status != status
-            s.status = status
-            s.bypass_status_publish_check = true
-            s.save
-          end
-
           # A relationship created by the Smooch Bot or Alegre Bot is related to search results (unless it's a suggestion that was confirmed), so the user has already received the report as a search result... no need to send another report
           # Only send a report for (1) Confirmed matches created manually OR (2) Suggestions accepted
           created_by_bot = BotUser.where(login: ['alegre', 'smooch'], id: relationship.user_id).exists?
-          ::Bot::Smooch.send_report_from_parent_to_child(parent.id, target.id) if !created_by_bot || relationship.confirmed_by
+          ::Bot::Smooch.send_report_from_parent_to_child(relationship.source_id, target.id) if !created_by_bot || relationship.confirmed_by
         end
       end
     end
 
     after_create do
-      self.class.delay_for(2.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id)
+      self.class.delay_for(2.seconds, { queue: 'smooch_priority'}).smooch_send_report(self.id)
     end
 
     after_update do
-      self.class.delay_for(2.seconds, { queue: 'smooch_priority'}).inherit_status_and_send_report(self.id) if self.suggestion_accepted?
+      self.class.delay_for(2.seconds, { queue: 'smooch_priority'}).smooch_send_report(self.id) if self.suggestion_accepted?
     end
 
     after_destroy do
@@ -1047,23 +1036,6 @@ class Bot::Smooch < BotUser
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
       self.send_report_to_user(tr.tipline_user_uid, data, parent, tr.language, 'fact_check_report')
     end
-  end
-
-  def self.replicate_status_to_children(pm_id, status, uid, tid)
-    pm = ProjectMedia.where(id: pm_id).last
-    return if pm.nil?
-    User.current = User.where(id: uid).last
-    Team.current = Team.where(id: tid).last
-    pm.source_relationships.confirmed.joins('INNER JOIN users ON users.id = relationships.user_id').where("users.type != 'BotUser' OR users.type IS NULL").find_each do |relationship|
-      target = relationship.target
-      s = target.annotations.where(annotation_type: 'verification_status').last&.load
-      next if s.nil? || s.status == status
-      s.status = status
-      s.bypass_status_publish_check = true
-      s.save!
-    end
-    User.current = nil
-    Team.current = nil
   end
 
   def self.refresh_smooch_slack_timeout(uid, slack_data = {})

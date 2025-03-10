@@ -84,14 +84,6 @@ module ProjectMediaEmbed
     self.all_tasks.select{ |t| t.responses.count > 0 }
   end
 
-  def comments
-    self.annotations.where(annotation_type: 'comment').map(&:load)
-  end
-
-  def comments_count
-    self.annotations.where(annotation_type: 'comment').count
-  end
-
   def oembed_metadata
     {
       title: self.title.to_s,

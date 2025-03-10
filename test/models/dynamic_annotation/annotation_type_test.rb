@@ -52,7 +52,7 @@ class DynamicAnnotation::AnnotationTypeTest < ActiveSupport::TestCase
   test "should not create annotation type with reserved name" do
     assert_no_difference 'DynamicAnnotation::AnnotationType.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_annotation_type annotation_type: 'comment'
+        create_annotation_type annotation_type: 'tag'
       end
     end
   end

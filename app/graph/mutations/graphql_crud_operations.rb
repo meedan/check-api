@@ -75,7 +75,7 @@ class GraphqlCrudOperations
       ret[:user] = User.current
     end
 
-    if [Comment, Task, Dynamic].include?(obj.class)
+    if [Task, Dynamic].include?(obj.class)
       version = obj.version_object
       ret["versionEdge".to_sym] = GraphQL::Relay::Edge.between(
         version,

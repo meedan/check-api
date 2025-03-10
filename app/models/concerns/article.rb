@@ -7,7 +7,9 @@ module Article
     include CheckElasticSearch
 
     belongs_to :user
+    belongs_to :author, class_name: 'User', foreign_key: 'author_id', optional: true
 
+    before_validation :set_author, on: :create
     before_validation :set_user
     validates_presence_of :user
 
@@ -19,6 +21,10 @@ module Article
 
   def text_fields
     # Implement it in the child class
+  end
+
+  def set_author
+    self.author = User.current unless User.current.nil?
   end
 
   def set_user
@@ -51,11 +57,8 @@ module Article
 
   protected
 
-  def index_in_elasticsearch(data)
-    # touch project media to update `updated_at` date
-    pm = self.project_media
-    return if pm.nil?
-    pm = ProjectMedia.find_by_id(pm.id)
+  def index_in_elasticsearch(pm_id, data)
+    pm = ProjectMedia.find_by_id(pm_id)
     unless pm.nil?
       updated_at = Time.now
       pm.update_columns(updated_at: updated_at)
