@@ -127,9 +127,8 @@ class Media < ApplicationRecord
     uri = URI.parse(url)
     ext = File.extname(uri.path)
     file = Tempfile.new(['download', ext])
-    content = URI.open(url, open_timeout: 5, read_timeout: 30).read
-
     file.binmode
+    content = URI.open(uri, open_timeout: 5, read_timeout: 30).read
     file.write(content)
     file.rewind
     file
