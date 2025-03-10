@@ -239,7 +239,7 @@ module ProjectMediaCachedFields
         }
       ]
 
-    [:share, :reaction, :comment].each do |metric|
+    [:share, :reaction].each do |metric|
       cached_field "#{metric}_count".to_sym,
         start_as: 0,
         update_es: true,
@@ -631,10 +631,6 @@ module ProjectMediaCachedFields
 
     def recalculate_reaction
       recalculate_metric_fields(:reaction)
-    end
-
-    def recalculate_comment
-      recalculate_metric_fields(:comment)
     end
 
     def recalculate_metric_fields(metric)

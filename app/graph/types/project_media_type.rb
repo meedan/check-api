@@ -209,12 +209,6 @@ class ProjectMediaType < DefaultObject
     object.get_annotations('tag').map(&:load).sort_by { |tag| tag.tag_text.downcase }
   end
 
-  field :comments, CommentType.connection_type, null: true
-
-  def comments
-    object.get_annotations("comment").map(&:load)
-  end
-
   field :requests, TiplineRequestType.connection_type, null: true do
     argument :include_children, GraphQL::Types::Boolean, required: false
   end

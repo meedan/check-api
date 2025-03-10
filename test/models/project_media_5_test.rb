@@ -388,10 +388,10 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should have annotations" do
     pm = create_project_media
-    c1 = create_comment annotated: pm
-    c2 = create_comment annotated: pm
-    c3 = create_comment annotated: nil
-    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
+    m1 = create_metadata annotated: pm
+    m2 = create_metadata annotated: pm
+    m3 = create_metadata annotated: nil
+    assert_equal [m1.id, m2.id].sort, pm.reload.annotations('metadata').map(&:id).sort
   end
 
   test "should get permissions" do
@@ -401,7 +401,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
     perm_keys = [
-      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
+      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia",
       "create Tag", "create Task", "create Dynamic", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
       "create Source", "update Source", "create ClaimDescription"
@@ -655,7 +655,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
       with_current_user_and_team(u, t) do
         pm = create_project_media project: p, media: m, user: u
-        c = create_comment annotated: pm
+        t = create_task annotated: pm
         tg = create_tag annotated: pm
         f = create_flag annotated: pm
         s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -920,9 +920,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       new_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
       new_tt.save!
       new_tt2 = new.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      # add comments
-      old_c = create_comment annotated: old
-      new_c = create_comment annotated: new
       # assign to
       s = new.last_verification_status_obj
       s = Dynamic.find(s.id)
@@ -939,7 +936,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       data = { "main" => CheckChannels::ChannelCodes::FETCH }
       assert_equal data, new.channel
       assert_equal 3, new.annotations('tag').count
-      assert_equal 2, new.annotations('comment').count
       # Verify replace log entry
       replace_v = Version.from_partition(new.team_id).where(event_type: 'replace_projectmedia', associated_id: new.id, associated_type: 'ProjectMedia')
       assert_not_empty replace_v
