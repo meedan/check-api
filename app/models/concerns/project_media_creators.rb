@@ -52,9 +52,11 @@ module ProjectMediaCreators
     end
   end
 
-  def create_original_claim
-    claim = self.set_original_claim.strip
-    self.media = Media.find_or_create_from_original_claim(claim, self.team)
+  def create_media!
+    self.set_media_type if self.set_original_claim || self.media_type.blank?
+
+    media_type, media_content, additional_args = *self.media_arguments
+    self.media = Media.find_or_create_media_from_content(media_type, media_content, additional_args)
   end
 
   def set_quote_metadata
@@ -114,49 +116,54 @@ module ProjectMediaCreators
 
   protected
 
-  def create_with_file(media_type = 'UploadedImage')
-    klass = media_type.constantize
-    m = klass.find_by(file: Media.filename(self.file)) || klass.new(file: self.file)
-    m.save! if m.new_record?
-    m
-  end
-
-  def create_claim
-    m = Claim.new
-    m.quote = self.quote
-    m.quote_attributions = self.quote_attributions
-    m.save!
-    m
-  end
-
-  def create_link
-    team = self.team || Team.current
-    pender_key = team.get_pender_key if team
-    url_from_pender = Link.normalized(self.url, pender_key)
-    Link.find_by(url: url_from_pender) || Link.create(url: self.url, pender_key: pender_key)
-  end
-
-  def create_media
-    m = nil
-    self.set_media_type if self.media_type.blank?
-    case self.media_type
-    when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-      m = self.create_with_file(media_type)
-    when 'Claim'
-      m = self.create_claim
-    when 'Link'
-      m = self.create_link
-    when 'Blank'
-      m = Blank.create!
-    end
-    m
-  end
-
   def set_media_type
-    if !self.url.blank?
-      self.media_type = 'Link'
-    elsif !self.quote.blank?
+    original_claim = self.set_original_claim&.strip
+
+    if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
+      uri = URI.parse(original_claim)
+      content_type = Net::HTTP.get_response(uri)['content-type']
+
+      case content_type
+      when /^image\//
+        self.media_type = 'UploadedImage'
+      when /^video\//
+        self.media_type = 'UploadedVideo'
+      when /^audio\//
+        self.media_type = 'UploadedAudio'
+      else
+        self.media_type = 'Link'
+      end
+    elsif original_claim || self.quote.present?
       self.media_type = 'Claim'
+    elsif self.url.present?
+      self.media_type = 'Link'
+    end
+  end
+
+  def media_arguments
+    media_type = self.media_type
+    original_claim = self.set_original_claim&.strip
+
+    if original_claim
+      case media_type
+      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+        [media_type, original_claim, { has_original_claim: true }]
+      when 'Claim'
+        [media_type, original_claim, { has_original_claim: true }]
+      when 'Link'
+        [media_type, original_claim, { team: self.team, has_original_claim: true }]
+      end
+    else
+      case media_type
+      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+        [media_type, self.file]
+      when 'Claim'
+        [media_type, self.quote, { quote_attributions: self.quote_attributions }]
+      when 'Link'
+        [media_type, self.url, { team: self.team }]
+      when 'Blank'
+        [media_type]
+      end
     end
   end
 

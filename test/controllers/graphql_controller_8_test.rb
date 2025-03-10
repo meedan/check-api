@@ -125,29 +125,29 @@ class GraphqlController8Test < ActionController::TestCase
     assert_no_match /items_count:0/, data['verification_statuses'].to_json
   end
 
-  test "should get nested comment" do
+  test "should get nested tag" do
     admin_user = create_user is_admin: true
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    c1 = create_comment annotated: pm, text: 'Parent'
-    c2 = create_comment annotated: c1, text: 'Child'
+    tag1 = create_tag annotated: pm, tag: 'Parent'
+    tag2 = create_tag annotated: tag1, tag: 'Child'
     authenticate_with_user(admin_user)
     query = %{
       query {
         project_media(ids: "#{pm.id},#{p.id}") {
-          comments: annotations(first: 10000, annotation_type: "comment") {
+          tags: annotations(first: 10000, annotation_type: "tag") {
             edges {
               node {
-                ... on Comment {
+                ... on Tag {
                   id
-                  text
-                  comments: annotations(first: 10000, annotation_type: "comment") {
+                  tag_text
+                  tags: annotations(first: 10000, annotation_type: "tag") {
                     edges {
                       node {
-                        ... on Comment {
+                        ... on Tag {
                           id
-                          text
+                          tag_text
                         }
                       }
                     }
@@ -161,15 +161,15 @@ class GraphqlController8Test < ActionController::TestCase
     }
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    comments = JSON.parse(@response.body)['data']['project_media']['comments']['edges']
-    assert_equal 1, comments.size
-    assert_equal 'Parent', comments[0]['node']['text']
-    child_comments = comments[0]['node']['comments']['edges']
-    assert_equal 1, child_comments.size
-    assert_equal 'Child', child_comments[0]['node']['text']
+    tags = JSON.parse(@response.body)['data']['project_media']['tags']['edges']
+    assert_equal 1, tags.size
+    assert_equal 'Parent', tags[0]['node']['tag_text']
+    child_tags = tags[0]['node']['tags']['edges']
+    assert_equal 1, child_tags.size
+    assert_equal 'Child', child_tags[0]['node']['tag_text']
   end
 
-    test "should get project using API key" do
+  test "should get project using API key" do
     t = create_team
     a = create_api_key
     b = create_bot_user api_key_id: a.id, team: t
@@ -365,30 +365,17 @@ class GraphqlController8Test < ActionController::TestCase
     assert_not_nil JSON.parse(@response.body)['data']['team']['verification_statuses']
   end
 
-  test "should create comment with fragment" do
-    admin_user = create_user is_admin: true
-    pm = create_project_media
-    authenticate_with_user(admin_user)
-    query = 'mutation { createComment(input: { fragment: "t=10,20", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", text: "Test" }) { comment { parsed_fragment } } }'
-    assert_difference 'Comment.length', 1 do
-      post :create, params: { query: query, team: pm.team.slug }
-    end
-    assert_response :success
-    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['createComment']['comment']['parsed_fragment'])
-    assert_equal({ 't' => [10, 20] }, pm.get_annotations('comment').last.load.parsed_fragment)
-  end
-
-  test "should get comments from media" do
+  test "should get tags from media" do
     admin_user = create_user is_admin: true
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    c = create_comment annotated: pm, fragment: 't=10,20'
+    c = create_tag annotated: pm, fragment: 't=10,20'
     authenticate_with_user(admin_user)
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { comments(first: 10) { edges { node { parsed_fragment } } } } }"
+    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tags(first: 10) { edges { node { parsed_fragment } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
-    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['comments']['edges'][0]['node']['parsed_fragment'])
+    assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['tags']['edges'][0]['node']['parsed_fragment'])
   end
 
   test "should get OCR" do
@@ -431,7 +418,7 @@ class GraphqlController8Test < ActionController::TestCase
     with_current_user_and_team(u, t) do
       n.times do
         pm = create_project_media project: p, disable_es_callbacks: false
-        m.times { create_comment annotated: pm, annotator: u, disable_es_callbacks: false }
+        m.times { create_tag annotated: pm, annotator: u, disable_es_callbacks: false }
       end
     end
     sleep 4
@@ -463,7 +450,7 @@ class GraphqlController8Test < ActionController::TestCase
       pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
       s = create_source
       create_account_source source: s, disable_es_callbacks: false
-      m.times { create_comment annotated: pm, annotator: create_user, disable_es_callbacks: false }
+      m.times { create_tag annotated: pm, annotator: create_user, disable_es_callbacks: false }
     end
     create_project_media project: p, user: u, disable_es_callbacks: false
     pm = create_project_media project: p, disable_es_callbacks: false

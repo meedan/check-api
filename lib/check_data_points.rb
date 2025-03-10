@@ -4,9 +4,10 @@ class CheckDataPoints
     GRANULARITY_VALUES = ['year', 'quarter', 'month', 'week', 'day']
 
     # Number of tipline messages
-    def tipline_messages(team_id, start_date, end_date, granularity = nil, platform = nil, language = nil)
+    def tipline_messages(team_id, start_date, end_date, granularity = nil, platform = nil, language = nil, direction = nil)
       start_date, end_date = parse_start_end_dates(start_date, end_date)
       query = TiplineMessage.where(team_id: team_id, created_at: start_date..end_date, state: ['sent', 'received'])
+      query = query.where(direction: direction) unless direction.nil?
       query_based_on_granularity(query, platform, language, granularity)
     end
 

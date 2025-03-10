@@ -388,10 +388,10 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should have annotations" do
     pm = create_project_media
-    c1 = create_comment annotated: pm
-    c2 = create_comment annotated: pm
-    c3 = create_comment annotated: nil
-    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
+    m1 = create_metadata annotated: pm
+    m2 = create_metadata annotated: pm
+    m3 = create_metadata annotated: nil
+    assert_equal [m1.id, m2.id].sort, pm.reload.annotations('metadata').map(&:id).sort
   end
 
   test "should get permissions" do
@@ -401,7 +401,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
     perm_keys = [
-      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
+      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia",
       "create Tag", "create Task", "create Dynamic", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
       "create Source", "update Source", "create ClaimDescription"
@@ -655,7 +655,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
       with_current_user_and_team(u, t) do
         pm = create_project_media project: p, media: m, user: u
-        c = create_comment annotated: pm
+        t = create_task annotated: pm
         tg = create_tag annotated: pm
         f = create_flag annotated: pm
         s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -798,7 +798,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should create link and account using team pender key" do
     t = create_team
-    p = create_project(team: t)
+    create_project(team: t)
     Team.stubs(:current).returns(t)
 
     url1 = random_url
@@ -811,13 +811,13 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
     PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
 
-    pm = ProjectMedia.create url: url1
+    pm = ProjectMedia.create url: url1, team: t
     assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with default token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 
     t.set_pender_key = 'specific_token'; t.save!
 
-    pm = ProjectMedia.create! url: url2
+    pm = ProjectMedia.create! url: url2, team: t
     assert_equal 'Specific token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with specific token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 
@@ -920,9 +920,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       new_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
       new_tt.save!
       new_tt2 = new.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      # add comments
-      old_c = create_comment annotated: old
-      new_c = create_comment annotated: new
       # assign to
       s = new.last_verification_status_obj
       s = Dynamic.find(s.id)
@@ -939,7 +936,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       data = { "main" => CheckChannels::ChannelCodes::FETCH }
       assert_equal data, new.channel
       assert_equal 3, new.annotations('tag').count
-      assert_equal 2, new.annotations('comment').count
       # Verify replace log entry
       replace_v = Version.from_partition(new.team_id).where(event_type: 'replace_projectmedia', associated_id: new.id, associated_type: 'ProjectMedia')
       assert_not_empty replace_v
@@ -949,7 +945,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       # Verify ES
       result = $repository.find(get_es_id(new))
       assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
-      assert_equal [old_c.id, new_c.id], result['comments'].collect{ |c| c['id'] }.sort
       assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
       assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
       assert_equal [u.id, u2.id, u3.id], result['assigned_user_ids'].sort

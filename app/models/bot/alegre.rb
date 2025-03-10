@@ -693,7 +693,7 @@ class Bot::Alegre < BotUser
 
   def self.report_exception_if_bad_relationship(relationship, pm_id_scores, relationship_type)
     if relationship.model.nil? || relationship.weight.nil? || relationship.source_field.nil? || relationship.target_field.nil? || self.relationship_model_not_allowed(relationship.model)
-      CheckSentry.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship was stored without required metadata"), **{trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, pm_id_scores: pm_id_scores})
+      CheckSentry.notify(Bot::Alegre::Error.new("[Alegre] Bad relationship with ID [#{relationship.id}] was stored without required metadata"), **{trace: Thread.current.backtrace.join("\n"), relationship: relationship.attributes, relationship_type: relationship_type, pm_id_scores: pm_id_scores})
     end
   end
 

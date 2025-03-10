@@ -10,6 +10,7 @@ class ExplainerItem < ApplicationRecord
   validate :cant_apply_article_to_item_if_article_is_in_the_trash
 
   after_create :log_relevant_article_results
+  after_commit :update_elasticsearch_data
 
   def version_metadata(_changes)
     { explainer_title: self.explainer.title }.to_json
@@ -23,6 +24,24 @@ class ExplainerItem < ApplicationRecord
 
   def cant_apply_article_to_item_if_article_is_in_the_trash
     errors.add(:base, I18n.t(:cant_apply_article_to_item_if_article_is_in_the_trash)) if self.explainer&.trashed
+  end
+
+  def update_elasticsearch_data
+    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    pm = self.project_media
+    # touch item to update `updated_at` date
+    if ProjectMedia.exists?(pm.id)
+      updated_at = Time.now
+      pm.update_columns(updated_at: updated_at)
+      data = { updated_at: updated_at.utc }
+      data['explainer_title'] = {
+        method: "explainers_titles",
+        klass: pm.class.name,
+        id: pm.id,
+        default: nil,
+      }
+      pm.update_elasticsearch_doc(data.keys, data, pm.id, true)
+    end
   end
 
   def log_relevant_article_results

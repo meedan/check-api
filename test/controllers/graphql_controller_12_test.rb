@@ -407,18 +407,22 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal [fc.id], data.collect{ |edge| edge['node']['dbid'] }
   end
 
-  test "should get team articles (all)" do
+  test "should get all team articles" do
     Sidekiq::Testing.fake!
     authenticate_with_user(@u)
     pm = create_project_media team: @t
     cd = create_claim_description project_media: pm
-    create_fact_check claim_description: cd, tags: ['foo', 'bar']
-    create_explainer team: @t
-    query = "query { team(slug: \"#{@t.slug}\") { articles_count } }"
+    create_fact_check claim_description: cd, title: 'Foo'
+    sleep 1
+    create_explainer team: @t, title: 'Test'
+    sleep 1
+    create_explainer team: @t, title: 'Bar'
+    query = "query { team(slug: \"#{@t.slug}\") { articles(first: 2, sort: \"title\", sort_type: \"asc\") { edges { node { ... on Explainer { title }, ... on FactCheck { title } } } }, articles_count } }"
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    team = JSON.parse(@response.body)['data']['team']
-    assert_equal 2, team['articles_count']
+    data = JSON.parse(@response.body)['data']
+    assert_equal 3, data.dig('team', 'articles_count')
+    assert_equal ['Bar', 'Foo'], data.dig('team', 'articles', 'edges').collect{ |node| node.dig('node', 'title') }
   end
 
   test "should create api key" do
@@ -741,7 +745,7 @@ class GraphqlController12Test < ActionController::TestCase
 
     t = create_team
     p = create_project team: t
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
 
     assert_not_nil pm
 
@@ -803,7 +807,7 @@ class GraphqlController12Test < ActionController::TestCase
     t.settings[:languages] << 'pt'
     t.save!
     p = create_project team: t
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
     c = create_claim_description project_media: pm
     fc_1 = create_fact_check claim_description: c
 
@@ -866,7 +870,7 @@ class GraphqlController12Test < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
 
     t = create_team
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
     cd = create_claim_description project_media: pm
     fc = create_fact_check claim_description: cd
 
@@ -901,5 +905,27 @@ class GraphqlController12Test < ActionController::TestCase
     end
     assert_response 400
     assert_equal 'This item already exists', JSON.parse(@response.body).dig('errors', 0, 'message')
+  end
+
+  test "should get annotations count" do
+    admin_user = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    create_tag annotated: pm
+    create_tag annotated: pm
+    authenticate_with_user(admin_user)
+  
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          annotations_count(annotation_type: "tag")
+        }
+      }
+    }
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    annotations_count = JSON.parse(@response.body)['data']['project_media']['annotations_count']
+    assert_equal 2, annotations_count
   end
 end

@@ -50,8 +50,9 @@ class FactCheck < ApplicationRecord
         s.save!
       end
       # update related items status
-      Relationship.confirmed.where(source_id: pm.id).find_each do |r|
-        Relationship.delay_for(2.seconds, { queue: 'smooch'}).inherit_status_and_send_report(r.id)
+      Relationship.delay_for(2.second, { queue: 'smooch' }).replicate_status_to_children(pm.id, User.current&.id, Team.current&.id)
+      pm.source_relationships.confirmed.find_each do |r|
+        Relationship.delay_for(2.seconds, { queue: 'smooch'}).smooch_send_report(r.id)
       end
     end
   end
@@ -152,11 +153,11 @@ class FactCheck < ApplicationRecord
   end
 
   def article_elasticsearch_data(action = 'create_or_update')
-    return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+    return if self.project_media.nil? || self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     data = action == 'destroy' ? {
-        'fact_check_title' => '',
-        'fact_check_summary' => '',
-        'fact_check_url' => '',
+        'fact_check_title' => nil,
+        'fact_check_summary' => nil,
+        'fact_check_url' => nil,
         'fact_check_languages' => []
       } : {
         'fact_check_title' => self.title,
@@ -164,7 +165,7 @@ class FactCheck < ApplicationRecord
         'fact_check_url' => self.url,
         'fact_check_languages' => [self.language]
       }
-    self.index_in_elasticsearch(data)
+    self.index_in_elasticsearch(self.project_media.id, data)
   end
 
   def set_initial_rating

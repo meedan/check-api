@@ -168,16 +168,6 @@ class Bot::Slack < BotUser
     end
   end
 
-  Comment.class_eval do
-    include ::Bot::Slack::SlackMessage
-
-    after_create :call_slack_api_post_message
-
-    def slack_message_parameters(id, _channel, _attachments, user, _endpoint)
-      { thread_ts: id, text: "Note by #{user.name}: #{self.text}" }
-    end
-  end
-
   Task.class_eval do
     include ::Bot::Slack::SlackMessage
 

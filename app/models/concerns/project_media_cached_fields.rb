@@ -214,6 +214,7 @@ module ProjectMediaCachedFields
       update_on: FACT_CHECK_EVENTS
 
     cached_field :description,
+      update_es: true,
       recalculate: :recalculate_description,
       update_on: title_or_description_update
 
@@ -238,7 +239,7 @@ module ProjectMediaCachedFields
         }
       ]
 
-    [:share, :reaction, :comment].each do |metric|
+    [:share, :reaction].each do |metric|
       cached_field "#{metric}_count".to_sym,
         start_as: 0,
         update_es: true,
@@ -632,10 +633,6 @@ module ProjectMediaCachedFields
       recalculate_metric_fields(:reaction)
     end
 
-    def recalculate_comment
-      recalculate_metric_fields(:comment)
-    end
-
     def recalculate_metric_fields(metric)
       begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
     end
@@ -749,7 +746,7 @@ module ProjectMediaCachedFields
           origin[:origin] = CheckMediaClusterOrigins::OriginCodes::USER_MATCHED
           origin[:user_id] = relationship.confirmed_by
           origin[:timestamp] = relationship.confirmed_at.to_i
-        elsif relationship.user == BotUser.alegre_user
+        elsif relationship.user.is_a?(BotUser)
           origin[:origin] = CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED
           origin[:user_id] = relationship.user_id
           origin[:timestamp] = relationship.created_at.to_i

@@ -3,7 +3,6 @@ class AnnotationUnion < BaseUnion
   possible_types(
     AnnotationType,
     DynamicType,
-    CommentType,
     TagType,
     FlagType,
     TaskType,

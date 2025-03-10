@@ -105,7 +105,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     assert_equal r2.confirmed_at.to_i, pm3.media_cluster_origin_timestamp(true)
     assert_equal u3.id, pm3.media_cluster_origin_user_id(true)
 
-    # AUTO_MATCHED
+    # AUTO_MATCHED (Alegre)
     pm4 = create_project_media team: t, user: u1
     r3 = create_relationship source: pm1, target: pm4, user: b2
     assert_equal CheckMediaClusterOrigins::OriginCodes::TIPLINE_SUBMITTED, pm1.media_cluster_origin(true)
@@ -114,5 +114,15 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     assert_equal CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED, pm4.media_cluster_origin(true)
     assert_equal r3.created_at.to_i, pm4.media_cluster_origin_timestamp(true)
     assert_equal b2.id, pm4.media_cluster_origin_user_id(true)
+
+    # AUTO_MATCHED (Smooch)
+    pm5 = create_project_media team: t, user: u1
+    r4 = create_relationship source: pm1, target: pm5, user: b1
+    assert_equal CheckMediaClusterOrigins::OriginCodes::TIPLINE_SUBMITTED, pm1.media_cluster_origin(true)
+    assert_equal pm1.created_at.to_i, pm1.media_cluster_origin_timestamp(true)
+    assert_equal b1.id, pm1.media_cluster_origin_user_id(true)
+    assert_equal CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED, pm5.media_cluster_origin(true)
+    assert_equal r4.created_at.to_i, pm5.media_cluster_origin_timestamp(true)
+    assert_equal b1.id, pm5.media_cluster_origin_user_id(true)
   end
 end

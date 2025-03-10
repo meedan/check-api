@@ -108,12 +108,30 @@ class TeamStatistics
     CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, nil, @platform_name, @language)
   end
 
+  def number_of_incoming_messages
+    CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, nil, @platform_name, @language, 'incoming')
+  end
+
+  def number_of_outgoing_messages
+    CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, nil, @platform_name, @language, 'outgoing')
+  end
+
   def number_of_conversations
     CheckDataPoints.tipline_requests(@team.id, @start_date_str, @end_date_str, nil, @platform, @language)
   end
 
   def number_of_messages_by_date
     data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', @platform_name, @language)
+    number_of_tipline_data_points_by_date(data)
+  end
+
+  def number_of_incoming_messages_by_date
+    data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', @platform_name, @language, 'incoming')
+    number_of_tipline_data_points_by_date(data)
+  end
+
+  def number_of_outgoing_messages_by_date
+    data = CheckDataPoints.tipline_messages(@team.id, @start_date_str, @end_date_str, 'day', @platform_name, @language, 'outgoing')
     number_of_tipline_data_points_by_date(data)
   end
 

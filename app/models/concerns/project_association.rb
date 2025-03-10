@@ -158,8 +158,8 @@ module ProjectAssociation
 
     def set_media
       unless self.url.blank? && self.quote.blank? && self.file.blank? && self.media_type != 'Blank'
-        m = self.create_media
-        self.media_id = m.id unless m.nil?
+        self.create_media!
+        self.media_id unless self.media_id.nil?
       end
     end
   end

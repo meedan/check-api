@@ -23,7 +23,7 @@ module CheckElasticSearch
     ms.attributes[:updated_at] = self.updated_at.utc
     ms.attributes[:source_id] = self.source_id
     # Intial nested objects with []
-    ['comments', 'tags', 'task_responses', 'assigned_user_ids', 'requests'].each{ |f| ms.attributes[f] = [] }
+    ['tags', 'task_responses', 'assigned_user_ids', 'requests'].each{ |f| ms.attributes[f] = [] }
     self.add_nested_objects(ms) if options[:force_creation]
     self.add_extra_elasticsearch_data(ms)
     $repository.save(ms)
@@ -49,20 +49,17 @@ module CheckElasticSearch
     data = get_elasticsearch_data(options[:data], options[:skip_get_data])
     fields = {}
     options[:keys].each do |k|
-      unless data[k].nil?
-        if data[k].class.to_s == 'Hash'
-          value = get_fresh_value(data[k].with_indifferent_access)
-          fields[k] = value unless value.nil?
-        else
-          fields[k] = data[k]
-        end
+      if data[k].class.to_s == 'Hash'
+        value = get_fresh_value(data[k].with_indifferent_access)
+        fields[k] = value
+      else
+        fields[k] = data[k]
       end
     end
     if fields.count
       create_doc_if_not_exists(options)
       sleep 1
-      client = $repository.client
-      client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
+      $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
     end
   end
 
@@ -175,9 +172,8 @@ module CheckElasticSearch
     def destroy_elasticsearch_doc_nested(options)
       nested_type = options[:es_type]
       begin
-        client = $repository.client
         source = "for (int i = 0; i < ctx._source.#{nested_type}.size(); i++) { if(ctx._source.#{nested_type}[i].id == params.id){ctx._source.#{nested_type}.remove(i);}}"
-        client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id],
+        $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id],
                  body: { script: { source: source, params: { id: options[:model_id] } } }
       rescue
         Rails.logger.info "[ES destroy] doc with id #{options[:doc_id]} not exists"

@@ -26,12 +26,12 @@ class Relationship < ApplicationRecord
   after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
-  after_save :move_explainers_to_source, if: proc { |r| r.is_confirmed? }
+  after_save :move_explainers_to_source, :apply_status_to_target, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
   after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
-  after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
+  after_commit :destroy_elasticsearch_relation, on: :destroy
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
 
@@ -159,9 +159,10 @@ class Relationship < ApplicationRecord
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
     # Verify that the target is not part of another source; in this case, we should return the existing relationship.
     r = Relationship.where(target_id: target_id).where.not(source_id: source_id).last
+    r.update_options(options) unless r.nil?
     return r unless r.nil?
     # otherwise we should get the existing relationship based on source, target and type
-    r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
+    r = Relationship.where(source_id: source_id, target_id: target_id).last
     exception_message = nil
     exception_class = nil
     if r.nil?
@@ -196,6 +197,12 @@ class Relationship < ApplicationRecord
         exception_message = e.message
         exception_class = e.class.name
       end
+    else
+      if r.relationship_type != relationship_type && relationship_type == Relationship.confirmed_type
+        r.relationship_type = relationship_type
+        r.save!
+      end
+      r.update_options(options)
     end
     if r.nil?
       Rails.logger.error("[Relationship::create_unless_exists] returning nil: source_id #{source_id}, target_id #{target_id}, relationship_type #{relationship_type}.")
@@ -203,6 +210,38 @@ class Relationship < ApplicationRecord
       CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options, exception_message: exception_message, exception_class: exception_class)
     end
     r
+  end
+
+  def self.replicate_status_to_children(pm_id, uid, tid)
+    pm = ProjectMedia.find_by_id(pm_id)
+    return if pm.nil?
+    User.current = User.where(id: uid).last
+    Team.current = Team.where(id: tid).last
+    status = pm.last_verification_status
+    pm.source_relationships.confirmed.find_each do |relationship|
+      self.sync_statuses(relationship.target, status)
+    end
+    User.current = nil
+    Team.current = nil
+  end
+
+  def self.sync_statuses(item, status)
+    s = item.last_status_obj
+    unless s.nil? || s.status == status
+      s.status = status
+      s.bypass_status_publish_check = true
+      s.save!
+    end
+  end
+
+  def update_options(options)
+    # should update options if exists and at least on field has a value
+    if self.model.blank? && !options.values.compact.empty?
+      options.each do |key, value|
+        self.send("#{key}=", value) if self.respond_to?("#{key}=")
+      end
+      self.save!
+    end
   end
 
   protected
@@ -378,6 +417,10 @@ class Relationship < ApplicationRecord
         .update_all(associated_id: self.source_id)
       end
     end
+  end
+
+  def apply_status_to_target
+    Relationship.sync_statuses(self.target, self.source.last_verification_status)
   end
 
   def destroy_same_suggested_item

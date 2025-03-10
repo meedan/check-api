@@ -38,7 +38,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Set up Enviroments 
+    - name: Set up Enviroments
       run: |
         export RECORD_RUNTIME=true
         export LC_ALL=C.UTF-8
@@ -46,7 +46,7 @@ jobs:
         export LANGUAGE=C.UTF-8
         export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-    
+
     - name: Set up Configuration Files
       run: |
         cp config/config.yml.example config/config.yml
@@ -54,7 +54,7 @@ jobs:
         cp config/sidekiq.yml.example config/sidekiq.yml
         cp config/credentials.json.example config/credentials.json
         cp config/sidekiq-test.yml.example config/sidekiq-test.yml
-      
+
     - name: Build Docker Container
       run: |
         docker compose build
@@ -79,14 +79,14 @@ jobs:
         sleep 10
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
-    
+
     - name: Run Functional Tests
       id: functional-tests
       env:
         TEST_RETRY_COUNT: 3
       run: |
         docker compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='models mailers integration workers lib contract' api test/run-tests.sh
-   
+
     - name: After Functional Test
       env:
         GITHUB_EVENT: ${{ github.event_name}}
@@ -115,8 +115,8 @@ jobs:
         -e ROLE_TO_ASSUME=$AWS_ROLE_TO_ASSUME \
         -e AWS_REGION=$AWS_REGION \
         -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
-    
-  
+
+
   unit-tests:
     runs-on: ubuntu-latest
 
@@ -141,7 +141,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: set up enviromnts 
+    - name: set up enviromnts
       run: |
         export RECORD_RUNTIME=true
         export LC_ALL=C.UTF-8
@@ -149,7 +149,7 @@ jobs:
         export LANGUAGE=C.UTF-8
         export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-    
+
     - name: Set up Configuration Files
       run: |
         cp config/config.yml.example config/config.yml
@@ -157,7 +157,7 @@ jobs:
         cp config/sidekiq.yml.example config/sidekiq.yml
         cp config/credentials.json.example config/credentials.json
         cp config/sidekiq-test.yml.example config/sidekiq-test.yml
-      
+
     - name: Build Docker Container
       run: |
         docker compose build
@@ -182,14 +182,14 @@ jobs:
         sleep 10
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
-    
+
     - name: Run Unit Tests
       id: unit-tests
       env:
         TEST_RETRY_COUNT: 3
       run: |
         docker compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers contract' api test/run-tests.sh
-    
+
     - name: After Unit Test
       env:
         GITHUB_EVENT: ${{ github.event_name}}
@@ -219,7 +219,7 @@ jobs:
         -e AWS_REGION=$AWS_REGION \
         -e AWS_CONFIG_FILE=/app/credentials api test/test-coverage.sh
 
-  
+
   contract-tests:
     runs-on: ubuntu-latest
 
@@ -244,7 +244,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Set up Enviroments 
+    - name: Set up Enviroments
       run: |
         export RECORD_RUNTIME=true
         export LC_ALL=C.UTF-8
@@ -252,7 +252,7 @@ jobs:
         export LANGUAGE=C.UTF-8
         export PATH=/root/.local/bin:$PATH
         rm -rf tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5 && mkdir -p tmp/cache tmp/cache1 tmp/cache2 tmp/cache3 tmp/cache4 tmp/cache5
-    
+
     - name: Set up Configuration Files
       run: |
         cp config/config.yml.example config/config.yml
@@ -260,15 +260,15 @@ jobs:
         cp config/sidekiq.yml.example config/sidekiq.yml
         cp config/credentials.json.example config/credentials.json
         cp config/sidekiq-test.yml.example config/sidekiq-test.yml
-      
+
     - name: Build Docker Container
       run: |
         docker compose build
-    
+
     - name: Run syntax checks
       run: |
         docker compose run api bash -c 'touch /tmp/no-syntax-errors && find app lib config -name *.rb -exec bash -c "ruby -c {} >/dev/null || rm /tmp/no-syntax-errors" ";" && ls /tmp/no-syntax-errors'
-    
+
     - name: Run Container
       run: docker compose -f docker-compose.yml -f docker-test.yml up -d
 
@@ -276,7 +276,7 @@ jobs:
       run: |
         tail -f log/test.log &
         until curl --silent -I -f --fail http://localhost:3000 ; do printf .; sleep 1; done
-    
+
     - name: Set up Parallel Environment
       run: docker compose exec -T api test/setup-parallel-env.sh
 
@@ -288,14 +288,14 @@ jobs:
         sleep 10
         touch tmp/parallel_runtime_test.log
         chmod +w tmp/parallel_runtime_test.log
-    
+
     - name: Run Contract Tests
       id: run-tests
       env:
         TEST_RETRY_COUNT: 3
       run: |
         docker compose exec -e TEST_RETRY_COUNT=$TEST_RETRY_COUNT -T -e PATTERN='controllers models mailers integration workers lib' api test/run-tests.sh
-        
+
     - name: After Contract Test
       env:
         GITHUB_EVENT: ${{ github.event_name}}
