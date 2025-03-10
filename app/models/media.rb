@@ -122,10 +122,12 @@ class Media < ApplicationRecord
     self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
   end
 
-  def self.download_file(url, ext)
+  def self.downloaded_file(url)
     raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
-
+    uri = URI.parse(url)
+    ext = File.extname(uri.path)
     file = Tempfile.new(['download', ext])
+
     file.binmode
     file.write(URI(url).open.read)
     file.rewind
@@ -134,19 +136,16 @@ class Media < ApplicationRecord
 
   def self.find_or_create_uploaded_file_media(file_media, media_type, additional_args = {})
     has_original_claim = additional_args&.fetch(:has_original_claim, nil)
+    original_claim_url = additional_args&.fetch(:original_claim_url, nil)
     klass = media_type.constantize
 
     if has_original_claim
-      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(file_media))
+      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim_url))
 
       if existing_media
         existing_media
       else
-        uri = URI.parse(file_media)
-        ext = File.extname(uri.path)
-        file = download_file(file_media, ext)
-
-        klass.create!(file: file, original_claim: file_media)
+        klass.create!(file: file_media, original_claim: original_claim_url)
       end
     else
       m = klass.find_by(file: Media.filename(file_media)) || klass.new(file: file_media)

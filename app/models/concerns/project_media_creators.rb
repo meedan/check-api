@@ -147,7 +147,7 @@ module ProjectMediaCreators
     if original_claim.present?
       case media_type
       when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-        [media_type, original_claim, { has_original_claim: true }]
+        [media_type, Media.downloaded_file(original_claim), { has_original_claim: true, original_claim_url: original_claim }]
       when 'Claim'
         [media_type, original_claim, { has_original_claim: true }]
       when 'Link'
