@@ -80,11 +80,11 @@ module CheckPermissions
     {
       'Team' => [Project, Account, TeamUser, User, TagText, ProjectMedia, TiplineNewsletter, Feed, FeedTeam, FeedInvitation],
       'Account' => [Media, Link, Claim],
-      'Media' => [ProjectMedia, Comment, Tag, Dynamic, Task],
-      'Link' => [ProjectMedia, Comment, Tag, Dynamic, Task],
-      'Claim' => [ProjectMedia, Comment, Tag, Dynamic, Task],
+      'Media' => [ProjectMedia, Tag, Dynamic, Task],
+      'Link' => [ProjectMedia, Tag, Dynamic, Task],
+      'Claim' => [ProjectMedia, Tag, Dynamic, Task],
       'Project' => [Source, Media, ProjectMedia, Claim, Link],
-      'ProjectMedia' => [Comment, Tag, Dynamic, Task, Relationship, ClaimDescription],
+      'ProjectMedia' => [Tag, Dynamic, Task, Relationship, ClaimDescription],
       'Source' => [Account, Project, Dynamic, Task],
       'User' => [Source, TeamUser, Team, Project]
     }

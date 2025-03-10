@@ -906,4 +906,26 @@ class GraphqlController12Test < ActionController::TestCase
     assert_response 400
     assert_equal 'This item already exists', JSON.parse(@response.body).dig('errors', 0, 'message')
   end
+
+  test "should get annotations count" do
+    admin_user = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    create_tag annotated: pm
+    create_tag annotated: pm
+    authenticate_with_user(admin_user)
+  
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          annotations_count(annotation_type: "tag")
+        }
+      }
+    }
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    annotations_count = JSON.parse(@response.body)['data']['project_media']['annotations_count']
+    assert_equal 2, annotations_count
+  end
 end

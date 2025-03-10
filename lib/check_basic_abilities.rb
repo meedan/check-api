@@ -125,7 +125,7 @@ module CheckBasicAbilities
   end
 
   def annotation_perms_for_all_users
-    %w(comment tag dynamic task annotation).each do |annotation_type|
+    %w(tag dynamic task annotation).each do |annotation_type|
       can :read, annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
         team_ids = [obj.team&.id]
         teams = Team.where(id: team_ids, private: false)

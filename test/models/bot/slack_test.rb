@@ -76,7 +76,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        create_comment annotated: pm
+        create_task annotated: pm
       end
     end
     assert_equal 2, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
@@ -92,7 +92,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        create_comment annotated: pm
+        create_task annotated: pm
       end
     end
     assert_equal 0, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
@@ -109,7 +109,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     DynamicAnnotation::AnnotationType.where(annotation_type: 'slack_message').last.delete
     stub_configs({ 'slack_token' => nil }) do
       Sidekiq::Testing.inline! do
-        create_comment annotated: pm
+        create_task annotated: pm
       end
     end
     assert_equal 0, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
@@ -125,7 +125,7 @@ class Bot::SlackTest < ActiveSupport::TestCase
     end
     stub_configs({ 'slack_token' => '123456' }) do
       Sidekiq::Testing.inline! do
-        create_comment annotated: pm
+        create_task annotated: pm
       end
     end
     assert_equal 3, WebMock::RequestRegistry.instance.times_executed(stub.request_pattern)
@@ -200,15 +200,6 @@ class Bot::SlackTest < ActiveSupport::TestCase
 
   test "should truncate text" do
     assert_equal 280, Bot::Slack.to_slack(random_string(300)).size
-  end
-
-  test "should team for task comment" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    tk = create_task annotated: pm
-    c = create_comment annotated: tk
-    assert_equal t, c.team
   end
 
   test "should notify about related claims" do
