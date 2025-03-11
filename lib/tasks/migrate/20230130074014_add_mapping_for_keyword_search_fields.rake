@@ -1,21 +1,45 @@
 namespace :check do
   namespace :migrate do
-    task index_fact_check_fields: :environment do
+    def parse_args(args)
+      output = {}
+      return output if args.blank?
+      args.each do |a|
+        arg = a.split('&')
+        arg.each do |pair|
+          key, value = pair.split(':')
+          output.merge!({ key => value })
+        end
+      end
+      output
+    end
+    # bundle exec rails check:migrate:index_fact_check_fields['slug:team_slug&batch_size:batch_size']
+    task index_fact_check_fields: :environment do |_t, args|
       # This rake task to index the following fields
       # 1) claim_description [content, context]
       # 2) fact_check [title, summary, url, language]
       started = Time.now.to_i
+      data_args = parse_args args.extras
+      batch_size = data_args['batch_size'] || 500
+      batch_size = batch_size.to_i
+      # Add team condition
+      slug = data_args['slug']
+      team_condition = {}
+      if slug.blank?
+        last_team_id = Rails.cache.read('check:migrate:index_fact_check_fields:team_id') || 0
+      else
+        last_team_id = 0
+        team_condition = { slug: slug }
+      end
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
-      last_team_id = Rails.cache.read('check:migrate:index_fact_check_fields:team_id') || 0
-      Team.where('id > ?', last_team_id).find_each do |team|
-        team.claim_descriptions.joins(:project_media).find_in_batches(:batch_size => 1000) do |cds|
+      Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
+        team.claim_descriptions.joins(:project_media).find_in_batches(:batch_size => batch_size) do |cds|
           es_body = []
           ids = cds.map(&:id)
           ClaimDescription.select('claim_descriptions.project_media_id as pm_id, claim_descriptions.description, claim_descriptions.context, fact_checks.*')
           .where(id: ids)
           .joins(:fact_check)
-          .find_in_batches(:batch_size => 1000) do |items|
+          .find_in_batches(:batch_size => batch_size) do |items|
             print '.'
             items.each do |item|
               doc_id = Base64.encode64("ProjectMedia/#{item['pm_id']}")
@@ -32,7 +56,7 @@ namespace :check do
           end
           client.bulk body: es_body unless es_body.blank?
         end
-        Rails.cache.write('check:migrate:index_fact_check_fields:team_id', team.id)
+        Rails.cache.write('check:migrate:index_fact_check_fields:team_id', team.id) if slug.blank?
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
