@@ -636,7 +636,7 @@ GEM
     pusher-signature (0.1.8)
     raabro (1.4.0)
     racc (1.8.0)
-    rack (2.2.11)
+    rack (2.2.13)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (1.0.6)
@@ -984,7 +984,7 @@ DEPENDENCIES
   phony_rails
   puma
   pusher
-  rack (= 2.2.11)
+  rack (= 2.2.13)
   rack-attack
   rack-cors (= 1.0.6)
   rack-protection (= 2.2.0)
