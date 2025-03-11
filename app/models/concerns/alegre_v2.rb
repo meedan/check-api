@@ -193,8 +193,10 @@ module AlegreV2
     end
 
     def delete_package(project_media, field, params={}, quiet=false)
+      type = get_type(project_media)
+      return if type.blank?
       generic_package(project_media, field).merge(
-        self.send("delete_package_#{get_type(project_media)}", project_media, field, params)
+        self.send("delete_package_#{type}", project_media, field, params)
       ).merge(
         quiet: quiet
       ).merge(params)
