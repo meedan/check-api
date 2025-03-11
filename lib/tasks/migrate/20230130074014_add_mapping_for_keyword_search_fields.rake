@@ -33,26 +33,26 @@ namespace :check do
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
       Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
-        team.claim_descriptions.joins(:project_media).find_in_batches(:batch_size => batch_size) do |cds|
+        team.claim_descriptions
+        .select(
+          'claim_descriptions.id, claim_descriptions.project_media_id as pm_id, claim_descriptions.description, claim_descriptions.context,
+          fact_checks.title, fact_checks.summary, fact_checks.url, fact_checks.language'
+          )
+        .joins(:project_media)
+        .joins(:fact_check)
+        .find_in_batches(:batch_size => batch_size) do |items|
           es_body = []
-          ids = cds.map(&:id)
-          ClaimDescription.select('claim_descriptions.project_media_id as pm_id, claim_descriptions.description, claim_descriptions.context, fact_checks.*')
-          .where(id: ids)
-          .joins(:fact_check)
-          .find_in_batches(:batch_size => batch_size) do |items|
-            print '.'
-            items.each do |item|
-              doc_id = Base64.encode64("ProjectMedia/#{item['pm_id']}")
-              fields = {
-                'claim_description_content' => item['description'],
-                'claim_description_context' => item['context'],
-                'fact_check_title' => item['title'],
-                'fact_check_summary' => item['summary'],
-                'fact_check_url' => item['url'],
-                'fact_check_languages' => [item['language']]
-              }
-              es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
-            end
+          items.each do |item|
+            doc_id = Base64.encode64("ProjectMedia/#{item['pm_id']}")
+            fields = {
+              'claim_description_content' => item['description'],
+              'claim_description_context' => item['context'],
+              'fact_check_title' => item['title'],
+              'fact_check_summary' => item['summary'],
+              'fact_check_url' => item['url'],
+              'fact_check_languages' => [item['language']]
+            }
+            es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
         end
