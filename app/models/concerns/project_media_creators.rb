@@ -133,7 +133,7 @@ module ProjectMediaCreators
       else
         self.media_type = 'Link'
       end
-    elsif original_claim || self.quote.present?
+    elsif original_claim.present? || self.quote.present?
       self.media_type = 'Claim'
     elsif self.url.present?
       self.media_type = 'Link'
@@ -144,7 +144,7 @@ module ProjectMediaCreators
     media_type = self.media_type
     original_claim = self.set_original_claim&.strip
 
-    if original_claim
+    if original_claim.present?
       case media_type
       when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
         [media_type, original_claim, { has_original_claim: true }]
