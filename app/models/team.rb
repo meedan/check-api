@@ -497,9 +497,9 @@ class Team < ApplicationRecord
     # Combine the two queries using SQL UNION
     query = <<~SQL
       SELECT type, id, title, language, created_at, updated_at FROM ( #{fact_checks.to_sql} UNION #{explainers.to_sql} ) AS articles
-      ORDER BY #{order} #{order_type} LIMIT ? OFFSET ?
+      ORDER BY #{order} #{order_type} LIMIT :limit OFFSET :offset
     SQL
-    results = ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql([query, limit, offset])).map{ |row| OpenStruct.new(row) }
+    results = ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.sanitize_sql([query, { limit: limit, offset: offset }])).map{ |row| OpenStruct.new(row) }
 
     # Pre-load objects in memory in order to avoid an N + 1 queries problem
     preloaded_results = {}
