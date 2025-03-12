@@ -199,6 +199,7 @@ class Feed < ApplicationRecord
 
   # This makes one HTTP request for each request, so please consider calling this method in background
   def self.notify_subscribers(pm, title, summary, url)
+    return if pm.blank?
     pm.team.feeds.each do |feed|
       if feed.item_belongs_to_feed?(pm)
         # Find cluster
