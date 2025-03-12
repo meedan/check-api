@@ -1615,4 +1615,12 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     assert_equal [], t.statistics_platforms
   end
+
+  test "should get filtered articles by keyword" do
+    Sidekiq::Testing.fake!
+    t = create_team
+    create_fact_check title: 'Test fact-check', claim_description: create_claim_description(description: 'Claim', project_media: create_project_media(team: t))
+    create_explainer title: 'Test explainer', team: t
+    assert_equal 2, t.filtered_articles(text: 'Test?').count
+  end
 end

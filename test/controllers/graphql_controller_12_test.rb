@@ -702,6 +702,7 @@ class GraphqlController12Test < ActionController::TestCase
                 set_tags: ["science", "science", "#science"],
                 set_status: "verified",
                 set_claim_description: "Claim #1.",
+                set_original_claim: "",
                 set_fact_check: {
                   title: "Title #1",
                   language: "en",
