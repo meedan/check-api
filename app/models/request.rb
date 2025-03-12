@@ -135,6 +135,7 @@ class Request < ApplicationRecord
   end
 
   def self.update_fact_checked_by(pm)
+    return if pm.blank?
     request = Request.where(media_id: pm.media_id).first
     request = request&.similar_to_request || request
     request.fact_checked_by(true) unless request.nil?
