@@ -266,4 +266,21 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       assert_equal audio.id, pm.media.id
     end
   end
+
+  test "should create a Claim media instead of UploadedAudio media if a Timeout is raised when creating from original claim" do
+    Tempfile.create(['test_audio', '.mp3']) do |file|
+      file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
+      file.rewind
+      audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+
+      Media.stubs(:downloaded_file).raises(Net::OpenTimeout)
+
+      pm = create_project_media(set_original_claim: audio_url)
+
+      assert_equal 'Claim', pm.media.type
+      assert_equal audio_url, pm.media.quote
+      assert_not_empty pm.media.original_claim
+    end
+  end
 end
