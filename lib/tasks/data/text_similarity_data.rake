@@ -5,6 +5,8 @@ namespace :check do
     desc 'Export text similarity data.'
     task :text_similarity_data, [:query_string] => [:environment] do |_task, args|
       ActiveRecord::Base.logger = nil
+      require 'zlib'
+      require 'stringio'
 
       def channel_name(item)
         CheckChannels::ChannelCodes.all_channels.find{ |_k, v| v == item.channel.to_h['main'].to_i }.to_a[0] ||
@@ -129,7 +131,6 @@ namespace :check do
           object[:relationships] << {
             parent_id: relationship.source_id,
             child_id: relationship.target_id,
-            user_name: relationship.user&.name
           }.merge(relationship.as_json)
         end
 
@@ -157,10 +158,18 @@ namespace :check do
         puts 'Please provide the AWS credentials.'
         exit 1
       end
+      # Stream gzip compression directly into memory
+      compressed_data = StringIO.new
+      Zlib::GzipWriter.wrap(compressed_data) do |gz|
+        data.each { |line| gz.write(line.to_json) }
+      end
+      compressed_data.rewind
+      body = data.collect{ |row| row.to_json }.join("\n")
       response = s3_client.put_object(
         bucket: s3_bucket_name,
         key: "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json",
-        body: JSON.pretty_generate(data)
+        body: compressed_data,
+        content_encoding: 'gzip',
       )
       if response.etag
         puts 'Uploaded to S3 successfully.'
