@@ -555,6 +555,10 @@ class ProjectMedia < ApplicationRecord
     Rails.cache.delete("relevant-items-#{self.id}")
   end
 
+  def has_tipline_requests_that_never_received_articles
+    TiplineRequest.no_articles_sent(self.id).exists?
+  end
+
   protected
 
   def create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)

@@ -19,6 +19,12 @@ class TiplineRequest < ApplicationRecord
   after_commit :update_elasticsearch_field, on: :update
   after_commit :destroy_elasticsearch_field, on: :destroy
 
+  scope :no_articles_sent, ->(project_media_id) {
+    where(associated_type: 'ProjectMedia', associated_id: project_media_id, smooch_report_received_at: 0,
+      smooch_report_update_received_at: 0, smooch_report_sent_at: 0, smooch_report_correction_sent_at: 0
+    ).where.not(smooch_request_type: %w(relevant_search_result_requests irrelevant_search_result_requests timeout_search_requests))
+  }
+
   def returned_search_results?
     self.smooch_request_type =~ /search/
   end

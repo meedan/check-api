@@ -412,4 +412,6 @@ class ProjectMediaType < DefaultObject
   def media_cluster_relationship
     Relationship.where(target_id: object.id).last || Relationship.where(source_id: object.id).last
   end
+
+  field :has_tipline_requests_that_never_received_articles, GraphQL::Types::Boolean, null: true
 end
