@@ -158,17 +158,22 @@ namespace :check do
         puts 'Please provide the AWS credentials.'
         exit 1
       end
-      # Stream gzip compression directly into memory
-      compressed_data = StringIO.new
-      Zlib::GzipWriter.wrap(compressed_data) do |gz|
-        data.each { |line| gz.write(line.to_json) }
-      end
-      compressed_data.rewind
       body = data.collect{ |row| row.to_json }.join("\n")
+      key = "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json"
+      output_file_path = File.join(Rails.root, 'tmp', key)
+      file = File.open(output_file_path, 'w+')
+      file.puts body
+      file.close
+      zipped = "#{output_file_path}.gz"
+      Zlib::GzipWriter.open(zipped) do |gz|
+        gz.write IO.binread(output_file_path)
+      end
+      zfile_path = File.join(Rails.root, 'tmp', zipped)
+
       response = s3_client.put_object(
         bucket: s3_bucket_name,
-        key: "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json",
-        body: compressed_data,
+        key: "#{key}.gz",
+        body: zfile_path,
         content_encoding: 'gzip',
       )
       if response.etag
