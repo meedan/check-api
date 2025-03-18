@@ -414,4 +414,5 @@ class ProjectMediaType < DefaultObject
   end
 
   field :has_tipline_requests_that_never_received_articles, GraphQL::Types::Boolean, null: true
+  field :number_of_tipline_requests_that_never_received_articles_by_time, JsonStringType, null: true
 end
