@@ -159,7 +159,7 @@ namespace :check do
         exit 1
       end
       body = data.collect{ |row| row.to_json }.join("\n")
-      key = "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json.zip"
+      key = "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json.gz"
       # Step 1: Compress data in memory (create an in-memory IO stream)
       io = StringIO.new
       gz = Zlib::GzipWriter.new(io)
@@ -172,7 +172,7 @@ namespace :check do
         bucket: s3_bucket_name,
         key: key,
         body: compressed_data,
-        content_type: 'application/zip'
+        content_type: 'application/gzip',
       )
       if response.etag
         puts 'Uploaded to S3 successfully.'
