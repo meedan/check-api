@@ -159,22 +159,20 @@ namespace :check do
         exit 1
       end
       body = data.collect{ |row| row.to_json }.join("\n")
-      key = "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json"
-      output_file_path = File.join(Rails.root, 'tmp', key)
-      file = File.open(output_file_path, 'w+')
-      file.puts body
-      file.close
-      zipped = "#{output_file_path}.gz"
-      Zlib::GzipWriter.open(zipped) do |gz|
-        gz.write IO.binread(output_file_path)
-      end
-      zfile_path = File.join(Rails.root, 'tmp', zipped)
-
+      key = "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json.zip"
+      # Step 1: Compress data in memory (create an in-memory IO stream)
+      io = StringIO.new
+      gz = Zlib::GzipWriter.new(io)
+      # Write the data into the Gzip stream
+      gz.write(body)
+      gz.close  # Close the stream to finalize compression
+      compressed_data = io.string  # Get the compressed data as a string
+      # Step 2: Upload the compressed file to AWS S3
       response = s3_client.put_object(
         bucket: s3_bucket_name,
-        key: "#{key}.gz",
-        body: zfile_path,
-        content_encoding: 'gzip',
+        key: key,
+        body: compressed_data,
+        content_type: 'application/zip'
       )
       if response.etag
         puts 'Uploaded to S3 successfully.'
