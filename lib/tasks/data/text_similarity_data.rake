@@ -5,6 +5,8 @@ namespace :check do
     desc 'Export text similarity data.'
     task :text_similarity_data, [:query_string] => [:environment] do |_task, args|
       ActiveRecord::Base.logger = nil
+      require 'zlib'
+      require 'stringio'
 
       def channel_name(item)
         CheckChannels::ChannelCodes.all_channels.find{ |_k, v| v == item.channel.to_h['main'].to_i }.to_a[0] ||
@@ -129,7 +131,6 @@ namespace :check do
           object[:relationships] << {
             parent_id: relationship.source_id,
             child_id: relationship.target_id,
-            user_name: relationship.user&.name
           }.merge(relationship.as_json)
         end
 
@@ -157,10 +158,21 @@ namespace :check do
         puts 'Please provide the AWS credentials.'
         exit 1
       end
+      body = data.collect{ |row| row.to_json }.join("\n")
+      key = "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json.gz"
+      # Step 1: Compress data in memory (create an in-memory IO stream)
+      io = StringIO.new
+      gz = Zlib::GzipWriter.new(io)
+      # Write the data into the Gzip stream
+      gz.write(body)
+      gz.close  # Close the stream to finalize compression
+      compressed_data = io.string  # Get the compressed data as a string
+      # Step 2: Upload the compressed file to AWS S3
       response = s3_client.put_object(
         bucket: s3_bucket_name,
-        key: "text-similarity-data-export-#{Time.now.strftime('%Y-%m-%d')}.json",
-        body: JSON.pretty_generate(data)
+        key: key,
+        body: compressed_data,
+        content_type: 'application/gzip',
       )
       if response.etag
         puts 'Uploaded to S3 successfully.'
