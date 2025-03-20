@@ -725,14 +725,14 @@ class MediaTest < ActiveSupport::TestCase
       assert_equal audio_url, uploaded_media.original_claim
     end
   end
-  
+
   test "Uploaded Media: should not save original_claim and original_claim_hash when not created from original claim" do
     uploaded_media = create_uploaded_audio
-    
+
     assert_nil uploaded_media.original_claim_hash
     assert_nil uploaded_media.original_claim
   end
-  
+
   test "Uploaded Media: should not create duplicate media if media with original_claim_hash exists" do
     Tempfile.create(['test_audio', '.mp3']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
