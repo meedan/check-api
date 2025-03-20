@@ -125,13 +125,13 @@ class Media < ApplicationRecord
   def self.downloaded_file(url)
     raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
     uri = URI.parse(url)
-    ext = File.extname(uri.path)
-    file = Tempfile.new(['download', ext])
-    file.binmode
+    extension = File.extname(uri.path)
+    filename = "download-#{SecureRandom.uuid}#{extension}"
+    filepath = File.join(Rails.root, 'tmp', filename)
     content = URI.open(uri, open_timeout: 5, read_timeout: 30).read
-    file.write(content)
-    file.rewind
-    file
+
+    File.atomic_write(filepath) { |file| file.write(content) }
+    File.open(filepath)
   end
 
   def self.find_or_create_uploaded_file_media(file_media, media_type, additional_args = {})
