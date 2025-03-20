@@ -128,9 +128,12 @@ class Media < ApplicationRecord
     extension = File.extname(uri.path)
     filename = "download-#{SecureRandom.uuid}#{extension}"
     filepath = File.join(Rails.root, 'tmp', filename)
-    content = URI.open(uri, open_timeout: 5, read_timeout: 30).read
 
-    File.atomic_write(filepath) { |file| file.write(content) }
+    request = Net::HTTP::Get.new(uri)
+    response = Net::HTTP.start(uri.hostname, uri.port, open_timeout: 5, read_timeout: 30, use_ssl: uri.scheme == 'https') { |http| http.request(request) }
+    body = response.body
+
+    File.atomic_write(filepath) { |file| file.write(body) }
     File.open(filepath)
   end
 
