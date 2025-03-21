@@ -420,7 +420,7 @@ GEM
     mime-types-data (3.2022.0105)
     mini_magick (4.10.1)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.7)
+    mini_portile2 (2.8.8)
     minitest (5.19.0)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
@@ -447,7 +447,7 @@ GEM
       net-protocol
     netrc (0.11.0)
     nio4r (2.7.3)
-    nokogiri (1.16.5)
+    nokogiri (1.18.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     numerizer (0.1.1)
@@ -635,7 +635,7 @@ GEM
       pusher-signature (~> 0.1.8)
     pusher-signature (0.1.8)
     raabro (1.4.0)
-    racc (1.8.0)
+    racc (1.8.1)
     rack (2.2.13)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
@@ -941,7 +941,7 @@ DEPENDENCIES
   minitest-retry
   mocha (~> 2.0)
   multi_json (= 1.15.0)
-  nokogiri (= 1.16.5)
+  nokogiri (= 1.18.4)
   omniauth-facebook
   omniauth-google-oauth2!
   omniauth-slack
