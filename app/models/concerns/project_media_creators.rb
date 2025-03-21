@@ -145,13 +145,18 @@ module ProjectMediaCreators
     original_claim = self.set_original_claim&.strip
 
     if original_claim.present?
-      case media_type
-      when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-        [media_type, original_claim, { has_original_claim: true }]
-      when 'Claim'
-        [media_type, original_claim, { has_original_claim: true }]
-      when 'Link'
-        [media_type, original_claim, { team: self.team, has_original_claim: true }]
+      begin
+        case media_type
+        when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
+          [media_type, Media.downloaded_file(original_claim), { has_original_claim: true, original_claim_url: original_claim }]
+        when 'Claim'
+          [media_type, original_claim, { has_original_claim: true }]
+        when 'Link'
+          [media_type, Link.normalized(original_claim, self.team&.get_pender_key), { team: self.team, has_original_claim: true }]
+        end
+      rescue Timeout::Error, Net::ReadTimeout, Net::OpenTimeout
+        Rails.logger.warn("[Media Creation] Timeout error while trying to create a File Media from #{original_claim}. a Claim Media was created instead.")
+        ['Claim', original_claim, { has_original_claim: true }]
       end
     else
       case media_type
