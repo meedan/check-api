@@ -152,7 +152,7 @@ module ProjectMediaCreators
         when 'Claim'
           [media_type, original_claim, { has_original_claim: true }]
         when 'Link'
-          [media_type, original_claim, { team: self.team, has_original_claim: true }]
+          [media_type, Link.normalized(original_claim, self.team.get_pender_key), { team: self.team, has_original_claim: true }]
         end
       rescue Timeout::Error, Net::ReadTimeout, Net::OpenTimeout
         Rails.logger.warn("[Media Creation] Timeout error while trying to create a File Media from #{original_claim}. a Claim Media was created instead.")

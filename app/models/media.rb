@@ -173,12 +173,11 @@ class Media < ApplicationRecord
     project_media_team = additional_args.fetch(:team, nil)
 
     pender_key = project_media_team&.get_pender_key if project_media_team
-    url_from_pender = Link.normalized(link_media, pender_key)
 
     if has_original_claim
-      Link.find_by(url: url_from_pender) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(link_media)) || Link.create!(url: link_media, pender_key: pender_key, original_claim: link_media)
+      Link.find_by(url: link_media) || Link.find_by(original_claim_hash: Digest::MD5.hexdigest(link_media)) || Link.create!(url: link_media, pender_key: pender_key, original_claim: link_media)
     else
-      Link.find_by(url: url_from_pender) || Link.create(url: link_media, pender_key: pender_key)
+      Link.find_by(url: link_media) || Link.create(url: link_media, pender_key: pender_key)
     end
   end
 end

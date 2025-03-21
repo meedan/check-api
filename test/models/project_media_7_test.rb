@@ -283,4 +283,18 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       assert_not_empty pm.media.original_claim
     end
   end
+
+  test "test" do
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_timeout
+
+    pm = create_project_media(set_original_claim: link_url)
+
+    assert_equal 'Claim', pm.media.type
+    assert_equal link_url, pm.media.quote
+    assert_not_empty pm.media.original_claim
+  end
 end
