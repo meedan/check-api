@@ -568,5 +568,10 @@ module SmoochMessages
       # Define a min number of words to create a media
       CheckConfig.get('min_number_of_words_for_tipline_long_text') || CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
     end
+
+    def replace_placeholders(uid, text)
+      external_id = TiplineMessage.where(uid: uid).last.external_id
+      text.gsub('{{message_id}}', external_id)
+    end
   end
 end
