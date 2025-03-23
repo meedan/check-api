@@ -981,6 +981,7 @@ class Bot::Smooch < BotUser
 
   def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil, pre_message = nil)
     parent = Relationship.confirmed_parent(pm)
+    return if parent.nil?
     report = parent.get_dynamic_annotation('report_design')
     Rails.logger.info "[Smooch Bot] Sending report to user #{uid} for item with ID #{pm.id}..."
     if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived) && report.should_send_report_in_this_language?(lang)
