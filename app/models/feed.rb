@@ -143,7 +143,8 @@ class Feed < ApplicationRecord
     query = self.clusters.joins(:project_media)
 
     # Filter by workspace
-    query = query.where.not("ARRAY[?] && team_ids", self.team_ids - team_ids.to_a.map(&:to_i)) if !team_ids.blank? && team_ids != self.team_ids
+    diff = self.team_ids - team_ids.to_a.map(&:to_i)
+    query = query.where.not("ARRAY[?] && team_ids", diff) unless team_ids.blank? || diff.empty?
     query = query.where(team_ids: []) if team_ids&.empty? # Invalidate the query
 
     # Filter by channel
