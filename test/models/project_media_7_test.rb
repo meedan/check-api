@@ -267,8 +267,8 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     end
   end
 
-  test "should create a Claim media instead of UploadedAudio media if a Timeout is raised when creating from original claim" do
   # this error is expected when trying to dowload the file
+  test "should create a Claim media instead of UploadedAudio media if a Timeout is raised when creating from original claim" do
     Tempfile.create(['test_audio', '.mp3']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
       file.rewind
@@ -285,8 +285,8 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     end
   end
 
-  test "should create a Claim media instead of Link media if a Timeout is raised" do
   # this error is expected when Pender tries to parse the link, so during media creation
+  test "should create a Claim media instead of Link media if a Timeout is raised" do
     # Mock Pender response for Link
     link_url = 'https://example.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
