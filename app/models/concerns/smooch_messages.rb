@@ -570,7 +570,7 @@ module SmoochMessages
     end
 
     def replace_placeholders(uid, text)
-      external_id = TiplineMessage.where(uid: uid).last.external_id
+      external_id = TiplineMessage.where(uid: uid).last&.external_id
       text.gsub('{{message_id}}', external_id)
     end
   end

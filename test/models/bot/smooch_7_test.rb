@@ -660,4 +660,13 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should replace message_id placeholder" do
+    uid = random_string
+    tm = create_tipline_message uid: uid
+    text = 'Foo {{message_id}} bar {{message_id}}'
+    external_id = tm.external_id
+    output = Bot::Smooch.replace_placeholders(uid, text)
+    assert_equal "Foo #{external_id} bar #{external_id}", output
+  end
 end

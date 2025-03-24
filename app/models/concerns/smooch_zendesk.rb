@@ -52,7 +52,7 @@ module SmoochZendesk
       api_client = self.zendesk_api_client
       api_instance = SmoochApi::ConversationApi.new(api_client)
       app_id = self.config['smooch_app_id']
-      text = self.replace_placeholders(text.to_s.truncate(4096), uid)
+      text = self.replace_placeholders(uid, text.to_s.truncate(4096))
       params = { 'role' => 'appMaker', 'type' => 'text', 'text' => text }.merge(extra)
       # An error is raised by Smooch API if we set "preview_url: true" and there is no URL in the "text" parameter
       if preview_url && text.to_s.match(/https?:\/\//) && !params[:override] && params['type'] == 'text'
