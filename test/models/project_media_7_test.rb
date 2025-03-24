@@ -268,6 +268,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
   end
 
   test "should create a Claim media instead of UploadedAudio media if a Timeout is raised when creating from original claim" do
+  # this error is expected when trying to dowload the file
     Tempfile.create(['test_audio', '.mp3']) do |file|
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
       file.rewind
@@ -282,5 +283,20 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       assert_equal audio_url, pm.media.quote
       assert_not_empty pm.media.original_claim
     end
+  end
+
+  test "should create a Claim media instead of Link media if a Timeout is raised" do
+  # this error is expected when Pender tries to parse the link, so during media creation
+    # Mock Pender response for Link
+    link_url = 'https://example.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+
+    WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_timeout
+
+    pm = create_project_media(set_original_claim: link_url)
+
+    assert_equal 'Claim', pm.media.type
+    assert_equal link_url, pm.media.quote
+    assert_not_empty pm.media.original_claim
   end
 end

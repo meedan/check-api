@@ -84,7 +84,12 @@ class Media < ApplicationRecord
     when 'Claim'
       find_or_create_claim_media(media_content, additional_args)
     when 'Link'
-      find_or_create_link_media(media_content, additional_args)
+      begin
+        find_or_create_link_media(media_content, additional_args)
+      rescue Timeout::Error
+        Rails.logger.warn("[Link Media Creation] Timeout error while trying to create a Link Media from #{media_content}. A Claim Media will be created instead.")
+        find_or_create_claim_media(media_content, additional_args)
+      end
     when 'Blank'
       Blank.create!
     end
