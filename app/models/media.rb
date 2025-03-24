@@ -84,7 +84,12 @@ class Media < ApplicationRecord
     when 'Claim'
       find_or_create_claim_media(media_content, additional_args)
     when 'Link'
-      find_or_create_link_media(media_content, additional_args)
+      begin
+        find_or_create_link_media(media_content, additional_args)
+      rescue Timeout::Error
+        Rails.logger.warn("[Link Media Creation] Timeout error while trying to create a Link Media from #{media_content}. A Claim Media will be created instead.")
+        find_or_create_claim_media(media_content, additional_args)
+      end
     when 'Blank'
       Blank.create!
     end
@@ -122,31 +127,33 @@ class Media < ApplicationRecord
     self.original_claim_hash = Digest::MD5.hexdigest(original_claim) unless self.original_claim.blank?
   end
 
-  def self.download_file(url, ext)
+  def self.downloaded_file(url)
     raise "Invalid URL when creating media from original claim attribute" unless url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/
+    uri = URI.parse(url)
+    extension = File.extname(uri.path)
+    filename = "download-#{SecureRandom.uuid}#{extension}"
+    filepath = File.join(Rails.root, 'tmp', filename)
 
-    file = Tempfile.new(['download', ext])
-    file.binmode
-    file.write(URI(url).open.read)
-    file.rewind
-    file
+    request = Net::HTTP::Get.new(uri)
+    response = Net::HTTP.start(uri.hostname, uri.port, open_timeout: 5, read_timeout: 30, use_ssl: uri.scheme == 'https') { |http| http.request(request) }
+    body = response.body
+
+    File.atomic_write(filepath) { |file| file.write(body) }
+    File.open(filepath)
   end
 
   def self.find_or_create_uploaded_file_media(file_media, media_type, additional_args = {})
     has_original_claim = additional_args&.fetch(:has_original_claim, nil)
+    original_claim_url = additional_args&.fetch(:original_claim_url, nil)
     klass = media_type.constantize
 
     if has_original_claim
-      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(file_media))
+      existing_media = klass.find_by(original_claim_hash: Digest::MD5.hexdigest(original_claim_url))
 
       if existing_media
         existing_media
       else
-        uri = URI.parse(file_media)
-        ext = File.extname(uri.path)
-        file = download_file(file_media, ext)
-
-        klass.create!(file: file, original_claim: file_media)
+        klass.create!(file: file_media, original_claim: original_claim_url)
       end
     else
       m = klass.find_by(file: Media.filename(file_media)) || klass.new(file: file_media)
