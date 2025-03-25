@@ -37,7 +37,7 @@ module Article
 
   def set_channel
     return if self.channel.present?
-    if User.current && User.current.is_a?(BotUser)
+    if self.user.is_a?(BotUser) || User.current && User.current.is_a?(BotUser)
       self.channel = "api"
     else
       self.channel = "manual"
