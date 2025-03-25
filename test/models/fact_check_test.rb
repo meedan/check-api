@@ -741,4 +741,65 @@ class FactCheckTest < ActiveSupport::TestCase
     User.current = nil
     assert_equal u, fc.author
   end
+
+  test "should assign default channel 'manual' for a regular user" do
+    fc = create_fact_check
+    assert_equal 'manual', fc.channel
+  end
+
+  # this was the only way so far I got this test to work so we could set User.current
+  test "should assign default channel 'api' for a BotUser" do
+    bot = create_bot_user(default: true, approved: true)
+    # Prevent duplicate installation errors by stubbing out the default bot callback if needed.
+    Team.any_instance.stubs(:add_default_bots_to_team)
+
+    User.current = bot
+
+    # if we don't skip_check_ability we hit permission errors
+    # if I don't create the claim media, it tries to create a Link Media and hits permissions errors as well
+    media = Media.new(quote: 'blah', skip_check_ability: true)
+    pm = create_project_media(media: media, skip_check_ability: true)
+    cd = create_claim_description(project_media: pm, skip_check_ability: true)
+    fc = create_fact_check(claim_description: cd, channel: nil, skip_check_ability: true)
+
+    assert_equal 'api', fc.channel
+
+    User.current = nil
+  end
+
+  # I feel something like this should work
+  # But if we only rely on User.current this does not work
+  test "should assign default channel 'api' for a BotUser #2" do
+    bot = create_bot_user(default: true, approved: true)
+    fc = create_fact_check(user: bot, channel: nil)
+
+    assert_equal 'api', fc.channel
+  end
+
+  test "should allow explicit override of channel" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check(claim_description: cd, channel: 'imported')
+
+    assert_equal 'imported', fc.channel
+  end
+
+  test "should not allow an invalid channel value" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    assert_raises(ArgumentError) do
+      create_fact_check(claim_description: cd, channel: 'invalid')
+    end
+  end
+
+  test "should not change channel on update if already set" do
+    pm = create_project_media
+    cd = create_claim_description(project_media: pm)
+    fc = create_fact_check(claim_description: cd, channel: 'imported')
+
+    fc.title = 'Updated Title'
+    fc.save!
+
+    assert_equal "imported", fc.reload.channel
+  end
 end
