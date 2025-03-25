@@ -16,7 +16,6 @@ module ProjectMediaCreators
     fc = nil
     unless self.set_fact_check.blank?
       fact_check = self.set_fact_check.with_indifferent_access
-      fact_check['channel'] ||= (User.current && User.current.is_a?(BotUser)) ? 'api' : 'manual'
       fc = FactCheck.create!({
         title: fact_check['title'],
         summary: fact_check['summary'],
