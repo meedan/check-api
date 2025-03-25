@@ -12,6 +12,8 @@ module PenderData
       pender_key = get_pender_key
       begin
         result = PenderClient::Request.get_medias(CheckConfig.get('pender_url_private'), params, pender_key)
+      rescue Timeout::Error, Net::ReadTimeout, Net::OpenTimeout
+        raise Timeout::Error
       rescue StandardError => e
         Rails.logger.error("[Pender] Exception for URL #{self.url}: #{e.message}")
         CheckSentry.notify(PenderRequestError.new('Could not parse URL using Pender'), params: params, error: e)
