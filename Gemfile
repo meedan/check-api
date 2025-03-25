@@ -34,7 +34,7 @@ group :development do
 end
 
 gem 'webmock'
-gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
+gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: 'ad74fad'
 gem 'lograge'
 gem 'rails', '~> 6.1.7'
 gem 'pg', '~> 1.1'
