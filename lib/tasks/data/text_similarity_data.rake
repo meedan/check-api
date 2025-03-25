@@ -35,7 +35,7 @@ namespace :check do
           origin: nil,
           relationships: [],
           articles: [{
-            id: article.graphql_id,
+            id: article.graphql_id.chomp,
             title: article.title,
             body: article.send(body_method_mapping[type]),
             url: article.url,
@@ -99,7 +99,7 @@ namespace :check do
         object[:articles] = []
         item.explainers.find_each do |explainer|
           object[:articles] << {
-            id: explainer.graphql_id,
+            id: explainer.graphql_id.chomp,
             title: explainer.title,
             body: explainer.description,
             url: explainer.url,
@@ -114,7 +114,7 @@ namespace :check do
         unless item.fact_check.nil?
           fact_check = item.fact_check
           object[:articles] << {
-            id: fact_check.graphql_id,
+            id: fact_check.graphql_id.chomp,
             title: fact_check.title,
             body: fact_check.summary,
             url: fact_check.url,
