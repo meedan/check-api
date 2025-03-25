@@ -103,7 +103,8 @@ module SmoochSearch
     end
 
     def parse_search_results_from_alegre(results, limit, published_only, after = nil, feed_id = nil, team_ids = nil)
-      pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      ranks = {Bot::Alegre::ELASTICSEARCH_MODEL: 0, Bot::Alegre::OPENAI_ADA_MODEL: 3, Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL: 2}
+      pms = reject_temporary_results(results).sort_by{ |a| [ranks.fetch(a[1][:model],1), a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
       filter_search_results(pms, after, feed_id, team_ids, published_only).uniq(&:id).first(limit)
     end
 
