@@ -11,7 +11,7 @@ module Article
 
     before_validation :set_author, on: :create
     before_validation :set_user
-    before_validation :set_channel, on: :create
+    before_validation :set_channel, on: :create, unless: -> { self.class_name == "ClaimDescription" }
     validates_presence_of :user
 
     validates :channel, inclusion: { in: %w[imported manual api zapier] }, unless: -> { self.class_name == "ClaimDescription" }
