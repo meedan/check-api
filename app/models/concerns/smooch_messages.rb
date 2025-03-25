@@ -570,8 +570,18 @@ module SmoochMessages
     end
 
     def replace_placeholders(uid, text)
-      external_id = TiplineMessage.where(uid: uid).last&.external_id
-      text.gsub('{{message_id}}', external_id.to_s)
+      # Method build to contain multiple placeholders.
+      # To add a new placeholder, simply add a new key and include the replacement value in the replacements array.
+      keys = ['{{message_id}}']
+      if keys.any? { |substring| text.include?(substring) }
+        team_id = self.config['team_id'].to_i
+        external_id = TiplineMessage.where(team_id: team_id, uid: uid, direction: 'incoming', state: 'received').last&.external_id
+        replacements = { '{{message_id}}' => external_id.to_s }
+        replacements.each do |old, new|
+          text.gsub!(old, new)
+        end
+      end
+      text
     end
   end
 end
