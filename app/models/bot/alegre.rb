@@ -17,6 +17,16 @@ class Bot::Alegre < BotUser
   OPENAI_ADA_MODEL = 'openai-text-embedding-ada-002'
   PARAPHRASE_MULTILINGUAL_MODEL = 'paraphrase-multilingual-mpnet-base-v2'
   ELASTICSEARCH_MODEL = 'elasticsearch'
+
+  TEXT_MODEL_RANKS = { # Higher is better
+    Bot::Alegre::OPENAI_ADA_MODEL => 3,
+    Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 2,
+    Bot::Alegre::FILIPINO_MODEL => 2
+    Bot::Alegre::MEAN_TOKENS_MODEL => 1,
+    Bot::Alegre::INDIAN_MODEL => 1,
+    Bot::Alegre::ELASTICSEARCH_MODEL => 0
+  }
+
   DEFAULT_ES_SCORE = 10
 
   REPORT_TEXT_SIMILARITY_FIELDS = ['report_text_title', 'report_text_content', 'report_visual_card_title', 'report_visual_card_content']
