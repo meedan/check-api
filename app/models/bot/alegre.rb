@@ -21,7 +21,7 @@ class Bot::Alegre < BotUser
   TEXT_MODEL_RANKS = { # Higher is better
     Bot::Alegre::OPENAI_ADA_MODEL => 3,
     Bot::Alegre::PARAPHRASE_MULTILINGUAL_MODEL => 2,
-    Bot::Alegre::FILIPINO_MODEL => 2
+    Bot::Alegre::FILIPINO_MODEL => 2,
     Bot::Alegre::MEAN_TOKENS_MODEL => 1,
     Bot::Alegre::INDIAN_MODEL => 1,
     Bot::Alegre::ELASTICSEARCH_MODEL => 0
