@@ -139,17 +139,19 @@ class Relationship < ApplicationRecord
   end
 
   def update_counters
-    return if self.is_default? || self.source.nil? || self.target.nil?
-    source = self.source
-    target = self.target
-
-    target.skip_check_ability = true
-    target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-    target.save!
-
-    source.skip_check_ability = true
-    source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
-    source.save!
+    return if self.is_default?
+    unless self.target_id.nil?
+      target = self.target
+      target.skip_check_ability = true
+      target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
+      target.save!
+    end
+    unless self.source_id.nil?
+      source = self.source
+      source.skip_check_ability = true
+      source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
+      source.save!
+    end
   end
 
   def create_or_update_parent_id
