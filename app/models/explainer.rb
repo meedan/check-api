@@ -121,6 +121,7 @@ class Explainer < ApplicationRecord
       context: context
     }
     response = Bot::Alegre.query_sync_with_params(params, 'text')
+    #TODO: Can we replace the next line with Bot::Alegre::return_prioritized_matches ?
     results = response['result'].to_a.sort_by{ |result| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(result['model'],1), result['_score']] }.reverse
     explainer_ids = results.collect{ |result| result.dig('context', 'explainer_id').to_i }.uniq.first(limit)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)

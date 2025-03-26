@@ -103,6 +103,7 @@ module SmoochSearch
     end
 
     def parse_search_results_from_alegre(results, limit, published_only, after = nil, feed_id = nil, team_ids = nil)
+      # TODO: Can we replace the next line with Bot::Alegre::return_prioritized_matches ?
       pms = reject_temporary_results(results).sort_by{ |a| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(a[1][:model],1), a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
       filter_search_results(pms, after, feed_id, team_ids, published_only).uniq(&:id).first(limit)
     end
