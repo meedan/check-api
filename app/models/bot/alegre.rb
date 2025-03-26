@@ -517,9 +517,9 @@ class Bot::Alegre < BotUser
   def self.return_prioritized_matches(pm_id_scores)
     if pm_id_scores.is_a?(Hash)
       # make K negative so that we bias towards older IDs
-      pm_id_scores.sort_by{|k,v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score], -k]}.reverse
+      pm_id_scores.sort_by{|k,v| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(v[:model],1), v[:score], -k]}.reverse
     elsif pm_id_scores.is_a?(Array)
-      pm_id_scores.sort_by{|v| [Bot::Alegre::ELASTICSEARCH_MODEL != v[:model] ? 1 : 0, v[:score]]}.reverse
+      pm_id_scores.sort_by{|v| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(v[:model],1), v[:score]]}.reverse
     else
       Rails.logger.error("[Alegre Bot] Unknown variable type in return_prioritized_matches: ##{pm_id_scores.class}")
       pm_id_scores
