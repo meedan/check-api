@@ -3,6 +3,8 @@ require 'active_support/concern'
 module Article
   extend ActiveSupport::Concern
 
+  ARTICLE_CHANNELS = { imported: 0, manual: 1, api: 2, zapier: 3 }
+
   included do
     include CheckElasticSearch
 
@@ -15,7 +17,7 @@ module Article
     validates_presence_of :user
 
     validates :channel, inclusion: { in: %w[imported manual api zapier] }, unless: -> { self.class_name == "ClaimDescription" }
-    enum channel: { imported: 0, manual: 1, api: 2, zapier: 3 }
+    enum channel: ARTICLE_CHANNELS
 
     after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
     after_commit :destroy_elasticsearch_data, on: :destroy
