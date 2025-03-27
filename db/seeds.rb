@@ -526,7 +526,7 @@ class PopulatedWorkspaces
       description: Faker::Lorem.paragraph(sentence_count: 8),
       team: team,
       user: bot,
-      channel: 'api'
+      channel: random_imported_article_channel
     })
   end
 
@@ -724,11 +724,16 @@ class PopulatedWorkspaces
         user: bot,
         language: 'en',
         url: get_url_for_some_fact_checks(4),
-        channel: 'api',
+        channel: random_imported_article_channel,
       }
     else
       false
     end
+  end
+
+  def random_imported_article_channel
+    channels = ['api', 'zapier', 'imported']
+    channels.sample
   end
 
   def channel(media_type)
