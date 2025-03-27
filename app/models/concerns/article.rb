@@ -37,11 +37,7 @@ module Article
 
   def set_channel
     return if self.channel.present?
-    if self.user.is_a?(BotUser)
-      self.channel = "api"
-    else
-      self.channel = "manual"
-    end
+    self.channel = self.user.is_a?(BotUser) ? 'api' : 'manual'
   end
 
   def update_elasticsearch_data
