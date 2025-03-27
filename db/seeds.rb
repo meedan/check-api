@@ -341,6 +341,7 @@ class PopulatedWorkspaces
 
   def explainers
     teams.each_value { |team| 5.times { create_explainer(team) } }
+    teams.each_value { |team| 5.times { create_imported_explainer(team) } }
   end
 
   def main_user_feed(to_be_shared)
@@ -515,6 +516,17 @@ class PopulatedWorkspaces
       description: Faker::Lorem.paragraph(sentence_count: 8),
       team: team,
       user: users[:main_user_a],
+    })
+  end
+
+  def create_imported_explainer(team)
+    Explainer.create!({
+      title: Faker::Lorem.sentence,
+      url: random_url,
+      description: Faker::Lorem.paragraph(sentence_count: 8),
+      team: team,
+      user: bot,
+      channel: 'api'
     })
   end
 
@@ -711,7 +723,8 @@ class PopulatedWorkspaces
         title: Faker::Company.name,
         user: bot,
         language: 'en',
-        url: get_url_for_some_fact_checks(4)
+        url: get_url_for_some_fact_checks(4),
+        channel: 'api',
       }
     else
       false
