@@ -3,7 +3,7 @@ require 'active_support/concern'
 module Article
   extend ActiveSupport::Concern
 
-  ARTICLE_CHANNELS = { imported: 0, manual: 1, api: 2, zapier: 3 }
+  ARTICLE_CHANNELS = { 'imported' => 0, 'manual' => 1, 'api' => 2, 'zapier' => 3 }
 
   included do
     include CheckElasticSearch
@@ -16,7 +16,7 @@ module Article
     before_validation :set_channel, on: :create, unless: -> { self.is_a?(ClaimDescription) }
     validates_presence_of :user
 
-    validates :channel, inclusion: { in: %w[imported manual api zapier] }, unless: -> { self.is_a?(ClaimDescription) }
+    validates :channel, inclusion: { in: ARTICLE_CHANNELS.keys }, unless: -> { self.is_a?(ClaimDescription) }
     enum channel: ARTICLE_CHANNELS
 
     after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
