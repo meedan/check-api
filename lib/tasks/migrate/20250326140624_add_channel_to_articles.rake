@@ -9,7 +9,7 @@ namespace :check do
       TOTAL = []
 
       [FactCheck, Explainer].each do |model|
-        query = model.joins(:user).where('users.type' => 'BotUser')
+        query = model.joins(:user).where('users.type' => 'BotUser').where(channel: 'manual')
         TOTAL << query.count
         puts "[#{Time.now}] Total of instances of #{model} to update channel to api: #{query.count}."
   
