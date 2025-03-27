@@ -13,10 +13,10 @@ module Article
 
     before_validation :set_author, on: :create
     before_validation :set_user
-    before_validation :set_channel, on: :create, unless: -> { self.class_name == "ClaimDescription" }
+    before_validation :set_channel, on: :create, unless: -> { self.is_a?(ClaimDescription) }
     validates_presence_of :user
 
-    validates :channel, inclusion: { in: %w[imported manual api zapier] }, unless: -> { self.class_name == "ClaimDescription" }
+    validates :channel, inclusion: { in: %w[imported manual api zapier] }, unless: -> { self.is_a?(ClaimDescription) }
     enum channel: ARTICLE_CHANNELS
 
     after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
