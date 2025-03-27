@@ -265,6 +265,49 @@ class TestController < ApplicationController
     render html: "<!doctype html><html><head><title>Test #{rand(100000).to_i}</title></head><body>Test</body></html>".html_safe
   end
 
+  def create_saved_search
+    team = Team.current = Team.find(params[:team_id])
+    user = User.where(email: params[:email]).last
+
+    saved_search_params = {
+      title: "#{user.name.capitalize}'s list",
+      team: team,
+      filters: { created_by: user },
+    }
+
+    saved_search = if team.saved_searches.empty?
+                     SavedSearch.create!(saved_search_params)
+                   else
+                     team.saved_searches.first
+                   end
+
+    render_success 'saved_search', saved_search
+  end
+
+  def create_feed
+    team = Team.current = Team.find(params[:team_id])
+    user = User.where(email: params[:email]).last
+    saved_search = team.saved_searches.first || SavedSearch.create!(
+      title: "#{user.name.capitalize}'s list",
+      team: team,
+      filters: { created_by: user }
+    )
+
+    feed_params = {
+      name: "Feed for #{team.name} ##{team.feeds.count + 1}",
+      user: user,
+      team: team,
+      published: true,
+      saved_search: saved_search,
+      licenses: [1],
+      last_clusterized_at: Time.now,
+      data_points: [1, 2]
+    }
+
+    feed = Feed.create!(feed_params)
+    render_success 'feed', feed
+  end
+
   protected
 
   def new_media(type)

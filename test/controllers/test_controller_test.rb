@@ -515,6 +515,68 @@ class TestControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should create saved search" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+
+    assert_difference 'SavedSearch.count' do
+      get :create_saved_search, params: { team_id: t.id }
+    end
+
+    assert_response 200
+    saved_search = t.saved_searches.last
+    assert_not_nil saved_search
+    assert_equal "#{u.name.capitalize}'s list", saved_search.title
+    assert_equal t, saved_search.team
+  end
+
+  test "should not create saved search if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+
+    assert_no_difference 'SavedSearch.count' do
+      get :create_saved_search, params: { team_id: t.id }
+    end
+
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create feed" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    SavedSearch.create!(title: "#{u.name.capitalize}'s list", team: t, filters: { created_by: u })
+
+    assert_difference 'Feed.count' do
+      get :create_feed, params: { team_id: t.id }
+    end
+
+    assert_response 200
+    feed = t.feeds.last
+    assert_not_nil feed
+    assert_equal "Feed for #{t.name} ##{t.feeds.count}", feed.name
+    assert_equal t, feed.team
+  end
+
+  test "should not create feed if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    SavedSearch.create!(title: "#{u.name.capitalize}'s list", team: t, filters: { created_by: u })
+
+    assert_no_difference 'Feed.count' do
+      get :create_feed, params: { team_id: t.id }
+    end
+
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
   test "should not create standalone fact check and associate with the team" do
     Rails.stubs(:env).returns('development')
 
