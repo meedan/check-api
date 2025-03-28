@@ -1019,4 +1019,35 @@ class GraphqlController12Test < ActionController::TestCase
     result = JSON.parse(@response.body)['data']['createFactCheck']['fact_check']
     assert_equal "zapier", result["channel"]
   end
+
+  test "should create explainer with api channel when created by Bot" do
+    t = create_team
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    authenticate_with_token(a)
+
+    query = <<-GRAPHQL
+      mutation {
+        createExplainer(input: {
+          title: "GraphQL Explainer Default",
+          description: "Test description",
+          url: "http://test.com",
+          language: "en"
+        }) {
+          explainer {
+            dbid
+            channel
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    result = JSON.parse(@response.body)['data']['createExplainer']['explainer']
+    explainer = Explainer.find(result['dbid'])
+
+    assert_instance_of BotUser, explainer.user
+    assert_equal "api", result["channel"]
+  end
 end
