@@ -229,6 +229,7 @@ module SmoochCapi
       account, to = uid.split(':')
       return if account != self.config['capi_phone_number']
       if text.is_a?(String)
+        text = self.replace_placeholders(uid, text)
         payload = {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
