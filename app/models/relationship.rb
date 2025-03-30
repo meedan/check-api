@@ -229,6 +229,7 @@ class Relationship < ApplicationRecord
     s = item.last_status_obj
     unless s.nil? || s.status == status
       s.status = status
+      s.skip_trashed_validation = true
       s.bypass_status_publish_check = true
       s.save!
     end
