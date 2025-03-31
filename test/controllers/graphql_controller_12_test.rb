@@ -940,12 +940,16 @@ class GraphqlController12Test < ActionController::TestCase
     cd2 = create_claim_description(project_media: pm2)
     fc_api = create_fact_check(claim_description: cd2, channel: "api", trashed: false)
 
+    pm3 = create_project_media team: @t
+    cd3 = create_claim_description(project_media: pm3)
+    fc_imported = create_fact_check(claim_description: cd3, channel: "imported", trashed: false)
+
     authenticate_with_user(@u)
 
     query = <<-GRAPHQL
       query {
         team(slug: "#{@t.slug}") {
-          articles(article_type: "fact-check", channel: "manual") {
+          articles(article_type: "fact-check", channel: ["manual","imported"]) {
             edges {
               node {
                 ... on FactCheck {
@@ -960,7 +964,9 @@ class GraphqlController12Test < ActionController::TestCase
     GRAPHQL
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    articles = JSON.parse(@response.body)['data']['team']['articles']['edges']
+    articles = JSON.parse(@response.body)
+    # articles = JSON.parse(@response.body)['data']['team']['articles']['edges']
+    p articles
     articles.each do |edge|
       assert_equal "manual", edge['node']['channel']
     end
