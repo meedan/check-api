@@ -176,4 +176,40 @@ class ExplainerTest < ActiveSupport::TestCase
     User.current = nil
     assert_equal u, ex.author
   end
+
+  test "should assign default channel 'manual' for a regular user" do
+    t = create_team
+    ex = create_explainer(team: t)
+    assert_equal "manual", ex.channel
+  end
+
+  test "should assign default channel 'api' for a BotUser" do
+    bot = create_bot_user(default: true, approved: true)
+    t = create_team
+    ex = create_explainer(team: t, user: bot, channel: nil)
+    assert_equal "api", ex.channel
+  end
+
+  test "should allow explicit override of channel" do
+    t = create_team
+    ex = create_explainer(team: t, channel: "imported")
+    assert_equal "imported", ex.channel
+  end
+
+  test "should not allow an invalid channel value" do
+    t = create_team
+    assert_raises(ArgumentError) do
+      create_explainer(team: t, channel: "invalid")
+    end
+  end
+
+  test "should not change channel on update if already set" do
+    t = create_team
+    ex = create_explainer(team: t, channel: "imported")
+
+    ex.title = "Updated Title"
+    ex.save!
+
+    assert_equal "imported", ex.reload.channel
+  end
 end
