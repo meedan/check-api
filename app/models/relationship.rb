@@ -140,13 +140,13 @@ class Relationship < ApplicationRecord
 
   def update_counters
     return if self.is_default?
-    unless self.target_id.nil?
+    unless self.target.nil?
       target = self.target
       target.skip_check_ability = true
       target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
       target.save!
     end
-    unless self.source_id.nil?
+    unless self.source.nil?
       source = self.source
       source.skip_check_ability = true
       source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
