@@ -498,7 +498,7 @@ en:
     password_text: reset your password immediately.
     device_text: It looks like you recently signed into your %{app_name} account from
       a new device. If this wasn't you, you should %{change_password}
-    ip_text: It looks like you recently signed into your %{app_name} account. If this wasn't you, you should %{change_password}
+    ip_text: It looks like you recently signed into your %{app_name} account. If you don't recognize this activity, please %{change_password}
     failed_text: It looks like multiple attempts were made to login into your %{app_name}
       account. If this was you, you can safely disregard this email. If this wasn't
       you, then you should %{change_password}
