@@ -489,17 +489,16 @@ en:
       footer: This download link will expire on %{date}.
   mail_security:
     device_subject: 'Security alert: New login to %{app_name} from %{browser} on %{platform}'
-    ip_subject: 'Security alert: New or unusual %{app_name} login'
+    ip_subject: 'Security alert: New %{app_name} login'
     failed_subject: 'Security alert: Failed login attempts to %{app_name}'
-    ip: You've signed in from %{location}
+    ip: New sign in to your account detected
     device: You've signed in from %{browser} on %{platform}
     devise_name: "%{browser} on %{platform}"
     failed: Failed login attempts detected
     password_text: reset your password immediately.
     device_text: It looks like you recently signed into your %{app_name} account from
       a new device. If this wasn't you, you should %{change_password}
-    ip_text: It looks like you recently signed into your %{app_name} account from
-      a new location. If this wasn't you, you should %{change_password}
+    ip_text: It looks like you recently signed into your %{app_name} account. If this wasn't you, you should %{change_password}
     failed_text: It looks like multiple attempts were made to login into your %{app_name}
       account. If this was you, you can safely disregard this email. If this wasn't
       you, then you should %{change_password}
