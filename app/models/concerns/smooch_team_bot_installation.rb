@@ -120,8 +120,10 @@ module SmoochTeamBotInstallation
 
       def smooch_default_messages
         messages = {}
+        keys = I18n.t('tipline.messages', default: {}).keys
         self.team.get_languages.to_a.each do |language|
-          messages[language] = TIPLINE_STRINGS[language] if TIPLINE_STRINGS.has_key?(language)
+          messages[language] = {}
+          keys.each { |key| messages[language][key.to_s] = I18n.t("tipline.messages.#{key}", locale: language) }
         end
         messages
       end

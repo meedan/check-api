@@ -859,3 +859,18 @@ en:
       moved_to_private_folder: '"%{item_title}" has been moved to a folder you do
         not have access to.'
       add_warning_cover_by_rule: Added a warning cover to sensitive item "%{item_title}"
+  tipline:
+    messages:
+      smooch_message_smooch_bot_greetings: 'Welcome to our fact-checking bot. Use the main menu to navigate.'
+      submission_prompt: 'Please enter the question, link, picture, or video that you want to be fact-checked.'
+      add_more_details_state: 'Please add more content.'
+      ask_if_ready_state: 'Are you ready to submit?'
+      search_state: 'Thank you! Looking for fact-checks, it may take a minute.'
+      search_no_results: 'No fact-checks have been found. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.'
+      search_result_state: 'Are these fact-checks answering your question?'
+      search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation!'
+      search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if a new fact-check is published.'
+      newsletter_optin_optout: 'Subscribe now to get the most important facts delivered directly on WhatsApp, every week. {subscription_status}.'
+      option_not_available: "I'm sorry, I didn't understand your message."
+      timeout: 'Thank you for reaching out to us! Type any key to start a new conversation.'
+      smooch_message_smooch_bot_disabled: 'Our bot is currently inactive.'
