@@ -930,19 +930,19 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal 2, annotations_count
   end
 
-  test "should return fact_check channel in team articles query when filtered by channel" do
-    # Create two fact-checks with different channel values.
+  test "should return fact_check in team articles query when filtered by channel" do
+    # Create three fact-checks with different channel values, query for two (manual and imported)
     pm1 = create_project_media team: @t
     cd1 = create_claim_description(project_media: pm1)
-    fc_manual = create_fact_check(claim_description: cd1, channel: "manual", trashed: false)
+    create_fact_check(claim_description: cd1, channel: "manual", trashed: false)
   
     pm2 = create_project_media team: @t
     cd2 = create_claim_description(project_media: pm2)
-    fc_api = create_fact_check(claim_description: cd2, channel: "api", trashed: false)
+    create_fact_check(claim_description: cd2, channel: "api", trashed: false)
 
     pm3 = create_project_media team: @t
     cd3 = create_claim_description(project_media: pm3)
-    fc_imported = create_fact_check(claim_description: cd3, channel: "imported", trashed: false)
+    create_fact_check(claim_description: cd3, channel: "imported", trashed: false)
 
     authenticate_with_user(@u)
 
@@ -964,11 +964,9 @@ class GraphqlController12Test < ActionController::TestCase
     GRAPHQL
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    articles = JSON.parse(@response.body)
-    # articles = JSON.parse(@response.body)['data']['team']['articles']['edges']
-    p articles
+    articles = JSON.parse(@response.body)['data']['team']['articles']['edges']
     articles.each do |edge|
-      assert_equal "manual", edge['node']['channel']
+      assert_match /manual|imported/, edge['node']['channel']
     end
   end
 
