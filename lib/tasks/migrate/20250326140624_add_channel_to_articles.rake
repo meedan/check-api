@@ -4,27 +4,33 @@ namespace :check do
   namespace :migrate do
     desc 'Add channel to Articles(FactChecks and Explainers)'
     task add_channel_to_articles: :environment do
-      puts "[#{Time.now}] Starting to add channels to Articles"
-      started = Time.now.to_i
-      TOTAL = []
+      ActiveRecord::Base.logger = nil
 
-      [FactCheck, Explainer].each do |model|
-        query = model.joins(:user).where('users.type' => 'BotUser').where(channel: 'manual')
-        TOTAL << query.count
-        puts "[#{Time.now}] Total of instances of #{model} to update channel to api: #{query.count}."
-  
+      def update_channel_for_query(query)
+        count = query.count
+        puts "[#{Time.now}] Number of instances to update channel to api: #{count}."
         i = 0
         query.in_batches(of: 1000) do |batch|
           i += 1
           batch.update_all(channel: 'api')
-          puts "[#{Time.now}] Updated channel for batch ##{i} of instances of model #{model}."
+          puts "[#{Time.now}] Updated channel for batch ##{i}."
         end
+        count
+      end
+
+      puts "[#{Time.now}] Starting to add channels to Articles"
+      started = Time.now.to_i
+
+      [FactCheck, Explainer].each do |model|
+        query1 = model.joins(:author).where('users.type' => 'BotUser').where(channel: 'manual')
+        count1 = update_channel_for_query(query1)
+        query2 = model.joins(:user).where('users.type' => 'BotUser').where(author_id: nil).where(channel: 'manual')
+        count2 = update_channel_for_query(query2)
+        puts "[#{Time.now}] Updated channel for #{count1 + count2} instances of #{model}'s."
       end
 
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
-      puts "Updated FactChecks: #{TOTAL.first}"
-      puts "Updated Explainers: #{TOTAL.last}"
     end
   end
 end
