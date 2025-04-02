@@ -228,7 +228,7 @@ fr:
         menu: Dupliquer l’espace de travail
         done: a été dupliquée
         are_you_sure_you_want_to_copy_team:
-          html: Voulez-vous vraiment dupliquer l’espace de travail <strong>%{team}</strong> ? Toutes les données connexes seront aussi copiées.
+          html: Voulez-vous dupliquer l’espace de travail <strong>%{team}</strong> ? Toutes les données connexes seront aussi copiées.
         the_team_is_being_copied: La duplication de l’espace de travail est en cours
         url_when_ready:
           html: Une fois prête, la copie de l’espace de travail sera accessible sur <strong>%{copy_url}</strong>
@@ -310,7 +310,7 @@ fr:
           html: "%{name} vous a invité à vous joindre à l’espace de travail %{team} en tant que %{role}, en disant :"
         accept: Accepter l’invitation
         accept_until: Cette invitation expirera le %{due_date}.
-        ignore: Si vous ne souhaitez pas accepter l’invitation, ignorez ce courriel.
+        ignore: Si vous ne voulez pas accepter l’invitation, ignorez ce courriel.
         app_team: "Espace de travail %{app}"
     failure:
       unconfirmed: Vérifiez vos courriels. Si aucun compte n'existe pour cette adresse de courriel, vous devriez avoir reçu un courriel de confirmation. Si vous ne le recevez pas, essayez de réinitialiser votre mot de passe ou contactez notre équipe d’assistance.
@@ -421,7 +421,7 @@ fr:
       rejected_subject: Votre demande de vous joindre à %{team} n’a pas été approuvée
       approved_subject: Bienvenue à l’espace de travail de %{team}
       request_title: Demande de se joindre à l’espace de travail %{team}
-      request_text: "%{name} (%{email}) souhaite se joindre à %{team} sur %{app_name}. Vous pouvez traiter cette demande sur %{url}."
+      request_text: "%{name} (%{email}) veut se joindre à %{team} sur %{app_name}. Vous pouvez traiter cette demande sur %{url}."
       approved_title: Bienvenue à l’espace de travail de %{team}
       approved_text: Votre demande à vous joindre à l’espace de travail %{team} sur %{app_name} a été approuvée. Vous pouvez maintenant accéder à %{url} et commencer à contribuer.
       rejected_title: Demande refusée
@@ -688,7 +688,7 @@ fr:
   target_is_published: La cible ne devrait pas avoir de rapport publié
   similar_item_exists: Désolé, cet élément est déjà ajouté en tant qu’élément semblable
   bulk_operation_limit_error: Désolé, le nombre maximal d’éléments à traiter à la fois est %{limit}
-  must_provide_fallback_when_deleting_status_in_use: Ce état est déjà utilisé, vous devez donc indiquer un autre état si vous souhaitez le supprimer
+  must_provide_fallback_when_deleting_status_in_use: Ce état est déjà utilisé, vous devez donc indiquer un autre état si vous voulez le supprimer
   embed_no_content_yet: Le rapport est en cours de génération. Ce processus peut prendre quelques minutes. Actualisez cette page.
   language_format_invalid: Le format de langue est invalide. Un code ISO 639-1 est attendu.
   languages_format_invalid: Le format des langues est invalide. Une liste de codes ISO 639-1 est attendue.
