@@ -10,7 +10,7 @@ namespace :check do
         count = query.count
         puts "[#{Time.now}] Number of instances to update channel to api: #{count}."
         i = 0
-        query.in_batches(of: 5) do |batch|
+        query.in_batches(of: 1000) do |batch|
           i += 1
           batch.update_all(channel: 'api')
           puts "[#{Time.now}] Updated channel for batch ##{i}."
