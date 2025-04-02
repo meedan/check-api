@@ -403,6 +403,9 @@ module AlegreV2
     def get_items(project_media, field, confirmed=false, initial_threshold=nil)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
+      if type=="text" && Alegre::BOT::BAD_TITLE_REGEX =~ project_media.send(field)
+        return {}
+      end
       if initial_threshold.nil?
         initial_threshold = get_threshold_for_query(type, project_media, confirmed)
       end
@@ -417,6 +420,9 @@ module AlegreV2
 
     def get_items_async(project_media, field, confirmed=false, initial_threshold=nil)
       type = get_type(project_media)
+      if type=="text" && Alegre::BOT::BAD_TITLE_REGEX =~ project_media.send(field)
+        return {}
+      end
       if initial_threshold.nil?
         initial_threshold = get_threshold_for_query(type, project_media, confirmed)
       end
