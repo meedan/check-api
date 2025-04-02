@@ -105,7 +105,7 @@ module RelationshipBulk
         end
         # Send report if needed
         if extra_options['action'] == 'accept'
-          Relationship.smooch_send_report(r.id)
+          begin Relationship.smooch_send_report(r.id) rescue nil end
           Relationship.replicate_status_to_children(r.source_id, whodunnit, team_id)
         end
       end

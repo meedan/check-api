@@ -326,6 +326,7 @@ class TeamType < DefaultObject
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
     argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
     argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
+    argument :channel, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
   def articles(**args)
@@ -363,6 +364,7 @@ class TeamType < DefaultObject
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
     argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
     argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
+    argument :channel, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
   def articles_count(**args)

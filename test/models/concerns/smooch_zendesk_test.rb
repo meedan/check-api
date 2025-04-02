@@ -9,6 +9,10 @@ class FakeSmoochZendesk
     def config
       { "smooch_app_id" => 'app-id' }
     end
+
+    def replace_placeholders(uid, text)
+      text
+    end
   end
 end
 

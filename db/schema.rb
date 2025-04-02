@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_02_14_142854) do
+ActiveRecord::Schema.define(version: 2025_03_28_140809) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -349,8 +349,10 @@ ActiveRecord::Schema.define(version: 2025_02_14_142854) do
     t.string "tags", default: [], array: true
     t.boolean "trashed", default: false
     t.bigint "author_id"
+    t.integer "channel"
     t.index "date_trunc('day'::text, created_at)", name: "explainer_created_at_day"
     t.index ["author_id"], name: "index_explainers_on_author_id"
+    t.index ["channel"], name: "index_explainers_on_channel"
     t.index ["created_at"], name: "index_explainers_on_created_at"
     t.index ["tags"], name: "index_explainers_on_tags", using: :gin
     t.index ["team_id"], name: "index_explainers_on_team_id"
@@ -374,8 +376,10 @@ ActiveRecord::Schema.define(version: 2025_02_14_142854) do
     t.boolean "imported", default: false
     t.boolean "trashed", default: false
     t.bigint "author_id"
+    t.integer "channel"
     t.index "date_trunc('day'::text, created_at)", name: "fact_check_created_at_day"
     t.index ["author_id"], name: "index_fact_checks_on_author_id"
+    t.index ["channel"], name: "index_fact_checks_on_channel"
     t.index ["claim_description_id"], name: "index_fact_checks_on_claim_description_id", unique: true
     t.index ["created_at"], name: "index_fact_checks_on_created_at"
     t.index ["imported"], name: "index_fact_checks_on_imported"
@@ -1014,6 +1018,6 @@ ActiveRecord::Schema.define(version: 2025_02_14_142854) do
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE FUNCTION validate_relationships()
   SQL
 end

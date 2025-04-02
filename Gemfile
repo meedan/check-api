@@ -34,7 +34,7 @@ group :development do
 end
 
 gem 'webmock'
-gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: '89c9072'
+gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: 'ad74fad'
 gem 'lograge'
 gem 'rails', '~> 6.1.7'
 gem 'pg', '~> 1.1'
@@ -44,7 +44,7 @@ gem 'cancancan', '~> 1.10'
 gem 'carrierwave', '~> 1.3'
 gem 'phony_rails'
 gem 'responders'
-gem 'graphql', '~> 1.11.0'
+gem 'graphql', '~> 1.11.11'
 gem 'devise', '~> 4.8'
 gem 'devise-i18n', '~> 1.10.0'
 gem 'devise-two-factor', '~> 4.0.2'
