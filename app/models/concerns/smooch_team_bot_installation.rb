@@ -120,10 +120,12 @@ module SmoochTeamBotInstallation
 
       def smooch_default_messages
         messages = {}
-        keys = I18n.t('tipline.messages', default: {}).keys
+        keys = ['smooch_message_smooch_bot_greetings', 'submission_prompt', 'add_more_details_state', 'ask_if_ready_state',
+                'search_state', 'search_no_results', 'search_result_state', 'search_result_is_relevant', 'search_submit',
+                'newsletter_optin_optout', 'option_not_available', 'timeout', 'smooch_message_smooch_bot_disabled']
         self.team.get_languages.to_a.each do |language|
           messages[language] = {}
-          keys.each { |key| messages[language][key.to_s] = I18n.t("tipline.messages.#{key}", locale: language) }
+          keys.each { |key| messages[language][key.to_s] = TIPLINE_STRINGS.dig(language, key) || TIPLINE_STRINGS.dig('en', key) }
         end
         messages
       end
