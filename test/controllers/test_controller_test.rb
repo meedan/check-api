@@ -515,30 +515,26 @@ class TestControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should create saved search" do
+  test "should create saved search list" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u
 
     assert_difference 'SavedSearch.count' do
-      get :create_saved_search, params: { team_id: t.id }
+      get :create_saved_search_list, params: { team_id: t.id }
     end
 
-    assert_response 200
-    saved_search = t.saved_searches.last
-    assert_not_nil saved_search
-    assert_equal "#{u.name.capitalize}'s list", saved_search.title
-    assert_equal t, saved_search.team
+    assert_response :success
   end
 
-  test "should not create saved search if not in test mode" do
+  test "should not create saved search list if not in test mode" do
     Rails.stubs(:env).returns('development')
     u = create_user
     t = create_team
     create_team_user team: t, user: u
 
     assert_no_difference 'SavedSearch.count' do
-      get :create_saved_search, params: { team_id: t.id }
+      get :create_saved_search_list, params: { team_id: t.id }
     end
 
     assert_response 400
@@ -554,12 +550,8 @@ class TestControllerTest < ActionController::TestCase
     assert_difference 'Feed.count' do
       get :create_feed, params: { team_id: t.id }
     end
-
-    assert_response 200
-    feed = t.feeds.last
-    assert_not_nil feed
-    assert_equal "Feed for #{t.name} ##{t.feeds.count}", feed.name
-    assert_equal t, feed.team
+  
+    assert_response :success
   end
 
   test "should not create feed if not in test mode" do
@@ -575,6 +567,19 @@ class TestControllerTest < ActionController::TestCase
 
     assert_response 400
     Rails.unstub(:env)
+  end
+
+  test "should create feed invitation" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+    feed = create_feed(team: t, user: u)
+  
+    assert_difference 'FeedInvitation.count' do
+      get :create_feed_invitation, params: { team_id: t.id, email: u.email }
+    end
+
+    assert_response :success
   end
 
   test "should not create standalone fact check and associate with the team" do

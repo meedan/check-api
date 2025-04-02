@@ -265,21 +265,9 @@ class TestController < ApplicationController
     render html: "<!doctype html><html><head><title>Test #{rand(100000).to_i}</title></head><body>Test</body></html>".html_safe
   end
 
-  def create_saved_search
+  def create_saved_search_list
     team = Team.current = Team.find(params[:team_id])
-    user = User.where(email: params[:email]).last
-
-    saved_search_params = {
-      title: "#{user.name.capitalize}'s list",
-      team: team,
-      filters: { created_by: user },
-    }
-
-    saved_search = if team.saved_searches.empty?
-                     SavedSearch.create!(saved_search_params)
-                   else
-                     team.saved_searches.first
-                   end
+    saved_search = create_saved_search(team: team)
 
     render_success 'saved_search', saved_search
   end
@@ -305,7 +293,49 @@ class TestController < ApplicationController
     }
 
     feed = Feed.create!(feed_params)
-    render_success 'feed', feed
+
+    # pm = create_project_media(
+    #   project: saved_search.team.projects.first,
+    #   quote: 'Test',
+    #   media_type: 'Claim'
+    # )
+    # puts "project media: ", pm.inspect
+
+    pm = ProjectMedia.new
+    pm.project_id = saved_search.team.projects.first.id
+    pm.quote = 'Test'
+    pm.media_type = 'Claim'.camelize
+    pm.save!
+
+    cluster = Cluster.new
+    cluster.project_media = pm
+    cluster.feed = feed
+    cluster.save!
+
+    ClusterProjectMedia.create!(
+      cluster: cluster,
+      project_media: pm
+    )
+  
+    render_success 'feed', { feed: feed, cluster: cluster, project_media: pm }
+  end
+
+  def create_feed_invitation
+    team = Team.current = Team.find(params[:team_id])
+    user = User.where(email: params[:email]).last
+    feed = team.feeds.first || create_feed(team: team, user: user)
+  
+    feed_invitation_params = {
+      email: user.email,
+      feed: feed,
+      user: user,
+      state: :invited
+    }
+  
+    feed_invitation = FeedInvitation.create!(feed_invitation_params)
+
+    puts feed_invitation.inspect
+    render_success 'feed_invitation', feed_invitation
   end
 
   protected
