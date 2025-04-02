@@ -1,8 +1,6 @@
 name: Build and Run Tests
 
 on:
-  schedule:
-    - cron: '0 5 * * *'  #Runs  daily at 5 AM UTC
   push:
     branches:
     - '*'
