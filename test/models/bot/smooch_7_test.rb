@@ -660,4 +660,15 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should replace message_id placeholder" do
+    t = create_team
+    uid = random_string
+    create_tipline_message team_id: t.id, uid: uid, state: 'received', direction: 'incoming', 'external_id': 'abc123'
+    create_tipline_message team_id: t.id, uid: uid, state: 'delivered', direction: 'outgoing'
+    text = 'Foo {{message_id}} bar {{message_id}}'
+    RequestStore.store[:smooch_bot_settings] = { 'team_id' => t.id }
+    output = Bot::Smooch.replace_placeholders(uid, text)
+    assert_equal "Foo abc123 bar abc123", output
+  end
 end
