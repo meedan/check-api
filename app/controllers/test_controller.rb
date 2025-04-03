@@ -318,10 +318,9 @@ class TestController < ApplicationController
       user: user_inviter,
       state: :invited
     }
-  
+
     feed_invitation = FeedInvitation.create!(feed_invitation_params)
-  
-    puts feed_invitation.inspect
+
     render_success 'feed_invitation', { feed: feed, feed_invitation: feed_invitation, team: team }
   end
 

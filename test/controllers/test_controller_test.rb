@@ -544,11 +544,11 @@ class TestControllerTest < ActionController::TestCase
   test "should create feed with item" do
     u = create_user
     t = create_team
-  
+
     assert_difference 'Feed.count' do
       get :create_feed_with_item, params: { team_id: t.id, email: u.email }
     end
-  
+
     assert_response :success
   end
 
@@ -569,26 +569,26 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     u2 = create_user
     t = create_team
-    create_team_user team: t, user: u2
-  
+    create_team_user team: t, user: u
+
     assert_difference 'FeedInvitation.count' do
-      get :create_feed_invitation, params: { team_id: t.id, email: u.email, email2: u2.email }
+      get :create_feed_invitation, params: { team_id: t.id, email: u2.email, email2: u.email }
     end
-  
+
     assert_response :success
-  
   end
 
   test "should not create feed invitation if not in test mode" do
     Rails.stubs(:env).returns('development') # Simulate non-test mode
     u = create_user
+    u2 = create_user
     t = create_team
-    create_team_user team: t, user: u2
-  
+    create_team_user team: t, user: u
+
     assert_no_difference 'FeedInvitation.count' do
-      get :create_feed_invitation, params: { team_id: t.id, email: u.email }
+      get :create_feed_invitation, params: { team_id: t.id, email: u2.email, email2: u.email }
     end
-  
+
     assert_response 400
     Rails.unstub(:env)
   end
