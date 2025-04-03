@@ -272,7 +272,7 @@ class TestController < ApplicationController
     render_success 'saved_search', saved_search
   end
 
-  def create_feed
+  def create_feed_with_item
     team = Team.current = Team.find(params[:team_id])
     user = User.where(email: params[:email]).last
     saved_search = team.saved_searches.first || SavedSearch.create!(
@@ -281,7 +281,7 @@ class TestController < ApplicationController
       filters: { created_by: user }
     )
 
-    feed_params = {
+    feed = create_feed(
       name: "Feed for #{team.name} ##{team.feeds.count + 1}",
       user: user,
       team: team,
@@ -290,52 +290,39 @@ class TestController < ApplicationController
       licenses: [1],
       last_clusterized_at: Time.now,
       data_points: [1, 2]
-    }
-
-    feed = Feed.create!(feed_params)
-
-    # pm = create_project_media(
-    #   project: saved_search.team.projects.first,
-    #   quote: 'Test',
-    #   media_type: 'Claim'
-    # )
-    # puts "project media: ", pm.inspect
-
-    pm = ProjectMedia.new
-    pm.project_id = saved_search.team.projects.first.id
-    pm.quote = 'Test'
-    pm.media_type = 'Claim'.camelize
-    pm.save!
-
-    cluster = Cluster.new
-    cluster.project_media = pm
-    cluster.feed = feed
-    cluster.save!
-
-    ClusterProjectMedia.create!(
-      cluster: cluster,
-      project_media: pm
     )
-  
+
+    pm = create_project_media(
+      user: user,
+      team: team,
+      project: saved_search.team.projects.first,
+      quote: 'Test',
+      media_type: 'Claim',
+      media: Blank.create!
+    )
+
+    cluster = create_cluster( project_media: pm, feed: feed )
+
     render_success 'feed', { feed: feed, cluster: cluster, project_media: pm }
   end
 
   def create_feed_invitation
     team = Team.current = Team.find(params[:team_id])
     user = User.where(email: params[:email]).last
-    feed = team.feeds.first || create_feed(team: team, user: user)
-  
+    user_inviter = User.where(email: params[:email2]).last
+    feed = team.feeds.first || create_feed(team: team, user: user_inviter)
+
     feed_invitation_params = {
       email: user.email,
       feed: feed,
-      user: user,
+      user: user_inviter,
       state: :invited
     }
   
     feed_invitation = FeedInvitation.create!(feed_invitation_params)
-
+  
     puts feed_invitation.inspect
-    render_success 'feed_invitation', feed_invitation
+    render_success 'feed_invitation', { feed: feed, feed_invitation: feed_invitation, team: team }
   end
 
   protected
