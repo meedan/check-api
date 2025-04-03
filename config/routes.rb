@@ -80,7 +80,6 @@ Rails.application.routes.draw do
   match '/test/install_bot' => 'test#install_bot', via: :get
   match '/test/add_team_user' => 'test#add_team_user', via: :get
   match '/test/create_imported_standalone_fact_check' => 'test#create_imported_standalone_fact_check', via: :get
-  match '/test/create_saved_search' => 'test#create_saved_search', via: :get
   match '/test/create_saved_search_list' => 'test#create_saved_search_list', via: :get
   match '/test/create_feed_with_item' => 'test#create_feed_with_item', via: :get
   match '/test/create_feed_invitation' => 'test#create_feed_invitation', via: :get
