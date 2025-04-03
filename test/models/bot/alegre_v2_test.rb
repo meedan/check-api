@@ -1315,4 +1315,31 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     Rails.cache.write("url_sha:#{pm.url}", Digest::MD5.hexdigest("blah"), expires_in: 60*3)
     assert_equal("6f1ed002ab5595859014ebf0951522d9", Bot::Alegre.content_hash(pm, nil))
   end
+
+  test "should not get similar items for one-word text field values" do
+    # Test data
+    t = create_team
+    pm = create_project_media team: t
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/sync/text").with { |request|
+      json = JSON.parse(request.body)
+      json['text'] == 'Foo Bar'
+    }.to_return(body: { result: [{ id: pm.id, context: { team_id: t.id } }] }.to_json)
+    WebMock.stub_request(:post, "#{CheckConfig.get('alegre_host')}/similarity/async/text").with { |request|
+      json = JSON.parse(request.body)
+      json['text'] == 'Foo Bar'
+    }.to_return(body: { message: 'Test', queue: 'test', body: {} }.to_json)
+    url = random_url
+    pm1 = create_project_media quote: url, team: t
+    pm2 = create_project_media quote: 'Foo Bar', team: t
+    assert_equal url, pm1.title
+    assert_equal 'Foo Bar', pm2.title
+
+    # Testing sync method
+    assert_equal({}, Bot::Alegre.get_items(pm1, 'title'))
+    assert_not_equal({}, Bot::Alegre.get_items(pm2, 'title'))
+
+    # Testing async method
+    assert_equal({}, Bot::Alegre.get_items_async(pm1, 'title'))
+    assert_not_equal({}, Bot::Alegre.get_items_async(pm2, 'title'))
+  end
 end
