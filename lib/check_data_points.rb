@@ -86,10 +86,21 @@ class CheckDataPoints
 
     # Average response time
     def average_response_time(team_id, start_date, end_date, platform = nil, language = nil)
-      query = TiplineRequest.where(team_id: team_id, smooch_report_received_at: start_date.to_datetime.to_i..end_date.to_datetime.to_i)
+      query = TiplineRequest.where(team_id: team_id, created_at: start_date..end_date)
+      query = query.where('(smooch_report_received_at > 0 OR smooch_report_update_received_at > 0 OR smooch_report_sent_at > 0 OR smooch_report_correction_sent_at > 0 OR first_manual_response_at > 0)')
       query = query.where(platform: platform) unless platform.blank?
       query = query.where(language: language) unless language.blank?
-      query.average("smooch_report_received_at - CAST(DATE_PART('EPOCH', created_at::timestamp) AS INTEGER)").to_f
+      average = <<-SQL.squish
+        (SELECT MIN(x)
+           FROM unnest(ARRAY[smooch_report_received_at,
+                             smooch_report_update_received_at,
+                             smooch_report_sent_at,
+                             smooch_report_correction_sent_at,
+                             first_manual_response_at]) AS x
+          WHERE x IS NOT NULL AND x > 0)
+        - CAST(DATE_PART('EPOCH', created_at::timestamp) AS INTEGER)
+      SQL
+      query.average(average).to_f
     end
 
     # All users
