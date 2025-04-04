@@ -223,8 +223,7 @@ class Bot::Alegre < BotUser
   def self.unarchive_if_archived(pm)
     if pm&.archived == CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
       pm.update_column(:archived, CheckArchivedFlags::FlagCodes::NONE)
-      sources_count = Relationship.where(target_id: pm.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-      pm.update_elasticsearch_doc(['archived', 'sources_count'], { 'archived' => CheckArchivedFlags::FlagCodes::NONE, 'sources_count' => sources_count }, pm.id)
+      pm.update_elasticsearch_doc(['archived'], { 'archived' => CheckArchivedFlags::FlagCodes::NONE }, pm.id)
     end
   end
 

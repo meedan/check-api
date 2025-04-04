@@ -27,6 +27,7 @@ module ProjectMediaCreators
         report_status: (fact_check['publish_report'] ? 'published' : 'unpublished'),
         rating: self.set_status,
         tags: self.set_tags.to_a.map(&:strip),
+        channel: fact_check['channel'],
         skip_check_ability: true
       })
     end
