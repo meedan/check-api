@@ -769,6 +769,8 @@ class GraphqlController10Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'editor'
     pm = create_project_media team: t
     tr = create_tipline_request team_id: t.id, associated: pm, language: 'en', smooch_data: { authorId: '123', language: 'en', received: Time.now.to_f }
+    assert_equal 0, tr.reload.first_manual_response_at
+    assert_equal 0, tr.reload.last_manual_response_at
     authenticate_with_user(u)
 
     query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{tr.id} }) { success } }"
@@ -776,6 +778,8 @@ class GraphqlController10Test < ActionController::TestCase
 
     assert_response :success
     assert JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+    assert tr.reload.first_manual_response_at > 0
+    assert tr.reload.last_manual_response_at > 0
   end
 
   test "should not send custom message to user" do
