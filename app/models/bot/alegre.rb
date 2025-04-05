@@ -183,7 +183,6 @@ class Bot::Alegre < BotUser
     handled
   end
 
-
   def self.get_number_of_words(text)
     # Get the number of space-separated words (Does not work with Chinese/Japanese)
     space_separted_words = text.to_s.gsub(/[^\p{L}\s]/u, '').strip.chomp.split(/\s+/).size
@@ -514,11 +513,34 @@ class Bot::Alegre < BotUser
   end
 
   def self.return_prioritized_matches(pm_id_scores)
+    # Examples for "pm_id_scores":
+    # pm_id_scores = [ # Array
+    #   { score: 0.75, context: { 'team_id' => 1, 'project_media_id' => 2, 'has_custom_id' => true, 'field' => 'original_title', 'temporary_media' => false }, model: Bot::Alegre::OPENAI_ADA_MODEL },
+    #   { score: 0.85, context: { 'team_id' => 1, 'project_media_id' => 3, 'has_custom_id' => true, 'field' => 'original_title', 'temporary_media' => false }, model: Bot::Alegre::MEAN_TOKENS_MODEL }
+    # ]
+    # pm_id_scores = { # Hash
+    #   2 => {
+    #     score: 0.75,
+    #     context: { 'has_custom_id' => true, 'field' => 'original_description', 'project_media_id' => 2, 'temporary_media' => false, 'team_id' => 1 },
+    #     model: Bot::Alegre::OPENAI_ADA_MODEL,
+    #     source_field: 'original_description',
+    #     target_field: 'original_description',
+    #     relationship_type: { source: 'confirmed_sibling', target: 'confirmed_sibling' }
+    #   },
+    #   3 => {
+    #     score: 0.85,
+    #     context: { 'has_custom_id' => true, 'field' => 'original_description', 'project_media_id' => 3, 'temporary_media' => false, 'team_id' => 1 },
+    #     model: Bot::Alegre::MEAN_TOKENS_MODEL,
+    #     source_field: 'original_description',
+    #     target_field: 'original_description',
+    #     relationship_type: { source: 'confirmed_sibling', target: 'confirmed_sibling' }
+    #   }
+    # }
     if pm_id_scores.is_a?(Hash)
-      # make K negative so that we bias towards older IDs
-      pm_id_scores.sort_by{|k,v| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(v[:model],1), v[:score], -k]}.reverse
+      # Make K negative so that we bias towards older IDs
+      pm_id_scores.sort_by{ |k,v| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(v[:model], 1), v[:score], -k] }.reverse
     elsif pm_id_scores.is_a?(Array)
-      pm_id_scores.sort_by{|v| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(v[:model],1), v[:score]]}.reverse
+      pm_id_scores.sort_by{ |v| [Bot::Alegre::TEXT_MODEL_RANKS.fetch(v[:model], 1), v[:score]] }.reverse
     else
       Rails.logger.error("[Alegre Bot] Unknown variable type in return_prioritized_matches: ##{pm_id_scores.class}")
       pm_id_scores
