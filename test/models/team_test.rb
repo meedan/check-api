@@ -1336,4 +1336,48 @@ class TeamTest < ActiveSupport::TestCase
     assert_not_nil data
     assert_equal data[0].length, data[1].length
   end
+
+  test "should filter explainers by channel" do
+    t = create_team
+    create_explainer team: t, channel: "manual", trashed: false
+    create_explainer team: t, channel: "api",    trashed: false
+    create_explainer team: t, channel: "manual", trashed: false
+
+    assert_equal 3, t.filtered_explainers(trashed: false).count
+    assert_equal 2, t.filtered_explainers(trashed: false, channel: "manual").count
+    assert_equal 1, t.filtered_explainers(trashed: false, channel: "api").count
+  end
+
+  test "should filter fact_checks by channel" do
+    t = create_team
+    t = create_team
+    cd1 = create_claim_description(project_media: create_project_media(team: t))
+    cd2 = create_claim_description(project_media: create_project_media(team: t))
+    cd3 = create_claim_description(project_media: create_project_media(team: t))
+    create_fact_check(claim_description: cd1, channel: "manual", trashed: false)
+    create_fact_check(claim_description: cd2, channel: "api",    trashed: false)
+    create_fact_check(claim_description: cd3, channel: "manual", trashed: false)
+
+    assert_equal 3, t.filtered_fact_checks(trashed: false).count
+    assert_equal 2, t.filtered_fact_checks(trashed: false, channel: "manual").count
+    assert_equal 1, t.filtered_fact_checks(trashed: false, channel: "api").count
+  end
+  
+  test "should count articles by channel" do
+    t = create_team
+    create_explainer team: t, channel: "manual", trashed: false
+    cd = create_claim_description(project_media: create_project_media(team: t))
+    create_fact_check(claim_description: cd, channel: "manual", trashed: false)
+
+    total = t.filtered_explainers(trashed: false).count + t.filtered_fact_checks(trashed: false).count
+    assert_equal 2, total
+
+    total_manual = t.filtered_explainers(trashed: false, channel: "manual").count +
+                   t.filtered_fact_checks(trashed: false, channel: "manual").count
+    assert_equal 2, total_manual
+
+    total_api = t.filtered_explainers(trashed: false, channel: "api").count +
+                t.filtered_fact_checks(trashed: false, channel: "api").count
+    assert_equal 0, total_api
+  end
 end

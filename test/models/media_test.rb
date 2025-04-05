@@ -716,8 +716,9 @@ class MediaTest < ActiveSupport::TestCase
       file.rewind
       audio_url = "http://example.com/#{file.path.split('/').last}"
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+      downloaded_file = Media.downloaded_file(audio_url)
 
-      uploaded_media = Media.find_or_create_uploaded_file_media(audio_url, 'UploadedAudio', { has_original_claim: true })
+      uploaded_media = Media.find_or_create_uploaded_file_media(downloaded_file, 'UploadedAudio', { has_original_claim: true, original_claim_url: audio_url })
 
       assert_not_nil uploaded_media.original_claim_hash
       assert_not_nil uploaded_media.original_claim
@@ -738,9 +739,10 @@ class MediaTest < ActiveSupport::TestCase
       file.rewind
       audio_url = "http://example.com/#{file.path.split('/').last}"
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
+      downloaded_file = Media.downloaded_file(audio_url)
 
       assert_difference 'UploadedAudio.count', 1 do
-        2.times { Media.find_or_create_uploaded_file_media(audio_url, 'UploadedAudio', { has_original_claim: true }) }
+        2.times { Media.find_or_create_uploaded_file_media(downloaded_file, 'UploadedAudio', { has_original_claim: true, original_claim_url: audio_url }) }
       end
     end
   end

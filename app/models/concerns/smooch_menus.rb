@@ -68,6 +68,7 @@ module SmoochMenus
       }
 
       # Set extra and fallback
+      text = self.replace_placeholders(uid, text)
       extra, fallback = self.smooch_menus_set_extra_and_fallback(main, text, language)
 
       self.send_message_to_user(uid, fallback.join("\n"), extra, false, true, event)
@@ -178,6 +179,7 @@ module SmoochMenus
     end
 
     def send_message_to_user_with_buttons(uid, text, options, event = nil)
+      text = self.replace_placeholders(uid, text)
       buttons = []
       options.each_with_index do |option, i|
         buttons << {
@@ -212,6 +214,7 @@ module SmoochMenus
     end
 
     def send_message_to_user_with_single_section_menu(uid, text, options, menu_label)
+      text = self.replace_placeholders(uid, text)
       rows = []
       options.each do |option|
         rows << {

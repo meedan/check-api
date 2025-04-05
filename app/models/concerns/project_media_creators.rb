@@ -27,6 +27,7 @@ module ProjectMediaCreators
         report_status: (fact_check['publish_report'] ? 'published' : 'unpublished'),
         rating: self.set_status,
         tags: self.set_tags.to_a.map(&:strip),
+        channel: fact_check['channel'],
         skip_check_ability: true
       })
     end
@@ -147,7 +148,12 @@ module ProjectMediaCreators
     if original_claim.present?
       case media_type
       when 'UploadedImage', 'UploadedVideo', 'UploadedAudio'
-        [media_type, original_claim, { has_original_claim: true }]
+        begin
+          [media_type, Media.downloaded_file(original_claim), { has_original_claim: true, original_claim_url: original_claim }]
+        rescue Timeout::Error, Net::ReadTimeout, Net::OpenTimeout
+          Rails.logger.warn("[Media Download] Timeout error while trying to download a file from #{original_claim}. A Claim Media will be created instead.")
+          ['Claim', original_claim, { has_original_claim: true }]
+        end
       when 'Claim'
         [media_type, original_claim, { has_original_claim: true }]
       when 'Link'
