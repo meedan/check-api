@@ -763,7 +763,7 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should send custom message to user" do
-    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(code: 200)).once
+    Bot::Smooch.stubs(:send_message_to_user).returns(OpenStruct.new(code: 200)).twice
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
@@ -778,8 +778,19 @@ class GraphqlController10Test < ActionController::TestCase
 
     assert_response :success
     assert JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
-    assert tr.reload.first_manual_response_at > 0
-    assert tr.reload.last_manual_response_at > 0
+    first_manual_response_at = tr.reload.first_manual_response_at
+    assert first_manual_response_at > 0
+    assert_equal first_manual_response_at, tr.reload.last_manual_response_at
+
+    sleep 1
+
+    query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Bye\", inReplyToId: #{tr.id} }) { success } }"
+    post :create, params: { query: query, team: t.slug }
+
+    assert_response :success
+    assert JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+    assert_equal first_manual_response_at, tr.reload.first_manual_response_at
+    assert tr.reload.last_manual_response_at > first_manual_response_at
   end
 
   test "should not send custom message to user" do
