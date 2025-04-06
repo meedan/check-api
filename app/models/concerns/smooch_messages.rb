@@ -555,6 +555,8 @@ module SmoochMessages
     def reply_to_request_with_custom_message(request, message)
       data = request.smooch_data
       team = Team.find_by_id(request.team_id)
+      now = Time.now.to_i
+      request.update_columns(first_manual_response_at: (request.first_manual_response_at > 0 ? request.first_manual_response_at : now), last_manual_response_at: now)
       self.send_custom_message_to_user(team, request.tipline_user_uid, data['received'], message, request.language)
     end
 
