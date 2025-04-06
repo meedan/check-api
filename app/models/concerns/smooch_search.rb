@@ -103,7 +103,20 @@ module SmoochSearch
     end
 
     def parse_search_results_from_alegre(results, limit, published_only, after = nil, feed_id = nil, team_ids = nil)
-      pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      # Example for "results":
+      # results = {
+      #   2 => {
+      #     score: 0.75,
+      #     context: { 'team_id' => 1, 'project_media_id' => 2, 'has_custom_id' => true, 'field' => 'claim_description_content|report_visual_card_title', 'temporary_media' => false, 'contexts_count' => 14 },
+      #     model: Bot::Alegre::FILIPINO_MODEL
+      #   },
+      #   3 => {
+      #     score: 0.85,
+      #     context: { 'team_id' => 1, 'project_media_id' => 2, 'has_custom_id' => true, 'field' => 'claim_description_content|report_visual_card_title', 'temporary_media' => false, 'contexts_count' => 4 },
+      #     model: Bot::Alegre::MEAN_TOKENS_MODEL
+      #   }
+      # }
+      pms = Bot::Alegre.return_prioritized_matches(reject_temporary_results(results)).to_h.keys.collect { |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
       filter_search_results(pms, after, feed_id, team_ids, published_only).uniq(&:id).first(limit)
     end
 
