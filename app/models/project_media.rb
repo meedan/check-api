@@ -562,8 +562,9 @@ class ProjectMedia < ApplicationRecord
   def number_of_tipline_requests_that_never_received_articles_by_time
     data = {}
     [1.day, 7.days, 30.days].each do |range|
-      data[range] = TiplineRequest.no_articles_sent(self.id).where(created_at: Time.now.ago(range)..Time.now).count
+      data[(range / 1.day)] = TiplineRequest.no_articles_sent(self.id).where(created_at: Time.now.ago(range)..Time.now).count
     end
+    data
   end
 
   protected
