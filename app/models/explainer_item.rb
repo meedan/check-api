@@ -17,6 +17,14 @@ class ExplainerItem < ApplicationRecord
   end
 
   def send_explainers_to_previous_requests(range)
+    TiplineRequest.no_articles_sent(self.project_media_id).where(created_at: Time.now.ago(range)..Time.now).find_each do |tr|
+      Bot::Smooch.send_search_results_to_user(
+        tr.tipline_user_uid,
+        [self.explainer.as_tipline_search_result,
+        tr.team_id,
+        tr.platform
+      )
+    end
   end
 
   private
