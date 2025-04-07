@@ -16,6 +16,9 @@ class ExplainerItem < ApplicationRecord
     { explainer_title: self.explainer.title }.to_json
   end
 
+  def send_explainers_to_previous_requests(range)
+  end
+
   private
 
   def same_team
