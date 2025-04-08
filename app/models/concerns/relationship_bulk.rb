@@ -128,9 +128,6 @@ module RelationshipBulk
       source = ProjectMedia.find_by_id(source_id)
       version_metadata = nil
       unless source.nil?
-        source.skip_check_ability = true
-        source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
-        source.save!
         # Get version metadata
         version_metadata = {
           source: {
