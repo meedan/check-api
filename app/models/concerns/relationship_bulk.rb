@@ -29,6 +29,9 @@ module RelationshipBulk
         }
         self.delay.run_update_callbacks(ids.to_json, extra_options.to_json)
         delete_cached_fields(pm_source.id, relationships.map(&:target_id))
+        # Call the cached field sources_count to update its value, as the field is not called from the UI.
+        ids = [pm_source.id, relationships.map(&:target_id)].flatten
+        ProjectMedia.where(id: ids).map(&:sources_count)
         { source_project_media: pm_source }
       end
     end
@@ -108,8 +111,6 @@ module RelationshipBulk
           begin Relationship.smooch_send_report(r.id) rescue nil end
         end
       end
-      # Update un-matched field
-      ProjectMedia.where(id: target_ids).update_all(unmatched: 0)
       # Update ES docs
       $repository.client.bulk body: es_body unless es_body.blank?
       # Import versions
@@ -140,7 +141,8 @@ module RelationshipBulk
           }
         }.to_json
       end
-
+      # Update un-matched field
+      ProjectMedia.where(id: target_ids).update_all(unmatched: 1)
       # Update ES
       options = {
         index: CheckElasticSearchModel.get_index_alias,
