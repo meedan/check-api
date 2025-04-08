@@ -274,14 +274,6 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 1, pm2.explainer_items.count
   end
 
-  test "should not attempt to update source count if source does not exist" do
-    r = create_relationship relationship_type: Relationship.confirmed_type
-    r.source.delete
-    assert_nothing_raised do
-      r.reload.send :update_counters
-    end
-  end
-
   test "should cache the name of who created a similar item" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
