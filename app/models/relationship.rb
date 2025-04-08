@@ -22,13 +22,13 @@ class Relationship < ApplicationRecord
   before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
-  after_create :update_counters, prepend: true
-  after_update :reset_counters, prepend: true
+  # after_create :update_counters, prepend: true
+  # after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_save :move_explainers_to_source, :apply_status_to_target, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
-  after_destroy :update_counters, prepend: true
+  # after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_commit :update_counter_and_elasticsearch, on: [:create, :update]
   after_commit :destroy_elasticsearch_relation, on: :destroy
@@ -140,12 +140,6 @@ class Relationship < ApplicationRecord
 
   def update_counters
     return if self.is_default?
-    unless self.target.nil?
-      target = self.target
-      target.skip_check_ability = true
-      target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-      target.save!
-    end
     unless self.source.nil?
       source = self.source
       source.skip_check_ability = true
@@ -322,7 +316,7 @@ class Relationship < ApplicationRecord
       end
       self.source&.clear_cached_fields
       self.target&.clear_cached_fields
-      Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
+      # Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
     end
   end
 
@@ -383,7 +377,7 @@ class Relationship < ApplicationRecord
   end
 
   def update_counter_and_elasticsearch
-    self.update_counters
+    # self.update_counters
     self.update_elasticsearch_parent
   end
 

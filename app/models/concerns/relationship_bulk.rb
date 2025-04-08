@@ -66,7 +66,7 @@ module RelationshipBulk
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
       versions = []
-      callbacks = [:reset_counters, :update_counters, :propagate_inversion]
+      callbacks = [:turn_off_unmatched_field, :move_explainers_to_source, :apply_status_to_target]
       target_ids = []
       Relationship.where(id: ids, source_id: extra_options['source_id']).find_each do |r|
         target_ids << r.target_id
@@ -106,7 +106,6 @@ module RelationshipBulk
         # Send report if needed
         if extra_options['action'] == 'accept'
           begin Relationship.smooch_send_report(r.id) rescue nil end
-          Relationship.replicate_status_to_children(r.source_id, whodunnit, team_id)
         end
       end
       # Update un-matched field
@@ -142,12 +141,6 @@ module RelationshipBulk
         }.to_json
       end
 
-      ProjectMedia.where(id: target_ids).find_each do |target|
-        target.skip_check_ability = true
-        target.unmatched = 1
-        target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-        target.save!
-      end
       # Update ES
       options = {
         index: CheckElasticSearchModel.get_index_alias,
