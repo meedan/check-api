@@ -31,7 +31,7 @@ module RelationshipBulk
         delete_cached_fields(pm_source.id, relationships.map(&:target_id))
         # Call the cached field sources_count to update its value, as the field is not called from the UI.
         ids = [pm_source.id, relationships.map(&:target_id)].flatten
-        ProjectMedia.where(id: ids).map(&:sources_count)
+        ProjectMedia.where(id: ids).each{ |pm| pm.sources_count(true) }
         { source_project_media: pm_source }
       end
     end
