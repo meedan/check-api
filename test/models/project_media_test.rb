@@ -11,6 +11,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should query media" do
     setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     pm = create_project_media team: t, disable_es_callbacks: false
     create_project_media team: t, disable_es_callbacks: false
