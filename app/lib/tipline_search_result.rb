@@ -48,7 +48,7 @@ class TiplineSearchResult
   def text(language = nil, hide_body = false)
     text = []
     text << "*#{self.title.strip}*" unless self.title.blank?
-    text << self.body.to_s unless hide_body
+    text << self.body.to_s.truncate(900 - self.title.to_s.size - self.url.to_s.size) unless hide_body
     text << self.url unless self.url.blank?
     unless language.nil?
       footer = self.footer(language)
