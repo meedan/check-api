@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_03_28_140809) do
+ActiveRecord::Schema.define(version: 2025_04_08_164959) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -349,7 +349,7 @@ ActiveRecord::Schema.define(version: 2025_03_28_140809) do
     t.string "tags", default: [], array: true
     t.boolean "trashed", default: false
     t.bigint "author_id"
-    t.integer "channel"
+    t.integer "channel", null: false
     t.index "date_trunc('day'::text, created_at)", name: "explainer_created_at_day"
     t.index ["author_id"], name: "index_explainers_on_author_id"
     t.index ["channel"], name: "index_explainers_on_channel"
@@ -376,7 +376,7 @@ ActiveRecord::Schema.define(version: 2025_03_28_140809) do
     t.boolean "imported", default: false
     t.boolean "trashed", default: false
     t.bigint "author_id"
-    t.integer "channel"
+    t.integer "channel", null: false
     t.index "date_trunc('day'::text, created_at)", name: "fact_check_created_at_day"
     t.index ["author_id"], name: "index_fact_checks_on_author_id"
     t.index ["channel"], name: "index_fact_checks_on_channel"
@@ -560,7 +560,6 @@ ActiveRecord::Schema.define(version: 2025_03_28_140809) do
     t.boolean "read", default: false, null: false
     t.integer "sources_count", default: 0, null: false
     t.integer "archived", default: 0
-    t.integer "targets_count", default: 0, null: false
     t.integer "last_seen"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

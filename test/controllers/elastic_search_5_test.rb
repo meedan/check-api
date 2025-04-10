@@ -14,6 +14,7 @@ class ElasticSearch5Test < ActionController::TestCase
   end
 
   test "should match secondary items and show items based on show_similar option" do
+    RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     parent = create_project_media team: t, disable_es_callbacks: false
     child_1 = create_project_media team: t, quote: 'child_media a', disable_es_callbacks: false

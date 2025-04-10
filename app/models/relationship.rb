@@ -22,15 +22,12 @@ class Relationship < ApplicationRecord
   before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
-  after_create :update_counters, prepend: true
-  after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_save :move_explainers_to_source, :apply_status_to_target, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
-  after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
-  after_commit :update_counter_and_elasticsearch, on: [:create, :update]
+  after_commit :update_elasticsearch_data, on: [:create, :update]
   after_commit :destroy_elasticsearch_relation, on: :destroy
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
@@ -99,13 +96,6 @@ class Relationship < ApplicationRecord
     { source: 'parent', target: 'child' }
   end
 
-  def self.propagate_inversion(ids, source_id)
-    Relationship.where(id: ids.split(',')).each do |r|
-      r.source_id = source_id
-      r.send(:reset_counters)
-    end
-  end
-
   def is_being_copied?
     (self.source && self.source.is_being_copied) || self.is_being_copied
   end
@@ -136,22 +126,6 @@ class Relationship < ApplicationRecord
   def is_being_confirmed?
     method = self.saved_change_to_relationship_type? ? :relationship_type_before_last_save : :relationship_type_was
     self.send(method).to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
-  end
-
-  def update_counters
-    return if self.is_default?
-    unless self.target.nil?
-      target = self.target
-      target.skip_check_ability = true
-      target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-      target.save!
-    end
-    unless self.source.nil?
-      source = self.source
-      source.skip_check_ability = true
-      source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
-      source.save!
-    end
   end
 
   def create_or_update_parent_id
@@ -293,15 +267,6 @@ class Relationship < ApplicationRecord
     end
   end
 
-  def reset_counters
-    if (self.source_id_before_last_save && self.source_id_before_last_save != self.source_id) || (self.target_id_before_last_save && self.target_id_before_last_save != self.target_id)
-      previous = Relationship.new(source_id: self.source_id_before_last_save, target_id: self.target_id_before_last_save)
-      previous.update_counters
-      current = Relationship.new(source_id: self.source_id, target_id: self.target_id)
-      current.update_counters
-    end
-  end
-
   def propagate_inversion
     if self.source_id_before_last_save == self.target_id && self.target_id_before_last_save == self.source_id
       ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
@@ -322,7 +287,6 @@ class Relationship < ApplicationRecord
       end
       self.source&.clear_cached_fields
       self.target&.clear_cached_fields
-      Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
     end
   end
 
@@ -382,8 +346,7 @@ class Relationship < ApplicationRecord
     set_unmatched_field(1)
   end
 
-  def update_counter_and_elasticsearch
-    self.update_counters
+  def update_elasticsearch_data
     self.update_elasticsearch_parent
   end
 
