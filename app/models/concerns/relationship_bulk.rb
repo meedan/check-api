@@ -29,6 +29,9 @@ module RelationshipBulk
         }
         self.delay.run_update_callbacks(ids.to_json, extra_options.to_json)
         delete_cached_fields(pm_source.id, relationships.map(&:target_id))
+        # Call the cached field sources_count to update its value, as the field is not called from the UI.
+        ids = [pm_source.id, relationships.map(&:target_id)].flatten
+        ProjectMedia.where(id: ids).each{ |pm| pm.sources_count(true) }
         { source_project_media: pm_source }
       end
     end
@@ -66,7 +69,7 @@ module RelationshipBulk
       index_alias = CheckElasticSearchModel.get_index_alias
       es_body = []
       versions = []
-      callbacks = [:reset_counters, :update_counters, :propagate_inversion]
+      callbacks = [:turn_off_unmatched_field, :move_explainers_to_source, :apply_status_to_target]
       target_ids = []
       Relationship.where(id: ids, source_id: extra_options['source_id']).find_each do |r|
         target_ids << r.target_id
@@ -106,11 +109,8 @@ module RelationshipBulk
         # Send report if needed
         if extra_options['action'] == 'accept'
           begin Relationship.smooch_send_report(r.id) rescue nil end
-          Relationship.replicate_status_to_children(r.source_id, whodunnit, team_id)
         end
       end
-      # Update un-matched field
-      ProjectMedia.where(id: target_ids).update_all(unmatched: 0)
       # Update ES docs
       $repository.client.bulk body: es_body unless es_body.blank?
       # Import versions
@@ -128,9 +128,6 @@ module RelationshipBulk
       source = ProjectMedia.find_by_id(source_id)
       version_metadata = nil
       unless source.nil?
-        source.skip_check_ability = true
-        source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
-        source.save!
         # Get version metadata
         version_metadata = {
           source: {
@@ -141,13 +138,8 @@ module RelationshipBulk
           }
         }.to_json
       end
-
-      ProjectMedia.where(id: target_ids).find_each do |target|
-        target.skip_check_ability = true
-        target.unmatched = 1
-        target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-        target.save!
-      end
+      # Update un-matched field
+      ProjectMedia.where(id: target_ids).update_all(unmatched: 1)
       # Update ES
       options = {
         index: CheckElasticSearchModel.get_index_alias,
