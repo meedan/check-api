@@ -449,9 +449,8 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source team: t
     s.accounts << a
 
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
-
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     s.refresh_accounts = true
     s.save!

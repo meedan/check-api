@@ -803,13 +803,13 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
     url1 = random_url
     author_url1 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => url1, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url1 }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => url1, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
     url2 = random_url
     author_url2 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url2 }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url2 }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
 
     pm = ProjectMedia.create url: url1, team: t
     assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
@@ -832,11 +832,11 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     pm = create_project_media media: l, project: create_project(team: t)
 
     author_url1 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Specific token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Specific token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     assert pm.media.metadata['title'].blank?
 
@@ -956,7 +956,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     url = 'https://twitter.com/meedan/status/1321600654750613505'
     response = {"type" => "media","data" => {"url" => url, "type" => "item", "metrics" => {"facebook"=> {"reaction_count" => 2, "comment_count" => 5, "share_count" => 10, "comment_plugin_count" => 0 }}}}
 
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url }, CheckConfig.get('pender_key')).returns(response)
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url }, CheckConfig.get('pender_key'), nil).returns(response)
     pm = create_project_media media: nil, url: url
     assert_equal response['data']['metrics'], JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))
     PenderClient::Request.unstub(:get_medias)

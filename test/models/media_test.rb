@@ -527,8 +527,8 @@ class MediaTest < ActiveSupport::TestCase
   test "should send specific token to parse url on pender" do
     params1 = { url: random_url }
     params2 = { url: random_url }
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params1, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "item", "title" => "Default token"}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params2, 'specific_token').returns({"type" => "media","data" => {"url" => params2[:url], "type" => "item", "title" => "Specific token"}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params1, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "item", "title" => "Default token"}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params2, 'specific_token', nil).returns({"type" => "media","data" => {"url" => params2[:url], "type" => "item", "title" => "Specific token"}})
 
     l = Link.new url: params1[:url]
     l.valid?
