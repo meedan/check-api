@@ -107,6 +107,23 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_suggestions_count,
       update_on: [SIMILARITY_EVENT]
 
+    cached_field :sources_count,
+      start_as: 0,
+      update_es: true,
+      update_pg: true,
+      recalculate: :recalculate_sources_count,
+      update_on: [
+        {
+          model: Relationship,
+          if: proc { |r| r.is_confirmed? },
+          affected_ids: proc { |r| [r.source_id, r.target_id] },
+          events: {
+            save: :recalculate,
+            destroy: :recalculate
+          }
+        }
+      ]
+
     cached_field :related_count,
       start_as: 0,
       update_es: true,
@@ -536,6 +553,10 @@ module ProjectMediaCachedFields
 
     def recalculate_suggestions_count
       Relationship.send('suggested').where(source_id: self.id).count
+    end
+
+    def recalculate_sources_count
+      Relationship.where(target_id: self.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
     end
 
     def recalculate_is_suggested
