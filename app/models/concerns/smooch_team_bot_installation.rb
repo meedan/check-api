@@ -125,7 +125,7 @@ module SmoochTeamBotInstallation
                 'newsletter_optin_optout', 'option_not_available', 'timeout', 'smooch_message_smooch_bot_disabled']
         self.team.get_languages.to_a.each do |language|
           messages[language] = {}
-          keys.each { |key| messages[language][key.to_s] = TIPLINE_STRINGS.dig(language, key) || TIPLINE_STRINGS.dig('en', key) }
+          keys.each { |key| messages[language][key.to_s] = TIPLINE_STRINGS.dig(language, key) || TIPLINE_STRINGS.dig(language.gsub(/[-_].*$/, ''), key) || TIPLINE_STRINGS.dig('en', key) }
         end
         messages
       end
