@@ -555,6 +555,19 @@ class ProjectMedia < ApplicationRecord
     Rails.cache.delete("relevant-items-#{self.id}")
   end
 
+  def has_tipline_requests_that_never_received_articles
+    # As we check against the range with 1, 7 and 30 days so I check the exists with the max range (30 days)
+    TiplineRequest.no_articles_sent(self.id).where(created_at: Time.now.ago(30.days)..Time.now).exists?
+  end
+
+  def number_of_tipline_requests_that_never_received_articles_by_time
+    data = {}
+    [1.day, 7.days, 30.days].each do |range|
+      data[(range / 1.day)] = TiplineRequest.no_articles_sent(self.id).where(created_at: Time.now.ago(range)..Time.now).count
+    end
+    data
+  end
+
   protected
 
   def create_relevant_results_item(user_action, similarity_settings, author_id, actor_session_id, fields)
