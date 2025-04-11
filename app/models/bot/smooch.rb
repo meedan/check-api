@@ -13,6 +13,9 @@ class Bot::Smooch < BotUser
   SUPPORTED_INTEGRATION_NAMES = { 'whatsapp' => 'WhatsApp', 'messenger' => 'Facebook Messenger', 'twitter' => 'Twitter', 'telegram' => 'Telegram', 'viber' => 'Viber', 'line' => 'LINE', 'instagram' => 'Instagram' }
   SUPPORTED_INTEGRATIONS = SUPPORTED_INTEGRATION_NAMES.keys
   SUPPORTED_TRIGGER_MAPPING = { 'message:appUser' => :incoming, 'message:delivery:channel' => :outgoing }
+  TIPLINE_CUSTOMIZABLE_MESSAGES = ['smooch_message_smooch_bot_greetings', 'submission_prompt', 'add_more_details_state', 'ask_if_ready_state',
+                                   'search_state', 'search_no_results', 'search_result_state', 'search_result_is_relevant', 'search_submit',
+                                   'newsletter_optin_optout', 'option_not_available', 'timeout', 'smooch_message_smooch_bot_disabled']
 
   check_settings
 
@@ -1107,5 +1110,29 @@ class Bot::Smooch < BotUser
       end
     end
     team_bot_installation
+  end
+
+  def self.default_settings
+    settings = [
+      {
+        'smooch_workflow_language' => 'en',
+        'smooch_state_main' => {
+          'smooch_menu_message' => '',
+          'smooch_menu_options' => []
+        },
+        'smooch_state_secondary' => {
+          'smooch_menu_message' => '',
+          'smooch_menu_options' => []
+        },
+        'smooch_state_query' => {
+          'smooch_menu_message' => '',
+          'smooch_menu_options' => []
+        },
+      }
+    ]
+    ::Bot::Smooch::TIPLINE_CUSTOMIZABLE_MESSAGES.each do |key|
+      settings[0][key] = ''
+    end
+    settings
   end
 end
