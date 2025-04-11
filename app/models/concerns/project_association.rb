@@ -90,7 +90,7 @@ module ProjectAssociation
       ['team_id', 'user_id', 'read', 'source_id', 'project_id', 'unmatched'].each do |fname|
         data[fname] = self.send(fname).to_i if self.send("saved_change_to_#{fname}?")
       end
-      ['archived', 'sources_count'].each do |fname|
+      ['archived'].each do |fname|
         data[fname] = { method: fname, klass: 'ProjectMedia', id: self.id, type: 'int' } if self.send("saved_change_to_#{fname}?")
       end
       data['channel'] = self.channel.values.flatten.map(&:to_i) if self.send(:saved_change_to_channel?)
