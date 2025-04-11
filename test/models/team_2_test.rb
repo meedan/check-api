@@ -1623,4 +1623,12 @@ class Team2Test < ActiveSupport::TestCase
     create_explainer title: 'Test explainer', team: t
     assert_equal 2, t.filtered_articles(text: 'Test?').count
   end
+
+  test "should install tipline when workspace is created" do
+    settings = [{ 'name' => 'smooch_workflows', 'default' => ::Bot::Smooch.default_settings.clone }]
+    bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], default: true, set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
+    assert_difference "TeamBotInstallation.where(user_id: #{bot.id}).count" do
+      create_team
+    end
+  end
 end
