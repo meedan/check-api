@@ -269,7 +269,6 @@ class Relationship < ApplicationRecord
 
   def propagate_inversion
     if self.source_id_before_last_save == self.target_id && self.target_id_before_last_save == self.source_id
-      ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
       report = Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: self.source_id_before_last_save).last
       unless report.nil?
         report.annotated_id = self.source_id
