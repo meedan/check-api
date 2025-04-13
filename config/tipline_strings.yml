@@ -316,7 +316,6 @@ it:
   option_not_available: "Mi dispiace, non ho capito il tuo messaggio."
   timeout: 'Grazie per averci contattato! Digita un tasto qualsiasi per iniziare una nuova conversazione.'
   smooch_message_smooch_bot_disabled: 'Il nostro bot è attualmente inattivo.'
-
 zh_CN:
   add_more_details_state_button_label: 添加
   ask_if_ready_state_button_label: 取消
@@ -367,7 +366,6 @@ zh_CN:
   option_not_available: "抱歉，我没听懂你的留言。"
   timeout: "感谢您与我们联系！键入任意键即可开始新对话。"
   smooch_message_smooch_bot_disabled: "我们的机器人目前处于非活动状态。"
-
 en:
   add_more_details_state_button_label: Add more
   ask_if_ready_state_button_label: Cancel
@@ -470,7 +468,6 @@ fil:
   option_not_available: "Paumanhin, hindi ko naintindihan ang iyong mensahe."
   timeout: "Salamat sa pakikipag-ugnayan sa amin! I-type ang anumang key upang magsimula ng bagong pag-uusap."
   smooch_message_smooch_bot_disabled: "Ang aming bot ay kasalukuyang hindi aktibo."
-
 fr:
   add_more_details_state_button_label: En ajouter
   ask_if_ready_state_button_label: Annuler
@@ -523,7 +520,6 @@ fr:
   option_not_available: "Je suis désolé, je n'ai pas compris votre message."
   timeout: "Merci de nous avoir contactés ! Tapez n’importe quelle touche pour démarrer une nouvelle conversation."
   smooch_message_smooch_bot_disabled: "Notre bot est actuellement inactif."
-
 de:
   add_more_details_state_button_label: Mehr hinzufügen
   ask_if_ready_state_button_label: Abbrechen
@@ -575,7 +571,6 @@ de:
   option_not_available: "Es tut mir leid, ich habe Ihre Nachricht nicht verstanden."
   timeout: "Vielen Dank, dass Sie sich an uns gewandt haben! Geben Sie eine beliebige Taste ein, um ein neues Gespräch zu beginnen."
   smooch_message_smooch_bot_disabled: "Unser Bot ist derzeit inaktiv."
-
 gu:
   add_more_details_state_button_label: વધુ ઉમેરો
   ask_if_ready_state_button_label: રદ કરો
@@ -625,7 +620,6 @@ gu:
   option_not_available: "માફ કરશો, હું તમારો સંદેશ સમજી શક્યો નથી."
   timeout: "અમારો સંપર્ક કરવા બદલ આભાર! નવી વાતચીત શરૂ કરવા માટે કોઈપણ કી ટાઈપ કરો."
   smooch_message_smooch_bot_disabled: "અમારો બોટ હાલમાં નિષ્ક્રિય છે."
-
 hi:
   add_more_details_state_button_label: अधिक जानकारी जोड़ें
   ask_if_ready_state_button_label: रद्द करें
@@ -727,7 +721,6 @@ id:
   option_not_available: "Maaf, saya tidak memahami pesan Anda."
   timeout: "Terima kasih telah menghubungi kami! Ketikkan tombol apa saja untuk memulai percakapan baru."
   smooch_message_smooch_bot_disabled: "Bot kami saat ini tidak aktif."
-
 ja:
   add_more_details_state_button_label: 追加
   ask_if_ready_state_button_label: キャンセル
@@ -778,7 +771,6 @@ ja:
   option_not_available: "申し訳ありませんが、あなたのメッセージが理解できませんでした。"
   timeout: "お問い合わせいただきありがとうございます。任意のキーを入力して新しい会話を開始します。"
   smooch_message_smooch_bot_disabled: "私たちのボットは現在非アクティブです。"
-
 kn:
   add_more_details_state_button_label: ಹೆಚ್ಚು ಸೇರಿಸಿ
   ask_if_ready_state_button_label: ರದ್ದು
@@ -830,7 +822,6 @@ kn:
   option_not_available: "ಕ್ಷಮಿಸಿ, ನಿಮ್ಮ ಸಂದೇಶ ನನಗೆ ಅರ್ಥವಾಗಲಿಲ್ಲ."
   timeout: "ನಮ್ಮನ್ನು ತಲುಪಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ಹೊಸ ಸಂಭಾಷಣೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲು ಯಾವುದೇ ಕೀಲಿಯನ್ನು ಟೈಪ್ ಮಾಡಿ."
   smooch_message_smooch_bot_disabled: "ನಮ್ಮ ಬೋಟ್ ಪ್ರಸ್ತುತ ನಿಷ್ಕ್ರಿಯವಾಗಿದೆ."
-
 ks:
   add_more_details_state_button_label: بییہ جوڑیو
   ask_if_ready_state_button_label: منسوخ کریو
