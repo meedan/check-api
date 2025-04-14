@@ -125,4 +125,23 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     assert_equal r4.created_at.to_i, pm5.media_cluster_origin_timestamp(true)
     assert_equal b1.id, pm5.media_cluster_origin_user_id(true)
   end
+
+  test "should have a fallback when trying to create a blank item with original claim but a timeout error happens" do
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}|httpstat\.us/
+    WebMock.stub_request(:head, /httpstat\.us/).to_return(status: 200, headers: { 'Content-Type' => 'image/png' })
+    image_data = File.read(File.join(Rails.root, 'test', 'data', 'rails.png'))
+    Net::HTTPOK.any_instance.stubs(:body).returns(image_data)
+
+    stub_configs({ 'short_request_timeout' => 5 }) do
+      url = 'https://httpstat.us/200?sleep=10000'
+      pm = create_project_media set_original_claim: url, media: Blank.create!
+      assert_equal 'Claim', pm.media.type
+      assert_equal url, pm.media.quote
+
+      url = 'https://httpstat.us/200?sleep=2000'
+      pm = create_project_media set_original_claim: url, media: Blank.create!
+      assert_equal 'UploadedImage', pm.media.type
+      assert_equal Digest::MD5.hexdigest(image_data), Digest::MD5.hexdigest(pm.media.file.file.read)
+    end
+  end
 end

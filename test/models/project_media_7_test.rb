@@ -5,9 +5,12 @@ class ProjectMedia7Test < ActiveSupport::TestCase
   def setup
     require 'sidekiq/testing'
     Sidekiq::Testing.fake!
-    super
+    WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}/
     create_team_bot login: 'keep', name: 'Keep'
     create_verification_status_stuff
+  end
+
+  def teardown
   end
 
   test "should create media from original claim URL as Link" do
@@ -23,6 +26,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
         type: 'item'
       }
     }.to_json
+    WebMock.stub_request(:head, link_url).to_return(body: '', headers: { 'Content-Type' => 'text/html' })
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
     pm_link = create_project_media(set_original_claim: link_url)
     assert_equal 'Link', pm_link.media.type
@@ -34,6 +38,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
       file.rewind
       image_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:head, image_url).to_return(body: '', status: 200, headers: { 'Content-Type' => 'image/jpeg' })
       WebMock.stub_request(:get, image_url).to_return(body: file.read, headers: { 'Content-Type' => 'image/jpeg' })
       pm_image = create_project_media(set_original_claim: image_url)
       assert_equal 'UploadedImage', pm_image.media.type
@@ -45,6 +50,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp4')))
       file.rewind
       video_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:head, video_url).to_return(body: '', headers: { 'Content-Type' => 'video/mp4' })
       WebMock.stub_request(:get, video_url).to_return(body: file.read, headers: { 'Content-Type' => 'video/mp4' })
       pm_video = create_project_media(set_original_claim: video_url)
       assert_equal 'UploadedVideo', pm_video.media.type
@@ -56,6 +62,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
       file.rewind
       audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:head, audio_url).to_return(body: '', headers: { 'Content-Type' => 'audio/mp3' })
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
       pm_audio = create_project_media(set_original_claim: audio_url)
       assert_equal 'UploadedAudio', pm_audio.media.type
@@ -81,6 +88,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
         type: 'item'
       }
     }.to_json
+    WebMock.stub_request(:head, link_url).to_return(body: '', headers: { 'Content-Type' => 'text/html' })
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
 
     t = create_team
@@ -96,6 +104,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.png')))
       file.rewind
       image_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:head, image_url).to_return(body: '', headers: { 'Content-Type' => 'image/jpeg' })
       WebMock.stub_request(:get, image_url).to_return(body: file.read, headers: { 'Content-Type' => 'image/jpeg' })
 
       t = create_team
@@ -118,6 +127,9 @@ class ProjectMedia7Test < ActiveSupport::TestCase
 
   test "should search for item similar articles" do
     RequestStore.store[:skip_cached_field_update] = false
+    WebMock.stub_request(:post, /#{CheckConfig.get('alegre_host')}/)
+    WebMock.stub_request(:get, /#{CheckConfig.get('narcissus_url')}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
+    WebMock.stub_request(:get, /#{CheckConfig.get('pender_url')}/).to_return(body: '{"url":""}')
     setup_elasticsearch
     t = create_team
     pm1 = create_project_media quote: 'Foo Bar', team: t
@@ -208,6 +220,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
         type: 'item'
       }
     }.to_json
+    WebMock.stub_request(:head, link_url).to_return(body: '', headers: { 'Content-Type' => 'text/html' })
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
     
     pm_link = create_project_media(set_original_claim: link_url)
@@ -233,6 +246,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
       file.rewind
       audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:head, audio_url).to_return(body: '', headers: { 'Content-Type' => 'audio/mp3' })
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
       
       pm_audio = create_project_media(set_original_claim: audio_url)
@@ -258,6 +272,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
       file.rewind
       audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:head, audio_url).to_return(body: '', headers: { 'Content-Type' => 'audio/mp3' })
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
 
       audio = UploadedAudio.create!(file: file, original_claim: audio_url)
@@ -273,6 +288,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       file.write(File.read(File.join(Rails.root, 'test', 'data', 'rails.mp3')))
       file.rewind
       audio_url = "http://example.com/#{file.path.split('/').last}"
+      WebMock.stub_request(:head, audio_url).to_return(body: '', headers: { 'Content-Type' => 'audio/mp3' })
       WebMock.stub_request(:get, audio_url).to_return(body: file.read, headers: { 'Content-Type' => 'audio/mp3' })
 
       Media.stubs(:downloaded_file).raises(Net::OpenTimeout)
@@ -291,6 +307,7 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     link_url = 'https://example.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
 
+    WebMock.stub_request(:head, link_url).to_return(body: '', headers: { 'Content-Type' => 'text/html' })
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_timeout
 
     pm = create_project_media(set_original_claim: link_url)

@@ -135,7 +135,7 @@ class Media < ApplicationRecord
     filepath = File.join(Rails.root, 'tmp', filename)
 
     request = Net::HTTP::Get.new(uri)
-    response = Net::HTTP.start(uri.hostname, uri.port, open_timeout: 5, read_timeout: CheckConfig.get('short_request_timeout', 25, :integer), use_ssl: uri.scheme == 'https') { |http| http.request(request) }
+    response = Net::HTTP.start(uri.hostname, uri.port, open_timeout: 3, read_timeout: CheckConfig.get('short_request_timeout', 20, :integer), use_ssl: uri.scheme == 'https') { |http| http.request(request) }
     body = response.body
 
     File.atomic_write(filepath) { |file| file.write(body) }
