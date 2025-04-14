@@ -317,6 +317,19 @@ module SmoochSearch
       end
     end
 
+    def send_explainer_to_user(ex_item_id, tipline_request, report)
+      data = tipline_request.smooch_data
+      uid = tipline_request.tipline_user_uid
+      self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+      no_body = (tipline_request.platform == 'Facebook Messenger' && !report.url.blank?)
+      Rails.logger.info "[Smooch Bot] Sending explainer report to user #{uid} for ExplainerItem with ID #{ex_item_id}..."
+      self.send_message_to_user(uid, report.text(nil, no_body), {}, false, true, 'explainer_report')
+      # Set smooch_report_sent_at to Time.now to prevent re-sending for the same request.
+      tipline_request.skip_check_ability = true
+      tipline_request.send("smooch_report_sent_at=", Time.now.to_i)
+      tipline_request.save!
+    end
+
     def user_received_search_result(message)
       uid = message['appUser']['_id']
       id = message['message']['_id']
