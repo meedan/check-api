@@ -124,7 +124,7 @@ module ProjectMediaCreators
       uri = URI.parse(original_claim)
       content_type = nil
       begin
-        content_type = Net::HTTP.start(uri.host, uri.port, open_timeout: 3, read_timeout: 3, use_ssl: uri.scheme == 'https') { |http| http.request(Net::HTTP::Head.new(uri)) }['content-type']
+        content_type = Net::HTTP.start(uri.host, uri.port, open_timeout: 3, read_timeout: 3, use_ssl: uri.scheme == 'https') { |http| http.request_head(uri) }['content-type']
       rescue
         self.media_type = 'Claim'
         return
