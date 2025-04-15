@@ -981,7 +981,7 @@ class Bot::Smooch < BotUser
     Rails.logger.info "[Smooch Bot] Trying to send report to user #{uid} for item with ID #{pm.id}..."
 
     # Only send a report if these conditions are met
-    should_send_report_in_language = report.should_send_report_in_this_language?(lang)
+    should_send_report_in_language = !!report&.should_send_report_in_this_language?(lang)
     if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived) && should_send_report_in_language
 
       # Map the template name to a ticker field
