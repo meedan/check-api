@@ -13,7 +13,7 @@ module SmoochStrings
       # - Menu item description: 72 characters
       # - Button label: 20 characters
       # - Body: 1024 characters
-      string = [TIPLINE_STRINGS.dig(language, key), TIPLINE_STRINGS.dig(language.gsub(/[-_].*$/, ''), key), TIPLINE_STRINGS.dig('en', key)].find{ |s| !s.blank? }
+      string = [TIPLINE_STRINGS.dig(language, key), TIPLINE_STRINGS.dig(language.to_s.gsub(/[-_].*$/, ''), key), TIPLINE_STRINGS.dig('en', key)].find{ |s| !s.blank? }
       string = key if string.blank?
       string.to_s.truncate(truncate_at)
     end
