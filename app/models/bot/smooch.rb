@@ -963,31 +963,33 @@ class Bot::Smooch < BotUser
     self.get_platform_from_message(data)
     uid = data['authorId']
     lang = data['language']
-    field_name = ''
     # User received a report before
     if subscribed_at.to_i < last_published_at.to_i && published_count > 0
       if ['publish', 'republish_and_resend'].include?(action)
-        field_name = 'smooch_report_correction_sent_at'
-        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', self.get_string(:report_updated, lang))
+        self.send_report_to_user(uid, data, pm, lang, 'fact_check_report_updated', self.get_string(:report_updated, lang), tipline_request)
       end
     # First report
     else
-      field_name = 'smooch_report_sent_at'
-      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report')
-    end
-    unless field_name.blank?
-      tipline_request.skip_check_ability = true
-      tipline_request.send("#{field_name}=", Time.now.to_i)
-      tipline_request.save!
+      self.send_report_to_user(uid, data, pm, lang, 'fact_check_report', nil, tipline_request)
     end
   end
 
-  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil, pre_message = nil)
+  def self.send_report_to_user(uid, data, pm, lang = 'en', fallback_template = nil, pre_message = nil, tipline_request = nil)
     parent = Relationship.confirmed_parent(pm)
     return if parent.nil?
     report = parent.get_dynamic_annotation('report_design')
-    Rails.logger.info "[Smooch Bot] Sending report to user #{uid} for item with ID #{pm.id}..."
-    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived) && report.should_send_report_in_this_language?(lang)
+    Rails.logger.info "[Smooch Bot] Trying to send report to user #{uid} for item with ID #{pm.id}..."
+
+    # Only send a report if these conditions are met
+    should_send_report_in_language = report.should_send_report_in_this_language?(lang)
+    if report&.get_field_value('state') == 'published' && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(parent.archived) && should_send_report_in_language
+
+      # Map the template name to a ticker field
+      ticker_field_name = {
+        fact_check_report_updated: 'smooch_report_correction_sent_at',
+        fact_check_report: 'smooch_report_sent_at'
+      }[fallback_template.to_s.to_sym]
+
       unless pre_message.blank?
         self.send_message_to_user(uid, pre_message)
         sleep 1
@@ -1008,6 +1010,12 @@ class Bot::Smooch < BotUser
         Rails.logger.info "[Smooch Bot] Sent report visual card to user #{uid} for item with ID #{pm.id}, response was: #{last_smooch_response&.body}"
       end
       self.save_smooch_response(last_smooch_response, parent, data['received'], fallback_template, lang)
+
+      if tipline_request.present? && ticker_field_name.present? && last_smooch_response.present?
+        tipline_request.update_column(ticker_field_name, Time.now.to_i)
+      end
+    else
+      Rails.logger.info "[Smooch Bot] Not sending report to user #{uid} for item with ID #{pm.id}. Report state: #{report&.get_field_value('state')} | Item archived flag: #{parent.archived} | Should send report in #{lang}? #{should_send_report_in_language}"
     end
   end
 
