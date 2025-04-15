@@ -446,7 +446,7 @@ class TeamType < DefaultObject
   field :webhooks, WebhookType.connection_type, null: true
 
   def webhooks
-    webhook_installations = object.team_users.joins(:user).where('users.type' => 'BotUser').select{ |team_user| team_user.user.events.present? }
+    webhook_installations = object.team_users.joins(:user).where('users.type' => 'BotUser').select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? }
     webhook_installations.map(&:user)
   end
 end
