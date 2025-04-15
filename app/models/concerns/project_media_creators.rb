@@ -122,7 +122,13 @@ module ProjectMediaCreators
 
     if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(original_claim)
-      content_type = Net::HTTP.get_response(uri)['content-type']
+      content_type = nil
+      begin
+        content_type = Net::HTTP.start(uri.host, uri.port, open_timeout: 3, read_timeout: 3, use_ssl: uri.scheme == 'https') { |http| http.request_head(uri) }['content-type']
+      rescue
+        self.media_type = 'Claim'
+        return
+      end
 
       case content_type
       when /^image\//
