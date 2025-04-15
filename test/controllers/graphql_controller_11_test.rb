@@ -398,7 +398,7 @@ class GraphqlController11Test < ActionController::TestCase
     assert_match /ActiveRecord::RecordNotFound/, @response.body
   end
 
-  test "should query tipline_requests that never received articles" do
+  test "should query tipline_requests that never received articles and send explainers" do
     u = create_user is_admin: true
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
@@ -419,7 +419,7 @@ class GraphqlController11Test < ActionController::TestCase
     ex = create_explainer team: t
     pm.explainers << ex
     ex_item = pm.explainer_items.last
-    query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", id: #{ex_item.id}, range: 7 }) { success } }"
+    query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", dbid: #{ex_item.id}, range: 7 }) { success } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
   end

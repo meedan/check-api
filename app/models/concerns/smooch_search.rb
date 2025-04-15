@@ -325,9 +325,7 @@ module SmoochSearch
       Rails.logger.info "[Smooch Bot] Sending explainer report to user #{uid} for ExplainerItem with ID #{ex_item_id}..."
       self.send_message_to_user(uid, report.text(nil, no_body), {}, false, true, 'explainer_report')
       # Set smooch_report_sent_at to Time.now to prevent re-sending for the same request.
-      tipline_request.skip_check_ability = true
-      tipline_request.send("smooch_report_sent_at=", Time.now.to_i)
-      tipline_request.save!
+      tipline_request.update_column(:smooch_report_sent_at, Time.now.to_i)
     end
 
     def user_received_search_result(message)
