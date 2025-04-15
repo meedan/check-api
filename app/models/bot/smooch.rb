@@ -1046,7 +1046,7 @@ class Bot::Smooch < BotUser
       data = tr.smooch_data
       self.get_platform_from_message(data)
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
-      self.send_report_to_user(tr.tipline_user_uid, data, parent, tr.language, 'fact_check_report')
+      self.send_report_to_user(tr.tipline_user_uid, data, parent, tr.language, 'fact_check_report', nil, tr)
     end
   end
 
