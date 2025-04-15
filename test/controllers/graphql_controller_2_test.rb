@@ -128,6 +128,25 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal tb.id, data['bot_user']['dbid']
   end
 
+  test "should get only webhooks installed in a team" do
+    t = create_team slug: 'test'
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    w1 = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
+    w2 = create_team_bot set_approved: false, name: 'My Second Webhook', team_author_id: t.id
+    create_bot_user set_approved: true, name: 'My Bot, not a Webhook', team: t
+    create_team_bot set_approved: true, name: 'Other Team\'s Webhook'
+
+    query = 'query read { team(slug: "test") { webhooks { edges { node  { name, dbid } } } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    edges = JSON.parse(@response.body)['data']['team']['webhooks']['edges']
+    assert_equal ['My Second Webhook', 'My Webhook'], edges.collect{ |e| e['node']['name'] }.sort
+    assert_equal [w1.id, w2.id], edges.collect{ |e| e['node']['dbid'] }.sort
+  end
+
   test "should not get OCR" do
     u = create_user
     t = create_team private: true
