@@ -163,7 +163,10 @@ class TeamType < DefaultObject
     # We sometimes call this method and somehow object is nil despite self.object being available
     object ||= self.object
     object = object.reload if items_count_for_status || published_reports_count_for_status
-    object.verification_statuses("media", nil, items_count_for_status, published_reports_count_for_status)
+    statuses = object.verification_statuses("media", nil, items_count_for_status, published_reports_count_for_status)
+    # Sort the statuses by the 'label' field
+    statuses["statuses"] = statuses["statuses"].sort_by { |status| status["label"] }
+    statuses
   end
 
   field :team_bot_installation, TeamBotInstallationType, null: true do
