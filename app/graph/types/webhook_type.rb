@@ -1,5 +1,5 @@
 class WebhookType < DefaultObject
-  description "Webhook type"
+  description "Represents a Webhook, a BotUser with events and request url"
 
   implements GraphQL::Types::Relay::Node
 
