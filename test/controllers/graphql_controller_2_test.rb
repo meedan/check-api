@@ -139,12 +139,104 @@ class GraphqlController2Test < ActionController::TestCase
     create_bot_user set_approved: true, name: 'My Bot, not a Webhook', team: t
     create_team_bot set_approved: true, name: 'Other Team\'s Webhook'
 
-    query = 'query read { team(slug: "test") { webhooks { edges { node  { name, dbid } } } } }'
+    query = <<~GRAPHQL
+      query read {
+        team(slug: "test") {
+          webhooks { edges { node  { name, dbid } } }
+        }
+      }
+    GRAPHQL
+
     post :create, params: { query: query }
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['webhooks']['edges']
     assert_equal ['My Second Webhook', 'My Webhook'], edges.collect{ |e| e['node']['name'] }.sort
     assert_equal [w1.id, w2.id], edges.collect{ |e| e['node']['dbid'] }.sort
+  end
+
+  test "should create a webhook" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
+
+    query = <<~GRAPHQL
+      mutation create {
+        createWebhook(input: {
+          name: "my webhook",
+          request_url: "https://wwww.example.com",
+          events: "[{\"event\":\"publish_report\",\"graphql\":\"data, project_media { title, dbid, status, report_status, media { quote, url }}\"}]",
+          headers: "{\"X-Header\":\"ABCDEFG\"}"
+        }) {
+            webhook {
+              id
+              title
+              description
+          }
+        }
+      }
+    GRAPHQL
+
+    assert_difference 'BotUser.count' do
+      post :create, params: { query: query, team: t }
+    end
+    assert_not_nil BotUser.last.events
+    assert_not_nil BotUser.last.request_url
+  end
+
+  test "should update a webhook" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'collaborator'
+    authenticate_with_user(u)
+
+    w = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
+    old_headers = w.get_headers
+    old_events = w.events
+    old_url = w.request_url
+    old_name = w.name
+
+    query = <<~GRAPHQL
+      mutation update {
+        updateWebhook(input: {
+          id: "#{w.graphql_id}",
+          name: "my webhook",
+          request_url: "https://wwww.example.com",
+          events: "[{\"event\":\"publish_report\",\"graphql\":\"data, project_media { title, dbid, status, report_status, media { quote, url }}\"}]",
+          headers: "{\"X-Header\":\"ABCDEFG\"}"
+        }) {
+            webhook {
+              id
+              title
+              description
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'updateWebhook')
+    assert_equal w.get_headers, response.dig('headers')
+  end
+
+  test "should delete a webhook" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'collaborator'
+    authenticate_with_user(u)
+
+    w = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
+    query = <<~GRAPHQL
+      mutation destroy {
+        destroyWebhook(input: { id: "#{w.graphql_id}" }) { deletedId }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'destroyWebhook')
+    assert_equal w.id.to_s, response.dig('deletedId')
   end
 
   test "should not get OCR" do
