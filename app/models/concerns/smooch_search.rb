@@ -323,8 +323,9 @@ module SmoochSearch
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
       no_body = (tipline_request.platform == 'Facebook Messenger' && !report.url.blank?)
       Rails.logger.info "[Smooch Bot] Sending explainer report to user #{uid} for ExplainerItem with ID #{ex_item_id}..."
-      last_smooch_response = self.send_message_to_user(uid, report.text(nil, no_body), {}, false, true, 'explainer_report')
-      self.save_smooch_response(last_smooch_response, tipline_request.associated, data['received'], 'fact_check_report', tipline_request.language)
+      last_smooch_response = self.send_message_to_user(uid, report.text(nil, no_body), {}, false, true, 'report')
+      # FIXME: We should rename the WhatsApp template "fact_check_report" to "article_report"
+      self.save_smooch_response(last_smooch_response, tipline_request.associated, data['received'], 'fact_check_report', tipline_request.language, { explainer_id: ex_item_id })
       # Set smooch_report_sent_at to Time.now to prevent re-sending for the same request.
       tipline_request.update_column(:smooch_report_sent_at, Time.now.to_i) if last_smooch_response.present?
     end

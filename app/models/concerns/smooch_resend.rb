@@ -276,17 +276,22 @@ module SmoochResend
 
     def get_report_data_to_be_resent(message, original)
       pm = ProjectMedia.where(id: original['project_media_id']).last
-      report = pm&.get_dynamic_annotation('report_design')
+      explainer = Explainer.find_by_id(original['explainer_id'].to_i)
+      report = nil
       data = nil
-      if report&.get_field_value('state') == 'published'
+      if pm&.get_dynamic_annotation('report_design')&.get_field_value('state') == 'published'
+        report = pm.get_dynamic_annotation('report_design').report_design_to_tipline_search_result
+      elsif explainer.present?
+        report = explainer.as_tipline_search_result
+      end
+      unless report.nil?
         data = {}
         data[:language] = language = self.get_user_language(message['appUser']['_id'])
         data[:query_date] = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
         data[:query_date_i] = original['query_date'].to_i
-        data[:introduction] = report.report_design_field_value('use_introduction') ? report.report_design_introduction({ 'received' => original['query_date'].to_i }, language).to_s : nil
-        data[:text] = report.report_design_field_value('use_text_message') ? report.report_design_text(language).to_s : nil
-        data[:image] = report.report_design_field_value('use_visual_card') ? report.report_design_image_url.to_s : nil
-        data[:title] = report.report_design_field_value('title').to_s
+        data[:text] = report.body
+        data[:image] = report.image_url
+        data[:title] = report.title
       end
       data
     end
