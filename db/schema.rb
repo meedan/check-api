@@ -1021,6 +1021,6 @@ ActiveRecord::Schema.define(version: 2025_04_19_100047) do
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW PROCEDURE FUNCTION validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
   SQL
 end
