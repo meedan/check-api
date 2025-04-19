@@ -12,6 +12,15 @@ class SavedSearchTest < ActiveSupport::TestCase
     end
   end
 
+  test "should set list type" do
+    ss = create_saved_search
+    assert_equal 'media', ss.list_type
+    create_saved_search list_type: 'article'
+    assert_raises ArgumentError do
+      create_saved_search list_type: 'invalid'
+    end
+  end
+
   test "should not create saved search if title is not present" do
     assert_no_difference 'SavedSearch.count' do
       assert_raises ActiveRecord::RecordInvalid do
