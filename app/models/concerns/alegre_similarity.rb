@@ -269,7 +269,7 @@ module AlegreSimilarity
     end
 
     def get_min_es_score(team_id)
-      self.get_alegre_tbi(team_id)&.get_min_es_score || Bot::Alegre::DEFAULT_ES_SCORE
+      RequestStore.store.dig(:smooch_bot_settings,"min_es_score") || self.get_alegre_tbi(team_id)&.get_min_es_score || Bot::Alegre::DEFAULT_ES_SCORE
     end
 
     def similar_texts_from_api_conditions(text, models, fuzzy, team_id, fields, threshold, match_across_content_types=true)
