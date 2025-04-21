@@ -276,7 +276,7 @@ module SmoochResend
 
     def get_report_data_to_be_resent(message, original)
       pm = ProjectMedia.where(id: original['project_media_id']).last
-      explainer = Explainer.find_by_id(original['explainer_id'].to_i)
+      explainer = ExplainerItem.find_by_id(original['explainer_item_id'].to_i)&.explainer
       report = nil
       data = nil
       if pm&.get_dynamic_annotation('report_design')&.get_field_value('state') == 'published'
