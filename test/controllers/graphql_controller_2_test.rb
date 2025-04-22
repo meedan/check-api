@@ -237,7 +237,7 @@ class GraphqlController2Test < ActionController::TestCase
     post :create, params: { query: query }
     assert_response :success
     response = JSON.parse(@response.body).dig('data', 'destroyWebhook')
-    assert_equal w.id.to_s, response.dig('deletedId')
+    assert_equal w.graphql_id, response.dig('deletedId')
   end
 
   test "should not get OCR" do
