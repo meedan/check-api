@@ -40,8 +40,8 @@ GIT
 
 GIT
   remote: https://github.com/meedan/pender-client.git
-  revision: ad74fadd10af2fdd359ab1f5e7a71362a47f9eff
-  ref: ad74fad
+  revision: a57737be5a63bf1575ae33eba304300568ad86cf
+  ref: a57737b
   specs:
     pender_client (0.0.4)
 

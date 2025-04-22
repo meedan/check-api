@@ -90,9 +90,7 @@ module ProjectAssociation
       ['team_id', 'user_id', 'read', 'source_id', 'project_id', 'unmatched'].each do |fname|
         data[fname] = self.send(fname).to_i if self.send("saved_change_to_#{fname}?")
       end
-      ['archived', 'sources_count'].each do |fname|
-        data[fname] = { method: fname, klass: 'ProjectMedia', id: self.id, type: 'int' } if self.send("saved_change_to_#{fname}?")
-      end
+      data['archived'] = { method: 'archived', klass: 'ProjectMedia', id: self.id, type: 'int' } if self.send(:saved_change_to_archived?)
       data['channel'] = self.channel.values.flatten.map(&:to_i) if self.send(:saved_change_to_channel?)
       data['source_name'] =  self.source&.name if self.send(:saved_change_to_source_id?)
       unless data.blank?
@@ -157,7 +155,7 @@ module ProjectAssociation
     protected
 
     def set_media
-      unless self.url.blank? && self.quote.blank? && self.file.blank? && self.media_type != 'Blank'
+      unless self.url.blank? && self.quote.blank? && self.file.blank? && self.media_type != 'Blank' && self.set_original_claim.blank?
         self.create_media!
         self.media_id unless self.media_id.nil?
       end

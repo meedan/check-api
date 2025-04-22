@@ -515,6 +515,84 @@ class TestControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  test "should create saved search list" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+
+    assert_difference 'SavedSearch.count' do
+      get :create_saved_search_list, params: { team_id: t.id }
+    end
+
+    assert_response :success
+  end
+
+  test "should not create saved search list if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u
+
+    assert_no_difference 'SavedSearch.count' do
+      get :create_saved_search_list, params: { team_id: t.id }
+    end
+
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create feed with item" do
+    u = create_user
+    t = create_team
+
+    assert_difference 'Feed.count' do
+      get :create_feed_with_item, params: { team_id: t.id, email: u.email }
+    end
+
+    assert_response :success
+  end
+
+  test "should not create feed with item if not in test mode" do
+    Rails.stubs(:env).returns('development')
+    u = create_user
+    t = create_team
+
+    assert_no_difference 'Feed.count' do
+      get :create_feed_with_item, params: { team_id: t.id }
+    end
+
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
+  test "should create feed invitation" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user team: t, user: u
+
+    assert_difference 'FeedInvitation.count' do
+      get :create_feed_invitation, params: { team_id: t.id, email: u2.email, email2: u.email }
+    end
+
+    assert_response :success
+  end
+
+  test "should not create feed invitation if not in test mode" do
+    Rails.stubs(:env).returns('development') # Simulate non-test mode
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user team: t, user: u
+
+    assert_no_difference 'FeedInvitation.count' do
+      get :create_feed_invitation, params: { team_id: t.id, email: u2.email, email2: u.email }
+    end
+
+    assert_response 400
+    Rails.unstub(:env)
+  end
+
   test "should not create standalone fact check and associate with the team" do
     Rails.stubs(:env).returns('development')
 

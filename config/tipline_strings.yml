@@ -36,6 +36,19 @@ ar:
   subscribed: أنت مشترك حالياً في نشرتنا الإخبارية.
   unsubscribe_button_label: إلغاء الاشتراك
   unsubscribed: أنت غير مشترك حالياً في نشرتنا الإخبارية.
+  smooch_message_smooch_bot_greetings: "مرحبًا بك في روبوت التحقق من الحقائق. استخدم القائمة الرئيسية للتنقل."
+  submission_prompt: "الرجاء إدخال السؤال أو الرابط أو الصورة أو الفيديو الذي تريد التحقق من صحته."
+  add_more_details_state: "الرجاء إضافة المزيد من المحتوى."
+  ask_if_ready_state: "هل أنت مستعد لتقديم؟"
+  search_state: "شكرًا لك! البحث عن عمليات التحقق من الحقائق، قد يستغرق دقيقة واحدة."
+  search_no_results: "لم يتم العثور على عمليات التحقق من الحقائق. لقد تم إخطار الصحفيين في فريقنا وسوف تتلقى تحديثًا في هذا الموضوع إذا تم التحقق من صحة المعلومات."
+  search_result_state: "هل عمليات التحقق من الحقائق هذه تجيب على سؤالك؟"
+  search_result_is_relevant: "شكرًا لك! انشر الكلمة حول هذا الخط الإرشادي لمساعدتنا في مكافحة المعلومات الخاطئة!"
+  search_submit: "شكرا لتعليقاتك. لقد تم إخطار الصحفيين في فريقنا وسوف تتلقى تحديثًا في هذا الموضوع إذا تم نشر تدقيق جديد للحقائق."
+  newsletter_optin_optout: "اشترك الآن لتحصل على أهم الحقائق تصلك مباشرة على الواتساب، كل أسبوع. {subscription_status}."
+  option_not_available: "أنا آسف، لم أفهم رسالتك."
+  timeout: "شكرا لتواصلك معنا! اكتب أي مفتاح لبدء محادثة جديدة."
+  smooch_message_smooch_bot_disabled: "الروبوت الخاص بنا غير نشط حاليًا."
 as:
   add_more_details_state_button_label: আৰু যোগ কৰক
   ask_if_ready_state_button_label: বাতিল কৰক
@@ -148,6 +161,19 @@ bn:
   subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
   unsubscribe_button_label: আনসাবস্ক্রাইব করুন
   unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটার সদস্যতা নেই.
+  smooch_message_smooch_bot_greetings: "আমাদের ফ্যাক্ট-চেকিং বটে স্বাগতম। নেভিগেট করতে প্রধান মেনু ব্যবহার করুন."
+  submission_prompt: "অনুগ্রহ করে প্রশ্ন, লিঙ্ক, ছবি বা ভিডিও লিখুন যেটি আপনি সত্য-নিরীক্ষা করতে চান।"
+  add_more_details_state: "আরো কন্টেন্ট যোগ করুন."
+  ask_if_ready_state: "আপনি জমা দিতে প্রস্তুত?"
+  search_state: "ধন্যবাদ! ফ্যাক্ট-চেক খুঁজছেন, এতে এক মিনিট সময় লাগতে পারে।"
+  search_no_results: "কোন ফ্যাক্ট-চেক পাওয়া যায়নি। আমাদের দলের সাংবাদিকদের অবহিত করা হয়েছে এবং তথ্যটি সত্য-পরীক্ষা করা হলে আপনি এই থ্রেডে একটি আপডেট পাবেন।"
+  search_result_state: "এই ফ্যাক্ট-চেকগুলি কি আপনার প্রশ্নের উত্তর দিচ্ছে?"
+  search_result_is_relevant: "ধন্যবাদ! ভুল তথ্যের বিরুদ্ধে লড়াই করতে আমাদের সাহায্য করতে এই টিপলাইন সম্পর্কে শব্দটি ছড়িয়ে দিন!"
+  search_submit: "আপনার মতামতের জন্য আপনাকে ধন্যবাদ. আমাদের টিমের সাংবাদিকদের অবহিত করা হয়েছে এবং যদি একটি নতুন ফ্যাক্ট-চেক প্রকাশিত হয় তবে আপনি এই থ্রেডে একটি আপডেট পাবেন।"
+  newsletter_optin_optout: "প্রতি সপ্তাহে হোয়াটসঅ্যাপে সরাসরি বিতরণ করা সবচেয়ে গুরুত্বপূর্ণ তথ্য পেতে এখনই সদস্যতা নিন। {subscription_status}।"
+  option_not_available: "আমি দুঃখিত, আমি আপনার বার্তা বুঝতে পারিনি."
+  timeout: "আমাদের কাছে পৌঁছানোর জন্য আপনাকে ধন্যবাদ! একটি নতুন কথোপকথন শুরু করতে যেকোনো কী টাইপ করুন।"
+  smooch_message_smooch_bot_disabled: "আমাদের বট বর্তমানে নিষ্ক্রিয়।"
 bn_BD:
   add_more_details_state_button_label: আরো যোগ করুণ
   ask_if_ready_state_button_label: বাতিল
@@ -186,6 +212,19 @@ bn_BD:
   subscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন।
   unsubscribe_button_label: আনসাবস্ক্রাইব
   unsubscribed: আপনি বর্তমানে আমাদের নিউজলেটারে সাবস্ক্রাইব করেন নি।
+  smooch_message_smooch_bot_greetings: "আমাদের ফ্যাক্ট-চেকিং বটে স্বাগতম। নেভিগেট করতে প্রধান মেনু ব্যবহার করুন."
+  submission_prompt: "অনুগ্রহ করে প্রশ্ন, লিঙ্ক, ছবি বা ভিডিও লিখুন যেটি আপনি সত্য-নিরীক্ষা করতে চান।"
+  add_more_details_state: "আরো কন্টেন্ট যোগ করুন."
+  ask_if_ready_state: "আপনি জমা দিতে প্রস্তুত?"
+  search_state: "ধন্যবাদ! ফ্যাক্ট-চেক খুঁজছেন, এতে এক মিনিট সময় লাগতে পারে।"
+  search_no_results: "কোন ফ্যাক্ট-চেক পাওয়া যায়নি। আমাদের দলের সাংবাদিকদের অবহিত করা হয়েছে এবং তথ্যটি সত্য-পরীক্ষা করা হলে আপনি এই থ্রেডে একটি আপডেট পাবেন।"
+  search_result_state: "এই ফ্যাক্ট-চেকগুলি কি আপনার প্রশ্নের উত্তর দিচ্ছে?"
+  search_result_is_relevant: "ধন্যবাদ! ভুল তথ্যের বিরুদ্ধে লড়াই করতে আমাদের সাহায্য করতে এই টিপলাইন সম্পর্কে শব্দটি ছড়িয়ে দিন!"
+  search_submit: "আপনার মতামতের জন্য আপনাকে ধন্যবাদ. আমাদের টিমের সাংবাদিকদের অবহিত করা হয়েছে এবং যদি একটি নতুন ফ্যাক্ট-চেক প্রকাশিত হয় তবে আপনি এই থ্রেডে একটি আপডেট পাবেন।"
+  newsletter_optin_optout: "প্রতি সপ্তাহে হোয়াটসঅ্যাপে সরাসরি বিতরণ করা সবচেয়ে গুরুত্বপূর্ণ তথ্য পেতে এখনই সদস্যতা নিন। {subscription_status}।"
+  option_not_available: "আমি দুঃখিত, আমি আপনার বার্তা বুঝতে পারিনি."
+  timeout: "আমাদের কাছে পৌঁছানোর জন্য আপনাকে ধন্যবাদ! একটি নতুন কথোপকথন শুরু করতে যেকোনো কী টাইপ করুন।"
+  smooch_message_smooch_bot_disabled: "আমাদের বট বর্তমানে নিষ্ক্রিয়।"
 ckb:
   add_more_details_state_button_label: زیاد کردن
   ask_if_ready_state_button_label: هەڵوەشاندنەوە
@@ -264,6 +303,19 @@ it:
   unsubscribed: Al momento non sei iscritto alla nostra newsletter.
   nlu_disambiguation: "Scegli una delle seguenti opzioni:"
   nlu_cancel: "Torna al menu"
+  smooch_message_smooch_bot_greetings: "Benvenuto nel nostro bot di verifica dei fatti. Utilizza il menu principale per navigare."
+  submission_prompt: Si prega di inserire la domanda, il link, l'immagine o il video che si desidera verificare.
+  add_more_details_state: 'Per favore aggiungi più contenuto.'
+  ask_if_ready_state: 'Sei pronto a inviare?'
+  search_state: 'Grazie! Cerco le verifiche dei fatti, potrebbe richiedere un minuto.'
+  search_no_results: 'Nessuna verifica dei fatti trovata. I giornalisti del nostro team sono stati avvisati e riceverai un aggiornamento in questo thread se le informazioni vengono verificate.'
+  search_result_state: 'Queste verifiche dei fatti rispondono alla tua domanda?'
+  search_result_is_relevant: 'Grazie! Diffondi la voce su questa linea di suggerimenti per aiutarci a combattere la disinformazione!'
+  search_submit: 'Grazie per il tuo feedback. I giornalisti del nostro team sono stati avvisati e riceverai un aggiornamento in questo thread se le informazioni vengono verificate.'
+  newsletter_optin_optout: Iscriviti ora per ricevere i fatti più importanti direttamente su WhatsApp, ogni settimana. {subscription_status}.
+  option_not_available: "Mi dispiace, non ho capito il tuo messaggio."
+  timeout: 'Grazie per averci contattato! Digita un tasto qualsiasi per iniziare una nuova conversazione.'
+  smooch_message_smooch_bot_disabled: 'Il nostro bot è attualmente inattivo.'
 zh_CN:
   add_more_details_state_button_label: 添加
   ask_if_ready_state_button_label: 取消
@@ -301,6 +353,19 @@ zh_CN:
   subscribed: 您当前已订阅简报。
   unsubscribe_button_label: 取消订阅
   unsubscribed: 您当前已取消订阅简报。
+  smooch_message_smooch_bot_greetings: "欢迎使用我们的事实检查机器人。使用主菜单进行导航。"
+  submission_prompt: "请输入您想要进行事实核查的问题、链接、图片或视频。"
+  add_more_details_state: "请添加更多内容。"
+  ask_if_ready_state: "您准备好提交了吗？"
+  search_state: "谢谢你！寻找事实核查可能需要一分钟的时间。"
+  search_no_results: "尚未发现任何事实核查。我们团队的记者已收到通知，如果信息经过事实核查，您将在此线程中收到更新。"
+  search_result_state: "这些事实核查能回答您的问题吗？"
+  search_result_is_relevant: "谢谢你！传播有关此提示的信息，以帮助我们打击错误信息！"
+  search_submit: "感谢您的反馈。我们团队的记者已收到通知，如果发布新的事实核查，您将在此线程中收到更新。"
+  newsletter_optin_optout: "立即订阅，每周直接在 WhatsApp 上获取最重要的事实。 {subscription_status}。"
+  option_not_available: "抱歉，我没听懂你的留言。"
+  timeout: "感谢您与我们联系！键入任意键即可开始新对话。"
+  smooch_message_smooch_bot_disabled: "我们的机器人目前处于非活动状态。"
 en:
   add_more_details_state_button_label: Add more
   ask_if_ready_state_button_label: Cancel
@@ -390,6 +455,19 @@ fil:
   subscribed: Ikaw ay kasalukuyang naka-subscribe sa aming newsletter.
   unsubscribe_button_label: Mag-unsubscribe
   unsubscribed: Hindi ka na naka-subscribe sa aming newsletter.
+  smooch_message_smooch_bot_greetings: "Maligayang pagdating sa aming fact-checking bot. Gamitin ang pangunahing menu upang mag-navigate."
+  submission_prompt: "Pakilagay ang tanong, link, larawan, o video na gusto mong ma-fact check."
+  add_more_details_state: "Mangyaring magdagdag ng higit pang nilalaman."
+  ask_if_ready_state: "Handa ka na bang magsumite?"
+  search_state: "salamat po! Naghahanap ng mga fact-check, maaaring tumagal ng isang minuto."
+  search_no_results: "Walang nakitang fact-check. Ang mga mamamahayag sa aming koponan ay naabisuhan at makakatanggap ka ng update sa thread na ito kung ang impormasyon ay sinusuri ng katotohanan."
+  search_result_state: "Sinasagot ba ng mga fact-check na ito ang iyong tanong?"
+  search_result_is_relevant: "salamat po! Ikalat ang balita tungkol sa tipline na ito upang matulungan kaming labanan ang maling impormasyon!"
+  search_submit: "Salamat sa iyong feedback. Ang mga mamamahayag sa aming koponan ay naabisuhan at makakatanggap ka ng update sa thread na ito kung may na-publish na bagong fact-check."
+  newsletter_optin_optout: "Mag-subscribe ngayon upang makuha ang pinakamahalagang katotohanan na direktang inihatid sa WhatsApp, bawat linggo. {subscription_status}."
+  option_not_available: "Paumanhin, hindi ko naintindihan ang iyong mensahe."
+  timeout: "Salamat sa pakikipag-ugnayan sa amin! I-type ang anumang key upang magsimula ng bagong pag-uusap."
+  smooch_message_smooch_bot_disabled: "Ang aming bot ay kasalukuyang hindi aktibo."
 fr:
   add_more_details_state_button_label: En ajouter
   ask_if_ready_state_button_label: Annuler
@@ -429,6 +507,19 @@ fr:
   subscribed: Vous êtes actuellement abonné à notre lettre d’information.
   unsubscribe_button_label: Me désabonner
   unsubscribed: Vous n’êtes actuellement pas abonné à notre lettre d’information.
+  smooch_message_smooch_bot_greetings: "Bienvenue sur notre robot de vérification des faits. Utilisez le menu principal pour naviguer."
+  submission_prompt: "Veuillez saisir la question, le lien, l'image ou la vidéo pour laquelle vous souhaitez vérifier les faits."
+  add_more_details_state: "Veuillez ajouter plus de contenu."
+  ask_if_ready_state: "Êtes-vous prêt à soumettre ?"
+  search_state: "Merci! Pour vérifier les faits, cela peut prendre une minute."
+  search_no_results: "Aucune vérification des faits n’a été trouvée. Les journalistes de notre équipe ont été informés et vous recevrez une mise à jour dans ce fil si les informations sont vérifiées."
+  search_result_state: "Ces vérifications des faits répondent-elles à votre question ?"
+  search_result_is_relevant: "Merci! Faites connaître cette ligne d’information pour nous aider à lutter contre la désinformation !"
+  search_submit: "Merci pour vos commentaires. Les journalistes de notre équipe ont été informés et vous recevrez une mise à jour dans ce fil si une nouvelle vérification des faits est publiée."
+  newsletter_optin_optout: "Abonnez-vous maintenant pour recevoir les faits les plus importants directement sur WhatsApp, chaque semaine. {subscription_status}."
+  option_not_available: "Je suis désolé, je n'ai pas compris votre message."
+  timeout: "Merci de nous avoir contactés ! Tapez n’importe quelle touche pour démarrer une nouvelle conversation."
+  smooch_message_smooch_bot_disabled: "Notre bot est actuellement inactif."
 de:
   add_more_details_state_button_label: Mehr hinzufügen
   ask_if_ready_state_button_label: Abbrechen
@@ -467,6 +558,19 @@ de:
   subscribed: Sie haben unseren Newsletter derzeit abonniert.
   unsubscribe_button_label: Abbestellen
   unsubscribed: Sie haben unseren Newsletter derzeit nicht abonniert.
+  smooch_message_smooch_bot_greetings: "Willkommen bei unserem Faktencheck-Bot. Zur Navigation nutzen Sie das Hauptmenü."
+  submission_prompt: "Bitte geben Sie die Frage, den Link, das Bild oder das Video ein, deren Fakten überprüft werden sollen."
+  add_more_details_state: "Bitte fügen Sie weitere Inhalte hinzu."
+  ask_if_ready_state: "Sind Sie bereit einzureichen?"
+  search_state: "Danke schön! Die Suche nach Faktenchecks kann eine Minute dauern."
+  search_no_results: "Es wurden keine Faktenchecks gefunden. Die Journalisten unseres Teams wurden benachrichtigt und Sie erhalten in diesem Thread ein Update, wenn die Informationen überprüft wurden."
+  search_result_state: "Beantworten diese Faktenchecks Ihre Frage?"
+  search_result_is_relevant: "Danke schön! Verbreiten Sie die Nachricht über diese Tippline, um uns bei der Bekämpfung von Fehlinformationen zu helfen!"
+  search_submit: "Vielen Dank für Ihr Feedback. Die Journalisten unseres Teams wurden benachrichtigt und Sie erhalten in diesem Thread ein Update, wenn ein neuer Faktencheck veröffentlicht wird."
+  newsletter_optin_optout: "Abonnieren Sie jetzt, um jede Woche die wichtigsten Fakten direkt auf WhatsApp zu erhalten. {subscription_status}."
+  option_not_available: "Es tut mir leid, ich habe Ihre Nachricht nicht verstanden."
+  timeout: "Vielen Dank, dass Sie sich an uns gewandt haben! Geben Sie eine beliebige Taste ein, um ein neues Gespräch zu beginnen."
+  smooch_message_smooch_bot_disabled: "Unser Bot ist derzeit inaktiv."
 gu:
   add_more_details_state_button_label: વધુ ઉમેરો
   ask_if_ready_state_button_label: રદ કરો
@@ -503,6 +607,19 @@ gu:
   subscribed: તમે હાલમાં અમારા ન્યૂઝલેટરનાં સબ્સ્ક્રાઈબર છો.
   unsubscribe_button_label: અનસબ્સ્ક્રાઈબ કરો
   unsubscribed: તમે હાલમાં અમારા ન્યૂઝલેટરનાં સબ્સ્ક્રાઈબર નથી.
+  smooch_message_smooch_bot_greetings: "અમારા ફેક્ટ-ચેકિંગ બૉટમાં આપનું સ્વાગત છે. નેવિગેટ કરવા માટે મુખ્ય મેનુનો ઉપયોગ કરો."
+  submission_prompt: "કૃપા કરીને પ્રશ્ન, લિંક, ચિત્ર અથવા વિડિયો દાખલ કરો કે જેને તમે તથ્ય-તપાસ કરવા માંગો છો."
+  add_more_details_state: "કૃપા કરીને વધુ સામગ્રી ઉમેરો."
+  ask_if_ready_state: "શું તમે સબમિટ કરવા તૈયાર છો?"
+  search_state: "આભાર! હકીકત-તપાસ માટે જોઈ રહ્યા છીએ, તેમાં એક મિનિટ લાગી શકે છે."
+  search_no_results: "કોઈ હકીકત-તપાસ મળી નથી. અમારી ટીમના પત્રકારોને સૂચના આપવામાં આવી છે અને જો માહિતી તથ્ય-તપાસ કરવામાં આવશે તો તમને આ થ્રેડમાં અપડેટ પ્રાપ્ત થશે."
+  search_result_state: "શું આ હકીકત-તપાસ તમારા પ્રશ્નનો જવાબ આપે છે?"
+  search_result_is_relevant: "આભાર! ખોટી માહિતી સામે લડવામાં અમારી મદદ કરવા માટે આ ટિપલાઇન વિશે વાત ફેલાવો!"
+  search_submit: "તમારા પ્રતિભાવ બદલ આભાર. અમારી ટીમના પત્રકારોને સૂચિત કરવામાં આવ્યા છે અને જો નવી હકીકત-તપાસ પ્રકાશિત થાય તો તમને આ થ્રેડમાં અપડેટ પ્રાપ્ત થશે."
+  newsletter_optin_optout: "દર અઠવાડિયે સીધા જ WhatsApp પર સૌથી મહત્વપૂર્ણ તથ્યો પહોંચાડવા માટે હમણાં જ સબ્સ્ક્રાઇબ કરો. {subscription_status}."
+  option_not_available: "માફ કરશો, હું તમારો સંદેશ સમજી શક્યો નથી."
+  timeout: "અમારો સંપર્ક કરવા બદલ આભાર! નવી વાતચીત શરૂ કરવા માટે કોઈપણ કી ટાઈપ કરો."
+  smooch_message_smooch_bot_disabled: "અમારો બોટ હાલમાં નિષ્ક્રિય છે."
 hi:
   add_more_details_state_button_label: अधिक जानकारी जोड़ें
   ask_if_ready_state_button_label: रद्द करें
@@ -541,6 +658,19 @@ hi:
   subscribed: आपने इस समय हमारे न्यूज़लेटर को सब्स्क्राइब किया हुआ है।
   unsubscribe_button_label: अनसब्स्क्राइब करें
   unsubscribed: आपने वर्तमान में हमारे न्यूज़लेटर की सदस्यता नहीं ली है।
+  smooch_message_smooch_bot_greetings: "हमारे तथ्य-जांच बॉट में आपका स्वागत है। नेविगेट करने के लिए मुख्य मेनू का उपयोग करें."
+  submission_prompt: "कृपया वह प्रश्न, लिंक, चित्र या वीडियो दर्ज करें जिसकी आप तथ्य-जांच कराना चाहते हैं।"
+  add_more_details_state: "कृपया अधिक सामग्री जोड़ें."
+  ask_if_ready_state: "क्या आप प्रस्तुत करने के लिए तैयार हैं?"
+  search_state: "धन्यवाद! तथ्य-जाँच की तलाश में, इसमें एक मिनट लग सकता है।"
+  search_no_results: "कोई तथ्य-जांच नहीं पाया गया. हमारी टीम के पत्रकारों को सूचित कर दिया गया है और यदि जानकारी की तथ्य-जांच की गई तो आपको इस थ्रेड में अपडेट प्राप्त होगा।"
+  search_result_state: "क्या ये तथ्य-जांच आपके प्रश्न का उत्तर दे रहे हैं?"
+  search_result_is_relevant: "धन्यवाद! गलत सूचना से लड़ने में हमारी मदद करने के लिए इस टिपलाइन के बारे में प्रचार करें!"
+  search_submit: "आपकी प्रतिक्रिया के लिए आपका धन्यवाद। हमारी टीम के पत्रकारों को सूचित कर दिया गया है और यदि कोई नया तथ्य-जांच प्रकाशित होता है तो आपको इस थ्रेड में अपडेट प्राप्त होगा।"
+  newsletter_optin_optout: "हर सप्ताह सबसे महत्वपूर्ण तथ्य सीधे व्हाट्सएप पर प्राप्त करने के लिए अभी सदस्यता लें। {subscription_status}."
+  option_not_available: "मुझे खेद है, मैं आपका संदेश समझ नहीं पाया।"
+  timeout: "हमसे संपर्क की पहल के लिए आपका धन्यवाद! नई बातचीत शुरू करने के लिए कोई भी कुंजी टाइप करें।"
+  smooch_message_smooch_bot_disabled: "हमारा बॉट फिलहाल निष्क्रिय है."
 id:
   add_more_details_state_button_label: Tambah lebih banyak
   ask_if_ready_state_button_label: Batalkan
@@ -578,6 +708,19 @@ id:
   subscribed: Anda saat ini sedang berlangganan ke buletin kami.
   unsubscribe_button_label: Brhenti brlangganan
   unsubscribed: Saat ini Anda tidak berlangganan buletin kami.
+  smooch_message_smooch_bot_greetings: "Selamat datang di bot pengecekan fakta kami. Gunakan menu utama untuk bernavigasi."
+  submission_prompt: "Silakan masukkan pertanyaan, link, gambar, atau video yang ingin diperiksa faktanya."
+  add_more_details_state: "Silakan tambahkan lebih banyak konten."
+  ask_if_ready_state: "Apakah Anda siap untuk mengirimkan?"
+  search_state: "Terima kasih! Untuk memeriksa fakta, mungkin perlu waktu sebentar."
+  search_no_results: "Tidak ada pemeriksaan fakta yang ditemukan. Jurnalis di tim kami telah diberitahu dan Anda akan menerima pembaruan di rangkaian pesan ini jika informasi tersebut telah diperiksa faktanya."
+  search_result_state: "Apakah pemeriksaan fakta ini menjawab pertanyaan Anda?"
+  search_result_is_relevant: "Terima kasih! Sebarkan informasi tentang tipline ini untuk membantu kami melawan misinformasi!"
+  search_submit: "Terima kasih atas tanggapan Anda. Jurnalis di tim kami telah diberi tahu dan Anda akan menerima kabar terbaru di rangkaian pesan ini jika pemeriksaan fakta baru dipublikasikan."
+  newsletter_optin_optout: "Berlangganan sekarang untuk mendapatkan fakta terpenting yang disampaikan langsung di WhatsApp, setiap minggu. {subscription_status}."
+  option_not_available: "Maaf, saya tidak memahami pesan Anda."
+  timeout: "Terima kasih telah menghubungi kami! Ketikkan tombol apa saja untuk memulai percakapan baru."
+  smooch_message_smooch_bot_disabled: "Bot kami saat ini tidak aktif."
 ja:
   add_more_details_state_button_label: 追加
   ask_if_ready_state_button_label: キャンセル
@@ -615,6 +758,19 @@ ja:
   subscribed: あなたは現在ニュースレターを購読中です。
   unsubscribe_button_label: 購読停止
   unsubscribed: あなたは現在、ニュースレターの購読を停止中です。
+  smooch_message_smooch_bot_greetings: "ファクトチェックボットへようこそ。メイン メニューを使用して移動します。"
+  submission_prompt: "事実確認を希望する質問、リンク、写真、またはビデオを入力してください。"
+  add_more_details_state: "さらにコンテンツを追加してください。"
+  ask_if_ready_state: "提出する準備はできていますか?"
+  search_state: "ありがとう！事実確認を行うには 1 分ほどかかる場合があります。"
+  search_no_results: "事実確認は見つかっていない。私たちのチームのジャーナリストには通知が送られており、情報が事実確認された場合には、このスレッドで最新情報が届きます。"
+  search_result_state: "これらのファクトチェックはあなたの質問に答えていますか?"
+  search_result_is_relevant: "ありがとう！誤った情報と戦うために、このヒントを広めてください。"
+  search_submit: "ご意見ありがとうございます。私たちのチームのジャーナリストには通知が送られており、新しい事実確認が公開された場合には、このスレッドで最新情報が届きます。"
+  newsletter_optin_optout: "今すぐ購読して、最も重要な事実を毎週 WhatsApp で直接配信してください。 {subscription_status}。"
+  option_not_available: "申し訳ありませんが、あなたのメッセージが理解できませんでした。"
+  timeout: "お問い合わせいただきありがとうございます。任意のキーを入力して新しい会話を開始します。"
+  smooch_message_smooch_bot_disabled: "私たちのボットは現在非アクティブです。"
 kn:
   add_more_details_state_button_label: ಹೆಚ್ಚು ಸೇರಿಸಿ
   ask_if_ready_state_button_label: ರದ್ದು
@@ -653,6 +809,19 @@ kn:
   subscribed: ನೀವು ಈಗ ನಮ್ಮ ನ್ಯೂಸ್ ಲೆಟರ್‌ಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಆಗಿರುತ್ತೀರಿ
   unsubscribe_button_label: ಅನ್ಸಬ್‌ಸ್ಕ್ರೈಬ್
   unsubscribed: ನೀವು ಪ್ರಸ್ತುತ ನಮ್ಮ ಸುದ್ದಿಪತ್ರಕ್ಕೆ ಚಂದಾದಾರರಾಗಿಲ್ಲ.
+  smooch_message_smooch_bot_greetings: "ನಮ್ಮ ಫ್ಯಾಕ್ಟ್-ಚೆಕಿಂಗ್ ಬೋಟ್‌ಗೆ ಸುಸ್ವಾಗತ. ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಮುಖ್ಯ ಮೆನು ಬಳಸಿ."
+  submission_prompt: "ದಯವಿಟ್ಟು ನೀವು ಸತ್ಯ-ಪರಿಶೀಲನೆಗೆ ಬಯಸುವ ಪ್ರಶ್ನೆ, ಲಿಂಕ್, ಚಿತ್ರ ಅಥವಾ ವೀಡಿಯೊವನ್ನು ನಮೂದಿಸಿ."
+  add_more_details_state: "ದಯವಿಟ್ಟು ಹೆಚ್ಚಿನ ವಿಷಯವನ್ನು ಸೇರಿಸಿ."
+  ask_if_ready_state: "ನೀವು ಸಲ್ಲಿಸಲು ಸಿದ್ಧರಿದ್ದೀರಾ?"
+  search_state: "ಧನ್ಯವಾದಗಳು! ಸತ್ಯ-ಪರೀಕ್ಷೆಗಳಿಗಾಗಿ ನೋಡುತ್ತಿರುವುದು, ಇದು ಒಂದು ನಿಮಿಷ ತೆಗೆದುಕೊಳ್ಳಬಹುದು."
+  search_no_results: "ಯಾವುದೇ ಸತ್ಯ-ಪರೀಕ್ಷೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ನಮ್ಮ ತಂಡದಲ್ಲಿರುವ ಪತ್ರಕರ್ತರಿಗೆ ಸೂಚನೆ ನೀಡಲಾಗಿದೆ ಮತ್ತು ಮಾಹಿತಿಯು ವಾಸ್ತವಾಂಶವನ್ನು ಪರಿಶೀಲಿಸಿದರೆ ಈ ಥ್ರೆಡ್‌ನಲ್ಲಿ ನೀವು ನವೀಕರಣವನ್ನು ಸ್ವೀಕರಿಸುತ್ತೀರಿ."
+  search_result_state: "ಈ ಸತ್ಯ-ಪರೀಕ್ಷೆಗಳು ನಿಮ್ಮ ಪ್ರಶ್ನೆಗೆ ಉತ್ತರಿಸುತ್ತಿವೆಯೇ?"
+  search_result_is_relevant: "ಧನ್ಯವಾದಗಳು! ತಪ್ಪು ಮಾಹಿತಿಯ ವಿರುದ್ಧ ಹೋರಾಡಲು ನಮಗೆ ಸಹಾಯ ಮಾಡಲು ಈ ಟಿಪ್‌ಲೈನ್ ಕುರಿತು ಪ್ರಚಾರ ಮಾಡಿ!"
+  search_submit: "ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಗಾಗಿ ಧನ್ಯವಾದಗಳು. ನಮ್ಮ ತಂಡದಲ್ಲಿರುವ ಪತ್ರಕರ್ತರಿಗೆ ಸೂಚನೆ ನೀಡಲಾಗಿದೆ ಮತ್ತು ಹೊಸ ಸತ್ಯ-ಪರೀಕ್ಷೆಯನ್ನು ಪ್ರಕಟಿಸಿದರೆ ನೀವು ಈ ಥ್ರೆಡ್‌ನಲ್ಲಿ ನವೀಕರಣವನ್ನು ಸ್ವೀಕರಿಸುತ್ತೀರಿ."
+  newsletter_optin_optout: "ಪ್ರತಿ ವಾರ WhatsApp ನಲ್ಲಿ ನೇರವಾಗಿ ತಲುಪಿಸುವ ಪ್ರಮುಖ ಸಂಗತಿಗಳನ್ನು ಪಡೆಯಲು ಇದೀಗ ಚಂದಾದಾರರಾಗಿ. {subscription_status}."
+  option_not_available: "ಕ್ಷಮಿಸಿ, ನಿಮ್ಮ ಸಂದೇಶ ನನಗೆ ಅರ್ಥವಾಗಲಿಲ್ಲ."
+  timeout: "ನಮ್ಮನ್ನು ತಲುಪಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ಹೊಸ ಸಂಭಾಷಣೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲು ಯಾವುದೇ ಕೀಲಿಯನ್ನು ಟೈಪ್ ಮಾಡಿ."
+  smooch_message_smooch_bot_disabled: "ನಮ್ಮ ಬೋಟ್ ಪ್ರಸ್ತುತ ನಿಷ್ಕ್ರಿಯವಾಗಿದೆ."
 ks:
   add_more_details_state_button_label: بییہ جوڑیو
   ask_if_ready_state_button_label: منسوخ کریو
@@ -730,6 +899,19 @@ mk:
   unsubscribed: Во моментов не сте претплатени на нашиот билтен.
   nlu_disambiguation: "Изберете една од опциите подолу:"
   nlu_cancel: "Назад во мени"
+  smooch_message_smooch_bot_greetings: "Добре дојдовте во нашиот бот за проверка на факти. Користете го главното мени за навигација."
+  submission_prompt: "Внесете го прашањето, линкот, сликата или видеото што сакате да ги проверите."
+  add_more_details_state: "Ве молиме додадете повеќе содржина."
+  ask_if_ready_state: "Дали сте подготвени да поднесете?"
+  search_state: "Ви благодариме! Во потрага по проверки на факти, може да потрае една минута."
+  search_no_results: "Не се пронајдени проверки на факти. Новинарите од нашиот тим се известени и ќе добиете ажурирање во оваа тема доколку информациите се проверат со факти."
+  search_result_state: "Дали овие проверки на факти одговараат на вашето прашање?"
+  search_result_is_relevant: "Ви благодариме! Раширете го зборот за оваа советна линија за да ни помогнете да се бориме против дезинформациите!"
+  search_submit: "Ви благодариме за повратните информации. Новинарите од нашиот тим се известени и ќе добиете ажурирање во оваа тема доколку се објави нова проверка на фактите."
+  newsletter_optin_optout: "Претплатете се сега за да ги добивате најважните факти директно доставени на WhatsApp, секоја недела. {subscription_status}."
+  option_not_available: "Извинете, не ја разбрав вашата порака."
+  timeout: "Ви благодариме што допревте до нас! Внесете кое било копче за да започнете нов разговор."
+  smooch_message_smooch_bot_disabled: "Нашиот бот моментално е неактивен."
 ml:
   add_more_details_state_button_label: കൂടുതൽ ചേർക്കുക
   ask_if_ready_state_button_label: റദ്ദാക്കുക
@@ -765,6 +947,19 @@ ml:
   subscribed: നിങ്ങൾ ഞങ്ങളുടെ ന്യൂസ് ലെറ്റർ സബ്സ്ക്രൈബ് ചെയ്തിട്ടുണ്ട്
   unsubscribe_button_label: സബ്സ്ക്രിപ്ഷൻ വേണ്ട
   unsubscribed: നിങ്ങൾ ഞങ്ങളുടെ ന്യൂസ് ലെറ്റർ അൺസബ്സ്ക്രൈബ് ചെയ്തു
+  smooch_message_smooch_bot_greetings: "ഞങ്ങളുടെ വസ്തുത പരിശോധിക്കുന്ന ബോട്ടിലേക്ക് സ്വാഗതം. നാവിഗേറ്റ് ചെയ്യാൻ പ്രധാന മെനു ഉപയോഗിക്കുക."
+  submission_prompt: "നിങ്ങൾ വസ്തുത പരിശോധിക്കാൻ ആഗ്രഹിക്കുന്ന ചോദ്യം, ലിങ്ക്, ചിത്രം അല്ലെങ്കിൽ വീഡിയോ നൽകുക."
+  add_more_details_state: "ദയവായി കൂടുതൽ ഉള്ളടക്കം ചേർക്കുക."
+  ask_if_ready_state: "സമർപ്പിക്കാൻ നിങ്ങൾ തയ്യാറാണോ?"
+  search_state: "നന്ദി! വസ്തുതാ പരിശോധനകൾക്കായി തിരയുന്നു, ഇതിന് ഒരു മിനിറ്റ് എടുത്തേക്കാം."
+  search_no_results: "വസ്തുതാ പരിശോധനകളൊന്നും കണ്ടെത്തിയിട്ടില്ല. ഞങ്ങളുടെ ടീമിലെ മാധ്യമപ്രവർത്തകർക്ക് അറിയിപ്പ് ലഭിച്ചു, വിവരങ്ങൾ വസ്തുതാപരമായി പരിശോധിച്ചാൽ നിങ്ങൾക്ക് ഈ ത്രെഡിൽ ഒരു അപ്‌ഡേറ്റ് ലഭിക്കും."
+  search_result_state: "ഈ വസ്തുതാ പരിശോധനകൾ നിങ്ങളുടെ ചോദ്യത്തിന് ഉത്തരം നൽകുന്നുണ്ടോ?"
+  search_result_is_relevant: "നന്ദി! തെറ്റായ വിവരങ്ങൾക്കെതിരെ പോരാടാൻ ഞങ്ങളെ സഹായിക്കുന്നതിന് ഈ ടിപ്പ്ലൈനിനെക്കുറിച്ച് പ്രചരിപ്പിക്കുക!"
+  search_submit: "നിങ്ങളുടെ ഫീഡ്‌ബാക്കിന് നന്ദി. ഞങ്ങളുടെ ടീമിലെ മാധ്യമപ്രവർത്തകർക്ക് അറിയിപ്പ് ലഭിച്ചിട്ടുണ്ട്, ഒരു പുതിയ വസ്തുതാ പരിശോധന പ്രസിദ്ധീകരിച്ചാൽ നിങ്ങൾക്ക് ഈ ത്രെഡിൽ ഒരു അപ്‌ഡേറ്റ് ലഭിക്കും."
+  newsletter_optin_optout: "ഏറ്റവും പ്രധാനപ്പെട്ട വസ്‌തുതകൾ എല്ലാ ആഴ്‌ചയും WhatsApp-ൽ നേരിട്ട് ലഭിക്കാൻ ഇപ്പോൾ സബ്‌സ്‌ക്രൈബ് ചെയ്യുക. {subscription_status}."
+  option_not_available: "ക്ഷമിക്കണം, നിങ്ങളുടെ സന്ദേശം എനിക്ക് മനസ്സിലായില്ല."
+  timeout: "ഞങ്ങളെ സമീപിച്ചതിന് നന്ദി! ഒരു പുതിയ സംഭാഷണം ആരംഭിക്കാൻ ഏതെങ്കിലും കീ ടൈപ്പ് ചെയ്യുക."
+  smooch_message_smooch_bot_disabled: "ഞങ്ങളുടെ ബോട്ട് നിലവിൽ പ്രവർത്തനരഹിതമാണ്."
 mr:
   add_more_details_state_button_label: अधिक माहिती जोडा
   ask_if_ready_state_button_label: रद्द करा
@@ -803,6 +998,19 @@ mr:
   subscribed: आपण सध्या आमचे वृत्तपत्र सबस्क्राइब केले आहे.
   unsubscribe_button_label: अनसबस्क्राइब करा
   unsubscribed: तुम्ही सध्या आमच्या वृत्तपत्राचे सदस्यत्व घेतलेले नाही.
+  smooch_message_smooch_bot_greetings: "आमच्या तथ्य-तपासणी बॉटमध्ये स्वागत आहे. नेव्हिगेट करण्यासाठी मुख्य मेनू वापरा."
+  submission_prompt: "कृपया प्रश्न, लिंक, चित्र किंवा व्हिडिओ एंटर करा ज्याची तुम्हाला वस्तुस्थिती तपासायची आहे."
+  add_more_details_state: "कृपया अधिक सामग्री जोडा."
+  ask_if_ready_state: "तुम्ही सबमिट करण्यास तयार आहात का?"
+  search_state: "धन्यवाद! तथ्य-तपासणीसाठी शोधत आहे, यास एक मिनिट लागू शकतो."
+  search_no_results: "कोणतेही तथ्य-तपासणी आढळली नाही. आमच्या टीममधील पत्रकारांना सूचित केले गेले आहे आणि जर माहिती तथ्य-तपासली गेली असेल तर तुम्हाला या थ्रेडमध्ये अपडेट प्राप्त होईल."
+  search_result_state: "हे तथ्य-तपासणी तुमच्या प्रश्नाचे उत्तर देत आहेत का?"
+  search_result_is_relevant: "धन्यवाद! चुकीच्या माहितीशी लढण्यासाठी आम्हाला मदत करण्यासाठी या टिपलाइनबद्दल शब्द पसरवा!"
+  search_submit: "तुमच्या अभिप्रायाबद्दल धन्यवाद. आमच्या टीममधील पत्रकारांना सूचित केले गेले आहे आणि नवीन तथ्य-तपासणी प्रकाशित झाल्यास तुम्हाला या थ्रेडमध्ये अपडेट प्राप्त होईल."
+  newsletter_optin_optout: "व्हॉट्सॲपवर दर आठवड्याला सर्वात महत्त्वाची माहिती थेट वितरीत करण्यासाठी आत्ताच सदस्यता घ्या. {subscription_status}."
+  option_not_available: "मला माफ करा, मला तुमचा संदेश समजला नाही."
+  timeout: "आमच्यापर्यंत पोहोचल्याबद्दल धन्यवाद! नवीन संभाषण सुरू करण्यासाठी कोणतीही की टाइप करा."
+  smooch_message_smooch_bot_disabled: "आमचा बॉट सध्या निष्क्रिय आहे."
 ne:
   add_more_details_state_button_label: थप गर्नुहोस्
   ask_if_ready_state_button_label: रद्द गर्नुहोस्
@@ -841,6 +1049,19 @@ ne:
   subscribed: तपाईंले हाल हाम्रो न्यूजलेटरको सदस्यता लिनुभएको छ।
   unsubscribe_button_label: ''
   unsubscribed: तपाईंले हाल हाम्रो न्यूजलेटरको सदस्यता लिनुभएको छैन।
+  smooch_message_smooch_bot_greetings: "हाम्रो तथ्य जाँच बटमा स्वागत छ। नेभिगेट गर्न मुख्य मेनु प्रयोग गर्नुहोस्।"
+  submission_prompt: "कृपया प्रश्न, लिङ्क, तस्विर, वा भिडियो प्रविष्ट गर्नुहोस् जुन तपाईं तथ्य-जाँच गर्न चाहनुहुन्छ।"
+  add_more_details_state: "कृपया थप सामग्री थप्नुहोस्।"
+  ask_if_ready_state: "तपाईं पेश गर्न तयार हुनुहुन्छ?"
+  search_state: "धन्यवाद! तथ्य जाँचहरू खोज्दै, यसले एक मिनेट लिन सक्छ।"
+  search_no_results: "कुनै तथ्य-जाँच फेला परेको छैन। हाम्रो टोलीका पत्रकारहरूलाई सूचित गरिएको छ र यदि जानकारी तथ्य-जाँच गरिएको छ भने तपाईंले यस थ्रेडमा अद्यावधिक प्राप्त गर्नुहुनेछ।"
+  search_result_state: "के यी तथ्य-जाँचहरूले तपाईंको प्रश्नको जवाफ दिइरहेका छन्?"
+  search_result_is_relevant: "धन्यवाद! हामीलाई गलत जानकारी विरुद्ध लड्न मद्दत गर्न यो टिपलाइनको बारेमा शब्द फैलाउनुहोस्!"
+  search_submit: "तपाईंको प्रतिक्रियाको लागि धन्यवाद। हाम्रो टोलीका पत्रकारहरूलाई सूचित गरिएको छ र यदि नयाँ तथ्य-जाँच प्रकाशित भयो भने तपाईंले यस थ्रेडमा अद्यावधिक प्राप्त गर्नुहुनेछ।"
+  newsletter_optin_optout: "हरेक हप्ता WhatsApp मा सिधै डेलिभर गरिएका महत्त्वपूर्ण तथ्यहरू प्राप्त गर्न अहिले नै सदस्यता लिनुहोस्। {subscription_status}।"
+  option_not_available: "माफ गर्नुहोस्, मैले तपाईंको सन्देश बुझिन।"
+  timeout: "हामी सम्म पुग्नु भएकोमा धन्यवाद! नयाँ कुराकानी सुरु गर्न कुनै पनि कुञ्जी टाइप गर्नुहोस्।"
+  smooch_message_smooch_bot_disabled: "हाम्रो बोट हाल निष्क्रिय छ।"
 pa:
   add_more_details_state_button_label: ਵਧੇਰੀ ਜਾਣਕਾਰੀ ਜੋੜੋ
   ask_if_ready_state_button_label: ਰੱਦ ਕਰੋ
@@ -879,6 +1100,19 @@ pa:
   subscribed: ਤੁਸੀਂ ਇਸ ਸਮੇਂ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਨੂੰ ਸਬਸਕ੍ਰਾਈਬ ਕੀਤਾ ਹੋਇਆ ਹੈ
   unsubscribe_button_label: ਅਨਸਬਸਕ੍ਰਾਈਬ ਕਰੋ
   unsubscribed: ਤੁਸੀਂ ਵਰਤਮਾਨ ਵਿੱਚ ਸਾਡੇ ਨਿਊਜ਼ਲੈਟਰ ਦੀ ਗਾਹਕੀ ਨਹੀਂ ਲਈ ਹੈ।
+  smooch_message_smooch_bot_greetings: "ਸਾਡੇ ਤੱਥ-ਜਾਂਚ ਬੋਟ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ। ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਮੁੱਖ ਮੀਨੂ ਦੀ ਵਰਤੋਂ ਕਰੋ।"
+  submission_prompt: "ਕਿਰਪਾ ਕਰਕੇ ਉਹ ਸਵਾਲ, ਲਿੰਕ, ਤਸਵੀਰ ਜਾਂ ਵੀਡੀਓ ਦਾਖਲ ਕਰੋ ਜਿਸਦੀ ਤੁਸੀਂ ਤੱਥ-ਜਾਂਚ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ।"
+  add_more_details_state: "ਕਿਰਪਾ ਕਰਕੇ ਹੋਰ ਸਮੱਗਰੀ ਸ਼ਾਮਲ ਕਰੋ।"
+  ask_if_ready_state: "ਕੀ ਤੁਸੀਂ ਸਪੁਰਦ ਕਰਨ ਲਈ ਤਿਆਰ ਹੋ?"
+  search_state: "ਤੁਹਾਡਾ ਧੰਨਵਾਦ! ਤੱਥ-ਜਾਂਚਾਂ ਦੀ ਭਾਲ ਵਿੱਚ, ਇਸ ਵਿੱਚ ਇੱਕ ਮਿੰਟ ਲੱਗ ਸਕਦਾ ਹੈ।"
+  search_no_results: "ਕੋਈ ਤੱਥ-ਜਾਂਚ ਨਹੀਂ ਮਿਲੀ ਹੈ। ਸਾਡੀ ਟੀਮ ਦੇ ਪੱਤਰਕਾਰਾਂ ਨੂੰ ਸੂਚਿਤ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ ਅਤੇ ਜੇਕਰ ਜਾਣਕਾਰੀ ਤੱਥ-ਜਾਂਚ ਕੀਤੀ ਜਾਂਦੀ ਹੈ ਤਾਂ ਤੁਹਾਨੂੰ ਇਸ ਥ੍ਰੈਡ ਵਿੱਚ ਇੱਕ ਅੱਪਡੇਟ ਪ੍ਰਾਪਤ ਹੋਵੇਗਾ।"
+  search_result_state: "ਕੀ ਇਹ ਤੱਥ-ਜਾਂਚ ਤੁਹਾਡੇ ਸਵਾਲ ਦਾ ਜਵਾਬ ਦੇ ਰਹੀਆਂ ਹਨ?"
+  search_result_is_relevant: "ਤੁਹਾਡਾ ਧੰਨਵਾਦ! ਗਲਤ ਜਾਣਕਾਰੀ ਨਾਲ ਲੜਨ ਵਿੱਚ ਸਾਡੀ ਮਦਦ ਕਰਨ ਲਈ ਇਸ ਟਿਪਲਾਈਨ ਬਾਰੇ ਸ਼ਬਦ ਫੈਲਾਓ!"
+  search_submit: "ਤੁਹਾਡੇ ਫੀਡਬੈਕ ਲਈ ਧੰਨਵਾਦ। ਸਾਡੀ ਟੀਮ ਦੇ ਪੱਤਰਕਾਰਾਂ ਨੂੰ ਸੂਚਿਤ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ ਅਤੇ ਜੇਕਰ ਕੋਈ ਨਵੀਂ ਤੱਥ-ਜਾਂਚ ਪ੍ਰਕਾਸ਼ਿਤ ਕੀਤੀ ਜਾਂਦੀ ਹੈ ਤਾਂ ਤੁਹਾਨੂੰ ਇਸ ਥ੍ਰੈਡ ਵਿੱਚ ਇੱਕ ਅੱਪਡੇਟ ਪ੍ਰਾਪਤ ਹੋਵੇਗਾ।"
+  newsletter_optin_optout: "ਸਭ ਤੋਂ ਮਹੱਤਵਪੂਰਨ ਤੱਥਾਂ ਨੂੰ ਸਿੱਧੇ WhatsApp 'ਤੇ ਹਰ ਹਫ਼ਤੇ ਪਹੁੰਚਾਉਣ ਲਈ ਹੁਣੇ ਗਾਹਕ ਬਣੋ। {subscription_status}।"
+  option_not_available: "ਮੈਨੂੰ ਮਾਫ਼ ਕਰਨਾ, ਮੈਂ ਤੁਹਾਡਾ ਸੁਨੇਹਾ ਨਹੀਂ ਸਮਝਿਆ।"
+  timeout: "ਸਾਡੇ ਤੱਕ ਪਹੁੰਚਣ ਲਈ ਤੁਹਾਡਾ ਧੰਨਵਾਦ! ਨਵੀਂ ਗੱਲਬਾਤ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਕੋਈ ਵੀ ਕੁੰਜੀ ਟਾਈਪ ਕਰੋ।"
+  smooch_message_smooch_bot_disabled: "ਸਾਡਾ ਬੋਟ ਵਰਤਮਾਨ ਵਿੱਚ ਅਕਿਰਿਆਸ਼ੀਲ ਹੈ।"
 pt:
   add_more_details_state_button_label: Adicionar mais
   ask_if_ready_state_button_label: Cancelar
@@ -917,6 +1151,19 @@ pt:
   subscribed: Atualmente, você está inscrito(a) em nosso boletim informativo.
   unsubscribe_button_label: Desinscrever-se
   unsubscribed: Atualmente, você não está inscrito(a) em nosso boletim informativo.
+  smooch_message_smooch_bot_greetings: "Bem-vindo ao nosso bot de verificação de fatos. Use o menu principal para navegar."
+  submission_prompt: "Insira a pergunta, link, imagem ou vídeo que você deseja que seja verificado."
+  add_more_details_state: "Adicione mais conteúdo."
+  ask_if_ready_state: "Você está pronto para enviar?"
+  search_state: "Obrigado! Procurando verificações de fatos, pode demorar um minuto."
+  search_no_results: "Nenhuma verificação de fatos foi encontrada. Jornalistas de nossa equipe foram notificados e você receberá uma atualização neste tópico se a informação for verificada."
+  search_result_state: "Essas verificações de fatos estão respondendo à sua pergunta?"
+  search_result_is_relevant: "Obrigado! Divulgue esta dica para nos ajudar a combater a desinformação!"
+  search_submit: "Obrigado pelo seu feedback. Jornalistas de nossa equipe foram notificados e você receberá uma atualização neste tópico se uma nova checagem de fatos for publicada."
+  newsletter_optin_optout: "Inscreva-se agora para receber os fatos mais importantes diretamente no WhatsApp, todas as semanas. {subscription_status}."
+  option_not_available: "Me desculpe, não entendi sua mensagem."
+  timeout: "Obrigado por entrar em contato conosco! Digite qualquer tecla para iniciar uma nova conversa."
+  smooch_message_smooch_bot_disabled: "Nosso bot está inativo no momento."
 si:
   add_more_details_state_button_label: තව එකතු කරන්න
   ask_if_ready_state_button_label: අවලංගු කරන්න
@@ -955,6 +1202,19 @@ si:
   subscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ කැමැත්ත පළකර ඇත
   unsubscribe_button_label: දායක නොවන්න
   unsubscribed: අපගේ පුවත් ලිපි ලබාගැනීමට ඔබ මෙතෙක් (සබ්ස්ක්‍රයිබ්) කැමැත්ත පළකර නොමැත.
+  smooch_message_smooch_bot_greetings: "අපගේ කරුණු පරීක්ෂා කිරීමේ බොට් වෙත සාදරයෙන් පිළිගනිමු. සැරිසැරීමට ප්‍රධාන මෙනුව භාවිතා කරන්න."
+  submission_prompt: "කරුණාකර ඔබට කරුණු පරීක්ෂා කිරීමට අවශ්‍ය ප්‍රශ්නය, සබැඳිය, පින්තූරය, හෝ වීඩියෝව ඇතුළු කරන්න."
+  add_more_details_state: "කරුණාකර තවත් අන්තර්ගතයක් එක් කරන්න."
+  ask_if_ready_state: "ඔබ ඉදිරිපත් කිරීමට සූදානම්ද?"
+  search_state: "ඔයාට ස්තූතියි! කරුණු පරීක්ෂා කිරීම් සඳහා සොයමින්, එය විනාඩියක් ගත විය හැක."
+  search_no_results: "කරුණු-පරීක්ෂා කිරීම් හමු වී නැත. අපගේ කණ්ඩායමේ මාධ්‍යවේදීන්ට දැනුම් දී ඇති අතර තොරතුරු සත්‍ය පරීක්ෂා කළහොත් ඔබට මෙම ත්‍රෙඩ් එකේ යාවත්කාලීනයක් ලැබෙනු ඇත."
+  search_result_state: "මෙම කරුණු පරීක්‍ෂා කිරීම් ඔබගේ ප්‍රශ්නයට පිළිතුරු සපයනවාද?"
+  search_result_is_relevant: "ඔයාට ස්තූතියි! වැරදි තොරතුරු සමඟ සටන් කිරීමට අපට උපකාර කිරීමට මෙම ඉඟිය ගැන ප්‍රචාරය කරන්න!"
+  search_submit: "ඔබගේ ප්‍රතිපෝෂණයට ස්තූතියි. අපගේ කණ්ඩායමේ මාධ්‍යවේදීන්ට දැනුම් දී ඇති අතර නව කරුණු පරීක්‍ෂණයක් ප්‍රකාශයට පත් කළහොත් ඔබට මෙම ත්‍රෙඩ් එකේ යාවත්කාලීනයක් ලැබෙනු ඇත."
+  newsletter_optin_optout: "සෑම සතියකම වඩාත්ම වැදගත් කරුණු WhatsApp හි සෘජුවම ලබා ගැනීමට දැන් දායක වන්න. {subscription_status}."
+  option_not_available: "මට සමාවෙන්න, මට ඔබේ පණිවිඩය තේරුණේ නැහැ."
+  timeout: "අප වෙත ළඟා වීම ගැන ඔබට ස්තුතියි! නව සංවාදයක් ආරම්භ කිරීමට ඕනෑම යතුරක් ටයිප් කරන්න."
+  smooch_message_smooch_bot_disabled: "අපේ bot දැනට අක්‍රියයි."
 es:
   add_more_details_state_button_label: Añadir más
   ask_if_ready_state_button_label: Cancelar
@@ -993,6 +1253,19 @@ es:
   subscribed: Actualmente estás suscrita(o) a nuestro boletín.
   unsubscribe_button_label: Cancelar suscripción
   unsubscribed: Actualmente no estás suscrita(o) a nuestro boletín.
+  smooch_message_smooch_bot_greetings: "Bienvenido a nuestro robot de verificación de datos. Utilice el menú principal para navegar."
+  submission_prompt: "Ingrese la pregunta, enlace, imagen o video que desea verificar."
+  add_more_details_state: "Por favor agregue más contenido."
+  ask_if_ready_state: "¿Estás listo para enviar?"
+  search_state: "¡Gracias! La búsqueda de verificaciones de datos puede llevar un minuto."
+  search_no_results: "No se han encontrado verificaciones de hechos. Los periodistas de nuestro equipo han sido notificados y recibirán una actualización en este hilo si se verifica la información."
+  search_result_state: "¿Estas verificaciones de hechos responden a su pregunta?"
+  search_result_is_relevant: "¡Gracias! ¡Corra la voz sobre esta línea informativa para ayudarnos a combatir la desinformación!"
+  search_submit: "Gracias por tus comentarios. Los periodistas de nuestro equipo han sido notificados y recibirán una actualización en este hilo si se publica una nueva verificación de datos."
+  newsletter_optin_optout: "Suscríbase ahora para recibir los datos más importantes directamente en WhatsApp, todas las semanas. {subscription_status}."
+  option_not_available: "Lo siento, no entendí tu mensaje."
+  timeout: "¡Gracias por comunicarte con nosotros! Escriba cualquier tecla para iniciar una nueva conversación."
+  smooch_message_smooch_bot_disabled: "Nuestro bot está actualmente inactivo."
 tl:
   add_more_details_state_button_label: Magdagdag
   ask_if_ready_state_button_label: I-cancel
@@ -1032,6 +1305,19 @@ tl:
   unsubscribed: Hindi ka kasalukuyang naka-subscribe sa aming newsletter.
   nlu_disambiguation: "Pumili ng isa sa mga option na ito:"
   nlu_cancel: "Bumalik sa menu"
+  smooch_message_smooch_bot_greetings: "Maligayang pagdating sa aming fact-checking bot. Gamitin ang pangunahing menu upang mag-navigate."
+  submission_prompt: "Pakilagay ang tanong, link, larawan, o video na gusto mong ma-fact check."
+  add_more_details_state: "Mangyaring magdagdag ng higit pang nilalaman."
+  ask_if_ready_state: "Handa ka na bang magsumite?"
+  search_state: "Salamat po! Naghahanap ng mga fact-check, maaaring tumagal ng isang minuto."
+  search_no_results: "Walang nakitang fact-check. Ang mga mamamahayag sa aming koponan ay naabisuhan at makakatanggap ka ng update sa thread na ito kung ang impormasyon ay sinusuri ng katotohanan."
+  search_result_state: "Sinasagot ba ng mga fact-check na ito ang iyong tanong?"
+  search_result_is_relevant: "Salamat po! Ikalat ang balita tungkol sa tipline na ito upang matulungan kaming labanan ang maling impormasyon!"
+  search_submit: "Salamat sa iyong feedback. Ang mga mamamahayag sa aming koponan ay naabisuhan at makakatanggap ka ng update sa thread na ito kung may na-publish na bagong fact-check."
+  newsletter_optin_optout: "Mag-subscribe ngayon upang makuha ang pinakamahalagang katotohanan na direktang inihatid sa WhatsApp, bawat linggo. {subscription_status}."
+  option_not_available: "Paumanhin, hindi ko naintindihan ang iyong mensahe."
+  timeout: "Salamat sa pakikipag-ugnayan sa amin! I-type ang anumang key upang magsimula ng bagong pag-uusap."
+  smooch_message_smooch_bot_disabled: "Ang aming bot ay kasalukuyang hindi aktibo."
 ta:
   add_more_details_state_button_label: கூடுதல் தகவல்ககள்
   ask_if_ready_state_button_label: ரத்து செய்
@@ -1073,6 +1359,19 @@ ta:
   subscribed: தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறுவதற்குப் பதிவு செய்திருக்கிறீர்கள்
   unsubscribe_button_label: பதிவை ரத்து செய்
   unsubscribed: தற்சமயம் நீங்கள் எங்கள் செய்தி மடலைப் பெறும் வசதியை ரத்து செய்து இருக்கிறீர்கள்
+  smooch_message_smooch_bot_greetings: "எங்களின் உண்மைச் சரிபார்ப்பு போட்க்கு வரவேற்கிறோம். வழிசெலுத்த பிரதான மெனுவைப் பயன்படுத்தவும்."
+  submission_prompt: "நீங்கள் உண்மையைச் சரிபார்க்க விரும்பும் கேள்வி, இணைப்பு, படம் அல்லது வீடியோவை உள்ளிடவும்."
+  add_more_details_state: "மேலும் உள்ளடக்கத்தைச் சேர்க்கவும்."
+  ask_if_ready_state: "சமர்ப்பிக்க நீங்கள் தயாரா?"
+  search_state: "நன்றி! உண்மைச் சரிபார்ப்புகளைத் தேடினால், ஒரு நிமிடம் ஆகலாம்."
+  search_no_results: "உண்மைச் சரிபார்ப்பு எதுவும் கிடைக்கவில்லை. எங்கள் குழுவில் உள்ள பத்திரிக்கையாளர்களுக்கு அறிவிக்கப்பட்டுள்ளது மற்றும் தகவல் உண்மையாக சரிபார்க்கப்பட்டால் இந்த தொடரிழையில் புதுப்பிப்பைப் பெறுவீர்கள்."
+  search_result_state: "இந்த உண்மைச் சரிபார்ப்புகள் உங்கள் கேள்விக்கு பதிலளிக்கிறதா?"
+  search_result_is_relevant: "நன்றி! தவறான தகவல்களை எதிர்த்துப் போராட எங்களுக்கு உதவ இந்த டிப்லைனைப் பற்றி பரப்புங்கள்!"
+  search_submit: "உங்கள் கருத்துக்கு நன்றி. எங்கள் குழுவில் உள்ள பத்திரிக்கையாளர்களுக்கு அறிவிக்கப்பட்டுள்ளது, மேலும் புதிய உண்மைச் சரிபார்ப்பு வெளியிடப்பட்டால், இந்தத் தொடரிழையில் புதுப்பிப்பைப் பெறுவீர்கள்."
+  newsletter_optin_optout: "வாட்ஸ்அப்பில் ஒவ்வொரு வாரமும் மிக முக்கியமான உண்மைகளை நேரடியாகப் பெற இப்போதே குழுசேரவும். {subscription_status}."
+  option_not_available: "மன்னிக்கவும், உங்கள் செய்தி எனக்குப் புரியவில்லை."
+  timeout: "எங்களை அணுகியதற்கு நன்றி! புதிய உரையாடலைத் தொடங்க ஏதேனும் விசையைத் தட்டச்சு செய்யவும்."
+  smooch_message_smooch_bot_disabled: "எங்கள் போட் தற்போது செயலற்ற நிலையில் உள்ளது."
 te:
   add_more_details_state_button_label: ఇంకా చేర్చండి
   ask_if_ready_state_button_label: రద్దు
@@ -1111,6 +1410,19 @@ te:
   subscribed: మీరు ఇప్పుడు మా వార్తాలేఖకు సభ్యత్వాన్ని పొంది ఉన్నారు.
   unsubscribe_button_label: అన్‌సబ్‌స్క్రైబ్
   unsubscribed: మీరు ప్రస్తుతం మా వార్తాలేఖకు సభ్యత్వం పొందలేదు.
+  smooch_message_smooch_bot_greetings: "మా వాస్తవ తనిఖీ బోట్‌కు స్వాగతం. నావిగేట్ చేయడానికి ప్రధాన మెనుని ఉపయోగించండి."
+  submission_prompt: "దయచేసి మీరు వాస్తవంగా తనిఖీ చేయాలనుకుంటున్న ప్రశ్న, లింక్, చిత్రం లేదా వీడియోని నమోదు చేయండి."
+  add_more_details_state: "దయచేసి మరింత కంటెంట్‌ని జోడించండి."
+  ask_if_ready_state: "మీరు సమర్పించడానికి సిద్ధంగా ఉన్నారా?"
+  search_state: "ధన్యవాదాలు! వాస్తవ-తనిఖీల కోసం వెతుకుతున్నాము, దీనికి ఒక నిమిషం పట్టవచ్చు."
+  search_no_results: "వాస్తవ తనిఖీలు ఏవీ కనుగొనబడలేదు. మా బృందంలోని జర్నలిస్టులకు తెలియజేయబడింది మరియు సమాచారం వాస్తవంగా తనిఖీ చేయబడితే మీరు ఈ థ్రెడ్‌లో నవీకరణను అందుకుంటారు."
+  search_result_state: "ఈ వాస్తవ తనిఖీలు మీ ప్రశ్నకు సమాధానమిస్తున్నాయా?"
+  search_result_is_relevant: "ధన్యవాదాలు! తప్పుడు సమాచారంతో పోరాడడంలో మాకు సహాయపడటానికి ఈ టిప్‌లైన్ గురించి ప్రచారం చేయండి!"
+  search_submit: "మీ అభిప్రాయానికి ధన్యవాదాలు. మా బృందంలోని జర్నలిస్టులకు తెలియజేయబడింది మరియు కొత్త వాస్తవ తనిఖీ ప్రచురించబడితే మీరు ఈ థ్రెడ్‌లో నవీకరణను అందుకుంటారు."
+  newsletter_optin_optout: "ప్రతి వారం వాట్సాప్‌లో నేరుగా అందించబడే అత్యంత ముఖ్యమైన వాస్తవాలను పొందడానికి ఇప్పుడే సభ్యత్వాన్ని పొందండి. {subscription_status}."
+  option_not_available: "నన్ను క్షమించండి, మీ సందేశం నాకు అర్థం కాలేదు."
+  timeout: "మమ్మల్ని సంప్రదించినందుకు ధన్యవాదాలు! కొత్త సంభాషణను ప్రారంభించడానికి ఏదైనా కీని టైప్ చేయండి."
+  smooch_message_smooch_bot_disabled: "మా బోట్ ప్రస్తుతం నిష్క్రియంగా ఉంది."
 ur:
   add_more_details_state_button_label: مزید شامل کریں
   ask_if_ready_state_button_label: منسوخ
@@ -1150,6 +1462,19 @@ ur:
   subscribed: آپ فی الحال ہمارے نیوز لیٹر کو سبسکرائب کر چکے ہیں۔
   unsubscribe_button_label: رکنیت ختم کریں۔
   unsubscribed: آپ نے فی الحال ہمارے نیوز لیٹر کو سبسکرائب نہیں کیا ہے۔
+  smooch_message_smooch_bot_greetings: "ہمارے فیکٹ چیکنگ بوٹ میں خوش آمدید۔ نیویگیٹ کرنے کے لیے مین مینو کا استعمال کریں۔"
+  submission_prompt: "براہ کرم وہ سوال، لنک، تصویر، یا ویڈیو درج کریں جس کی آپ حقائق کی جانچ کرنا چاہتے ہیں۔"
+  add_more_details_state: "براہ کرم مزید مواد شامل کریں۔"
+  ask_if_ready_state: "کیا آپ جمع کرانے کے لیے تیار ہیں؟"
+  search_state: "شکریہ! حقائق کی جانچ کی تلاش میں، اس میں ایک منٹ لگ سکتا ہے۔"
+  search_no_results: "کوئی فیکٹ چیک نہیں ملا۔ ہماری ٹیم کے صحافیوں کو مطلع کر دیا گیا ہے اور اگر معلومات کی حقائق کی جانچ پڑتال کی جاتی ہے تو آپ کو اس تھریڈ میں ایک اپ ڈیٹ موصول ہوگا۔"
+  search_result_state: "کیا یہ فیکٹ چیک آپ کے سوال کا جواب دے رہے ہیں؟"
+  search_result_is_relevant: "شکریہ! غلط معلومات سے لڑنے میں ہماری مدد کرنے کے لیے اس ٹپ لائن کے بارے میں بات پھیلائیں!"
+  search_submit: "آپ کی رائے کا شکریہ۔ ہماری ٹیم کے صحافیوں کو مطلع کر دیا گیا ہے اور اگر کوئی نیا حقائق کی جانچ شائع ہوتی ہے تو آپ کو اس تھریڈ میں ایک اپ ڈیٹ موصول ہوگا۔"
+  newsletter_optin_optout: "سبسکرائب کریں سب سے اہم حقائق براہ راست واٹس ایپ پر ہر ہفتے حاصل کرنے کے لیے۔ {subscription_status}۔"
+  option_not_available: "معذرت، مجھے آپ کا پیغام سمجھ نہیں آیا۔"
+  timeout: "ہم تک پہنچنے کے لیے آپ کا شکریہ! نئی بات چیت شروع کرنے کے لیے کوئی بھی کلید ٹائپ کریں۔"
+  smooch_message_smooch_bot_disabled: "ہمارا بوٹ فی الحال غیر فعال ہے۔"
 vi:
   add_more_details_state_button_label: Điền thêm
   ask_if_ready_state_button_label: Hủy
@@ -1187,6 +1512,19 @@ vi:
   subscribed: Bạn hiện đã ghi danh nhận bản tin của chúng tôi.
   unsubscribe_button_label: Ngừng Ghi Danh
   unsubscribed: Bạn hiện không còn ghi danh nhận bản tin của chúng tôi.
+  smooch_message_smooch_bot_greetings: "Chào mừng bạn đến với bot kiểm tra thực tế của chúng tôi. Sử dụng menu chính để điều hướng."
+  submission_prompt: "Vui lòng nhập câu hỏi, liên kết, hình ảnh hoặc video mà bạn muốn xác minh tính xác thực."
+  add_more_details_state: "Vui lòng thêm nhiều nội dung hơn."
+  ask_if_ready_state: "Bạn đã sẵn sàng nộp hồ sơ chưa?"
+  search_state: "Cảm ơn! Việc tìm kiếm thông tin xác minh tính xác thực có thể mất một phút."
+  search_no_results: "Không có kiểm tra thực tế đã được tìm thấy. Các nhà báo trong nhóm của chúng tôi đã được thông báo và bạn sẽ nhận được thông tin cập nhật trong chủ đề này nếu thông tin được xác minh tính xác thực."
+  search_result_state: "Những xác minh thực tế này có trả lời được câu hỏi của bạn không?"
+  search_result_is_relevant: "Cảm ơn! Hãy phổ biến thông tin về mẹo này để giúp chúng tôi chống lại thông tin sai lệch!"
+  search_submit: "Cảm ơn bạn đã phản hồi của bạn. Các nhà báo trong nhóm của chúng tôi đã được thông báo và bạn sẽ nhận được thông tin cập nhật trong chủ đề này nếu thông tin xác minh tính xác thực mới được xuất bản."
+  newsletter_optin_optout: "Đăng ký ngay bây giờ để nhận những thông tin quan trọng nhất được cung cấp trực tiếp trên WhatsApp hàng tuần. {subscription_status}."
+  option_not_available: "Tôi xin lỗi, tôi không hiểu tin nhắn của bạn."
+  timeout: "Cảm ơn bạn đã liên hệ với chúng tôi! Nhập phím bất kỳ để bắt đầu cuộc trò chuyện mới."
+  smooch_message_smooch_bot_disabled: "Bot của chúng tôi hiện không hoạt động."
 mn:
   add_more_details_state_button_label: "Нэмэх"
   ask_if_ready_state_button_label: "Цуцлах"
@@ -1226,6 +1564,19 @@ mn:
   unsubscribed: "Та одоогоор мэдээллийн товхимолд бүртгэгдээгүй байна"
   nlu_disambiguation: "Дараах сонголтуудаас нэгийг сонгоно уу:"
   nlu_cancel: "Цэс рүү буцах"
+  smooch_message_smooch_bot_greetings: "Манай баримт шалгах роботт тавтай морил. Шилжүүлэхийн тулд үндсэн цэсийг ашиглана уу."
+  submission_prompt: "Баримтыг шалгахыг хүсэж буй асуулт, холбоос, зураг, видеогоо оруулна уу."
+  add_more_details_state: "Илүү их контент нэмнэ үү."
+  ask_if_ready_state: "Та илгээхэд бэлэн үү?"
+  search_state: "Баярлалаа! Баримтыг шалгахад нэг минут зарцуулагдаж магадгүй."
+  search_no_results: "Баримт шалгалт олдсонгүй. Манай багийн сэтгүүлчдэд мэдээлэл өгсөн бөгөөд хэрэв мэдээлэл үнэн бодитойгоор шалгагдсан бол та энэ сэдвээр мэдээлэл авах болно."
+  search_result_state: "Эдгээр баримт шалгах нь таны асуултад хариулж байна уу?"
+  search_result_is_relevant: "Баярлалаа! Бидэнд ташаа мэдээлэлтэй тэмцэхэд туслахын тулд энэхүү зөвлөмжийн талаарх мэдээллийг түгээгээрэй!"
+  search_submit: "Санал хүсэлтээ өгсөнд баярлалаа. Манай багийн сэтгүүлчдэд мэдээлэл өгсөн бөгөөд хэрэв шинэ баримт шалгалт нийтлэгдсэн бол та энэ сэдвээр мэдээлэл авах болно."
+  newsletter_optin_optout: "Долоо хоног бүр WhatsApp дээр шууд хүргэх хамгийн чухал баримтуудыг авахын тулд яг одоо бүртгүүлээрэй. {subscription_status}."
+  option_not_available: "Уучлаарай, би таны мессежийг ойлгосонгүй."
+  timeout: "Бидэнд хандсанд баярлалаа! Шинэ харилцан яриа эхлүүлэхийн тулд дурын товчлуурыг бичнэ үү."
+  smooch_message_smooch_bot_disabled: "Манай робот одоогоор идэвхгүй байна."
 uk:
   add_more_details_state_button_label: Додати ще
   ask_if_ready_state_button_label: Скасувати
@@ -1265,3 +1616,16 @@ uk:
   unsubscribed: Ви не підписані на нашу розсилку.
   nlu_disambiguation: "Виберіть один з варіантів нижче:"
   nlu_cancel: "Повернутися до меню"
+  smooch_message_smooch_bot_greetings: "Ласкаво просимо до нашого бота для перевірки фактів. Для навігації використовуйте головне меню."
+  submission_prompt: "Будь ласка, введіть запитання, посилання, зображення чи відео, які ви хочете перевірити."
+  add_more_details_state: "Будь ласка, додайте більше вмісту."
+  ask_if_ready_state: "Ви готові подати?"
+  search_state: "дякую! Шукаємо перевірки фактів, це може зайняти хвилину."
+  search_no_results: "Перевірки фактів не знайдено. Журналістів нашої команди було повідомлено, і ви отримаєте оновлення в цій темі, якщо інформацію буде перевірено."
+  search_result_state: "Чи дають ці перевірки фактів відповідь на ваше запитання?"
+  search_result_is_relevant: "дякую! Розкажіть про цю підказку, щоб допомогти нам боротися з дезінформацією!"
+  search_submit: "Дякуємо за відгук. Журналістів нашої команди було повідомлено, і ви отримаєте оновлення в цій темі, якщо буде опубліковано нову перевірку фактів."
+  newsletter_optin_optout: "Підпишіться зараз, щоб щотижня отримувати найважливіші факти безпосередньо в WhatsApp. {subscription_status}."
+  option_not_available: "Вибачте, я не зрозумів ваше повідомлення."
+  timeout: "Дякуємо, що звернулися до нас! Введіть будь-яку клавішу, щоб почати нову розмову."
+  smooch_message_smooch_bot_disabled: "Наш бот зараз неактивний."
