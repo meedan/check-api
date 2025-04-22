@@ -15,6 +15,7 @@ module SavedSearchMutations
 
     argument :title, GraphQL::Types::String, required: true
     argument :team_id, GraphQL::Types::Int, required: true, camelize: false
+    argument :list_type, GraphQL::Types::String, required: true, camelize: false
   end
 
   class Update < Mutations::UpdateMutation
