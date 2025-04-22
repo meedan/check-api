@@ -13208,6 +13208,7 @@ type Team implements Node {
     Returns the last _n_ elements from the list.
     """
     last: Int
+    list_type: String!
   ): SavedSearchConnection
   search: CheckSearch
   search_id: String

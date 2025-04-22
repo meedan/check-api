@@ -274,7 +274,14 @@ class TeamType < DefaultObject
     data
   end
 
-  field :saved_searches, SavedSearchType.connection_type, null: true
+  field :saved_searches, SavedSearchType.connection_type, null: true do
+    argument :list_type, GraphQL::Types::String, required: true, camelize: false
+  end
+
+  def saved_searches(list_type:)
+    object.saved_searches.where(list_type: list_type)
+  end
+
   field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
   field :feed_teams, FeedTeamType.connection_type, null: false
