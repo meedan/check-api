@@ -174,4 +174,15 @@ class CheckDataPointsTest < ActiveSupport::TestCase
     Time.unstub(:now)
     assert_equal 2, CheckDataPoints.new_users(@team.id, @start_date, @end_date)
   end
+
+  test "should calculate average response time based also on custom manual messages" do
+    travel_to Time.parse('2025-02-01').beginning_of_day do
+      pm = create_project_media team: @team
+      tr = create_tipline_request team_id: @team.id, associated: pm
+      tr.update_columns(first_manual_response_at: (tr.created_at + 1.week).to_i, smooch_report_sent_at: (tr.created_at + 2.weeks).to_i)
+      tr = create_tipline_request team_id: @team.id, associated: pm
+      tr.update_columns(first_manual_response_at: (tr.created_at + 2.weeks).to_i, smooch_report_sent_at: (tr.created_at + 1.week).to_i)
+      assert_equal 7, (CheckDataPoints.average_response_time(@team.id, '2025-01-01', '2025-03-01').to_i / (24 * 60 * 60)).to_i # 7 days
+    end
+  end
 end

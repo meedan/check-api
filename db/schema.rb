@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_08_164959) do
+ActiveRecord::Schema.define(version: 2025_04_19_100047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -680,6 +680,8 @@ ActiveRecord::Schema.define(version: 2025_04_08_164959) do
     t.json "filters"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "list_type", default: 0, null: false
+    t.index ["list_type"], name: "index_saved_searches_on_list_type"
     t.index ["team_id"], name: "index_saved_searches_on_team_id"
   end
 
@@ -864,6 +866,8 @@ ActiveRecord::Schema.define(version: 2025_04_08_164959) do
     t.integer "smooch_report_sent_at", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "first_manual_response_at", default: 0, null: false
+    t.integer "last_manual_response_at", default: 0, null: false
     t.index "date_trunc('day'::text, created_at)", name: "tipline_request_created_at_day"
     t.index "date_trunc('month'::text, created_at)", name: "tipline_request_created_at_month"
     t.index "date_trunc('quarter'::text, created_at)", name: "tipline_request_created_at_quarter"
@@ -1017,6 +1021,6 @@ ActiveRecord::Schema.define(version: 2025_04_08_164959) do
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE FUNCTION validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
   SQL
 end

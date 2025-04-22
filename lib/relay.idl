@@ -2673,6 +2673,7 @@ input CreateSavedSearchInput {
   """
   clientMutationId: String
   filters: JsonStringType
+  list_type: String!
   team_id: Int!
   title: String!
 }
@@ -12290,6 +12291,7 @@ type SavedSearch implements Node {
   id: ID!
   is_part_of_feeds: Boolean
   items_count: Int
+  list_type: String
   permissions: String
   team: PublicTeam
   team_id: Int
