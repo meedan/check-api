@@ -223,10 +223,11 @@ class GraphqlController2Test < ActionController::TestCase
   test "should delete a webhook" do
     u = create_user
     t = create_team
-    create_team_user user: u, team: t, role: 'collaborator'
+    create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    w = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
+    w = create_team_bot set_approved: true, name: 'My Webhook', team_author_id: t.id
+
     query = <<~GRAPHQL
       mutation destroy {
         destroyWebhook(input: { id: "#{w.graphql_id}" }) { deletedId }
