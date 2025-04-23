@@ -67,7 +67,7 @@ module SmoochResend
           }
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_with_button", params[template], nil, title, language))
           id = self.get_id_from_send_response(last_smooch_response)
-          Rails.cache.write("smooch:original:#{id}", "report:#{pm.id}:#{query_date_i}") # This way if "Receive update" or "Receive fact-check" is clicked, the message can be sent
+          Rails.cache.write("smooch:original:#{id}", "#{report[:type]}:#{pm.id}:#{query_date_i}:#{report[:id]}") # This way if "Receive update" or "Receive fact-check" is clicked, the message can be sent
         else
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_image_only", [query_date], image, image, language)) unless image.blank?
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
@@ -104,12 +104,17 @@ module SmoochResend
       self.send_report_to_user(uid, { 'received' => info[2].to_i }, ProjectMedia.find_by_id(info[1].to_i), language, nil)
     end
 
+    def send_explainer_on_template_button_click(_message, uid, _language, info)
+      report = Explainer.find(info.last).as_tipline_search_result
+      self.send_message_to_user(uid, report.text)
+    end
+
     def send_message_on_template_button_click(_message, uid, language, info)
       self.send_final_messages_to_user(uid, info[1], self.get_workflow(language), language)
     end
 
     def clicked_on_template_button?(message)
-      ['report', 'message', 'newsletter'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
+      ['report', 'message', 'newsletter', 'explainer'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
     end
 
     def get_information_from_clicked_template_button(message, delete = false)
@@ -134,6 +139,8 @@ module SmoochResend
       case type
       when 'report'
         self.send_report_on_template_button_click(message, uid, language, info)
+      when 'explainer'
+        self.send_explainer_on_template_button_click(message, uid, language, info)
       when 'message'
         self.send_message_on_template_button_click(message, uid, language, info)
       when 'newsletter'
@@ -279,13 +286,19 @@ module SmoochResend
       explainer = ExplainerItem.find_by_id(original['explainer_item_id'].to_i)&.explainer
       report = nil
       data = nil
+      type = nil
+      id = nil
       if pm&.get_dynamic_annotation('report_design')&.get_field_value('state') == 'published'
         report = pm.get_dynamic_annotation('report_design').report_design_to_tipline_search_result
+        type = 'report'
+        id = pm.id
       elsif explainer.present?
         report = explainer.as_tipline_search_result
+        type = 'explainer'
+        id = explainer.id
       end
       unless report.nil?
-        data = {}
+        data = { type: type, id: id }
         data[:language] = language = self.get_user_language(message['appUser']['_id'])
         data[:query_date] = I18n.l(Time.at(original['query_date'].to_i), locale: language, format: :short)
         data[:query_date_i] = original['query_date'].to_i
