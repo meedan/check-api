@@ -426,5 +426,12 @@ class GraphqlController11Test < ActionController::TestCase
       assert_response :success
       assert JSON.parse(@response.body)['data']['sendExplainersToPreviousRequests']['success']
     end
+    # Test failing mutation
+    Sidekiq::Testing.inline! do
+      query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", dbid: 0, range: 7 }) { success } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert !JSON.parse(@response.body)['data']['sendExplainersToPreviousRequests']['success']
+    end
   end
 end
