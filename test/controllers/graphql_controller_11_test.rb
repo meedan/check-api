@@ -424,6 +424,7 @@ class GraphqlController11Test < ActionController::TestCase
       query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", dbid: #{ex_item.id}, range: 7 }) { success } }"
       post :create, params: { query: query, team: t.slug }
       assert_response :success
+      assert JSON.parse(@response.body)['data']['sendExplainersToPreviousRequests']['success']
     end
   end
 end

@@ -317,7 +317,10 @@ module SmoochSearch
       end
     end
 
-    def send_explainer_to_user(ex_item_id, tipline_request, report)
+    def send_explainer_to_user(ex_item_id, tipline_request_id)
+      tipline_request = TiplineRequest.find_by_id(tipline_request_id.to_i)
+      report = ExplainerItem.find_by_id(ex_item_id.to_i)&.explainer&.as_tipline_search_result
+      return if tipline_request.nil? || report.nil?
       data = tipline_request.smooch_data
       uid = tipline_request.tipline_user_uid
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
