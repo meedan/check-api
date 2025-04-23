@@ -398,7 +398,8 @@ class GraphqlController11Test < ActionController::TestCase
     assert_match /ActiveRecord::RecordNotFound/, @response.body
   end
 
-  test "should query tipline_requests that never received articles and send explainers" do
+  test "should query tipline requests that never received articles and send explainers" do
+    Bot::Smooch.stubs(:send_message_to_user)
     u = create_user is_admin: true
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
@@ -419,8 +420,10 @@ class GraphqlController11Test < ActionController::TestCase
     ex = create_explainer team: t
     pm.explainers << ex
     ex_item = pm.explainer_items.last
-    query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", dbid: #{ex_item.id}, range: 7 }) { success } }"
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
+    Sidekiq::Testing.inline! do
+      query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", dbid: #{ex_item.id}, range: 7 }) { success } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+    end
   end
 end
