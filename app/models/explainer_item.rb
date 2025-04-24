@@ -16,6 +16,12 @@ class ExplainerItem < ApplicationRecord
     { explainer_title: self.explainer.title }.to_json
   end
 
+  def send_explainers_to_previous_requests(range)
+    TiplineRequest.no_articles_sent(self.project_media_id).where(created_at: Time.now.ago(range.days)..Time.now).find_each do |tipline_request|
+      Bot::Smooch.delay_for(1.second, { queue: 'smooch_priority', retry: 0 }).send_explainer_to_user(self.id, tipline_request.id)
+    end
+  end
+
   private
 
   def same_team
