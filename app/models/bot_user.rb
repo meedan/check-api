@@ -123,6 +123,14 @@ class BotUser < User
     self.send(:set_events, events)
   end
 
+  def request_url=(request_url)
+    self.send(:set_request_url, request_url)
+  end
+
+  def headers=(headers)
+    self.send(:set_headers, headers)
+  end
+
   def subscribed_to?(event)
     return false if self.get_events.blank?
     self.get_events.collect{ |ev| ev['event'] || ev[:event] }.map(&:to_s).include?(event.to_s)

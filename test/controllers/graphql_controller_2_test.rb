@@ -165,13 +165,16 @@ class GraphqlController2Test < ActionController::TestCase
         createWebhook(input: {
           name: "my webhook",
           request_url: "https://wwww.example.com",
-          events: "[{\"event\":\"publish_report\",\"graphql\":\"data, project_media { title, dbid, status, report_status, media { quote, url }}\"}]",
-          headers: "{\"X-Header\":\"ABCDEFG\"}"
-        }) {
-            webhook {
+          events: [{ event: "publish_report", graphql: "data, project_media { title, dbid, status, report_status, media { quote, url }}" }],
+          headers: { authorization: "ABCDEFG" }
+          }) {
+            bot_user {
               id
-              title
-              description
+              dbid
+              name
+              request_url
+              events
+              headers
           }
         }
       }
@@ -180,8 +183,11 @@ class GraphqlController2Test < ActionController::TestCase
     assert_difference 'BotUser.count' do
       post :create, params: { query: query, team: t }
     end
-    assert_not_nil BotUser.last.events
-    assert_not_nil BotUser.last.request_url
+    response = JSON.parse(@response.body).dig('data', 'createWebhook', 'bot_user')
+    webhook = BotUser.find(response.dig('dbid'))
+    assert_not_nil webhook.get_events
+    assert_not_nil webhook.get_request_url
+    assert_not_nil webhook.get_headers
   end
 
   test "should update a webhook" do

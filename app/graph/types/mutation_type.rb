@@ -154,4 +154,5 @@ class MutationType < BaseObject
   field :exportList, mutation: ExportMutations::ExportList
 
   field :destroyWebhook, mutation: WebhookMutations::Destroy
+  field :createWebhook, mutation: WebhookMutations::Create
 end
