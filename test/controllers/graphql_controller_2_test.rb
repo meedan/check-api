@@ -154,7 +154,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal [w1.id, w2.id], edges.collect{ |e| e['node']['dbid'] }.sort
   end
 
-  test "should create a webhook" do
+  test "should create a webhook, and return team with webhook's list" do
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
@@ -168,6 +168,7 @@ class GraphqlController2Test < ActionController::TestCase
           events: [{ event: "publish_report", graphql: "data, project_media { title, dbid, status, report_status, media { quote, url }}" }],
           headers: { authorization: "ABCDEFG" }
           }) {
+            team { slug }
             bot_user {
               id
               dbid

@@ -90,6 +90,10 @@ class BotUser < User
     Team.where(id: self.team_author_id).last
   end
 
+  def team
+    self.team_author
+  end
+
   def team_bot_installations
     self.team_users.joins(:user).where('users.type' => 'BotUser', 'team_users.type' => 'TeamBotInstallation')
   end
