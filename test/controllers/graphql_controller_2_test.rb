@@ -229,22 +229,34 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should delete a webhook" do
     u = create_user
-    t = create_team
+    t = create_team slug: 'test'
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    w = create_team_bot set_approved: true, name: 'My Webhook', team_author_id: t.id
+    create_team_bot set_approved: true, name: 'My Webhook', team_author_id: t.id
+
+    query = <<~GRAPHQL
+      query read {
+        team(slug: "test") {
+          webhooks { edges { node { id } } }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query }
+    assert_response :success
+    w_graphql_id = JSON.parse(@response.body).dig('data','team','webhooks','edges')[0].dig('node','id')
 
     query = <<~GRAPHQL
       mutation destroy {
-        destroyWebhook(input: { id: "#{w.graphql_id}" }) { deletedId }
+        destroyWebhook(input: { id: "#{w_graphql_id}" }) { deletedId }
       }
     GRAPHQL
 
     post :create, params: { query: query }
     assert_response :success
     response = JSON.parse(@response.body).dig('data', 'destroyWebhook')
-    assert_equal w.graphql_id, response.dig('deletedId')
+    assert_equal w_graphql_id, response.dig('deletedId')
   end
 
   test "should not get OCR" do
