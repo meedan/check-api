@@ -147,6 +147,10 @@ module SmoochMenus
       counter
     end
 
+    def get_default_string(key, language)
+      TIPLINE_STRINGS.dig(language, key) || TIPLINE_STRINGS.dig(language.gsub(/[-_].*$/, ''), key) || TIPLINE_STRINGS.dig('en', key) || ''
+    end
+
     def get_custom_string(key, language, truncate_at = 1024)
       # Truncation happens because WhatsApp has limitations:
       # - Section title: 24 characters
@@ -157,23 +161,7 @@ module SmoochMenus
       workflow = self.get_workflow(language) || {}
       custom_label = workflow.with_indifferent_access.dig(*key)
       key = key.join('_') if key.is_a?(Array)
-      default_label = {
-        # Default values for customizable strings
-        smooch_message_smooch_bot_greetings: 'Welcome to our fact-checking bot. Use the main menu to navigate.',
-        smooch_state_query_smooch_menu_message: 'Please enter the question, link, picture, or video that you want to be fact-checked.',
-        ask_if_ready_state: 'Are you ready to submit?',
-        add_more_details_state: 'Please add more content.',
-        search_state: 'Thank you! Looking for fact-checks, it may take a minute.',
-        search_no_results: 'No fact-checks have been found. Journalists on our team have been notified and you will receive an update in this thread if the information is fact-checked.',
-        search_result_state: 'Are these fact-checks answering your question?',
-        search_submit: 'Thank you for your feedback. Journalists on our team have been notified and you will receive an update in this thread if a new fact-check is published.',
-        search_result_is_relevant: 'Thank you! Spread the word about this tipline to help us fight misinformation! *insert_entry_point_link*',
-        newsletter_optin_optout: 'Subscribe now to get the most important facts delivered directly on WhatsApp, every week. {subscription_status}',
-        smooch_state_subscription_smooch_menu_message: '', # FIXME: Backwards compatibility with v1, should be removed in the future.
-        option_not_available: "I'm sorry, I didn't understand your message.",
-        timeout: 'Thank you for reaching out to us! Type any key to start a new conversation.',
-        smooch_message_smooch_bot_disabled: 'Our bot is currently inactive. Please visit *insert URL* to read the latest fact-checks.'
-      }[key.to_sym] || ''
+      default_label = self.get_default_string(key.to_s, language)
       label = custom_label.blank? ? default_label : custom_label
       label.to_s.truncate(truncate_at)
     end
