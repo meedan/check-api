@@ -124,15 +124,15 @@ class BotUser < User
   end
 
   def events=(events)
-    self.send(:set_events, events)
+    self.set_events(events)
   end
 
   def request_url=(request_url)
-    self.send(:set_request_url, request_url)
+    self.set_request_url(request_url)
   end
 
   def headers=(headers)
-    self.send(:set_headers, headers)
+    self.set_headers(headers)
   end
 
   def subscribed_to?(event)
