@@ -9,7 +9,6 @@ class CheckGraphql
     def id_from_object(obj, type, _ctx)
       return obj.id if obj.is_a?(CheckSearch)
       obj_type = obj.is_a?(OpenStruct) ? obj.type : type
-      obj_type = obj.type if obj.is_a?(BotUser)
       Base64.encode64("#{obj_type}/#{obj.id}")
     end
 

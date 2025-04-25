@@ -234,13 +234,15 @@ class GraphqlController2Test < ActionController::TestCase
   #   assert_equal w.get_headers, response.dig('headers')
   # end
 
-  test "should delete a webhook" do
+  test "should delete a webhook, whether the id format is Webhook/ID or BotUser/ID" do
     u = create_user
     t = create_team slug: 'test'
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    create_team_bot name: 'My Webhook', team_author_id: t.id
+    # Delete with the Webhook/ID
+    # This follows the flow from the frontend, where we get the id from the webhooks query
+    create_team_bot name: 'My Webhook #1', team_author_id: t.id
 
     query = <<~GRAPHQL
       query read {
@@ -252,18 +254,33 @@ class GraphqlController2Test < ActionController::TestCase
 
     post :create, params: { query: query }
     assert_response :success
-    w_graphql_id = JSON.parse(@response.body).dig('data','team','webhooks','edges')[0].dig('node','id')
+    webhook_1_graphql_id = JSON.parse(@response.body).dig('data','team','webhooks','edges')[0].dig('node','id')
 
     query = <<~GRAPHQL
       mutation destroy {
-        destroyWebhook(input: { id: "#{w_graphql_id}" }) { deletedId }
+        destroyWebhook(input: { id: "#{webhook_1_graphql_id}" }) { deletedId }
       }
     GRAPHQL
 
     post :create, params: { query: query }
     assert_response :success
     response = JSON.parse(@response.body).dig('data', 'destroyWebhook')
-    assert_equal w_graphql_id, response.dig('deletedId')
+    assert_equal webhook_1_graphql_id, response.dig('deletedId')
+
+    # Delete with the BotUser/ID
+    # For this one we get the id directly from the BotUser
+    webhook_2 = create_team_bot name: 'My Webhook #2', team_author_id: t.id
+
+    query = <<~GRAPHQL
+      mutation destroy {
+        destroyWebhook(input: { id: "#{webhook_2.graphql_id}" }) { deletedId }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'destroyWebhook')
+    assert_equal webhook_2.graphql_id, response.dig('deletedId')
   end
 
   test "should not get OCR" do
