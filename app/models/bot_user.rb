@@ -375,16 +375,20 @@ class BotUser < User
   end
 
   def events_is_valid
-    unless self.events.blank?
-      events = []
-      self.events.each do |ev|
-        ev = ev.last if ev.is_a?(Array)
-        event = ev['event'] || ev[:event]
-        graphql = ev['graphql'] || ev[:graphql]
-        events << { 'event' => event, 'graphql' => graphql }
-        errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid)) if !EVENTS.include?(event.to_s)
+    unless self.events.nil?
+      if self.events.empty?
+        errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid))
+      else
+        events = []
+        self.events.each do |ev|
+          ev = ev.last if ev.is_a?(Array)
+          event = ev['event'] || ev[:event]
+          graphql = ev['graphql'] || ev[:graphql]
+          events << { 'event' => event, 'graphql' => graphql }
+          errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid)) if !EVENTS.include?(event.to_s)
+        end
+        self.events = events
       end
-      self.events = events
     end
   end
 
