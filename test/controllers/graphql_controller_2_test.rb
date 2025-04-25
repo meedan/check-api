@@ -134,7 +134,7 @@ class GraphqlController2Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    w1 = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
+    w = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
     w2 = create_team_bot set_approved: false, name: 'My Second Webhook', team_author_id: t.id
     create_bot_user set_approved: true, name: 'My Bot, not a Webhook', team: t
     create_team_bot set_approved: true, name: 'Other Team\'s Webhook'
@@ -163,12 +163,12 @@ class GraphqlController2Test < ActionController::TestCase
     query = <<~GRAPHQL
       mutation create {
         createWebhook(input: {
-          name: "my webhook",
+          name: "My Webhook",
           request_url: "https://wwww.example.com",
           events: [{ event: "publish_report", graphql: "data, project_media { title, dbid, status, report_status, media { quote, url }}" }],
           headers: { authorization: "ABCDEFG" }
           }) {
-            team { slug }
+            team { webhooks { edges { node  { name } } } }
             bot_user {
               id
               dbid
@@ -184,11 +184,17 @@ class GraphqlController2Test < ActionController::TestCase
     assert_difference 'BotUser.count' do
       post :create, params: { query: query, team: t }
     end
-    response = JSON.parse(@response.body).dig('data', 'createWebhook', 'bot_user')
-    webhook = BotUser.find(response.dig('dbid'))
+    response = JSON.parse(@response.body).dig('data', 'createWebhook')
+
+    # make sure the webhook was created with all the information
+    webhook = BotUser.find(response.dig('bot_user','dbid'))
     assert_not_nil webhook.get_events
     assert_not_nil webhook.get_request_url
     assert_not_nil webhook.get_headers
+
+    # make sure the webhook is returned by the team's webhooks query
+    team_webhooks_list = response.dig('team','webhooks','edges')
+    assert_equal "My Webhook", team_webhooks_list[0].dig('node','name')
   end
 
   # test "should update a webhook" do
