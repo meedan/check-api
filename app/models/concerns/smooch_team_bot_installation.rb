@@ -123,7 +123,7 @@ module SmoochTeamBotInstallation
         keys = ::Bot::Smooch::TIPLINE_CUSTOMIZABLE_MESSAGES
         self.team.get_languages.to_a.each do |language|
           messages[language] = {}
-          keys.each { |key| messages[language][key.to_s] = TIPLINE_STRINGS.dig(language, key) || TIPLINE_STRINGS.dig(language.gsub(/[-_].*$/, ''), key) || TIPLINE_STRINGS.dig('en', key) }
+          keys.each { |key| messages[language][key.to_s] = ::Bot::Smooch.get_default_string(key.to_s, language) }
         end
         messages
       end
