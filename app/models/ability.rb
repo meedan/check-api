@@ -67,7 +67,11 @@ class Ability
       obj.team_id == @context_team.id || obj.feed.team_id == @context_team.id
     end
     can [:create, :update, :read, :destroy], ApiKey, :team_id => @context_team.id
-    can :destroy, [Dynamic, DynamicAnnotation::Field], annotation_type: 'metadata' # FIXME: Restrict by team
+    # can :destroy, [Dynamic, DynamicAnnotation::Field], annotation_type: 'metadata' # FIXME: Restrict by team
+    can :destroy, [Dynamic, DynamicAnnotation::Field] do |obj|
+      source = Source.find(obj.id)
+      source.team_id == @context_team.id
+    end
   end
 
   def editor_perms
