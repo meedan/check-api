@@ -376,8 +376,8 @@ class BotUser < User
 
   def events_is_valid
     unless self.events.nil?
-      if self.events.empty?
-        # errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid))
+      if self.events.empty? && !self.default
+        errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid))
       else
         events = []
         self.events.each do |ev|
