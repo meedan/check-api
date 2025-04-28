@@ -134,7 +134,7 @@ class GraphqlController2Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    w = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
+    w1 = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
     w2 = create_team_bot set_approved: false, name: 'My Second Webhook', team_author_id: t.id
     create_bot_user set_approved: true, name: 'My Bot, not a Webhook', team: t
     create_team_bot set_approved: true, name: 'Other Team\'s Webhook'
