@@ -154,6 +154,10 @@ class BotUser < User
     self.save!
   end
 
+  def approved?
+    self.get_approved
+  end
+
   def graphql_result(fragment, object, team)
     begin
       klass = object.is_annotation? ? 'Annotation' : object.class.name
@@ -376,7 +380,7 @@ class BotUser < User
 
   def events_is_valid
     unless self.events.nil?
-      if self.events.empty? && !self.default
+      if self.events.empty? && !self.approved?
         errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid))
       else
         events = []
