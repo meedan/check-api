@@ -197,42 +197,57 @@ class GraphqlController2Test < ActionController::TestCase
     assert_equal "My Webhook", team_webhooks_list[0].dig('node','name')
   end
 
-  # test "should update a webhook" do
-  #   u = create_user
-  #   t = create_team
-  #   create_team_user user: u, team: t, role: 'collaborator'
-  #   authenticate_with_user(u)
+  test "should update a webhook, and return team with webhook's list" do
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    authenticate_with_user(u)
 
-  #   w = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
-  #   old_headers = w.get_headers
-  #   old_events = w.events
-  #   old_url = w.get_request_url
-  #   old_name = w.name
+    webhook = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id, events: nil, request_url: nil
 
-  #   query = <<~GRAPHQL
-  #     mutation update {
-  #       updateWebhook(input: {
-  #         id: "#{w.graphql_id}",
-  #         name: "my webhook",
-  #         request_url: "https://wwww.example.com",
-  #         events: [{ event: "publish_report", graphql: "data, project_media { title, dbid, status, report_status, media { quote, url }}" }],
-  #         headers: { Authorization: "ABCDEFG" }
-  #       }) {
-  #           webhook {
-  #             id
-  #             title
-  #             description
-  #         }
-  #       }
-  #     }
-  #   GRAPHQL
+    assert_equal webhook.name, 'My Webhook'
+    assert_nil webhook.get_headers
+    assert_nil webhook.get_events
+    assert_nil webhook.get_request_url
 
-  #   post :create, params: { query: query, team: t }
-  #   assert_response :success
-  #   puts @response.body
-  #   response = JSON.parse(@response.body).dig('data', 'updateWebhook')
-  #   assert_equal w.get_headers, response.dig('headers')
-  # end
+    query = <<~GRAPHQL
+      mutation update {
+        updateWebhook(input: {
+          id: "#{webhook.graphql_id}",
+          name: "My Updated Webhook",
+          request_url: "https://wwww.updated-example.com",
+          events: [{ event: "publish_report", graphql: "data, project_media { title, dbid, status, report_status, media { quote, url }}" }],
+          headers: { authorization: "ABCDEFG" }
+        }) {
+            team { webhooks { edges { node  { name } } } }
+            bot_user {
+              dbid
+              name
+              request_url
+              events
+              headers
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t }
+    assert_response :success
+    response = JSON.parse(@response.body).dig('data', 'updateWebhook')
+
+    # make sure the original webhook was updated
+    assert_equal webhook.id, response.dig('bot_user','dbid')
+
+    webhook = webhook.reload
+    assert_equal webhook.name, 'My Updated Webhook'
+    assert_not_nil webhook.get_headers
+    assert_not_nil webhook.get_events
+    assert_not_nil webhook.get_request_url
+
+    # make sure the updated webhook is returned by the team's webhooks query
+    team_webhooks_list = response.dig('team','webhooks','edges')
+    assert_equal "My Updated Webhook", team_webhooks_list[0].dig('node','name')
+  end
 
   test "should delete a webhook, whether the id format is Webhook/ID or BotUser/ID" do
     u = create_user
