@@ -567,12 +567,12 @@ type BotUser implements Node {
   created_at: String
   dbid: Int
   default: Boolean
-  events: String
+  events: JsonStringType
   get_description: String
   get_role: String
   get_source_code_url: String
   get_version: String
-  headers: String
+  headers: JsonStringType
   id: ID!
   identifier: String
   installation: TeamBotInstallation
@@ -14164,7 +14164,7 @@ input UpdateBotUserInput {
   clientMutationId: String
   events: JsonStringType!
   headers: JsonStringType
-  id: String
+  id: String!
   name: String!
   request_url: String!
 }
@@ -16580,8 +16580,8 @@ Represents a Webhook, a BotUser with events and request url
 type Webhook implements Node {
   created_at: String
   dbid: Int
-  events: String
-  headers: String
+  events: JsonStringType
+  headers: JsonStringType
   id: ID!
   name: String
   permissions: String

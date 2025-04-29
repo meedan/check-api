@@ -2616,7 +2616,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -2686,7 +2686,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -75512,9 +75512,13 @@
               "name": "id",
               "description": null,
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
               },
               "defaultValue": null,
               "isDeprecated": false,
@@ -92215,7 +92219,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -92229,7 +92233,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JsonStringType",
                 "ofType": null
               },
               "isDeprecated": false,
