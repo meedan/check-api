@@ -20,7 +20,7 @@ module WebhookMutations
   class Update < Mutations::UpdateMutation
     include SharedCreateAndUpdateFields
 
-    argument :id, GraphQL::Types::String, required: false
+    argument :id, GraphQL::Types::String, required: true
   end
 
   class Destroy < Mutations::DestroyMutation; end 
