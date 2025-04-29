@@ -134,7 +134,7 @@ class GraphqlController2Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    w1 = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id
+    w1 = create_team_bot set_approved: false, name: 'My Webhook', team_author_id: t.id, set_headers: { authorization: "ABCDEFG" }
     w2 = create_team_bot set_approved: false, name: 'My Second Webhook', team_author_id: t.id
     create_bot_user set_approved: true, name: 'My Bot, not a Webhook', team: t
     create_team_bot set_approved: true, name: 'Other Team\'s Webhook'
@@ -142,7 +142,7 @@ class GraphqlController2Test < ActionController::TestCase
     query = <<~GRAPHQL
       query read {
         team(slug: "test") {
-          webhooks { edges { node  { name, dbid } } }
+          webhooks { edges { node  { name, dbid, events, request_url, headers } } }
         }
       }
     GRAPHQL
@@ -152,6 +152,9 @@ class GraphqlController2Test < ActionController::TestCase
     edges = JSON.parse(@response.body)['data']['team']['webhooks']['edges']
     assert_equal ['My Second Webhook', 'My Webhook'], edges.collect{ |e| e['node']['name'] }.sort
     assert_equal [w1.id, w2.id], edges.collect{ |e| e['node']['dbid'] }.sort
+    assert_not_nil edges.first['node']['events']
+    assert_not_nil edges.first['node']['request_url']
+    assert_not_nil edges.first['node']['headers']
   end
 
   test "should create a webhook, and return team with webhook's list" do
