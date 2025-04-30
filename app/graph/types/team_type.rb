@@ -442,4 +442,12 @@ class TeamType < DefaultObject
     results = object.search_for_similar_articles(search_text, nil, language, settings)
     results.collect{ |result| result.as_tipline_search_result(settings) }.select{ |result| result.should_send_in_language?(language, should_restrict_by_language) }
   end
+
+  field :webhooks, WebhookType.connection_type, null: true
+
+  def webhooks
+    # We are aware that iterating through bots is not ideal, but since we have few bots, we are making a choice to leave it like this for now
+    webhook_installations = object.team_users.joins(:user).where('users.type' => 'BotUser', 'users.default' => false).select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? && !team_user.user.get_approved }
+    webhook_installations.map(&:user)
+  end
 end

@@ -13,7 +13,9 @@ class CheckGraphql
     end
 
     def decode_id(id)
-      begin Base64.decode64(id).split('/') rescue [nil, nil] end
+      type, id = begin Base64.decode64(id).split('/') rescue [nil, nil] end
+      type = 'BotUser' if type == 'Webhook'
+      [type, id]
     end
 
     def object_from_id(id, ctx)

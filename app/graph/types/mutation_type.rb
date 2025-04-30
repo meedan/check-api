@@ -152,4 +152,8 @@ class MutationType < BaseObject
   field :sendExplainersToPreviousRequests, mutation: ExplainerItemMutations::SendExplainersToPreviousRequests
 
   field :exportList, mutation: ExportMutations::ExportList
+
+  field :destroyWebhook, mutation: WebhookMutations::Destroy
+  field :createWebhook, mutation: WebhookMutations::Create
+  field :updateWebhook, mutation: WebhookMutations::Update
 end
