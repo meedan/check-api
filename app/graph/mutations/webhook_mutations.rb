@@ -23,5 +23,5 @@ module WebhookMutations
     argument :id, GraphQL::Types::String, required: true
   end
 
-  class Destroy < Mutations::DestroyMutation; end
+  class Destroy < Mutations::DestroyMutation; end 
 end
