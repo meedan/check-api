@@ -67,6 +67,9 @@ class Ability
       obj.team_id == @context_team.id || obj.feed.team_id == @context_team.id
     end
     can [:create, :update, :read, :destroy], ApiKey, :team_id => @context_team.id
+    can :destroy, [Dynamic, DynamicAnnotation::Field] do |obj|
+      obj.team.present? && obj.team == @context_team
+    end
   end
 
   def editor_perms

@@ -135,4 +135,10 @@ class BotUser2Test < ActiveSupport::TestCase
       b.call({})
     end
   end
+
+  test "should raise validation error is events is empty" do
+    b = create_bot_user
+    b.set_events = []
+    assert !b.valid?
+  end
 end
