@@ -279,6 +279,7 @@ module SmoochCapi
       req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{self.config['capi_permanent_token']}")
       req.body = payload.to_json
       response = http.request(req)
+      Rails.logger.info("[Smooch Bot] [WhatsApp Cloud API] Sending message to #{uid} for number #{self.config['capi_phone_number_id']}. URL: #{uri} Request: #{payload.to_json}; Response: #{response.body}")
       if response.code.to_i >= 400
         error_message = begin JSON.parse(response.body)['error']['message'] rescue response.body end
         error_code = begin JSON.parse(response.body)['error']['code'] rescue nil end
