@@ -561,8 +561,9 @@ class ProjectMedia < ApplicationRecord
 
   def number_of_tipline_requests_that_never_received_articles_by_time
     data = {}
+    ids = ProjectMedia.where(id: self.related_items_ids).map(&:id) # Including child items
     [1, 7, 30].each do |number_of_days|
-      data[number_of_days] = TiplineRequest.no_articles_sent(self.id).where(created_at: Time.now.ago(number_of_days.days)..Time.now).count
+      data[number_of_days] = TiplineRequest.no_articles_sent(ids).where(created_at: Time.now.ago(number_of_days.days)..Time.now).count
     end
     data
   end
