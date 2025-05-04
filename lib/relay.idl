@@ -8225,6 +8225,7 @@ Explainer item type
 """
 type ExplainerItem implements Node {
   created_at: String
+  dbid: Int
   explainer: Explainer!
   explainer_id: Int!
   id: ID!
