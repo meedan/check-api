@@ -17,7 +17,7 @@ class ExplainerItem < ApplicationRecord
   end
 
   def send_explainers_to_previous_requests(range)
-    ids = ProjectMedia.where(id: self.project_media.related_items_ids).map(&:id) # Including child items
+    ids = ProjectMedia.where(id: self.project_media.related_items_ids).pluck(:id) # Including child items
     # Keep track of UIDs so we don't send the same explainer to the same user more than once.
     # We could use GROUP BY or DISTINCT ON, but it would be more complex for the average number of requests we have.
     uids = []
