@@ -90,6 +90,10 @@ class BotUser < User
     Team.where(id: self.team_author_id).last
   end
 
+  def team
+    self.team_author
+  end
+
   def team_bot_installations
     self.team_users.joins(:user).where('users.type' => 'BotUser', 'team_users.type' => 'TeamBotInstallation')
   end
@@ -120,7 +124,15 @@ class BotUser < User
   end
 
   def events=(events)
-    self.send(:set_events, events)
+    self.set_events(events)
+  end
+
+  def request_url=(request_url)
+    self.set_request_url(request_url)
+  end
+
+  def headers=(headers)
+    self.set_headers(headers)
   end
 
   def subscribed_to?(event)
@@ -140,6 +152,10 @@ class BotUser < User
   def approve!
     self.set_approved(true)
     self.save!
+  end
+
+  def approved?
+    self.get_approved
   end
 
   def graphql_result(fragment, object, team)
@@ -363,16 +379,20 @@ class BotUser < User
   end
 
   def events_is_valid
-    unless self.events.blank?
-      events = []
-      self.events.each do |ev|
-        ev = ev.last if ev.is_a?(Array)
-        event = ev['event'] || ev[:event]
-        graphql = ev['graphql'] || ev[:graphql]
-        events << { 'event' => event, 'graphql' => graphql }
-        errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid)) if !EVENTS.include?(event.to_s)
+    unless self.events.nil?
+      if self.events.empty? && !self.approved?
+        errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid))
+      else
+        events = []
+        self.events.each do |ev|
+          ev = ev.last if ev.is_a?(Array)
+          event = ev['event'] || ev[:event]
+          graphql = ev['graphql'] || ev[:graphql]
+          events << { 'event' => event, 'graphql' => graphql }
+          errors.add(:base, I18n.t(:error_team_bot_event_is_not_valid)) if !EVENTS.include?(event.to_s)
+        end
+        self.events = events
       end
-      self.events = events
     end
   end
 

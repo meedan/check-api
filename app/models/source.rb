@@ -144,6 +144,10 @@ class Source < ApplicationRecord
 
   def set_team
     self.team = Team.current if self.team_id.nil? && !Team.current.nil?
+
+    if self.team.nil? && self.user.present?
+      self.team = self.user.team if self.user.team.present?
+    end
   end
 
   def is_unique_per_team

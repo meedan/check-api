@@ -123,4 +123,11 @@ class BotUserTest < ActiveSupport::TestCase
     assert team_bot.is_bot
     assert_equal 'create_project_media,publish_report', team_bot.bot_events
   end
+
+  test "should fail events validation if its events is an empty array, and the bot is not approved" do
+    # We want to allow events to be an empty array only for our core bots (we can check for that by checking if they are approved)
+    assert_raises ActiveRecord::RecordInvalid do
+      create_team_bot set_events: [], set_approved: false
+    end
+  end
 end
