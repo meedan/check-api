@@ -69,8 +69,10 @@ class SavedSearchTest < ActiveSupport::TestCase
   end
 
   test "should count number of items" do
-    ss = create_saved_search
-    assert_equal 0, ss.items_count
+    ss_media = create_saved_search list_type: 'media'
+    ss_article = create_saved_search list_type: 'article'
+    assert_equal 0, ss_media.items_count
+    assert_equal 0, ss_article.items_count
   end
 
   test "should not crash if filter is invalid" do
