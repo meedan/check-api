@@ -21,6 +21,25 @@ class SavedSearchTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate unique list name based on the team and list type" do
+    t = create_team
+    assert_difference 'SavedSearch.count', 2 do
+      create_saved_search team: t, list_type: 'media', title: 'list_a'
+      create_saved_search team: t, list_type: 'article', title: 'list_a'
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_saved_search team: t, list_type: 'media', title: 'list_a'
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_saved_search team: t, list_type: 'article', title: 'list_a'
+    end
+    t2 = create_team
+    assert_difference 'SavedSearch.count', 2 do
+      create_saved_search team: t2, list_type: 'media', title: 'list_a'
+      create_saved_search team: t2, list_type: 'article', title: 'list_a'
+    end
+  end
+
   test "should not create saved search if title is not present" do
     assert_no_difference 'SavedSearch.count' do
       assert_raises ActiveRecord::RecordInvalid do

@@ -378,15 +378,7 @@ class TeamType < DefaultObject
   end
 
   def articles_count(**args)
-    count = nil
-    if args[:article_type] == 'explainer'
-      count = object.filtered_explainers(args).count
-    elsif args[:article_type] == 'fact-check'
-      count = object.filtered_fact_checks(args).count
-    elsif args[:article_type].blank?
-      count = object.filtered_explainers(args).count + object.filtered_fact_checks(args).count
-    end
-    count
+    object.team_articles_count(args)
   end
 
   field :api_key, ApiKeyType, null: true do

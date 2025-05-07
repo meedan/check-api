@@ -487,6 +487,19 @@ class Team < ApplicationRecord
     available
   end
 
+  def team_articles_count(args)
+    args ||= {}
+    count = nil
+    if args[:article_type] == 'explainer'
+      count = self.filtered_explainers(args).count
+    elsif args[:article_type] == 'fact-check'
+      count = self.filtered_fact_checks(args).count
+    elsif args[:article_type].blank?
+      count = self.filtered_explainers(args).count + self.filtered_fact_checks(args).count
+    end
+    count
+  end
+
   def filtered_articles(filters = {}, limit = 10, offset = 0, order = 'created_at', order_type = 'DESC')
     # Re-use existing methods to build the SQL queries for fact-checks and for explainers
     # We must include all columns we may need to sort by
