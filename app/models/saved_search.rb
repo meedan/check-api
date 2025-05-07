@@ -14,7 +14,7 @@ class SavedSearch < ApplicationRecord
     if self.list_type == 'article'
       filters = self.filters || {}
       self.team.team_articles_count(filters.with_indifferent_access)
-    elsif list_type == 'media'
+    elsif self.list_type == 'media'
       CheckSearch.new(self.filters.to_json, nil, self.team_id).number_of_results
     end
   end
