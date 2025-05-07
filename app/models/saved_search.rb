@@ -12,7 +12,8 @@ class SavedSearch < ApplicationRecord
 
   def items_count
     if self.list_type == 'article'
-      self.team.team_articles_count(self.filters.with_indifferent_access)
+      filters = self.filters || {}
+      self.team.team_articles_count(filters.with_indifferent_access)
     else
       CheckSearch.new(self.filters.to_json, nil, self.team_id).number_of_results
     end
