@@ -157,7 +157,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     tr_30a.save!
     assert pm.has_tipline_requests_that_never_received_articles
     data = pm.number_of_tipline_requests_that_never_received_articles_by_time
-    expected_result = { 1 => 1, 7 => 1, 30 => 2 }
+    expected_result = { 1 => 1, 7 => 1, 30 => 3 }
     assert_equal expected_result, data
     tr_1b.smooch_report_update_received_at = Time.now.to_i
     tr_1b.save!
@@ -165,6 +165,8 @@ class ProjectMedia8Test < ActiveSupport::TestCase
     tr_7b.save!
     tr_30b.smooch_report_correction_sent_at = Time.now.to_i
     tr_30b.save!
+    tr_7a.smooch_request_type = 'relevant_search_result_requests'
+    tr_7a.save!
     assert_not pm.has_tipline_requests_that_never_received_articles
     data = pm.number_of_tipline_requests_that_never_received_articles_by_time
     expected_result = { 1 => 0, 7 => 0, 30 => 0 }
