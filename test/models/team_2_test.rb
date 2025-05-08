@@ -293,7 +293,7 @@ class Team2Test < ActiveSupport::TestCase
       "create User", "invite Members", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
       "duplicate Team", "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship",
       "destroy Relationship", "create TiplineNewsletter", "create Feed", "create FeedTeam", "create FeedInvitation",
-      "destroy FeedInvitation", "destroy FeedTeam"
+      "destroy FeedInvitation", "destroy FeedTeam", "create SavedSearch"
     ].sort
 
     # load permissions as owner

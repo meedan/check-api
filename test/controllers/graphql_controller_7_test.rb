@@ -176,9 +176,10 @@ class GraphqlController7Test < ActionController::TestCase
 
   test "should get saved search filters" do
     t = create_team
-    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    ss = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
+    ss_article = create_saved_search team: t, list_type: 'article'
     f = create_feed team_id: t.id
-    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1, list_type: \"media\") { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
     post :create, params: { query: query }
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
@@ -189,12 +190,19 @@ class GraphqlController7Test < ActionController::TestCase
     f.saved_search_id = ss.id
     f.skip_check_ability = true
     f.save!
-    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1, list_type: \"media\") { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
     post :create, params: { query: query }
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
     assert data['is_part_of_feeds']
     assert_not_empty data['feeds']['edges']
+    # Get saved search with article type
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1, list_type: \"article\") { edges { node { dbid } } } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges')
+    assert_equal 1, data.size
+    assert_equal ss_article.id, data.dig(0, 'node', 'dbid')
   end
 
   test "should search by report fields" do
