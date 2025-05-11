@@ -11,6 +11,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should query media" do
     setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     pm = create_project_media team: t, disable_es_callbacks: false
     create_project_media team: t, disable_es_callbacks: false
@@ -101,12 +102,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     pm.save!
     User.current = nil
     assert_nothing_raised do
-      create_comment annotated: pm
+      create_tag annotated: pm
     end
     u = create_user(is_admin: true)
     User.current = u
     assert_raises ActiveRecord::RecordInvalid do
-      create_comment annotated: pm
+      create_tag annotated: pm
     end
     User.current = nil
   end

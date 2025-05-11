@@ -733,4 +733,44 @@ class FactCheckTest < ActiveSupport::TestCase
     fc = create_fact_check
     assert_kind_of TiplineSearchResult, fc.as_tipline_search_result
   end
+
+  test "should set author" do
+    u = create_user is_admin: true
+    User.current = u
+    fc = create_fact_check
+    User.current = nil
+    assert_equal u, fc.author
+  end
+
+  test "should assign default channel 'manual' for a regular user" do
+    fc = create_fact_check
+    assert_equal 'manual', fc.channel
+  end
+
+  test "should assign default channel 'api' for a BotUser #2" do
+    bot = create_bot_user(default: true, approved: true)
+    fc = create_fact_check(user: bot, channel: nil)
+
+    assert_equal 'api', fc.channel
+  end
+
+  test "should allow explicit override of channel" do
+    fc = create_fact_check(channel: 'imported')
+
+    assert_equal 'imported', fc.channel
+  end
+
+  test "should not allow an invalid channel value" do
+    assert_raises(ArgumentError) do
+      create_fact_check(channel: 'invalid')
+    end
+  end
+
+  test "should not change channel on update if already set" do
+    fc = create_fact_check(channel: 'imported')
+    fc.title = 'Updated Title'
+    fc.save!
+
+    assert_equal "imported", fc.reload.channel
+  end
 end

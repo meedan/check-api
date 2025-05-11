@@ -37,10 +37,10 @@ deploy_qa:
   script:
     - pip install setuptools==68.0.0
     - pip install urllib3==2.0.6
-    - pip install botocore==1.31.62
-    - pip install boto3==1.28.62
-    - pip install ecs-deploy==1.15.0
-    - pip install awscli==1.31.13
+    - pip install botocore==1.33.13
+    - pip install boto3==1.33.13
+    - pip install ecs-deploy==1.14.0
+    - pip install awscli==1.29.59
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /qa/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/qa/check-api/##' > env.qa.names
     - for NAME in `cat env.qa.names`; do echo -n "-s qa-check-api-migration $NAME /qa/check-api/$NAME " >> qa-check-api-migration.env.args; done
@@ -109,10 +109,10 @@ deploy_live:
   script:
     - pip install setuptools==68.0.0
     - pip install urllib3==2.0.6
-    - pip install botocore==1.31.62
-    - pip install boto3==1.28.62
-    - pip install ecs-deploy==1.15.0
-    - pip install awscli==1.31.13
+    - pip install botocore==1.33.13
+    - pip install boto3==1.33.13
+    - pip install ecs-deploy==1.14.0
+    - pip install awscli==1.29.59
     - alias aws='docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION --rm amazon/aws-cli'
     - aws ssm get-parameters-by-path --region $AWS_DEFAULT_REGION --path /live/check-api/ --recursive --with-decryption --output text --query "Parameters[].[Name]" | sed -E 's#/live/check-api/##' > env.live.names
     - for NAME in `cat env.live.names`; do echo -n "-s live-check-api-migration $NAME /live/check-api/$NAME " >> live-check-api-migration.env.args; done

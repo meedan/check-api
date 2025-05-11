@@ -1,6 +1,8 @@
 class Explainer < ApplicationRecord
   include Article
 
+  has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+
   belongs_to :team
 
   has_annotations
@@ -104,6 +106,33 @@ class Explainer < ApplicationRecord
     end
   end
 
+  def self.sort_similarity_search_results(response)
+    # Example for "response":
+    # response = {
+    #   'result' => [
+    #     {
+    #       'content_hash' => 'abc123',
+    #       'doc_id' => 'xyz321',
+    #       'context' => { 'type' => 'explainer', 'team_id' => 1, 'language' => 'en', 'explainer_id' => 2, 'paragraph' => 1 },
+    #       'models' => [Bot::Alegre::FILIPINO_MODEL],
+    #       'suppress_search_response' => true,
+    #       'content' => 'Foo',
+    #       'created_at' => '2025-04-05T01:59:08.010665',
+    #       'language' => nil,
+    #       'suppress_response' => false,
+    #       'contexts' => [{ 'type' => 'explainer', 'team_id' => 1, 'language' => 'en', 'explainer_id' => 3, 'paragraph' => 1 }],
+    #       'model' => Bot::Alegre::FILIPINO_MODEL,
+    #       '_id' => 'qwe789',
+    #       'id' => 'qwe789',
+    #       'index' => 'alegre_similarity',
+    #       '_score' => 0.75,
+    #       'score' => 0.75
+    #     }
+    #   ]
+    # }
+    Bot::Alegre.return_prioritized_matches(response['result'].to_a.map(&:with_indifferent_access))
+  end
+
   def self.search_by_similarity(text, language, team_id, limit, custom_threshold = nil)
     models_thresholds = Explainer.get_alegre_models_and_thresholds(team_id)
     models_thresholds.each { |model, _threshold| models_thresholds[model] = custom_threshold } unless custom_threshold.blank?
@@ -119,7 +148,7 @@ class Explainer < ApplicationRecord
       context: context
     }
     response = Bot::Alegre.query_sync_with_params(params, 'text')
-    results = response['result'].to_a.sort_by{ |result| [result['model'] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, result['_score']] }.reverse
+    results = Explainer.sort_similarity_search_results(response)
     explainer_ids = results.collect{ |result| result.dig('context', 'explainer_id').to_i }.uniq.first(limit)
     explainer_ids.empty? ? Explainer.none : Explainer.where(team_id: team_id, id: explainer_ids)
   end

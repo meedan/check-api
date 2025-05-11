@@ -209,12 +209,6 @@ class ProjectMediaType < DefaultObject
     object.get_annotations('tag').map(&:load).sort_by { |tag| tag.tag_text.downcase }
   end
 
-  field :comments, CommentType.connection_type, null: true
-
-  def comments
-    object.get_annotations("comment").map(&:load)
-  end
-
   field :requests, TiplineRequestType.connection_type, null: true do
     argument :include_children, GraphQL::Types::Boolean, required: false
   end
@@ -240,15 +234,7 @@ class ProjectMediaType < DefaultObject
 
   field :language, GraphQL::Types::String, null: true
 
-  def language
-    object.get_dynamic_annotation("language")&.get_field "language"&.send(:to_s)
-  end
-
   field :language_code, GraphQL::Types::String, null: true
-
-  def language_code
-    object.get_dynamic_annotation("language")&.get_field_value("language")
-  end
 
   field :annotation, AnnotationType, null: true do
     argument :annotation_type, GraphQL::Types::String, required: true, camelize: false
@@ -426,4 +412,7 @@ class ProjectMediaType < DefaultObject
   def media_cluster_relationship
     Relationship.where(target_id: object.id).last || Relationship.where(source_id: object.id).last
   end
+
+  field :has_tipline_requests_that_never_received_articles, GraphQL::Types::Boolean, null: true
+  field :number_of_tipline_requests_that_never_received_articles_by_time, JsonStringType, null: true
 end

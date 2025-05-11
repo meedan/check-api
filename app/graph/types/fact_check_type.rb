@@ -15,4 +15,6 @@ class FactCheckType < DefaultObject
   field :imported, GraphQL::Types::Boolean, null: true
   field :report_status, GraphQL::Types::String, null: true
   field :trashed, GraphQL::Types::Boolean, null: true
+  field :author, UserType, null: true
+  field :channel, GraphQL::Types::String, null: false
 end

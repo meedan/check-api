@@ -176,9 +176,10 @@ class GraphqlController7Test < ActionController::TestCase
 
   test "should get saved search filters" do
     t = create_team
-    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    ss = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
+    ss_article = create_saved_search team: t, list_type: 'article'
     f = create_feed team_id: t.id
-    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1, list_type: \"media\") { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
     post :create, params: { query: query }
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
@@ -189,12 +190,19 @@ class GraphqlController7Test < ActionController::TestCase
     f.saved_search_id = ss.id
     f.skip_check_ability = true
     f.save!
-    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1) { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1, list_type: \"media\") { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
     post :create, params: { query: query }
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges', 0, 'node')
     assert data['is_part_of_feeds']
     assert_not_empty data['feeds']['edges']
+    # Get saved search with article type
+    query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1, list_type: \"article\") { edges { node { dbid } } } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'saved_searches', 'edges')
+    assert_equal 1, data.size
+    assert_equal ss_article.id, data.dig(0, 'node', 'dbid')
   end
 
   test "should search by report fields" do
@@ -460,6 +468,22 @@ class GraphqlController7Test < ActionController::TestCase
     query = 'mutation { updateTask(input: { clientMutationId: "1", id: "' + t.graphql_id + '" }) { task { id } } }' # It could be any other mutation, not only updateTask
     post :create, params: { query: query, team: t.slug, file: { '0' => f } }
     assert_response :success
+  end
+
+  test "should get Smooch default messages" do
+    t = create_team private: true
+    t.set_languages = ['es', 'fr']
+    t.save!
+    b = create_team_bot login: 'smooch', set_approved: true
+    app_id = random_string
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+
+    authenticate_with_user(u)
+    query = "query { team(slug: \"#{t.slug}\") { team_bot_installations(first: 1) { edges { node { smooch_default_messages } } } } }"
+    post :create, params: { query: query }
+    assert_equal ['es', 'fr'].sort, json_response.dig('data', 'team', 'team_bot_installations', 'edges', 0, 'node', 'smooch_default_messages').keys
   end
 
   protected

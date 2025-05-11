@@ -17,8 +17,12 @@ class TeamStatisticsType < DefaultObject
   # For tiplines
 
   field :number_of_messages, GraphQL::Types::Int, null: true
+  field :number_of_incoming_messages, GraphQL::Types::Int, null: true
+  field :number_of_outgoing_messages, GraphQL::Types::Int, null: true
   field :number_of_conversations, GraphQL::Types::Int, null: true
   field :number_of_messages_by_date, JsonStringType, null: true
+  field :number_of_incoming_messages_by_date, JsonStringType, null: true
+  field :number_of_outgoing_messages_by_date, JsonStringType, null: true
   field :number_of_conversations_by_date, JsonStringType, null: true
   field :number_of_search_results_by_feedback_type, JsonStringType, null: true
   field :average_response_time, GraphQL::Types::Int, null: true

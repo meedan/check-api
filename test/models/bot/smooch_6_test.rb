@@ -77,10 +77,10 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     !Rails.cache.read("smooch:user_language:#{@uid}") == language
   end
 
-  def send_message_outside_24_hours_window(template, pm = nil)
+  def send_message_outside_24_hours_window(template, pm = nil, extra = {})
     message_id = random_string
     response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: message_id) }))
-    Bot::Smooch.save_smooch_response(response, pm, Time.now.to_i, template, 'en')
+    Bot::Smooch.save_smooch_response(response, pm, Time.now.to_i, template, 'en', extra)
 
     @msgid = random_string
     response = OpenStruct.new(body: OpenStruct.new({ message: OpenStruct.new(id: @msgid) }))
@@ -1017,6 +1017,21 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
       # Click on "Unsubscribe" button
       send_message_to_smooch_bot('Unsubscribe', @uid, { 'quotedMessage' => { 'content' => { '_id' => message_id } } })
       assert_nil TiplineSubscription.find_by_id(ts.id)
+    end
+  end
+
+  test "should send explainer notification with button after 24 hours window" do
+    @installation.set_smooch_template_name_for_fact_check_report_with_button = 'article_with_button'
+    @installation.save!
+    pm = create_project_media team: @team
+    ex = create_explainer team: @team
+    ei = create_explainer_item project_media: pm, explainer: ex
+
+    Sidekiq::Testing.inline! do
+      send_message_outside_24_hours_window('fact_check_report', pm, { explainer_item_id: ei.id })
+
+      send_message_to_smooch_bot('Receive article', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
+      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
     end
   end
 end

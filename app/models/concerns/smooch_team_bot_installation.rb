@@ -117,6 +117,16 @@ module SmoochTeamBotInstallation
           api_instance.delete_integration(self.get_smooch_app_id, integration_id) unless integration_id.blank?
         end
       end
+
+      def smooch_default_messages
+        messages = {}
+        keys = ::Bot::Smooch::TIPLINE_CUSTOMIZABLE_MESSAGES
+        self.team.get_languages.to_a.each do |language|
+          messages[language] = {}
+          keys.each { |key| messages[language][key.to_s] = ::Bot::Smooch.get_default_string(key.to_s, language) }
+        end
+        messages
+      end
     end
   end
 end

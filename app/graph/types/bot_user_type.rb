@@ -51,4 +51,20 @@ class BotUserType < DefaultObject
   def team_author
     RecordLoader.for(Team).load(object.team_author_id.to_i)
   end
+
+  field :events,JsonStringType, null: true
+  field :request_url, GraphQL::Types::String, null: true
+  field :headers, JsonStringType, null: true
+
+  def events
+    object.get_events
+  end
+
+  def request_url
+    object.get_request_url
+  end
+
+  def headers
+    object.get_headers
+  end
 end

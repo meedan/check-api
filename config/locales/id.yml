@@ -492,7 +492,7 @@ id:
   smooch_bot_ask_for_confirmation: |-
       Terima kasih telah mengirimkan permintaan ini. Apakah Anda ingin kami memverifikasi kontennya?
 
-      Jika ya, *mohon balas dengan angka 1*. Respons lainnya akan mengakhiri percakapan kita.
+      Jika ya, *mohon balas dengan angka 1*. Tanggapan lainnya akan mengakhiri percakapan kita.
   smooch_bot_ask_for_tos: |-
       Terima kasih telah menjangkau Check Message!
 
@@ -537,8 +537,8 @@ id:
             create: Buat tugas
             edit: Sunting tugas
             delete: Hapus tugas
-            add_response: Tambah respons
-            delete_repsonse: Hapus respons
+            add_response: Tambah tanggapan
+            delete_repsonse: Hapus tanggapan
             assign_task: Berikan tugas atau perihal
         team_management:
           name: Pengelolaan ruang kerja

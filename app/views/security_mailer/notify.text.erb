@@ -8,8 +8,6 @@
 
 <%= I18n.t("mail_security.time_h").upcase %> (<%= I18n.l @timestamp, format: :email %>)
 <%= I18n.t("mail_security.device_h").upcase %> (<%= I18n.t("mail_security.devise_name", browser: @browser, platform: @platform) %>)
-<%= I18n.t("mail_security.location_h").upcase %> (<%= @location %>)
-<%= I18n.t("mail_security.location_disclaimer") %>
 <%= I18n.t("mail_security.ip_h").upcase %> (<%= @ip %>)
 
 ...

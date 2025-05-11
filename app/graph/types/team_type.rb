@@ -163,7 +163,10 @@ class TeamType < DefaultObject
     # We sometimes call this method and somehow object is nil despite self.object being available
     object ||= self.object
     object = object.reload if items_count_for_status || published_reports_count_for_status
-    object.verification_statuses("media", nil, items_count_for_status, published_reports_count_for_status)
+    statuses = object.verification_statuses("media", nil, items_count_for_status, published_reports_count_for_status)
+    # Sort the statuses by the 'label' field
+    statuses["statuses"] = statuses["statuses"].sort_by { |status| status["label"] }
+    statuses
   end
 
   field :team_bot_installation, TeamBotInstallationType, null: true do
@@ -271,7 +274,14 @@ class TeamType < DefaultObject
     data
   end
 
-  field :saved_searches, SavedSearchType.connection_type, null: true
+  field :saved_searches, SavedSearchType.connection_type, null: true do
+    argument :list_type, GraphQL::Types::String, required: true, camelize: false
+  end
+
+  def saved_searches(list_type:)
+    object.saved_searches.where(list_type: list_type)
+  end
+
   field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
   field :feed_teams, FeedTeamType.connection_type, null: false
@@ -304,9 +314,10 @@ class TeamType < DefaultObject
   end
 
   field :articles, ::ArticleUnion.connection_type, null: true do
-    argument :article_type, GraphQL::Types::String, required: true, camelize: false
+    argument :article_type, GraphQL::Types::String, required: false, camelize: false
 
     # Sort and pagination
+    argument :limit, GraphQL::Types::Int, required: false, default_value: 10
     argument :offset, GraphQL::Types::Int, required: false, default_value: 0
     argument :sort, GraphQL::Types::String, required: false, default_value: 'title'
     argument :sort_type, GraphQL::Types::String, required: false, camelize: false, default_value: 'ASC'
@@ -325,19 +336,25 @@ class TeamType < DefaultObject
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
     argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
     argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
+    argument :channel, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
   def articles(**args)
     sort = args[:sort].to_s
     order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
-    articles = Explainer.none
-    if args[:article_type] == 'explainer'
-      articles = object.filtered_explainers(args)
-    elsif args[:article_type] == 'fact-check'
-      articles = object.filtered_fact_checks(args)
+    if args[:article_type].blank?
+      limit = context[:current_arguments][:first] || args[:limit]
+      object.filtered_articles(args, limit.to_i, args[:offset].to_i, order, order_type)
+    else
+      articles = nil
+      if args[:article_type] == 'explainer'
+        articles = object.filtered_explainers(args)
+      elsif args[:article_type] == 'fact-check'
+        articles = object.filtered_fact_checks(args)
+      end
+      articles.offset(args[:offset].to_i).order(order => order_type)
     end
-    articles.offset(args[:offset].to_i).order(order => order_type)
   end
 
   field :articles_count, GraphQL::Types::Int, null: true do
@@ -357,18 +374,11 @@ class TeamType < DefaultObject
     argument :imported, GraphQL::Types::Boolean, required: false, camelize: false # Only for fact-checks
     argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
     argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
+    argument :channel, [GraphQL::Types::String, null: true], required: false, camelize: false
   end
 
   def articles_count(**args)
-    count = nil
-    if args[:article_type] == 'explainer'
-      count = object.filtered_explainers(args).count
-    elsif args[:article_type] == 'fact-check'
-      count = object.filtered_fact_checks(args).count
-    elsif args[:article_type].blank?
-      count = object.filtered_explainers(args).count + object.filtered_fact_checks(args).count
-    end
-    count
+    object.team_articles_count(args)
   end
 
   field :api_key, ApiKeyType, null: true do
@@ -402,6 +412,8 @@ class TeamType < DefaultObject
     TeamStatistics.new(object, period, language, platform)
   end
 
+  field :statistics_platforms, [GraphQL::Types::String], null: true, description: 'List of tipline platforms for which we have data.'
+
   field :bot_query, [TiplineSearchResultType], null: true do
     argument :search_text, GraphQL::Types::String, required: true
     argument :threshold, GraphQL::Types::Float, required: false
@@ -428,5 +440,13 @@ class TeamType < DefaultObject
 
     results = object.search_for_similar_articles(search_text, nil, language, settings)
     results.collect{ |result| result.as_tipline_search_result(settings) }.select{ |result| result.should_send_in_language?(language, should_restrict_by_language) }
+  end
+
+  field :webhooks, WebhookType.connection_type, null: true
+
+  def webhooks
+    # We are aware that iterating through bots is not ideal, but since we have few bots, we are making a choice to leave it like this for now
+    webhook_installations = object.team_users.joins(:user).where('users.type' => 'BotUser', 'users.default' => false).select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? && !team_user.user.get_approved }
+    webhook_installations.map(&:user)
   end
 end

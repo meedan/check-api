@@ -377,4 +377,61 @@ class GraphqlController11Test < ActionController::TestCase
     assert_equal pm1.created_at.to_i, response['media_cluster_origin_timestamp']
     assert_equal CheckMediaClusterOrigins::OriginCodes::USER_ADDED, response['media_cluster_origin']
   end
+
+  test "should not crash if workspace doesn't exist" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
+    t.delete
+
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}", random: "123456") {
+          name
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_match /ActiveRecord::RecordNotFound/, @response.body
+  end
+
+  test "should query tipline requests that never received articles and send explainers" do
+    Bot::Smooch.stubs(:send_message_to_user)
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    pm = create_project_media team: t
+    tr_1a = create_tipline_request team_id: t.id, associated: pm
+    Time.stubs(:now).returns(Time.new - 7.days)
+    tr_7a = create_tipline_request team_id: t.id, associated: pm
+    Time.unstub(:now)
+    authenticate_with_user(u)
+    query = "query { project_media(ids: \"#{pm.id}\") { has_tipline_requests_that_never_received_articles, number_of_tipline_requests_that_never_received_articles_by_time } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert data['has_tipline_requests_that_never_received_articles']
+    expected_result = { 1 => 1, 7 => 1, 30 => 2 }.to_json
+    assert_equal expected_result, data['number_of_tipline_requests_that_never_received_articles_by_time'].to_json
+    # Verify send explainers mutation
+    ex = create_explainer team: t
+    pm.explainers << ex
+    ex_item = pm.explainer_items.last
+    Sidekiq::Testing.inline! do
+      query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", dbid: #{ex_item.id}, range: 7 }) { success } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert JSON.parse(@response.body)['data']['sendExplainersToPreviousRequests']['success']
+    end
+    # Test failing mutation
+    Sidekiq::Testing.inline! do
+      query = "mutation sendExplainersToPreviousRequests { sendExplainersToPreviousRequests(input: { clientMutationId: \"1\", dbid: 0, range: 7 }) { success } }"
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert !JSON.parse(@response.body)['data']['sendExplainersToPreviousRequests']['success']
+    end
+  end
 end

@@ -6,9 +6,6 @@ class MutationType < BaseObject
 
   graphql_name "MutationType"
 
-  field :createComment, mutation: CommentMutations::Create
-  field :updateComment, mutation: CommentMutations::Update
-
   field :createSource, mutation: SourceMutations::Create
   field :updateSource, mutation: SourceMutations::Update
 
@@ -152,6 +149,11 @@ class MutationType < BaseObject
 
   field :createExplainerItem, mutation: ExplainerItemMutations::Create
   field :destroyExplainerItem, mutation: ExplainerItemMutations::Destroy
+  field :sendExplainersToPreviousRequests, mutation: ExplainerItemMutations::SendExplainersToPreviousRequests
 
   field :exportList, mutation: ExportMutations::ExportList
+
+  field :destroyWebhook, mutation: WebhookMutations::Destroy
+  field :createWebhook, mutation: WebhookMutations::Create
+  field :updateWebhook, mutation: WebhookMutations::Update
 end

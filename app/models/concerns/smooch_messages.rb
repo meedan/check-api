@@ -104,7 +104,10 @@ module SmoochMessages
     def send_message_for_state(uid, workflow, state, language, pretext = '', event = nil)
       team = Team.find(self.config['team_id'].to_i)
       message = self.get_message_for_state(workflow, state, language, uid).to_s
-      message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
+      if team.get_shorten_outgoing_urls
+        message = self.replace_placeholders(uid, message)
+        message = UrlRewriter.shorten_and_utmize_urls(message, team.get_outgoing_urls_utm_code)
+      end
       text = [pretext, message].reject{ |part| part.blank? }.join("\n\n")
       if self.is_v2?
         if self.should_ask_for_language_confirmation?(uid)
@@ -191,11 +194,16 @@ module SmoochMessages
     def save_message_later_and_reply_to_user(message, app_id, send_message = true, type = 'default_requests')
       self.save_message_later(message, app_id, type)
       workflow = self.get_workflow(message['language'])
-      uid = message['authorId']
-      team = Team.find(self.config['team_id'].to_i)
-      text = workflow['smooch_message_smooch_bot_message_confirmed'].to_s
-      text = UrlRewriter.shorten_and_utmize_urls(text, team.get_outgoing_urls_utm_code) if team.get_shorten_outgoing_urls
-      self.send_message_to_user(uid, text) if send_message && !workflow.nil?
+      if send_message && !workflow.nil?
+        uid = message['authorId']
+        team = Team.find(self.config['team_id'].to_i)
+        text = workflow['smooch_message_smooch_bot_message_confirmed'].to_s
+        if team.get_shorten_outgoing_urls
+          text = self.replace_placeholders(uid, text)
+          text = UrlRewriter.shorten_and_utmize_urls(text, team.get_outgoing_urls_utm_code)
+        end
+        self.send_message_to_user(uid, text)
+      end
     end
 
     def message_hash(message)
@@ -549,6 +557,8 @@ module SmoochMessages
     def reply_to_request_with_custom_message(request, message)
       data = request.smooch_data
       team = Team.find_by_id(request.team_id)
+      now = Time.now.to_i
+      request.update_columns(first_manual_response_at: (request.first_manual_response_at > 0 ? request.first_manual_response_at : now), last_manual_response_at: now)
       self.send_custom_message_to_user(team, request.tipline_user_uid, data['received'], message, request.language)
     end
 
@@ -567,6 +577,21 @@ module SmoochMessages
     def min_number_of_words_for_tipline_long_text
       # Define a min number of words to create a media
       CheckConfig.get('min_number_of_words_for_tipline_long_text') || CheckConfig.get('min_number_of_words_for_tipline_submit_shortcut', 10, :integer)
+    end
+
+    def replace_placeholders(uid, text)
+      # Method build to contain multiple placeholders.
+      # To add a new placeholder, simply add a new key and include the replacement value in the replacements array.
+      keys = ['{{message_id}}']
+      if keys.any? { |substring| text.include?(substring) }
+        team_id = self.config['team_id'].to_i
+        external_id = TiplineMessage.where(team_id: team_id, uid: uid, direction: 'incoming', state: 'received').last&.external_id
+        replacements = { '{{message_id}}' => external_id.to_s }
+        replacements.each do |old, new|
+          text.gsub!(old, new)
+        end
+      end
+      text
     end
   end
 end

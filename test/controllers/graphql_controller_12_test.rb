@@ -407,18 +407,22 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal [fc.id], data.collect{ |edge| edge['node']['dbid'] }
   end
 
-  test "should get team articles (all)" do
+  test "should get all team articles" do
     Sidekiq::Testing.fake!
     authenticate_with_user(@u)
     pm = create_project_media team: @t
     cd = create_claim_description project_media: pm
-    create_fact_check claim_description: cd, tags: ['foo', 'bar']
-    create_explainer team: @t
-    query = "query { team(slug: \"#{@t.slug}\") { articles_count } }"
+    create_fact_check claim_description: cd, title: 'Foo'
+    sleep 1
+    create_explainer team: @t, title: 'Test'
+    sleep 1
+    create_explainer team: @t, title: 'Bar'
+    query = "query { team(slug: \"#{@t.slug}\") { articles(first: 2, sort: \"title\", sort_type: \"asc\") { edges { node { ... on Explainer { title }, ... on FactCheck { title } } } }, articles_count } }"
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    team = JSON.parse(@response.body)['data']['team']
-    assert_equal 2, team['articles_count']
+    data = JSON.parse(@response.body)['data']
+    assert_equal 3, data.dig('team', 'articles_count')
+    assert_equal ['Bar', 'Foo'], data.dig('team', 'articles', 'edges').collect{ |node| node.dig('node', 'title') }
   end
 
   test "should create api key" do
@@ -698,6 +702,7 @@ class GraphqlController12Test < ActionController::TestCase
                 set_tags: ["science", "science", "#science"],
                 set_status: "verified",
                 set_claim_description: "Claim #1.",
+                set_original_claim: "",
                 set_fact_check: {
                   title: "Title #1",
                   language: "en",
@@ -741,7 +746,7 @@ class GraphqlController12Test < ActionController::TestCase
 
     t = create_team
     p = create_project team: t
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
 
     assert_not_nil pm
 
@@ -803,7 +808,7 @@ class GraphqlController12Test < ActionController::TestCase
     t.settings[:languages] << 'pt'
     t.save!
     p = create_project team: t
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
     c = create_claim_description project_media: pm
     fc_1 = create_fact_check claim_description: c
 
@@ -866,7 +871,7 @@ class GraphqlController12Test < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
 
     t = create_team
-    pm = create_project_media team: t, set_original_claim: url
+    pm = ProjectMedia.create!(team: t, set_original_claim: url)
     cd = create_claim_description project_media: pm
     fc = create_fact_check claim_description: cd
 
@@ -901,5 +906,152 @@ class GraphqlController12Test < ActionController::TestCase
     end
     assert_response 400
     assert_equal 'This item already exists', JSON.parse(@response.body).dig('errors', 0, 'message')
+  end
+
+  test "should get annotations count" do
+    admin_user = create_user is_admin: true
+    t = create_team
+    p = create_project team: t
+    pm = create_project_media project: p
+    create_tag annotated: pm
+    create_tag annotated: pm
+    authenticate_with_user(admin_user)
+
+    query = %{
+      query {
+        project_media(ids: "#{pm.id},#{p.id}") {
+          annotations_count(annotation_type: "tag")
+        }
+      }
+    }
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    annotations_count = JSON.parse(@response.body)['data']['project_media']['annotations_count']
+    assert_equal 2, annotations_count
+  end
+
+  test "should return fact_check in team articles query when filtered by channel" do
+    # Create three fact-checks with different channel values, query for two (manual and imported)
+    pm1 = create_project_media team: @t
+    cd1 = create_claim_description(project_media: pm1)
+    create_fact_check(claim_description: cd1, channel: "manual", trashed: false)
+  
+    pm2 = create_project_media team: @t
+    cd2 = create_claim_description(project_media: pm2)
+    create_fact_check(claim_description: cd2, channel: "api", trashed: false)
+
+    pm3 = create_project_media team: @t
+    cd3 = create_claim_description(project_media: pm3)
+    create_fact_check(claim_description: cd3, channel: "imported", trashed: false)
+
+    authenticate_with_user(@u)
+
+    query = <<-GRAPHQL
+      query {
+        team(slug: "#{@t.slug}") {
+          articles(article_type: "fact-check", channel: ["manual","imported"]) {
+            edges {
+              node {
+                ... on FactCheck {
+                  dbid
+                  channel
+                }
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    articles = JSON.parse(@response.body)['data']['team']['articles']['edges']
+    articles.each do |edge|
+      assert_match /manual|imported/, edge['node']['channel']
+    end
+  end
+
+  test "should create explainer with default channel via GraphQL mutation" do
+    # When a regular user creates an explainer without an explicit channel,
+    # the Article concern callback should set it to "manual".
+    authenticate_with_user(@u)
+    query = <<-GRAPHQL
+      mutation {
+        createExplainer(input: {
+          title: "GraphQL Explainer Default",
+          description: "Test description",
+          url: "http://test.com",
+          language: "en"
+        }) {
+          explainer {
+            dbid
+            channel
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success
+    result = JSON.parse(@response.body)['data']['createExplainer']['explainer']
+    assert_equal "manual", result["channel"]
+  end
+
+  test "should create fact_check with explicit channel via GraphQL mutation" do
+    authenticate_with_user(@u)
+    # Create a project media and claim description for the FactCheck
+    pm = create_project_media(team: @t)
+    cd = create_claim_description(project_media: pm)
+
+    query = <<-GRAPHQL
+      mutation {
+        createFactCheck(input: {
+          title: "GraphQL FactCheck Explicit",
+          summary: "Test summary",
+          language: "en",
+          url: "http://test.com",
+          channel: "zapier",
+          claim_description_id: #{cd.id}
+        }) {
+          fact_check {
+            dbid
+            channel
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success, @response.body
+    result = JSON.parse(@response.body)['data']['createFactCheck']['fact_check']
+    assert_equal "zapier", result["channel"]
+  end
+
+  test "should create explainer with api channel when created by Bot" do
+    t = create_team
+    a = ApiKey.create!
+    b = create_bot_user api_key_id: a.id
+    create_team_user team: t, user: b
+    authenticate_with_token(a)
+
+    query = <<-GRAPHQL
+      mutation {
+        createExplainer(input: {
+          title: "GraphQL Explainer Default",
+          description: "Test description",
+          url: "http://test.com",
+          language: "en"
+        }) {
+          explainer {
+            dbid
+            channel
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    result = JSON.parse(@response.body)['data']['createExplainer']['explainer']
+    explainer = Explainer.find(result['dbid'])
+
+    assert_instance_of BotUser, explainer.user
+    assert_equal "api", result["channel"]
   end
 end

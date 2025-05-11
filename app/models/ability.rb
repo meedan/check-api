@@ -67,6 +67,9 @@ class Ability
       obj.team_id == @context_team.id || obj.feed.team_id == @context_team.id
     end
     can [:create, :update, :read, :destroy], ApiKey, :team_id => @context_team.id
+    can :destroy, [Dynamic, DynamicAnnotation::Field] do |obj|
+      obj.team.present? && obj.team == @context_team
+    end
   end
 
   def editor_perms
@@ -93,7 +96,7 @@ class Ability
     end
     can [:create, :update, :read, :destroy], [Account, Source, TiplineNewsletter, TiplineResource, TiplineRequest], :team_id => @context_team.id
     can [:cud], AccountSource, source: { team: { team_users: { team_id: @context_team.id }}}
-    %w(annotation comment dynamic task tag).each do |annotation_type|
+    %w(annotation dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id
       end
@@ -135,7 +138,7 @@ class Ability
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], [Dynamic, Annotation], { annotation_type: 'metadata' }
-    %w(annotation comment dynamic task tag).each do |annotation_type|
+    %w(annotation dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id && !obj.annotated_is_trashed?
       end

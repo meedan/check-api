@@ -22,6 +22,7 @@ module TeamAssociations
     has_many :tipline_newsletters
     has_many :tipline_requests, as: :associated
     has_many :explainers, dependent: :destroy
+    has_many :claim_descriptions
     has_many :api_keys
 
     has_annotations
@@ -50,6 +51,10 @@ module TeamAssociations
       bots << bot.id if bot.get_team_author_id == self.id
     end
     BotUser.where(id: bots.uniq)
+  end
+
+  def bot_users
+    self.team_bots_created
   end
 
   def recent_projects

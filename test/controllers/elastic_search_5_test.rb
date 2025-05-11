@@ -14,6 +14,7 @@ class ElasticSearch5Test < ActionController::TestCase
   end
 
   test "should match secondary items and show items based on show_similar option" do
+    RequestStore.store[:skip_cached_field_update] = false
     t = create_team
     parent = create_project_media team: t, disable_es_callbacks: false
     child_1 = create_project_media team: t, quote: 'child_media a', disable_es_callbacks: false
@@ -73,7 +74,7 @@ class ElasticSearch5Test < ActionController::TestCase
     m = create_claim_media
     Sidekiq::Testing.inline! do
       pm = create_project_media project: p, media: m, disable_es_callbacks: false
-      c = create_comment annotated: pm, disable_es_callbacks: false
+      t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
       id = pm.id
       m.destroy
       assert_equal 0, ProjectMedia.where(media_id: id).count
@@ -93,7 +94,7 @@ class ElasticSearch5Test < ActionController::TestCase
     Sidekiq::Testing.inline! do
       with_versioning do
         pm = create_project_media project: p, disable_es_callbacks: false
-        c = create_comment annotated: pm, disable_es_callbacks: false
+        t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
         sleep 1
         result = $repository.find(get_es_id(pm))
         p.destroy

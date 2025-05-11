@@ -1,32 +1,62 @@
 namespace :check do
   namespace :migrate do
-    task index_fc_url_and_cd_context_search_fields: :environment do
+    def parse_args(args)
+      output = {}
+      return output if args.blank?
+      args.each do |a|
+        arg = a.split('&')
+        arg.each do |pair|
+          key, value = pair.split(':')
+          output.merge!({ key => value })
+        end
+      end
+      output
+    end
+    # bundle exec rails check:migrate:index_fact_check_fields['slug:team_slug&batch_size:batch_size']
+    task index_fact_check_fields: :environment do |_t, args|
       # This rake task to index the following fields
-      # 1) claim_description_context
-      # 2) fact_check_url
+      # 1) claim_description [content, context]
+      # 2) fact_check [title, summary, url, language]
       started = Time.now.to_i
+      data_args = parse_args args.extras
+      batch_size = data_args['batch_size'] || 500
+      batch_size = batch_size.to_i
+      # Add team condition
+      slug = data_args['slug']
+      team_condition = {}
+      if slug.blank?
+        last_team_id = Rails.cache.read('check:migrate:index_fact_check_fields:team_id') || 0
+      else
+        last_team_id = 0
+        team_condition = { slug: slug }
+      end
       index_alias = CheckElasticSearchModel.get_index_alias
       client = $repository.client
-      last_team_id = Rails.cache.read('check:migrate:index_new_search_fields:team_id') || 0
-      Team.where('id > ?', last_team_id).find_each do |team|
-        team.project_medias.find_in_batches(:batch_size => 1000) do |pms|
+      Team.where('id > ?', last_team_id).where(team_condition).find_each do |team|
+        team.claim_descriptions
+        .select(
+          'claim_descriptions.id, claim_descriptions.project_media_id as pm_id, claim_descriptions.description, claim_descriptions.context,
+          fact_checks.title, fact_checks.summary, fact_checks.url, fact_checks.language'
+          )
+        .joins(:project_media)
+        .joins(:fact_check)
+        .find_in_batches(:batch_size => batch_size) do |items|
           es_body = []
-          ids = pms.map(&:id)
-          ProjectMedia.select('project_medias.id as id, fc.url as url, cd.context as context')
-          .where(id: ids)
-          .joins("INNER JOIN claim_descriptions cd ON project_medias.id = cd.project_media_id")
-          .joins("INNER JOIN fact_checks fc ON cd.id = fc.claim_description_id")
-          .find_in_batches(:batch_size => 1000) do |items|
-            print '.'
-            items.each do |item|
-              doc_id = Base64.encode64("ProjectMedia/#{item['id']}")
-              fields = { 'fact_check_url' => item['url'], 'claim_description_context' => item['context'] }
-              es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
-            end
+          items.each do |item|
+            doc_id = Base64.encode64("ProjectMedia/#{item['pm_id']}")
+            fields = {
+              'claim_description_content' => item['description'],
+              'claim_description_context' => item['context'],
+              'fact_check_title' => item['title'],
+              'fact_check_summary' => item['summary'],
+              'fact_check_url' => item['url'],
+              'fact_check_languages' => [item['language']]
+            }
+            es_body << { update: { _index: index_alias, _id: doc_id, retry_on_conflict: 3, data: { doc: fields } } }
           end
           client.bulk body: es_body unless es_body.blank?
         end
-        Rails.cache.write('check:migrate:index_new_search_fields:team_id', team.id)
+        Rails.cache.write('check:migrate:index_fact_check_fields:team_id', team.id) if slug.blank?
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."

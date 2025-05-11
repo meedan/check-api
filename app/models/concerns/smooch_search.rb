@@ -103,7 +103,20 @@ module SmoochSearch
     end
 
     def parse_search_results_from_alegre(results, limit, published_only, after = nil, feed_id = nil, team_ids = nil)
-      pms = reject_temporary_results(results).sort_by{ |a| [a[1][:model] != Bot::Alegre::ELASTICSEARCH_MODEL ? 1 : 0, a[1][:score]] }.to_h.keys.reverse.collect{ |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
+      # Example for "results":
+      # results = {
+      #   2 => {
+      #     score: 0.75,
+      #     context: { 'team_id' => 1, 'project_media_id' => 2, 'has_custom_id' => true, 'field' => 'claim_description_content|report_visual_card_title', 'temporary_media' => false, 'contexts_count' => 14 },
+      #     model: Bot::Alegre::FILIPINO_MODEL
+      #   },
+      #   3 => {
+      #     score: 0.85,
+      #     context: { 'team_id' => 1, 'project_media_id' => 2, 'has_custom_id' => true, 'field' => 'claim_description_content|report_visual_card_title', 'temporary_media' => false, 'contexts_count' => 4 },
+      #     model: Bot::Alegre::MEAN_TOKENS_MODEL
+      #   }
+      # }
+      pms = Bot::Alegre.return_prioritized_matches(reject_temporary_results(results)).to_h.keys.collect { |id| Relationship.confirmed_parent(ProjectMedia.find_by_id(id)) }
       filter_search_results(pms, after, feed_id, team_ids, published_only).uniq(&:id).first(limit)
     end
 
@@ -302,6 +315,22 @@ module SmoochSearch
         id = self.get_id_from_send_response(response)
         redis.rpush("smooch:search:#{uid}", id) unless id.blank?
       end
+    end
+
+    def send_explainer_to_user(ex_item_id, tipline_request_id)
+      tipline_request = TiplineRequest.find_by_id(tipline_request_id.to_i)
+      report = ExplainerItem.find_by_id(ex_item_id.to_i)&.explainer&.as_tipline_search_result
+      return if tipline_request.nil? || report.nil?
+      data = tipline_request.smooch_data
+      uid = tipline_request.tipline_user_uid
+      self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
+      no_body = (tipline_request.platform == 'Facebook Messenger' && !report.url.blank?)
+      Rails.logger.info "[Smooch Bot] Sending explainer report to user #{uid} for ExplainerItem with ID #{ex_item_id}..."
+      last_smooch_response = self.send_message_to_user(uid, report.text(nil, no_body), {}, false, true, 'report')
+      # FIXME: We should rename the WhatsApp template "fact_check_report" to "article_report"
+      self.save_smooch_response(last_smooch_response, tipline_request.associated, data['received'], 'fact_check_report', tipline_request.language, { explainer_item_id: ex_item_id })
+      # Set smooch_report_sent_at to Time.now to prevent re-sending for the same request
+      tipline_request.update_column(:smooch_report_sent_at, Time.now.to_i) if last_smooch_response.present?
     end
 
     def user_received_search_result(message)

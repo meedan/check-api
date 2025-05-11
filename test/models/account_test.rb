@@ -368,8 +368,8 @@ class AccountTest < ActiveSupport::TestCase
   test "should send specific token to parse url on pender" do
     params1 = { url: random_url }
     params2 = { url: random_url }
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params1, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "profile", "author_name" => "Default token"}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params2, 'specific_token').returns({"type" => "media","data" => {"url" => params2[:url], "type" => "profile", "author_name" => "Specific token"}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params1, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => params1[:url], "type" => "profile", "author_name" => "Default token"}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), params2, 'specific_token', nil).returns({"type" => "media","data" => {"url" => params2[:url], "type" => "profile", "author_name" => "Specific token"}})
 
     a = Account.new url: params1[:url]
     a.valid?
@@ -387,9 +387,8 @@ class AccountTest < ActiveSupport::TestCase
     t = create_team
     a = create_account team: t
 
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
-
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     a.refresh_account = true
     a.save!

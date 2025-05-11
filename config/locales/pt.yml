@@ -73,6 +73,7 @@ pt:
         description: 'Conclusão: a fonte da informação é um fake'
   errors:
     messages:
+      extension_whitelist_error: Não há suporte para esta extensão
       invalid_password: Senha inválida
       invalid_qrcode: Código de validação inválido
       extension_white_list_error: 'não pode ser do tipo %{extension}, os tipos permitidos são: %{allowed_types}'
@@ -93,9 +94,10 @@ pt:
       invalid_project_media_channel_value: Desculpe, não há suporte para este valor do canal.
       invalid_project_media_channel_update: Desculpe, não possível atualizar o valor do canal
       invalid_project_media_archived_value: Desculpe, não há suporte para o valor arquivado
-      invalid_fact_check_language_value: Desculpe, não há suporte para o valor do idioma
+      invalid_article_language_value: Desculpe, não há suporte para o valor do idioma
       fact_check_empty_title_and_summary: Desculpe, você deve preencher o título ou o resumo
       invalid_feed_saved_search_value: deve pertencer a um espaço de trabalho que faz parte deste feed
+      platform_allowed_values_error: 'não pode ser do tipo %{type}, os tipos permitidos são: %{allowed_types}'
   activerecord:
     models:
       link: Link
@@ -146,6 +148,10 @@ pt:
           attributes:
             slug:
               slug_format: aceita apenas letras, números e hífens
+        user:
+          attributes:
+            email:
+              taken: Por favor, verifique seu e-mail. Se não existir uma conta com esse e-mail, você deve ter recebido um e-mail de confirmação. Se você não receber um e-mail de confirmação, tente redefinir sua senha ou entre em contato com nosso suporte.
       messages:
         record_invalid: "%{errors}"
         improbable_phone: é um número inválido
@@ -283,6 +289,7 @@ pt:
   media_exists: Esse item já existe
   source_exists: Essa fonte já existe
   email_exists: Por favor, verifique seu e-mail. Se não existir uma conta com esse e-mail, você deve ter recebido um e-mail de confirmação. Se você não receber um e-mail de confirmação, tente redefinir sua senha ou entre em contato com nosso suporte.
+  error_password_not_strong: "Requisito de complexidade não atendido. O comprimento deve ser de 8 a 70 caracteres e incluir pelo menos: 1 letra maiúscula, 1 letra minúscula, 1 dígito e 1 caractere especial"
   banned_user: Desculpe, sua conta foi banida do %{app_name}. Por favor, entre em contato com a equipe de suporte se você achar que isso é um erro.
   devise:
     mailer:
@@ -306,7 +313,7 @@ pt:
         ignore: Se você não quiser aceitar o convite, ignore este e-mail.
         app_team: "Espaço de trabalho do %{app} "
     failure:
-      unconfirmed: Por favor, consulte seu e-mail para verificar sua conta.
+      unconfirmed: Por favor, verifique seu e-mail. Se não existir uma conta com esse e-mail, você deve ter recebido um e-mail de confirmação. Se você não receber um e-mail de confirmação, tente redefinir sua senha ou entre em contato com nosso suporte.
   user_invitation:
     invited: "%{email} já foi convidado(a) a esse espaço de trabalho."
     member: "%{email} já é membro."
@@ -421,6 +428,24 @@ pt:
       approved_text: Sua solicitação para participar do espaço de trabalho %{team} no %{app_name} foi aprovada! Agora você pode ir para %{url} e começar a contribuir.
       rejected_title: Solicitação rejeitada
       rejected_text: Desculpe, mas sua solicitação para participar do espaço de trabalho %{team} no %{app_name} não foi aprovada.
+    feed_invitation:
+      subject: "%{user} convidou sua organização para contribuir para %{feed}"
+      hello: Olá %{email}
+      body: "%{name}, %{email} convidou sua organização para contribuir para um Feed Compartilhado do Check"
+      view_button: Ver convite
+    updated_terms:
+      subject: Atualização dos Termos de Serviço do Check
+      hello: Olá %{name}
+      title: Atualização dos Termos de Serviço
+      body: Nós atualizamos os Termos de Serviços para usuários(as) do Check. Estamos enviando esta notificação a todas as contas do Check. A continuação do uso do Check após a atualização constitui a aceitação de nossos Termos de Serviço atualizados.
+      term_button: Termos de Serviço
+      more_info: Este é um aviso legal obrigatório enviado a todas as pessoas que utilizam o Check, mesmo àquelas que cancelaram a assinatura de nossos anúncios opcionais.
+    export_list:
+      hello: Olá %{name}
+      subject: Exportação de Dados do Check
+      body: Sua exportação de dados do Check solicitada está disponível para download.
+      button_label: Baixar Exportação
+      footer: Este link de download expirará em %{date}.
   mail_security:
     device_subject: 'Alerta de segurança: Novo login no %{app_name} pelo %{browser} em %{platform}'
     ip_subject: 'Alerta de segurança: Login novo ou incomum no %{app_name}'
@@ -562,8 +587,8 @@ pt:
   bot_request_url_invalid: A URL do bot é inválida
   smooch_facebook_success: |
       Sucesso!
-      Sua Tipline agora está conectada ao Facebook Messenger.
-      Todas as mensagens recebidas por esta página do Facebook será gerenciada pela Tipline.
+      Sua Tipline agora está conectada ao perfil.
+      Todas as mensagens recebidas por este perfil serão gerenciadas pela Tipline.
       Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
   smooch_twitter_success: |
       Sucesso!
@@ -571,6 +596,7 @@ pt:
       Todas as mensagens recebidas por este perfil do Twitter será gerenciada pela Tipline.
       Por favor, recarregue a página de configurações da sua Tipline para ver as novas mudanças.
   must_select_exactly_one_facebook_page: Por favor, selecione a página exata do Facebook que você deseja integrar com a Tipline.
+  invalid_facebook_authdata: Não foi possível autenticar sua conta do Facebook. Por favor, entre em contato com nossa equipe de suporte.
   invalid_task_answer: Formato de resposta de tarefa inválido
   team_rule_name: Um nome exclusivo que identifica o que esta regra faz
   team_rule_project_ids: Aplicar à pasta
@@ -698,7 +724,7 @@ pt:
   project_cant_have_children_if_has_parent: Esta pasta possui uma pasta ascendente, por isso não pode ter uma pasta descendente
   project_group_must_be_under_same_team: A coleção deve estar sob o mesmo espaço de trabalho
   unique_default_folder_per_team: O espaço de trabalho deve possuir apenas uma pasta padrão
-  center_is_not_part_of_another_cluster: O núcleo deste conjunto não pode fazer parte de outro conjunto
+  center_is_not_part_of_another_cluster: O núcleo deste grupo não pode fazer parte de outro grupo
   smooch_bot_message_subscribed: |-
       Atualmente, você está inscrito(a) em nosso boletim informativo.
 
@@ -721,6 +747,12 @@ pt:
   send_every_must_be_a_list_of_days_of_the_week: deve ser uma lista de dias da semana.
   send_on_must_be_in_the_future: não pode estar no passado.
   cant_delete_default_folder: Não é possível excluir a pasta padrão
+  explainer_and_item_must_be_from_the_same_team: O explicativo e o item devem ser do mesmo espaço de trabalho.
+  cant_apply_article_to_item_if_article_is_in_the_trash: Este artigo está na lixeira, portanto não pode ser adicionado a este grupo de mídia. Primeiro, restaure-o da lixeira.
+  shared_feed_imported_media_already_exist: |-
+      Não há mídia eligível para ser importada para o seu espaço de trabalho.
+      A mídia selecionada para importação já existe no seu espaço de trabalho nos seguintes itens:
+      %{urls}
   info:
     messages:
       sent_to_trash_by_rule: 'O item "%{item_title}" foi enviado para a lixeira, seguindo uma regra automática.'

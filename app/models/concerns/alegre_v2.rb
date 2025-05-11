@@ -193,8 +193,10 @@ module AlegreV2
     end
 
     def delete_package(project_media, field, params={}, quiet=false)
+      type = get_type(project_media)
+      return if type.blank?
       generic_package(project_media, field).merge(
-        self.send("delete_package_#{get_type(project_media)}", project_media, field, params)
+        self.send("delete_package_#{type}", project_media, field, params)
       ).merge(
         quiet: quiet
       ).merge(params)
@@ -251,8 +253,10 @@ module AlegreV2
     end
 
     def store_package(project_media, field, params={})
+      type = get_type(project_media)
+      return if type.nil?
       generic_package(project_media, field).merge(
-        self.send("store_package_#{get_type(project_media)}", project_media, field, params)
+        self.send("store_package_#{type}", project_media, field, params)
       )
     end
 
@@ -399,6 +403,7 @@ module AlegreV2
     def get_items(project_media, field, confirmed=false, initial_threshold=nil)
       relationship_type = confirmed ? Relationship.confirmed_type : Relationship.suggested_type
       type = get_type(project_media)
+      return {} if type == 'text' && Bot::Alegre::BAD_TITLE_REGEX =~ project_media.send(field)
       if initial_threshold.nil?
         initial_threshold = get_threshold_for_query(type, project_media, confirmed)
       end
@@ -413,6 +418,7 @@ module AlegreV2
 
     def get_items_async(project_media, field, confirmed=false, initial_threshold=nil)
       type = get_type(project_media)
+      return {} if type == 'text' && Bot::Alegre::BAD_TITLE_REGEX =~ project_media.send(field)
       if initial_threshold.nil?
         initial_threshold = get_threshold_for_query(type, project_media, confirmed)
       end

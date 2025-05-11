@@ -388,10 +388,10 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should have annotations" do
     pm = create_project_media
-    c1 = create_comment annotated: pm
-    c2 = create_comment annotated: pm
-    c3 = create_comment annotated: nil
-    assert_equal [c1.id, c2.id].sort, pm.reload.annotations('comment').map(&:id).sort
+    m1 = create_metadata annotated: pm
+    m2 = create_metadata annotated: pm
+    m3 = create_metadata annotated: nil
+    assert_equal [m1.id, m2.id].sort, pm.reload.annotations('metadata').map(&:id).sort
   end
 
   test "should get permissions" do
@@ -401,7 +401,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     p = create_project team: t
     pm = create_project_media project: p, current_user: u
     perm_keys = [
-      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia", "create Comment",
+      "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia",
       "create Tag", "create Task", "create Dynamic", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia",
       "embed ProjectMedia", "lock Annotation","update Status", "administer Content", "create Relationship",
       "create Source", "update Source", "create ClaimDescription"
@@ -655,7 +655,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
       with_current_user_and_team(u, t) do
         pm = create_project_media project: p, media: m, user: u
-        c = create_comment annotated: pm
+        t = create_task annotated: pm
         tg = create_tag annotated: pm
         f = create_flag annotated: pm
         s = pm.annotations.where(annotation_type: 'verification_status').last.load
@@ -798,26 +798,26 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should create link and account using team pender key" do
     t = create_team
-    p = create_project(team: t)
+    create_project(team: t)
     Team.stubs(:current).returns(t)
 
     url1 = random_url
     author_url1 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => url1, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url1 }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => url1, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
     url2 = random_url
     author_url2 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url2 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url2 }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => url2, "type" => "item", "title" => "Specific token", "author_url" => author_url2}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url2 }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => author_url2, "type" => "profile", "title" => "Specific token", "author_name" => 'Author with specific token'}})
 
-    pm = ProjectMedia.create url: url1
+    pm = ProjectMedia.create url: url1, team: t
     assert_equal 'Default token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with default token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 
     t.set_pender_key = 'specific_token'; t.save!
 
-    pm = ProjectMedia.create! url: url2
+    pm = ProjectMedia.create! url: url2, team: t
     assert_equal 'Specific token', ProjectMedia.find(pm.id).media.metadata['title']
     assert_equal 'Author with specific token', ProjectMedia.find(pm.id).media.account.metadata['author_name']
 
@@ -832,11 +832,11 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     pm = create_project_media media: l, project: create_project(team: t)
 
     author_url1 = random_url
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
 
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Specific token", "author_url" => author_url1}})
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, 'specific_token').returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Specific token", "author_url" => author_url1}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: author_url1 }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => author_url1, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     assert pm.media.metadata['title'].blank?
 
@@ -920,9 +920,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       new_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
       new_tt.save!
       new_tt2 = new.annotations('task').select{|t| t.team_task_id == tt2.id}.last
-      # add comments
-      old_c = create_comment annotated: old
-      new_c = create_comment annotated: new
       # assign to
       s = new.last_verification_status_obj
       s = Dynamic.find(s.id)
@@ -939,7 +936,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       data = { "main" => CheckChannels::ChannelCodes::FETCH }
       assert_equal data, new.channel
       assert_equal 3, new.annotations('tag').count
-      assert_equal 2, new.annotations('comment').count
       # Verify replace log entry
       replace_v = Version.from_partition(new.team_id).where(event_type: 'replace_projectmedia', associated_id: new.id, associated_type: 'ProjectMedia')
       assert_not_empty replace_v
@@ -960,7 +956,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     url = 'https://twitter.com/meedan/status/1321600654750613505'
     response = {"type" => "media","data" => {"url" => url, "type" => "item", "metrics" => {"facebook"=> {"reaction_count" => 2, "comment_count" => 5, "share_count" => 10, "comment_plugin_count" => 0 }}}}
 
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url }, CheckConfig.get('pender_key')).returns(response)
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url }, CheckConfig.get('pender_key'), nil).returns(response)
     pm = create_project_media media: nil, url: url
     assert_equal response['data']['metrics'], JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))
     PenderClient::Request.unstub(:get_medias)

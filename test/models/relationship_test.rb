@@ -34,6 +34,7 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should update sources_count and parent_id for confirmed item" do
+    RequestStore.store[:skip_cached_field_update] = false
     setup_elasticsearch
     t = create_team
     pm_s = create_project_media team: t, disable_es_callbacks: false
@@ -99,16 +100,16 @@ class RelationshipTest < ActiveSupport::TestCase
   end
 
   test "should verify versions and ES for bulk-update" do
+    setup_elasticsearch
+    RequestStore.store[:skip_cached_field_update] = false
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
     with_versioning do
-      setup_elasticsearch
-      RequestStore.store[:skip_cached_field_update] = false
-      t = create_team
-      u = create_user
-      create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
         # Try to create an item with title that trigger a version metadata error(CV2-2910)
         pm_s = create_project_media team: t, quote: "Rahul Gandhi's interaction with Indian?param:test&Journalists Association in London"
-        pm_t1 = create_project_media team: t
+        pm_t1 = create_project_media team: t, disable_es_callbacks: false
         pm_t2 = create_project_media team: t
         pm_t3 = create_project_media team: t
         r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
@@ -157,18 +158,16 @@ class RelationshipTest < ActiveSupport::TestCase
 
   test "should bulk-reject similar items" do
     RequestStore.store[:skip_cached_field_update] = false
+    setup_elasticsearch
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
     with_versioning do
-      setup_elasticsearch
-      t = create_team
-      u = create_user
-      p = create_project team: t
-      p2 = create_project team: t
-      create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
-        pm_s = create_project_media team: t, project: p
-        pm_t1 = create_project_media team: t, project: p
-        pm_t2 = create_project_media team: t, project: p
-        pm_t3 = create_project_media team: t, project: p
+        pm_s = create_project_media team: t
+        pm_t1 = create_project_media team: t
+        pm_t2 = create_project_media team: t
+        pm_t3 = create_project_media team: t
         r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
         r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
         r3 = create_relationship source_id: pm_s.id, target_id: pm_t3.id, relationship_type: Relationship.suggested_type
@@ -275,14 +274,6 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_equal 1, pm2.explainer_items.count
   end
 
-  test "should not attempt to update source count if source does not exist" do
-    r = create_relationship relationship_type: Relationship.confirmed_type
-    r.source.delete
-    assert_nothing_raised do
-      r.reload.send :update_counters
-    end
-  end
-
   test "should cache the name of who created a similar item" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
@@ -326,9 +317,17 @@ class RelationshipTest < ActiveSupport::TestCase
     target = create_project_media team: t
     r = nil
     assert_difference 'Relationship.count' do
-      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type, { user_id: u.id })
+      r = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
-    assert_equal u.id, r.user_id
+    # should update options if relationship already exists
+    assert_nil r.model
+    another_source = create_project_media team: t
+    r2 = nil
+    assert_no_difference 'Relationship.count' do
+      r2 = Relationship.create_unless_exists(another_source.id, target.id, Relationship.confirmed_type, { model: 'elasticsearch' })
+    end
+    assert_equal r, r2
+    assert_equal 'elasticsearch', r2.model
     r2 = nil
     assert_no_difference 'Relationship.count' do
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
@@ -341,7 +340,7 @@ class RelationshipTest < ActiveSupport::TestCase
     assert_no_difference 'Relationship.count' do
       r2 = Relationship.create_unless_exists(source.id, target.id, Relationship.confirmed_type)
     end
-    assert_nil Relationship.where(id: r.id).last
+    assert_equal r.id, r2.id
     assert_equal Relationship.confirmed_type, r2.relationship_type
     Relationship.any_instance.stubs(:save!).raises(ActiveRecord::RecordNotUnique)
     target = create_project_media team: t
@@ -427,5 +426,25 @@ class RelationshipTest < ActiveSupport::TestCase
     create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_equal 4, Relationship.where(source_id: pm1.id, relationship_type: Relationship.suggested_type).count
     assert_equal 0, Relationship.where(source_id: pm2.id, relationship_type: Relationship.suggested_type).count
+  end
+
+  test "should update media origin when bulk-accepting suggestion" do
+    Sidekiq::Testing.inline!
+    RequestStore.store[:skip_cached_field_update] = false
+    u = create_user is_admin: true
+    b = create_bot_user login: 'alegre'
+
+    # Create suggestion
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    r = create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.suggested_type, user: b
+    assert_equal CheckMediaClusterOrigins::OriginCodes::AUTO_MATCHED, pm2.media_cluster_origin
+
+    # Accept suggestion
+    with_current_user_and_team u, t do
+      Relationship.bulk_update([r.id], { source_id: pm1.id, action: 'accept' }, t)
+    end
+    assert_equal CheckMediaClusterOrigins::OriginCodes::USER_MATCHED, pm2.media_cluster_origin
   end
 end

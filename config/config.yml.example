@@ -281,6 +281,7 @@ development: &default
   header_file_video_max_size_check: 10 # Megabytes, should be less than WhatsApp limit
   url_max_size: 2000
   min_number_of_words_for_tipline_long_text: 10
+  short_request_timeout: 20
 
   # Session
   #

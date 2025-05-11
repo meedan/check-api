@@ -65,12 +65,12 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should have annotations" do
     s = create_source
-    c1 = create_comment
-    c2 = create_comment
-    c3 = create_comment
-    s.add_annotation(c1)
-    s.add_annotation(c2)
-    assert_equal [c1.id, c2.id].sort, s.reload.annotations.where(annotation_type: 'comment').map(&:id).sort
+    t1 = create_tag
+    t2 = create_tag
+    t3 = create_tag
+    s.add_annotation(t1)
+    s.add_annotation(t2)
+    assert_equal [t1.id, t2.id].sort, s.reload.annotations.where(annotation_type: 'tag').map(&:id).sort
   end
 
   test "should get user from callback" do
@@ -99,13 +99,13 @@ class SourceTest < ActiveSupport::TestCase
     u3 = create_user
     s1 = create_source
     s2 = create_source
-    c1 = create_comment annotator: u1, annotated: s1
-    c2 = create_comment annotator: u1, annotated: s1
-    c3 = create_comment annotator: u1, annotated: s1
-    c4 = create_comment annotator: u2, annotated: s1
-    c5 = create_comment annotator: u2, annotated: s1
-    c6 = create_comment annotator: u3, annotated: s2
-    c7 = create_comment annotator: u3, annotated: s2
+    d1 = create_dynamic_annotation annotator: u1, annotated: s1
+    d2 = create_dynamic_annotation annotator: u1, annotated: s1
+    d3 = create_dynamic_annotation annotator: u1, annotated: s1
+    d4 = create_dynamic_annotation annotator: u2, annotated: s1
+    d5 = create_dynamic_annotation annotator: u2, annotated: s1
+    d6 = create_dynamic_annotation annotator: u3, annotated: s2
+    d7 = create_dynamic_annotation annotator: u3, annotated: s2
     assert_equal [u1, u2].sort, s1.collaborators.sort
     assert_equal [u3].sort, s2.collaborators.sort
   end
@@ -449,9 +449,8 @@ class SourceTest < ActiveSupport::TestCase
     s = create_source team: t
     s.accounts << a
 
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key')).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
-
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token').returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Default token", "author_name" => 'Author with default token'}})
+    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: a.url, refresh: '1' }, 'specific_token', nil).returns({"type" => "media","data" => {"url" => a.url, "type" => "profile", "title" => "Author with specific token", "author_name" => 'Author with specific token'}})
 
     s.refresh_accounts = true
     s.save!

@@ -22,16 +22,13 @@ class Relationship < ApplicationRecord
   before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
   after_create :move_to_same_project_as_main, prepend: true
-  after_create :update_counters, prepend: true
-  after_update :reset_counters, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
-  after_save :move_explainers_to_source, if: proc { |r| r.is_confirmed? }
+  after_save :move_explainers_to_source, :apply_status_to_target, if: proc { |r| r.is_confirmed? }
   before_destroy :archive_detach_to_list
-  after_destroy :update_counters, prepend: true
   after_destroy :turn_on_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
-  after_commit :update_counter_and_elasticsearch, on: [:create, :update]
-  after_commit :update_counters, :destroy_elasticsearch_relation, on: :destroy
+  after_commit :update_elasticsearch_data, on: [:create, :update]
+  after_commit :destroy_elasticsearch_relation, on: :destroy
 
   has_paper_trail on: [:create, :update, :destroy], if: proc { |x| User.current.present? && !x.is_being_copied? }, versions: { class_name: 'Version' }
 
@@ -99,13 +96,6 @@ class Relationship < ApplicationRecord
     { source: 'parent', target: 'child' }
   end
 
-  def self.propagate_inversion(ids, source_id)
-    Relationship.where(id: ids.split(',')).each do |r|
-      r.source_id = source_id
-      r.send(:reset_counters)
-    end
-  end
-
   def is_being_copied?
     (self.source && self.source.is_being_copied) || self.is_being_copied
   end
@@ -138,20 +128,6 @@ class Relationship < ApplicationRecord
     self.send(method).to_json == Relationship.suggested_type.to_json && self.relationship_type.to_json == Relationship.confirmed_type.to_json
   end
 
-  def update_counters
-    return if self.is_default? || self.source.nil? || self.target.nil?
-    source = self.source
-    target = self.target
-
-    target.skip_check_ability = true
-    target.sources_count = Relationship.where(target_id: target.id).where('relationship_type = ?', Relationship.confirmed_type.to_yaml).count
-    target.save!
-
-    source.skip_check_ability = true
-    source.targets_count = Relationship.where(source_id: source.id).where('relationship_type = ? OR relationship_type = ?', Relationship.confirmed_type.to_yaml, Relationship.suggested_type.to_yaml).count
-    source.save!
-  end
-
   def create_or_update_parent_id
     self.source_id
   end
@@ -159,9 +135,10 @@ class Relationship < ApplicationRecord
   def self.create_unless_exists(source_id, target_id, relationship_type, options = {})
     # Verify that the target is not part of another source; in this case, we should return the existing relationship.
     r = Relationship.where(target_id: target_id).where.not(source_id: source_id).last
+    r.update_options(options) unless r.nil?
     return r unless r.nil?
     # otherwise we should get the existing relationship based on source, target and type
-    r = Relationship.where(source_id: source_id, target_id: target_id).where('relationship_type = ?', relationship_type.to_yaml).last
+    r = Relationship.where(source_id: source_id, target_id: target_id).last
     exception_message = nil
     exception_class = nil
     if r.nil?
@@ -196,6 +173,12 @@ class Relationship < ApplicationRecord
         exception_message = e.message
         exception_class = e.class.name
       end
+    else
+      if r.relationship_type != relationship_type && relationship_type == Relationship.confirmed_type
+        r.relationship_type = relationship_type
+        r.save!
+      end
+      r.update_options(options)
     end
     if r.nil?
       Rails.logger.error("[Relationship::create_unless_exists] returning nil: source_id #{source_id}, target_id #{target_id}, relationship_type #{relationship_type}.")
@@ -203,6 +186,39 @@ class Relationship < ApplicationRecord
       CheckSentry.notify(error_msg, source_id: source_id, target_id: target_id, relationship_type: relationship_type, options: options, exception_message: exception_message, exception_class: exception_class)
     end
     r
+  end
+
+  def self.replicate_status_to_children(pm_id, uid, tid)
+    pm = ProjectMedia.find_by_id(pm_id)
+    return if pm.nil?
+    User.current = User.where(id: uid).last
+    Team.current = Team.where(id: tid).last
+    status = pm.last_verification_status
+    pm.source_relationships.confirmed.find_each do |relationship|
+      self.sync_statuses(relationship.target, status)
+    end
+    User.current = nil
+    Team.current = nil
+  end
+
+  def self.sync_statuses(item, status)
+    s = item.last_status_obj
+    unless s.nil? || s.status == status
+      s.status = status
+      s.skip_trashed_validation = true
+      s.bypass_status_publish_check = true
+      s.save!
+    end
+  end
+
+  def update_options(options)
+    # should update options if exists and at least on field has a value
+    if self.model.blank? && !options.values.compact.empty?
+      options.each do |key, value|
+        self.send("#{key}=", value) if self.respond_to?("#{key}=")
+      end
+      self.save!
+    end
   end
 
   protected
@@ -251,18 +267,8 @@ class Relationship < ApplicationRecord
     end
   end
 
-  def reset_counters
-    if (self.source_id_before_last_save && self.source_id_before_last_save != self.source_id) || (self.target_id_before_last_save && self.target_id_before_last_save != self.target_id)
-      previous = Relationship.new(source_id: self.source_id_before_last_save, target_id: self.target_id_before_last_save)
-      previous.update_counters
-      current = Relationship.new(source_id: self.source_id, target_id: self.target_id)
-      current.update_counters
-    end
-  end
-
   def propagate_inversion
     if self.source_id_before_last_save == self.target_id && self.target_id_before_last_save == self.source_id
-      ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
       report = Dynamic.where(annotation_type: 'report_design', annotated_type: 'ProjectMedia', annotated_id: self.source_id_before_last_save).last
       unless report.nil?
         report.annotated_id = self.source_id
@@ -280,7 +286,6 @@ class Relationship < ApplicationRecord
       end
       self.source&.clear_cached_fields
       self.target&.clear_cached_fields
-      Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)
     end
   end
 
@@ -340,8 +345,7 @@ class Relationship < ApplicationRecord
     set_unmatched_field(1)
   end
 
-  def update_counter_and_elasticsearch
-    self.update_counters
+  def update_elasticsearch_data
     self.update_elasticsearch_parent
   end
 
@@ -378,6 +382,10 @@ class Relationship < ApplicationRecord
         .update_all(associated_id: self.source_id)
       end
     end
+  end
+
+  def apply_status_to_target
+    Relationship.sync_statuses(self.target, self.source.last_verification_status)
   end
 
   def destroy_same_suggested_item
