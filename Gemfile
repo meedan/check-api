@@ -37,7 +37,7 @@ gem 'webmock'
 gem 'pender_client', git: 'https://github.com/meedan/pender-client.git', ref: 'a57737b'
 gem 'lograge'
 gem 'rails', '~> 6.1.7'
-gem 'pg', '~> 1.1'
+gem 'pg', '~> 1.4'
 gem "json", ">= 2.3.0"
 gem 'turbolinks'
 gem 'cancancan', '~> 1.10'
