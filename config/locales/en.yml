@@ -172,6 +172,7 @@ en:
         too_short:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
+  error_team_bot_event_is_not_valid: This bot event is invalid.
   slack_webhook_format_wrong: Invalid Slack webhook. Expecting the format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
   invalid_media_item: The item is invalid

@@ -53,6 +53,10 @@ module TeamAssociations
     BotUser.where(id: bots.uniq)
   end
 
+  def bot_users
+    self.team_bots_created
+  end
+
   def recent_projects
     self.projects
   end

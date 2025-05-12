@@ -97,7 +97,7 @@ module CheckCachedFields
           update_pg: options[:update_pg],
           pg_field_name: options[:pg_field_name],
         }
-        self.delay_for(1.second).index_cached_field_bg(index_options, value, name, obj.class.name, obj.id)
+        self.delay_for(1.second, { queue: 'esqueue' }).index_cached_field_bg(index_options, value, name, obj.class.name, obj.id)
       end
     end
 
@@ -137,7 +137,7 @@ module CheckCachedFields
           pg_field_name: options[:pg_field_name],
           recalculate: options[:recalculate],
         }
-        self.delay_for(1.second).update_cached_field_bg(name, ids, callback, index_options, obj.class.name, obj.id, event)
+        self.delay_for(1.second, { queue: 'esqueue' }).update_cached_field_bg(name, ids, callback, index_options, obj.class.name, obj.id, event)
       end
     end
 

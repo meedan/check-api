@@ -274,7 +274,14 @@ class TeamType < DefaultObject
     data
   end
 
-  field :saved_searches, SavedSearchType.connection_type, null: true
+  field :saved_searches, SavedSearchType.connection_type, null: true do
+    argument :list_type, GraphQL::Types::String, required: true, camelize: false
+  end
+
+  def saved_searches(list_type:)
+    object.saved_searches.where(list_type: list_type)
+  end
+
   field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
   field :feed_teams, FeedTeamType.connection_type, null: false
@@ -371,15 +378,7 @@ class TeamType < DefaultObject
   end
 
   def articles_count(**args)
-    count = nil
-    if args[:article_type] == 'explainer'
-      count = object.filtered_explainers(args).count
-    elsif args[:article_type] == 'fact-check'
-      count = object.filtered_fact_checks(args).count
-    elsif args[:article_type].blank?
-      count = object.filtered_explainers(args).count + object.filtered_fact_checks(args).count
-    end
-    count
+    object.team_articles_count(args)
   end
 
   field :api_key, ApiKeyType, null: true do
@@ -441,5 +440,13 @@ class TeamType < DefaultObject
 
     results = object.search_for_similar_articles(search_text, nil, language, settings)
     results.collect{ |result| result.as_tipline_search_result(settings) }.select{ |result| result.should_send_in_language?(language, should_restrict_by_language) }
+  end
+
+  field :webhooks, WebhookType.connection_type, null: true
+
+  def webhooks
+    # We are aware that iterating through bots is not ideal, but since we have few bots, we are making a choice to leave it like this for now
+    webhook_installations = object.team_users.joins(:user).where('users.type' => 'BotUser', 'users.default' => false).select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? && !team_user.user.get_approved }
+    webhook_installations.map(&:user)
   end
 end
