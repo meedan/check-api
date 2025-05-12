@@ -16,6 +16,19 @@ class ExplainerItem < ApplicationRecord
     { explainer_title: self.explainer.title }.to_json
   end
 
+  def send_explainers_to_previous_requests(range)
+    ids = ProjectMedia.where(id: self.project_media.related_items_ids).pluck(:id) # Including child items
+    # Keep track of UIDs so we don't send the same explainer to the same user more than once.
+    # We could use GROUP BY or DISTINCT ON, but it would be more complex for the average number of requests we have.
+    uids = []
+    TiplineRequest.no_articles_sent(ids).where(created_at: Time.now.ago(range.days)..Time.now).find_each do |tipline_request|
+      uid = tipline_request.tipline_user_uid
+      next if uids.include?(uid)
+      uids << uid
+      Bot::Smooch.delay_for(1.second, { queue: 'smooch_priority', retry: 0 }).send_explainer_to_user(self.id, tipline_request.id)
+    end
+  end
+
   private
 
   def same_team
