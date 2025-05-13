@@ -14,16 +14,15 @@ class ProjectMedia < ApplicationRecord
   include ProjectMediaEmbed
   include ValidationsHelper
   include ProjectMediaPrivate
-  include ProjectMediaCachedFields
+  # include ProjectMediaCachedFields
   include ProjectMediaBulk
   include ProjectMediaSourceAssociations
   include ProjectMediaGetters
 
-  validates_presence_of :media, :team, :project
+  validates_presence_of :media, :team
 
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
-  validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validate :custom_channel_format, :archived_in_allowed_values
   validate :channel_in_allowed_values, on: :create
   validate :channel_not_changed, on: :update
@@ -31,7 +30,7 @@ class ProjectMedia < ApplicationRecord
   validates_inclusion_of :title_field, in: ['custom_title', 'pinned_media_id', 'claim_title', 'fact_check_title'], allow_nil: true, allow_blank: true
   validates_presence_of :custom_title, if: proc { |pm| pm.title_field == 'custom_title' }
 
-  before_validation :set_team_id, :set_channel, :set_project_id, on: :create
+  before_validation :set_team_id, :set_channel, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]

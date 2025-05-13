@@ -3,7 +3,7 @@ class Team < ApplicationRecord
 
   # These two callbacks must be in the top
   after_create :create_team_partition
-  before_destroy :delete_created_bots, :remove_is_default_project_flag
+  before_destroy :delete_created_bots
 
   include SearchHelper
   include ValidationsHelper
@@ -29,7 +29,7 @@ class Team < ApplicationRecord
   before_validation :normalize_slug, on: :create
   before_validation :set_default_language, on: :create
   before_validation :set_default_fieldsets, on: :create
-  after_create :add_user_to_team, :add_default_bots_to_team, :create_default_folder
+  after_create :add_user_to_team, :add_default_bots_to_team
   after_update :archive_or_restore_projects_if_needed
   after_update :update_reports_if_labels_changed
   after_update :update_reports_if_languages_changed
@@ -56,17 +56,12 @@ class Team < ApplicationRecord
     self.team_users.where(status: 'member').permissioned(self).count
   end
 
-  def projects_count
-    self.projects.permissioned.count
-  end
-
   def as_json(_options = {})
     {
       dbid: self.id,
       id: self.team_graphql_id,
       avatar: self.avatar,
       name: self.name,
-      projects: self.recent_projects,
       slug: self.slug
     }
   end
@@ -176,12 +171,7 @@ class Team < ApplicationRecord
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end
 
-  def default_folder
-    self.projects.where(is_default: true).last
-  end
-
   def self.archive_or_restore_projects_if_needed(archived, team_id)
-    Project.where({ team_id: team_id }).update_all({ archived: archived })
     Source.where({ team_id: team_id }).update_all({ archived: archived })
     ProjectMedia.where(team_id:team_id).update_all({ archived: archived })
   end

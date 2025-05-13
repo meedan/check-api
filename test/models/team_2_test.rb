@@ -187,14 +187,6 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal 2, t.members_count
   end
 
-  test "should return number of projects" do
-    t = create_team
-    create_project team: t
-    create_project team: t
-    # should add default folder to total count
-    assert_equal 3, t.projects_count
-  end
-
   test "should have a JSON version" do
     assert_kind_of Hash, create_team.as_json
   end

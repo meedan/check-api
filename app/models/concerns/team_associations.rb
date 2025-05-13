@@ -4,7 +4,6 @@ module TeamAssociations
   extend ActiveSupport::Concern
 
   included do
-    has_many :projects, dependent: :destroy
     has_many :accounts # No "dependent: :destroy" because they will be anonymized
     has_many :team_users, dependent: :destroy
     has_many :users, through: :team_users
@@ -14,7 +13,6 @@ module TeamAssociations
     has_many :project_medias, dependent: :destroy
     has_many :tipline_resources, dependent: :destroy
     has_many :saved_searches, dependent: :destroy
-    has_many :project_groups, dependent: :destroy
     has_many :feed_teams, dependent: :destroy
     has_many :feeds, through: :feed_teams
     has_many :monthly_team_statistics # No "dependent: :destroy" because we want to retain statistics
@@ -55,10 +53,6 @@ module TeamAssociations
 
   def bot_users
     self.team_bots_created
-  end
-
-  def recent_projects
-    self.projects
   end
 
   def spam

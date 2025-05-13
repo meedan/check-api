@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_19_100047) do
+ActiveRecord::Schema.define(version: 2025_05_13_111137) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -522,15 +522,6 @@ ActiveRecord::Schema.define(version: 2025_04_19_100047) do
     t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
   end
 
-  create_table "project_groups", id: :serial, force: :cascade do |t|
-    t.string "title", null: false
-    t.text "description"
-    t.integer "team_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["team_id"], name: "index_project_groups_on_team_id"
-  end
-
   create_table "project_media_requests", force: :cascade do |t|
     t.bigint "project_media_id", null: false
     t.bigint "request_id", null: false
@@ -551,7 +542,6 @@ ActiveRecord::Schema.define(version: 2025_04_19_100047) do
   end
 
   create_table "project_medias", id: :serial, force: :cascade do |t|
-    t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
     t.integer "source_id"
@@ -571,34 +561,10 @@ ActiveRecord::Schema.define(version: 2025_04_19_100047) do
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"
-    t.index ["project_id"], name: "index_project_medias_on_project_id"
     t.index ["source_id"], name: "index_project_medias_on_source_id"
     t.index ["team_id", "archived", "sources_count"], name: "index_project_medias_on_team_id_and_archived_and_sources_count"
     t.index ["unmatched"], name: "index_project_medias_on_unmatched"
     t.index ["user_id"], name: "index_project_medias_on_user_id"
-  end
-
-  create_table "projects", id: :serial, force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "team_id"
-    t.integer "project_group_id"
-    t.string "title"
-    t.boolean "is_default", default: false
-    t.text "description"
-    t.string "lead_image"
-    t.string "token"
-    t.integer "assignments_count", default: 0
-    t.integer "privacy", default: 0, null: false
-    t.integer "archived", default: 0
-    t.text "settings"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["id"], name: "index_projects_on_id"
-    t.index ["is_default"], name: "index_projects_on_is_default"
-    t.index ["privacy"], name: "index_projects_on_privacy"
-    t.index ["project_group_id"], name: "index_projects_on_project_group_id"
-    t.index ["team_id"], name: "index_projects_on_team_id"
-    t.index ["token"], name: "index_projects_on_token", unique: true
   end
 
   create_table "relationships", id: :serial, force: :cascade do |t|
@@ -759,6 +725,7 @@ ActiveRecord::Schema.define(version: 2025_04_19_100047) do
     t.integer "lock_version", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "last_active_at"
     t.index ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true
     t.index ["type"], name: "index_team_users_on_type"
     t.index ["user_id", "team_id", "status"], name: "index_team_users_on_user_id_and_team_id_and_status"
