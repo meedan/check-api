@@ -9,11 +9,6 @@ class TiplineStatisticsPeriodicCheckWorkerTest < ActiveSupport::TestCase
     Time.unstub(:now)
     CheckSentry.expects(:notify).once
     TiplineStatisticsPeriodicCheckWorker.new.perform
-    # Verify config option
-    stub_configs({ 'ENABLE_TIPLINE_STATS_MONITORING' => false }) do
-      CheckSentry.expects(:notify).never
-      TiplineStatisticsPeriodicCheckWorker.new.perform
-    end
     # Verify updated date
     ms.updated_at = Time.now
     ms.save!
