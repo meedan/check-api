@@ -70,11 +70,13 @@ class GraphqlController7Test < ActionController::TestCase
 
   test "should update last_active_at from users before a graphql request" do
     assert_nil @u.last_active_at
+    assert_nil @tu.last_active_at
     query = "query { user(id: #{@u.id}) { last_active_at } }"
-    post :create, params: { query: query }
+    post :create, params: { query: query, team: @t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['user']['last_active_at']
     assert_not_nil @u.reload.last_active_at
+    assert_not_nil @tu.reload.last_active_at
   end
 
   test "should not get Smooch integrations if not permissioned" do
