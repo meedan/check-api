@@ -121,11 +121,8 @@ class QueryType < BaseObject
   end
 
   def project_media(ids:)
-    objid, pid, tid = ids.split(",").map(&:to_i)
+    objid, tid = ids.split(",").map(&:to_i)
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-    project = Project.where(id: pid, team_id: tid).last
-    pid = project.nil? ? 0 : project.id
-    Project.current = project
     objid = ProjectMedia.belonged_to_project(objid, pid, tid) || 0
     GraphqlCrudOperations.load_if_can(ProjectMedia, objid, context)
   end
@@ -143,24 +140,6 @@ class QueryType < BaseObject
 
     tids = Team.current ? [Team.current.id] : User.current.team_ids
     ProjectMedia.where(media_id: m.id, team_id: tids)
-  end
-
-  field :project,
-        ProjectType,
-        description:
-          "Information about a project, given its id and its team id",
-        null: true do
-    argument :id, GraphQL::Types::String, required: false
-    argument :ids, GraphQL::Types::String, required: false
-  end
-
-  def project(id: nil, ids: nil)
-    pid = id.to_i unless id.blank?
-    pid, tid = ids.split(",").map(&:to_i) unless ids.blank?
-    tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-    project = Project.where(id: pid, team_id: tid).last
-    id = project.nil? ? 0 : project.id
-    GraphqlCrudOperations.load_if_can(Project, id, context)
   end
 
   field :search,
@@ -232,7 +211,6 @@ class QueryType < BaseObject
     task
     tag_text
     bot_user
-    project_group
     saved_search
     feed
     request

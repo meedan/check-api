@@ -14,7 +14,7 @@ class ProjectMedia < ApplicationRecord
   include ProjectMediaEmbed
   include ValidationsHelper
   include ProjectMediaPrivate
-  # include ProjectMediaCachedFields
+  include ProjectMediaCachedFields
   include ProjectMediaBulk
   include ProjectMediaSourceAssociations
   include ProjectMediaGetters
@@ -54,14 +54,6 @@ class ProjectMedia < ApplicationRecord
     user_callback(value)
   end
 
-  def project_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
-
-  def project_group
-    self.project&.project_group
-  end
-
   def slack_params
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
@@ -77,7 +69,6 @@ class ProjectMedia < ApplicationRecord
       description: Bot::Slack.to_slack(self.description, false),
       url: self.full_url,
       status: Bot::Slack.to_slack(current_status[0]['label']),
-      project: Bot::Slack.to_slack(self.project&.title),
       button: I18n.t("slack.fields.view_button", **{
         type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CheckConfig.get('app_name')
       })
