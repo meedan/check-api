@@ -190,7 +190,7 @@ module Api
         user = User.current
         if user
           now = Time.now
-          yesterday = now.ago(1.day).to_i
+          yesterday = 1.day.ago.to_i
           user.update_column(:last_active_at, now) if user.last_active_at.to_i < yesterday
           # set last_active_at based on team
           unless @context_team.nil?
