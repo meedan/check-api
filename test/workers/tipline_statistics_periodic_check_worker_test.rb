@@ -4,9 +4,10 @@ class TiplineStatisticsPeriodicCheckWorkerTest < ActiveSupport::TestCase
   test "should notify Sentry for missing tipline statistics updates in last 24 hours" do
     t = create_team
     # Verify both created/updated dates
-    Time.stubs(:now).returns(Time.new - 3.days)
-    ms = create_monthly_team_statistic team: t
-    Time.unstub(:now)
+    ms = nil
+    travel_to 3.days.ago do
+      ms = create_monthly_team_statistic team: t
+    end
     CheckSentry.expects(:notify).once
     TiplineStatisticsPeriodicCheckWorker.new.perform
     # Verify updated date
