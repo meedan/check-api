@@ -101,20 +101,18 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create media" do
-    p = create_project team: @team
     url = random_url
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    assert_graphql_create('project_media', { project_id: p.id, url: url, media_type: 'Link' })
+    assert_graphql_create('project_media', { url: url, media_type: 'Link' })
     # create claim report
-    assert_graphql_create('project_media', { project_id: p.id, media_type: 'Claim', quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
+    assert_graphql_create('project_media', { media_type: 'Claim', quote: 'media quote', quote_attributions: {name: 'source name'}.to_json })
   end
 
   test "should create project media" do
-    p = create_project team: @team
     m = create_valid_media
-    assert_graphql_create('project_media', { media_id: m.id, project_id: p.id })
+    assert_graphql_create('project_media', { media_id: m.id })
   end
 
   test "should read project media flag and source" do
@@ -129,15 +127,14 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project medias" do
     authenticate_with_user
-    p = create_project team: @team
-    tt = create_team_task team_id: @team.id, project_ids: [p.id], order: 2
-    tt2 = create_team_task team_id: @team.id, project_ids: [p.id], order: 1
+    tt = create_team_task team_id: @team.id, order: 2
+    tt2 = create_team_task team_id: @team.id, order: 1
     pm = create_project_media project: p
     u = create_user name: 'The Annotator'
     create_team_user user: u, team: @team
     tg = create_tag annotated: pm, annotator: u
     tg.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { dbid } } }, tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"tag\") { edges { node { ... on Tag { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { tasks { edges { node { dbid } } }, tasks_count, published, language, language_code, last_status_obj {dbid}, annotations(annotation_type: \"tag\") { edges { node { ... on Tag { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -160,9 +157,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project medias with team_id as argument" do
     authenticate_with_token
-    p = create_project team: @team
-    pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid} } }"
+    pm = create_project_media team: @team
+    query = "query GetById { project_media(ids: \"#{pm.id},#{@team.id}\") { published, language, last_status_obj {dbid} } }"
     post :create, params: { query: query }
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
@@ -172,19 +168,17 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project media and fallback to media" do
     authenticate_with_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p2
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
     m2 = create_valid_media
-    pm3 = create_project_media project: p, media: m2
+    pm3 = create_project_media team: t, media: m2
 
-    query = "query GetById { project_media(ids: \"#{pm3.id},#{p.id}\") { dbid } }"
+    query = "query GetById { project_media(ids: \"#{pm3.id}\") { dbid } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
 
-    query = "query GetById { project_media(ids: \"#{m2.id},#{p.id}\") { dbid } }"
+    query = "query GetById { project_media(ids: \"#{m2.id}\") { dbid } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
@@ -193,50 +187,6 @@ class GraphqlControllerTest < ActionController::TestCase
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-  end
-
-  test "should read project media versions to find previous project" do
-    with_versioning do
-      authenticate_with_user
-      p = create_project team: @team
-      p2 = create_project team: @team
-      pm = create_project_media project: p
-      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-      post :create, params: { query: query, team: @team.slug }
-      assert_response :success
-      assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-      pm.project_id = p2.id
-      pm.save!
-      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-      post :create, params: { query: query, team: @team.slug }
-      assert_response :success
-      assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-    end
-  end
-
-  test "should create project" do
-    assert_graphql_create('project', { title: 'test', description: 'test' })
-  end
-
-  test "should read project with team_id as argument" do
-    authenticate_with_token
-    p = create_project team: @team
-    pm = create_project_media project: p
-    query = "query GetById { project(ids: \"#{p.id},#{@team.id}\") { title, description} }"
-    post :create, params: { query: query }
-    assert_response :success
-    assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
-    assert_equal p.description, JSON.parse(@response.body)['data']['project']['description']
-  end
-
-  test "should update project" do
-    assert_graphql_update('project', :title, 'foo', 'bar')
-  end
-
-  test "should destroy project" do
-    Sidekiq::Testing.inline! do
-      assert_graphql_destroy('project')
-    end
   end
 
   test "should create source" do
@@ -266,8 +216,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create tag" do
-    p = create_project team: @team
-    pm = create_project_media project: p
+    pm = create_project_media team: @team
     assert_graphql_create('tag', { tag: 'egypt', annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s })
   end
 
@@ -327,39 +276,20 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should not get projects from teams marked as deleted" do
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-
-    authenticate_with_user(u)
-    query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
-    post :create, params: { query: query }
-    assert_response :success
-    assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
-
-    t.inactive = true; t.save
-    query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
-    post :create, params: { query: query }
-    assert_response :success
-  end
-
   test "should not get project medias from teams marked as deleted" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
 
     authenticate_with_user(u)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { dbid } }"
     post :create, params: { query: query }
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
 
     t.inactive = true; t.save
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { dbid } }"
     post :create, params: { query: query }
     assert_response :success
   end
@@ -370,33 +300,18 @@ class GraphqlControllerTest < ActionController::TestCase
       authenticate_with_user(u)
       t = create_team slug: 'team'
       create_team_user user: u, team: t
-      p = create_project team: t
       m = create_media
       pm = nil
       with_current_user_and_team(u, t) do
-        pm = create_project_media project: p, media: m
+        pm = create_project_media team: t, media: m
         create_tag annotated: pm, annotator: u
         create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'metadata'
       end
-      query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
+      query = "query GetById { project_media(ids: \"#{pm.id}\") { last_status, domain, pusher_channel, account { url }, dbid, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
       post :create, params: { query: query, team: 'team' }
       assert_response :success
       assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
     end
-  end
-
-  test "should get permissions for child objects" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p
-    create_tag annotated: pm, annotator: u
-    query = "query GetById { project(id: \"#{p.id}\") { project_medias(first: 1) { edges { node { permissions } } } } }"
-    post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['project_medias']['edges'][0]['node']['permissions']
   end
 
   test "should get team with statuses" do
@@ -414,38 +329,12 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name }, public_team { name } } }"
+    pm = create_project_media team: t
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { team { name }, public_team { name } } }"
     post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['public_team']['name']
-  end
-
-  test "should run few queries to get project data" do
-    n = 18 # Number of media items to be created
-    m = 5 # Number of annotations per media
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    with_current_user_and_team(u, t) do
-      n.times do
-        pm = create_project_media project: p
-        m.times {  create_tag annotated: pm, annotator: u }
-      end
-    end
-
-    query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
-
-    assert_queries 380, '<' do
-      post :create, params: { query: query, team: 'team' }
-    end
-
-    assert_response :success
-    assert_equal n, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].size
   end
 
   test "should get node from global id for search" do
@@ -461,33 +350,14 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
     authenticate_with_user(u)
     path = File.join(Rails.root, 'test', 'data', 'rails.png')
     file = Rack::Test::UploadedFile.new(path, 'image/png')
-    query = 'mutation create { createProjectMedia(input: { media_type: "UploadedImage", url: "", quote: "", clientMutationId: "1", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { media_type: "UploadedImage", url: "", quote: "", clientMutationId: "1" }) { project_media { id } } }'
     assert_difference 'UploadedImage.count' do
       post :create, params: { query: query, file: file }
     end
     assert_response :success
-  end
-
-  test "should get ordered medias" do
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_user user: u, team: t
-    p = create_project team: t
-    pms = []
-    5.times do
-      pms << create_project_media(project: p)
-    end
-    query = "query { project(id: \"#{p.id}\") { project_medias(first: 4) { edges { node { dbid } } } } }"
-
-    post :create, params: { query: query, team: 'team' }
-
-    assert_response :success
-    assert_equal pms.last.dbid, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].first['node']['dbid']
   end
 
   test "should get language from header" do
@@ -512,40 +382,13 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create dynamic annotation" do
-    p = create_project team: @team
-    pm = create_project_media project: p
+    pm = create_project_media team: @team
     fields = { geolocation_viewport: '', geolocation_location: { type: "Feature", properties: { name: "Dingbat Islands" } , geometry: { type: "Point", coordinates: [125.6, 10.1] } }.to_json }.to_json
     assert_graphql_create('dynamic', { set_fields: fields, annotated_type: 'ProjectMedia', annotated_id: pm.id.to_s, annotation_type: 'geolocation' })
   end
 
-  test "should not query invalid type" do
-    u = create_user
-    p = create_project team: @team
-    create_team_user user: u, team: @team, role: 'admin'
-    authenticate_with_user(u)
-    id = Base64.encode64("InvalidType/#{p.id}")
-    query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
-    post :create, params: { query: query, team: @team.slug }
-    assert_response 400
-  end
-
-  test "should destroy project and assign related items to destination project" do
-    u = create_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    pm = create_project_media project: p
-    create_team_user user: u, team: @team, role: 'admin'
-    authenticate_with_user(u)
-    query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{p.graphql_id}\", items_destination_project_id: #{p2.id} }) { deletedId } }"
-    post :create, params: { query: query, team: @team.slug }
-    assert_response :success
-    assert_equal p.graphql_id, JSON.parse(response.body)['data']['destroyProject']['deletedId']
-    assert_equal p2.id, pm.reload.project_id
-  end
-
   test "should reset password if email is found" do
     u = create_user email: 'foo@bar.com'
-    p = create_project team: @team
     create_team_user user: u, team: @team, role: 'admin'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, params: { query: query, team: @team.slug }
@@ -554,7 +397,6 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should not reset password if email is not found" do
     u = create_user email: 'test@bar.com'
-    p = create_project team: @team
     create_team_user user: u, team: @team, role: 'admin'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, params: { query: query, team: @team.slug }
@@ -686,10 +528,9 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should get field value and dynamic annotation(s)" do
     authenticate_with_user
-    p = create_project team: @team
-    pm = create_project_media project: p
+    pm = create_project_media team: @team
     a = create_dynamic_annotation annotation_type: 'verification_status', annotated: pm, set_fields: { verification_status_status: 'verified' }.to_json
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { ... on Dynamic { dbid } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { ... on Dynamic { dbid } } } } } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -700,9 +541,8 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should create media with custom field" do
     authenticate_with_user
-    p = create_project team: @team
     fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\\\"syrian_archive_data_id\\\\\":\\\\\"123456\\\\\"}\"}'
-    query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
+    query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '" }) { project_media { id } } }'
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal '123456', ProjectMedia.last.get_annotations('syrian_archive_data').last.load.get_field_value('syrian_archive_data_id')
@@ -769,9 +609,8 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     create_team_user user: u, team: t
-    p = create_project team: t
     2.times do
-      pm = create_project_media project: p, disable_es_callbacks: false
+      pm = create_project_media team: t, disable_es_callbacks: false
       pm.archived = 1
       pm.save!
       sleep 1
@@ -790,8 +629,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
+    pm = create_project_media team: t, disable_es_callbacks: false
     sleep 1
 
     query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'

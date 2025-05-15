@@ -35,7 +35,7 @@ class ProjectMedia < ApplicationRecord
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :move_similar_item, :send_move_to_slack_notification
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.saved_changes.keys.include?('read') }
   after_update :apply_delete_for_ever, if: proc { |pm| pm.saved_change_to_archived? && pm.archived == CheckArchivedFlags::FlagCodes::TRASHED }
   after_destroy :destroy_related_medias

@@ -127,9 +127,8 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
     RequestStore.store[:disable_es_callbacks] = true
-    get :new_claim, params: { email: u.email, team_id: t.id, project_id: p.id, quote: 'Test' }
+    get :new_claim, params: { email: u.email, team_id: t.id, quote: 'Test' }
     RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
@@ -139,8 +138,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    get :new_claim, params: { email: u.email, team_id: t.id, project_id: p.id, quote: 'Test' }
+    get :new_claim, params: { email: u.email, team_id: t.id, quote: 'Test' }
     assert_response 400
     Rails.unstub(:env)
   end
@@ -153,9 +151,8 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
     RequestStore.store[:disable_es_callbacks] = true
-    get :new_link, params: { email: u.email, team_id: t.id, project_id: p.id, url: url }
+    get :new_link, params: { email: u.email, team_id: t.id, url: url }
     RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
@@ -169,8 +166,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    get :new_link, params: { email: u.email, team_id: t.id, project_id: p.id, url: url }
+    get :new_link, params: { email: u.email, team_id: t.id, url: url }
     assert_response 400
     Rails.unstub(:env)
   end
@@ -210,8 +206,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :media_status, params: { pm_id: pm.id, status: 'in_progress' }
     assert_response :success
   end
@@ -224,8 +219,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     Rails.stubs(:env).returns('development')
     get :media_status, params: { pm_id: pm.id, status: 'false' }
     assert_response 400
@@ -240,8 +234,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :new_media_tag, params: { email:u.email, pm_id: pm.id, tag: 'TAG' }
     assert_response :success
   end
@@ -254,8 +247,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     Rails.stubs(:env).returns('development')
     get :new_media_tag, params: { email: u.email, pm_id: pm.id, tag: 'TAG' }
     assert_response 400
@@ -299,8 +291,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :new_task, params: { email: u.email, pm_id: pm.id }
     assert_response :success
   end
@@ -314,8 +305,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :new_task, params: { email: u.email, pm_id: pm.id }
     assert_response 400
     Rails.unstub(:env)
@@ -426,10 +416,9 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm2, team_id: t.id }
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm3, team_id: t.id }
     assert_response 200
@@ -444,10 +433,9 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm2, team_id: t.id }
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm3, team_id: t.id }
     assert_response 400

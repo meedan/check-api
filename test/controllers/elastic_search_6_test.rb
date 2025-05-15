@@ -10,7 +10,6 @@ class ElasticSearch6Test < ActionController::TestCase
     test "should filter by #{field} range" do
       RequestStore.store[:skip_cached_field_update] = false
       t = create_team
-      p = create_project team: t
 
       to = Time.new(2019, 05, 21, 14, 01).strftime("%Y-%m-%d %H:%M")
       query = { range: {"#{field}": {end_time: to}, timezone: "GMT"}}
@@ -20,15 +19,15 @@ class ElasticSearch6Test < ActionController::TestCase
       assert_equal 0, result.medias.count
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))
-      pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
+      pm1 = create_project_media team: t, quote: 'Test A', disable_es_callbacks: false
       sleep 2
 
       Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
-      pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'Test B', disable_es_callbacks: false
       sleep 2
 
       Time.stubs(:now).returns(Time.new(2019, 05, 21, 13, 00))
-      pm3 = create_project_media project: p, quote: 'Test C', disable_es_callbacks: false
+      pm3 = create_project_media team: t, quote: 'Test C', disable_es_callbacks: false
       sleep 2
 
       Time.unstub(:now)
@@ -73,14 +72,13 @@ class ElasticSearch6Test < ActionController::TestCase
     test "should handle inputs when filter by #{field} range" do
       RequestStore.store[:skip_cached_field_update] = false
       t = create_team
-      p = create_project team: t
 
       Time.stubs(:now).returns(Time.new(2019, 05, 19, 13, 00))
-      pm1 = create_project_media project: p, quote: 'claim a', disable_es_callbacks: false
+      pm1 = create_project_media team: t, quote: 'claim a', disable_es_callbacks: false
       sleep 2
 
       Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
-      pm2 = create_project_media project: p, quote: 'claim b', disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'claim b', disable_es_callbacks: false
       sleep 2
       Time.unstub(:now)
 

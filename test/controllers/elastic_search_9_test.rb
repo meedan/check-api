@@ -8,7 +8,6 @@ class ElasticSearch9Test < ActionController::TestCase
 
   test "should filter items by has_article" do
     t = create_team
-    p = create_project team: t
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u ,t) do
@@ -71,7 +70,6 @@ class ElasticSearch9Test < ActionController::TestCase
 
   test "should search for keywords with typos" do
     t = create_team
-    p = create_project team: t
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u ,t) do

@@ -33,13 +33,11 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    m = create_media project_id: p.id
+    m = create_media team: t
     pu = create_user
     pt = create_team private: true
-    p2 = create_project team: pt
     create_team_user user: pu, team: pt, role: 'admin'
-    pm = create_media project_id: p2
+    pm = create_media team: pt
     with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
     assert_raise CheckPermissions::AccessDenied do
       with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }
@@ -56,11 +54,9 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-
     m = nil
     with_current_user_and_team(u, t) do
-      m = create_valid_media project_id: p.id
+      m = create_valid_media team: t
       assert_nothing_raised do
         m.save!
       end
@@ -100,8 +96,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should set pender data for media" do
     t = create_team
-    p = create_project team: t
-    media = create_valid_media project_id: p.id
+    media = create_valid_media team: t
     assert_not_empty media.annotations('metadata')
   end
 
@@ -163,9 +158,8 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     with_current_user_and_team(u, t) do
-      m = create_media project_id: p.id
+      m = create_media team: t
       assert_equal u, m.user
     end
   end
@@ -244,8 +238,7 @@ class MediaTest < ActiveSupport::TestCase
   test "should get media team" do
     m = create_valid_media
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     assert_equal m.team_ids, [t.id]
   end
 
@@ -290,8 +283,7 @@ class MediaTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    m = create_valid_media project_id: p.id
+    m = create_valid_media team: t
     perm_keys = ["read Link", "update Link", "create Task", "destroy Link", "create ProjectMedia", "create Tag", "create Dynamic"].sort
 
     # load permissions as owner
@@ -335,12 +327,11 @@ class MediaTest < ActiveSupport::TestCase
 
   test "should add quote or url for media creations" do
     t = create_team
-    p = create_project team: t
     assert_difference 'Media.count' do
-      create_claim_media url: nil, project_id: p.id
+      create_claim_media url: nil, team: t
     end
     assert_difference 'Media.count' do
-      create_valid_media quote: nil, project_id: p.id
+      create_valid_media quote: nil, team: t
     end
     assert_no_difference 'Media.count' do
       assert_raise ActiveRecord::RecordInvalid do
@@ -351,9 +342,9 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should add title for claim medias" do
-    p = create_project team: create_team
+    t = create_team
     m = create_claim_media quote: 'media quote'
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     assert_equal 'media quote', pm.title
   end
 

@@ -15,8 +15,7 @@ class TagTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'collaborator'
-    p = create_project team: t
-    pm = create_project_media project: p, user: u
+    pm = create_project_media team: t, user: u
     assert_difference 'Tag.length' do
       with_current_user_and_team(u, t) do
         create_tag tag: 'media_tag', annotated: pm, annotator: u
@@ -71,8 +70,7 @@ class TagTest < ActiveSupport::TestCase
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       with_current_user_and_team(u, t) do
         tag = create_tag(tag: 'test', annotated: pm)
         assert_equal 1, tag.versions.count
@@ -123,9 +121,8 @@ class TagTest < ActiveSupport::TestCase
   test "should set annotator if not set" do
     u = create_user
     t = create_team
-    p = create_project team: t
     create_team_user team: t, user: u
-    pm = create_project_media project: p, user: u
+    pm = create_project_media team: t, user: u
     with_current_user_and_team(u, t) do
       t = create_tag annotated: pm, annotator: nil
       assert_equal u, t.annotator
@@ -136,9 +133,8 @@ class TagTest < ActiveSupport::TestCase
     u = create_user
     u2 = create_user
     t = create_team
-    p = create_project team: t
     create_team_user team: t, user: u2
-    pm = create_project_media project: p, user: u2
+    pm = create_project_media team: t, user: u2
 
     with_current_user_and_team(u2, t) do
       t = create_tag annotated: pm, annotator: u
@@ -198,8 +194,7 @@ class TagTest < ActiveSupport::TestCase
 
   test "should not get tag text reference if tag is already a number" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tt = create_tag_text text: 'test', team_id: t.id
     ta = nil
     assert_no_difference 'TagText.count' do
@@ -210,8 +205,7 @@ class TagTest < ActiveSupport::TestCase
 
   test "should get tag text reference if tag is a string" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tt = create_tag_text text: 'test', team_id: t.id
     ta = nil
     assert_no_difference 'TagText.count' do
@@ -230,9 +224,8 @@ class TagTest < ActiveSupport::TestCase
 
   test "should exist only one tag text for duplicated tags of the same team" do
     t = create_team
-    p = create_project team: t
     assert_difference 'TagText.count' do
-      5.times { create_tag(tag: 'test', annotated: create_project_media(project: p)) }
+      5.times { create_tag(tag: 'test', annotated: create_project_media(team: t)) }
     end
   end
 
@@ -261,9 +254,8 @@ class TagTest < ActiveSupport::TestCase
 
   test "should not crash if tag to be updated does not exist" do
     t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     tt1 = create_tag_text team_id: t.id
     tt2 = create_tag_text team_id: t.id
     t1 = create_tag tag: tt1.id, annotated: pm1
@@ -274,9 +266,8 @@ class TagTest < ActiveSupport::TestCase
 
   test "should treat ' tag' and 'tag' as the same tag, and not try to create a new tag" do
     t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
 
     create_tag tag: 'foo', annotated: pm1
 
@@ -287,12 +278,9 @@ class TagTest < ActiveSupport::TestCase
 
   test ":create_project_media_tags should create tags when project media id and tags are present" do
     team = create_team
-    project = create_project team: team
-    pm = create_project_media project: project
-
+    pm = create_project_media team: team
     project_media_id = pm.id
     tags_json = ['one', 'two'].to_json
-
     assert_nothing_raised do
       Tag.create_project_media_tags(project_media_id, tags_json)
     end
@@ -311,12 +299,9 @@ class TagTest < ActiveSupport::TestCase
 
   test ":create_project_media_tags should not try to create duplicate tags" do
     Sidekiq::Testing.fake!
-
     team = create_team
-    project = create_project team: team
-    pm = create_project_media project: project
+    pm = create_project_media team: team
     Tag.create_project_media_tags(pm.id, ['one', 'one', '#one'].to_json)
-
     tags = pm.reload.annotations('tag')
     tag_text_id = tags.last.data['tag']
     tag_text = TagText.find(tag_text_id).text
@@ -327,13 +312,10 @@ class TagTest < ActiveSupport::TestCase
 
   test ":create_project_media_tags should be able to add an existing tag to a new project media" do
     Sidekiq::Testing.fake!
-
     team = create_team
-    project = create_project team: team
-    pm = create_project_media project: project
+    pm = create_project_media team: team
     Tag.create_project_media_tags(pm.id, ['one'].to_json)
-
-    pm2 = create_project_media project: project
+    pm2 = create_project_media team: team
     Tag.create_project_media_tags(pm2.id, ['#one'].to_json)
 
     assert_equal 1, pm2.reload.annotations('tag').count

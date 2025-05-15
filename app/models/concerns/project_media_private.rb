@@ -74,18 +74,6 @@ module ProjectMediaPrivate
     errors.add(:base, "Source should belong to media team.") if self.team_id != self.source.team_id
   end
 
-  def move_similar_item
-    # move similar items to same project as main item
-    if self.saved_change_to_project_id?
-      secondary_ids = self.source_relationships.map(&:target_id)
-      ProjectMedia.bulk_move(secondary_ids, self.project, self.team) unless secondary_ids.blank?
-    end
-  end
-
-  def send_move_to_slack_notification
-    self.send_slack_notification('move_to') if self.project_id_changed?
-  end
-
   def set_channel
     self.channel ||= { main: CheckChannels::ChannelCodes::API } unless ApiKey.current.nil?
   end

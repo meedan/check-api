@@ -75,7 +75,7 @@ module ProjectAssociation
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       data = {}
-      ['team_id', 'user_id', 'read', 'source_id', 'project_id', 'unmatched'].each do |fname|
+      ['team_id', 'user_id', 'read', 'source_id', 'unmatched'].each do |fname|
         data[fname] = self.send(fname).to_i if self.send("saved_change_to_#{fname}?")
       end
       data['archived'] = { method: 'archived', klass: 'ProjectMedia', id: self.id, type: 'int' } if self.send(:saved_change_to_archived?)

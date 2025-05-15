@@ -246,7 +246,6 @@ class Team2Test < ActiveSupport::TestCase
 
   test "should validate Slack channel" do
     t = create_team
-    p = create_project team: t
     slack_notifications = []
     slack_notifications << {
       "label": random_string,
@@ -332,8 +331,7 @@ class Team2Test < ActiveSupport::TestCase
       t.set_media_verification_statuses(value)
       t.save!
     end
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     s = pm.last_verification_status_obj.get_field_value('verification_status_status')
     assert_equal '1', s
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
@@ -448,8 +446,7 @@ class Team2Test < ActiveSupport::TestCase
     id = t.id
     t.description = 'update description'; t.save!
     tu = create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     a = create_account team: t
     RequestStore.store[:disable_es_callbacks] = true
     t.destroy
@@ -476,20 +473,16 @@ class Team2Test < ActiveSupport::TestCase
   test "should archive sources, projects and project medias when team is archived" do
     Sidekiq::Testing.inline! do
       t = create_team
-      p1 = create_project
-      p2 = create_project team: t
       s1 = create_source
       s2 = create_source team: t
       pm1 = create_project_media
-      pm2 = create_project_media project: p2
-      pm3 = create_project_media project: p2
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
       t.archived = 1
       t.save!
       assert_equal 0, pm1.reload.archived
       assert_equal 1, pm2.reload.archived
       assert_equal 1, pm3.reload.archived
-      assert_equal 0, p1.reload.archived
-      assert_equal 1, p2.reload.archived
       assert_equal 0, s1.reload.archived
       assert_equal 1, s2.reload.archived
     end
@@ -498,8 +491,7 @@ class Team2Test < ActiveSupport::TestCase
   test "should archive sources, project and project medias in background when team is archived" do
     Sidekiq::Testing.fake! do
       t = create_team
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
       t.archived = true
@@ -508,11 +500,10 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should not archive project and project medias in background if team is updated but archived flag does not change" do
+  test "should not archive project medias in background if team is updated but archived flag does not change" do
     Sidekiq::Testing.fake! do
       t = create_team
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
       t.name = random_string
@@ -521,43 +512,36 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should restore sources, project and project medias when team is restored" do
+  test "should restore sourcesand project medias when team is restored" do
     Sidekiq::Testing.inline! do
       t = create_team
-      p1 = create_project team: t
-      p2 = create_project
       s1 = create_source team: t
       s2 = create_source
       pm1 = create_project_media
-      pm2 = create_project_media project: p1
-      pm3 = create_project_media project: p1
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
       t.archived = 1
       t.save!
       assert_equal 0, pm1.reload.archived
       assert_equal 1, pm2.reload.archived
       assert_equal 1, pm3.reload.archived
-      assert_equal 1, p1.reload.archived
-      assert_equal 0, p2.reload.archived
       t = Team.find(t.id)
       t.archived = 0
       t.save!
       assert_equal 0, pm1.reload.archived
       assert_equal 0, pm2.reload.archived
       assert_equal 0, pm3.reload.archived
-      assert_equal 0, p1.reload.archived
-      assert_equal 0, p2.reload.archived
       assert_equal 0, s1.reload.archived
       assert_equal 0, s2.reload.archived
     end
   end
 
-  test "should delete sources, project and project medias in background when team is deleted" do
+  test "should delete sources and project medias in background when team is deleted" do
     Sidekiq::Testing.fake! do
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
       with_current_user_and_team(u, t) do
@@ -567,18 +551,16 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should anonymize sources and delete projects and project medias when team is deleted" do
+  test "should anonymize sources and project medias when team is deleted" do
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p1 = create_project
-      p2 = create_project team: t
       s1 = create_source
       s2 = create_source team: t
       pm1 = create_project_media
-      pm2 = create_project_media project: p2
-      pm3 = create_project_media project: p2
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
       tg = create_tag annotated: pm2
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
@@ -588,8 +570,6 @@ class Team2Test < ActiveSupport::TestCase
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
-      assert_not_nil Project.where(id: p1.id).last
-      assert_nil Project.where(id: p2.id).last
       assert_not_nil Source.where(id: s1.id).last
       assert_nil Source.where(id: s2.id).last.team_id
       assert_nil Tag.where(id: tg.id).last
@@ -610,8 +590,7 @@ class Team2Test < ActiveSupport::TestCase
   test "should empty trash in background" do
     Sidekiq::Testing.fake! do
       t = create_team
-      p = create_project team: t
-      3.times { create_project_media(project: p, archived: true) }
+      3.times { create_project_media(team: t, archived: true) }
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
       n = Sidekiq::Extensions::DelayedClass.jobs.size
@@ -629,9 +608,8 @@ class Team2Test < ActiveSupport::TestCase
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
-      2.times { create_project_media(project: p) }
+      3.times { pm = create_project_media(team: t); pm.archived = true; pm.save! }
+      2.times { create_project_media(team: t) }
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         assert_difference 'ProjectMedia.count', -3 do
@@ -649,9 +627,8 @@ class Team2Test < ActiveSupport::TestCase
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'collaborator'
-      p = create_project team: t
-      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
-      2.times { create_project_media(project: p) }
+      3.times { pm = create_project_media(team: t); pm.archived = true; pm.save! }
+      2.times { create_project_media(team: t) }
       with_current_user_and_team(u, t) do
         assert_no_difference 'ProjectMedia.count' do
           assert_raises RuntimeError do
@@ -668,9 +645,8 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     pm1.archived = true
     pm1.save!
     pm2.archived = true
@@ -825,39 +801,18 @@ class Team2Test < ActiveSupport::TestCase
     assert_not_nil copy_p
   end
 
-  test "should duplicate a team with project groups and saved searches" do
+  test "should duplicate a team with saved searches" do
     team = create_team name: 'Team A'
-    pg_1 = create_project_group team: team
-    pg_2 = create_project_group team: team
-    project_1 = create_project team: team, project_group_id: pg_1.id
-    project_2 = create_project team: team, project_group_id: pg_1.id
-    project_3 = create_project team: team
-    ss_1 = create_saved_search team: team, filters: {"show"=>["images"], "projects"=>[project_1.id.to_s, project_3.id.to_s], "project_group_id"=>[pg_2.id.to_s]}.to_json
-    ss_2 = create_saved_search team: team, filters: {"projects"=>[]}.to_json
+    ss_1 = create_saved_search team: team, filters: {"show"=>["images"]}.to_json
     ss_3 = create_saved_search team: team, filters: nil
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
 
-    # Projects Groups and projects are copied
-    copy_pg_1 = copy.project_groups.find_by_title(pg_1.title)
-    copy_project_1 = copy.projects.find_by_title(project_1.title)
-    copy_project_2 = copy.projects.find_by_title(project_2.title)
-    assert_equal copy_pg_1.projects.sort, [copy_project_1, copy_project_2].sort
-
-    # Saved searches are copied and the projects and project groups are updated on filters
-    copy_pg_2 = copy.project_groups.find_by_title(pg_2.title)
-    copy_project_3 = copy.projects.find_by_title(project_3.title)
+    # Saved searches are copied
     copy_ss_1 = copy.saved_searches.find_by_title(ss_1.title)
     assert_equal ['images'], copy_ss_1.filters['show']
-    assert_equal [copy_project_1.id.to_s, copy_project_3.id.to_s], copy_ss_1.filters['projects']
-    assert_equal [copy_pg_2.id.to_s], copy_ss_1.filters['project_group_id']
-
-    # Saved searches without projects and project groups defined are copied
-    copy_ss_2 = copy.saved_searches.find_by_title(ss_2.title)
-    assert_equal [], copy_ss_2.filters['projects']
-    assert !copy_ss_2.filters.has_key?('project_group_id')
 
     # Saved searches without filters are copied
     copy_ss_3 = copy.saved_searches.find_by_title(ss_3.title)

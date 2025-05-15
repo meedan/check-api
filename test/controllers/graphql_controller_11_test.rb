@@ -18,13 +18,12 @@ class GraphqlController11Test < ActionController::TestCase
   end
 
   test "should create media with various types using set_original_claim" do
-    p = create_project team: @t
     authenticate_with_user(@u)
 
     # Test for creating media with plain text original claim
     query_plain_text = <<~GRAPHQL
       mutation {
-        createProjectMedia(input: { project_id: #{p.id}, set_original_claim: "This is an original claim" }) {
+        createProjectMedia(input: { set_original_claim: "This is an original claim" }) {
           project_media {
             id
           }
@@ -70,7 +69,7 @@ class GraphqlController11Test < ActionController::TestCase
     # Test for creating media with image URL original claim
     query_image = <<~GRAPHQL
       mutation {
-        createProjectMedia(input: { project_id: #{p.id}, set_original_claim: "#{url_types[:image]}" }) {
+        createProjectMedia(input: { set_original_claim: "#{url_types[:image]}" }) {
           project_media {
             id
           }
@@ -86,7 +85,7 @@ class GraphqlController11Test < ActionController::TestCase
     # Test for creating media with video URL original claim
     query_video = <<~GRAPHQL
       mutation {
-        createProjectMedia(input: { project_id: #{p.id}, set_original_claim: "#{url_types[:video]}" }) {
+        createProjectMedia(input: { set_original_claim: "#{url_types[:video]}" }) {
           project_media {
             id
           }
@@ -102,7 +101,7 @@ class GraphqlController11Test < ActionController::TestCase
     # Test for creating media with generic URL original claim
     query_generic = <<~GRAPHQL
       mutation {
-        createProjectMedia(input: { project_id: #{p.id}, set_original_claim: "#{url_types[:generic]}" }) {
+        createProjectMedia(input: { set_original_claim: "#{url_types[:generic]}" }) {
           project_media {
             id
           }

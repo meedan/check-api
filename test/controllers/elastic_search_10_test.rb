@@ -162,7 +162,6 @@ class ElasticSearch10Test < ActionController::TestCase
 
   test "should sort items by creator name" do
     t = create_team
-    p = create_project team: t
     # create users with capital and small letters to verify sort with case insensitive
     u1 = create_user name: 'ahmad'
     u2 = create_user name: 'Ali'
@@ -173,14 +172,14 @@ class ElasticSearch10Test < ActionController::TestCase
     create_team_user team: t, user: u3
     create_team_user team: t, user: u4
     RequestStore.store[:skip_cached_field_update] = false
-    pm1 = create_project_media project: p, user: u1, disable_es_callbacks: false
-    pm2 = create_project_media project: p, user: u2, disable_es_callbacks: false
-    pm3 = create_project_media project: p, user: u3, disable_es_callbacks: false
-    pm4 = create_project_media project: p, user: u4, disable_es_callbacks: false
+    pm1 = create_project_media team: t, user: u1, disable_es_callbacks: false
+    pm2 = create_project_media team: t, user: u2, disable_es_callbacks: false
+    pm3 = create_project_media team: t, user: u3, disable_es_callbacks: false
+    pm4 = create_project_media team: t, user: u4, disable_es_callbacks: false
     sleep 2
-    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'asc' }.to_json, nil, t.id)
+    result = CheckSearch.new({ sort: 'creator_name', sort_type: 'asc' }.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id, pm3.id, pm4.id], result.medias.map(&:id)
-    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json, nil, t.id)
+    result = CheckSearch.new({ sort: 'creator_name', sort_type: 'desc' }.to_json, nil, t.id)
     assert_equal [pm4.id, pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
   end
 

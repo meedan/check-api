@@ -150,8 +150,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     setup_elasticsearch
     Rails.stubs(:env).returns('development'.inquiry)
     team = create_team
-    p = create_project team: team
-    pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
+    pm = create_project_media team: team, disable_es_callbacks: false
     result = $repository.find(get_es_id(pm))
     assert_equal 1, result['linked_items_count']
     assert_equal pm.created_at.to_i, result['last_seen']
@@ -161,7 +160,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
-    pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
+    pm2 = create_project_media team: team, team: team, disable_es_callbacks: false
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
     result = $repository.find(get_es_id(pm))

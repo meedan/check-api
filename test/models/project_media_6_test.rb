@@ -67,11 +67,10 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
     default_folder = t.default_folder
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
-    pm1_c = create_project_media project: p, disable_es_callbacks: false
-    pm1_s = create_project_media project: p, disable_es_callbacks: false
-    pm2_s = create_project_media project: p, disable_es_callbacks: false
+    pm = create_project_media team: t, disable_es_callbacks: false
+    pm1_c = create_project_media team: t, disable_es_callbacks: false
+    pm1_s = create_project_media team: t, disable_es_callbacks: false
+    pm2_s = create_project_media team: t, disable_es_callbacks: false
     r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
     r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
     r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
@@ -89,8 +88,6 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm1_c.reload.archived
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
-    assert_equal p.id, pm1_s.project_id
-    assert_equal p.id, pm2_s.project_id
     # Verify ES
     result = $repository.find(get_es_id(pm1_c))
     assert_equal CheckArchivedFlags::FlagCodes::TRASHED, result['archived']
@@ -105,11 +102,10 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
     default_folder = t.default_folder
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
-    pm1_c = create_project_media project: p, disable_es_callbacks: false
-    pm1_s = create_project_media project: p, disable_es_callbacks: false
-    pm2_s = create_project_media project: p, disable_es_callbacks: false
+    pm = create_project_media team: t, disable_es_callbacks: false
+    pm1_c = create_project_media team: t, disable_es_callbacks: false
+    pm1_s = create_project_media team: t, disable_es_callbacks: false
+    pm2_s = create_project_media team: t, disable_es_callbacks: false
     r = create_relationship source: pm, target: pm1_c, relationship_type: Relationship.confirmed_type
     r2 = create_relationship source: pm, target: pm1_s, relationship_type: Relationship.suggested_type
     r3 = create_relationship source: pm, target: pm2_s, relationship_type: Relationship.suggested_type
@@ -127,8 +123,6 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm1_c.reload.archived
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm1_s.archived
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm2_s.archived
-    assert_equal p.id, pm1_s.project_id
-    assert_equal p.id, pm2_s.project_id
     # Verify ES
     result = $repository.find(get_es_id(pm1_c))
     assert_equal CheckArchivedFlags::FlagCodes::SPAM, result['archived']
@@ -170,8 +164,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
   test "should have status permission" do
     u = create_user
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       permissions = JSON.parse(pm.permissions)
       assert permissions.has_key?('update Status')
@@ -187,12 +180,12 @@ class ProjectMedia6Test < ActiveSupport::TestCase
   end
 
   test "should have relationships and parent and children reports" do
-    p = create_project
-    s1 = create_project_media project: p
-    s2 = create_project_media project: p
-    t1 = create_project_media project: p
-    t2 = create_project_media project: p
-    create_project_media project: p
+    t = create_team
+    s1 = create_project_media team: t
+    s2 = create_project_media team: t
+    t1 = create_project_media team: t
+    t2 = create_project_media team: t
+    create_project_media team: t
     create_relationship source_id: s1.id, target_id: t1.id
     create_relationship source_id: s2.id, target_id: t2.id
     assert_equal [t1], s1.targets
@@ -234,12 +227,11 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     with_versioning do
       m = create_valid_media
       t = create_team
-      p = create_project team: t
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
       pm = nil
       with_current_user_and_team(u, t) do
-        pm = create_project_media project: p, media: m, user: u
+        pm = create_project_media team: t, media: m, user: u
         pm.source_id = create_source(team_id: t.id).id
         pm.save
         assert_equal 3, pm.versions.count
@@ -304,8 +296,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
     team = create_team
-    p = create_project team: team
-    pm = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
+    pm = create_project_media team: team, disable_es_callbacks: false
     ms_pm = get_es_id(pm)
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
     create_tipline_request team: team.id, associated: pm
@@ -320,16 +311,16 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_equal result['demand'], 1
     result = $repository.find(ms_pm2)
     assert_equal result['demand'], 2
-    result = CheckSearch.new({projects: [p.id], sort: 'demand'}.to_json, nil, team.id)
+    result = CheckSearch.new({sort: 'demand'}.to_json, nil, team.id)
     assert_equal [pm2.id, pm.id], result.medias.map(&:id)
-    result = CheckSearch.new({projects: [p.id], sort: 'demand', sort_type: 'asc'}.to_json, nil, team.id)
+    result = CheckSearch.new({sort: 'demand', sort_type: 'asc'}.to_json, nil, team.id)
     assert_equal [pm.id, pm2.id], result.medias.map(&:id)
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_equal 1, pm.reload.requests_count
     assert_equal 2, pm2.reload.requests_count
     assert_queries(0, '=') { assert_equal(3, pm.demand) }
     assert_queries(0, '=') { assert_equal(3, pm2.demand) }
-    pm3 = create_project_media team: team, project_id: p.id
+    pm3 = create_project_media team: team
     ms_pm3 = get_es_id(pm3)
     assert_queries(0, '=') { assert_equal(0, pm3.demand) }
     2.times { create_tipline_request(team_id: team.id, associated: pm3) }
