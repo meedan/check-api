@@ -320,27 +320,9 @@ class TestControllerTest < ActionController::TestCase
     u = create_bot_user
     t = create_team
     p = create_project
-    get :new_claim, params: { team_id: t.id, project_id: p.id, quote: 'Test' }
+    get :new_claim, params: { team_id: t.id, quote: 'Test' }
     assert_response :success
     assert_nil User.current
-  end
-
-  test "should archive project if in test mode" do
-    p = create_project
-    assert_equal 0, p.archived
-    get :archive_project, params: { project_id: p.id }
-    assert_response :success
-    assert_equal 1, p.reload.archived
-  end
-
-  test "should not archive project if not in test mode" do
-    Rails.stubs(:env).returns('development')
-    p = create_project
-    assert_equal 0, p.archived
-    get :archive_project, params: { project_id: p.id }
-    assert_response 400
-    assert_equal 0, p.reload.archived
-    Rails.unstub(:env)
   end
 
   test "should create team" do

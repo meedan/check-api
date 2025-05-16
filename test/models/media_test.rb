@@ -76,7 +76,7 @@ class MediaTest < ActiveSupport::TestCase
     own_media = nil
     with_current_user_and_team(u2, t) do
       assert_nothing_raised do
-        own_media = create_valid_media project_id: p.id
+        own_media = create_valid_media team: t
         own_media.save!
       end
       assert_raise RuntimeError do
@@ -256,25 +256,25 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "should set pender result as annotation" do
-    p = create_project
+    t = create_team
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url, project_id: p.id)
+    m = create_media(account: create_valid_account, url: url, team: t)
     assert_equal 1, m.annotations('metadata').count
     assert_equal [m.id], m.annotations('metadata').map(&:annotated_id)
   end
 
   test "should handle PenderClient throwing exceptions" do
     PenderClient::Request.stubs(:get_medias).raises(StandardError)
-    p = create_project
+    t = create_team
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_raise ActiveRecord::RecordInvalid do
-      m = create_media(account: create_valid_account, url: url, project_id: p.id)
+      m = create_media(account: create_valid_account, url: url, team: t)
     end
     PenderClient::Request.unstub(:get_medias)
   end

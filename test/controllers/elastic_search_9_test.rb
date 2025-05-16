@@ -249,15 +249,6 @@ class ElasticSearch9Test < ActionController::TestCase
     t2 = create_team
     pm1 = create_project_media team: t, quote: 'test', disable_es_callbacks: false
     pm2 = create_project_media team: t2, quote: 'test', disable_es_callbacks: false
-    ProjectMedia.where(id: [pm1.id, pm2.id]).update_all(project_id: nil)
-    options = {
-      index: CheckElasticSearchModel.get_index_alias,
-      body: {
-        script: { source: "ctx._source.project_id = params.project_id", params: { project_id: nil } },
-        query: { terms: { annotated_id: [pm1.id, pm2.id] } }
-      }
-    }
-    $repository.client.update_by_query options
     sleep 2
     Team.stubs(:current).returns(t)
     # PG

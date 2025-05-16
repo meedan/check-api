@@ -301,7 +301,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_queries(0, '=') { assert_equal(0, pm.demand) }
     create_tipline_request team: team.id, associated: pm
     assert_queries(0, '=') { assert_equal(1, pm.demand) }
-    pm2 = create_project_media team: team, project_id: p.id, disable_es_callbacks: false
+    pm2 = create_project_media team: team, disable_es_callbacks: false
     ms_pm2 = get_es_id(pm2)
     assert_queries(0, '=') { assert_equal(0, pm2.demand) }
     2.times { create_tipline_request(team_id: team.id, associated: pm2) }

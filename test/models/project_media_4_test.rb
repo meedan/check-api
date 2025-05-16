@@ -9,15 +9,6 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     create_verification_status_stuff
   end
 
-  test "should get project id for migration" do
-    p = create_project
-    mapping = Hash.new
-    pm = ProjectMedia.new
-    assert_nil pm.send(:project_id_callback, 1, mapping)
-    mapping[1] = p.id
-    assert_equal p.id, pm.send(:project_id_callback, 1, mapping)
-  end
-
   test "should set annotation" do
     ft = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
     lt = create_field_type(field_type: 'language', label: 'Language')

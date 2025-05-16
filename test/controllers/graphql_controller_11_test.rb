@@ -53,7 +53,7 @@ class GraphqlController11Test < ActionController::TestCase
     # Test for creating media with audio URL original claim
     query_audio = <<~GRAPHQL
       mutation {
-        createProjectMedia(input: { project_id: #{p.id}, set_original_claim: "#{url_types[:audio]}" }) {
+        createProjectMedia(input: { set_original_claim: "#{url_types[:audio]}" }) {
           project_media {
             id
           }
