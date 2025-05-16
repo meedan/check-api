@@ -76,7 +76,7 @@ class ListExportTest < ActiveSupport::TestCase
       r.save!
     end
     ss = create_saved_search team: t
-    f = create_feed team: t, data_points: [1], saved_search: ss, published: true
+    f = create_feed team: t, data_points: [1], media_saved_search: ss, published: true
 
     sleep 2 # Wait for indexing
 

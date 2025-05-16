@@ -30,17 +30,17 @@ class FeedTeamTest < ActiveSupport::TestCase
     f = create_feed
     ss = create_saved_search team: t
     assert_difference 'FeedTeam.count' do
-      create_feed_team saved_search: ss, team_id: t.id, feed: f
+      create_feed_team media_saved_search: ss, team_id: t.id, feed: f
     end
     assert_raises ActiveRecord::RecordInvalid do
-      create_feed_team saved_search: create_saved_search, feed: f
+      create_feed_team media_saved_search: create_saved_search, feed: f
     end
   end
 
   test "should get filters" do
     t = create_team
     ss = create_saved_search team: t, filters: { foo: 'bar'}
-    ft = create_feed_team team_id: t.id, saved_search_id: ss.id
+    ft = create_feed_team team_id: t.id, media_saved_search_id: ss.id
     assert_equal 'bar', ft.reload.filters['foo']
   end
 
@@ -86,8 +86,8 @@ class FeedTeamTest < ActiveSupport::TestCase
     t = create_team
     ss1 = create_saved_search team: t
     ss2 = create_saved_search team: t
-    ft = create_feed_team team: t, saved_search: ss1
-    ft.saved_search = ss2
+    ft = create_feed_team team: t, media_saved_search: ss1
+    ft.media_saved_search = ss2
     ft.save!
     assert_equal ss1, ft.saved_search_was
   end

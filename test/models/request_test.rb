@@ -260,9 +260,9 @@ class RequestTest < ActiveSupport::TestCase
     ss2 = create_saved_search team: t2, filters: {}
     ss3 = create_saved_search team: t3, filters: {}
     ss4 = create_saved_search team: t4, filters: {}
-    FeedTeam.where(team: t2, feed: f).update_all(saved_search_id: ss2.id)
-    FeedTeam.where(team: t3, feed: f).update_all(saved_search_id: ss3.id)
-    FeedTeam.where(team: t4, feed: f).update_all(saved_search_id: ss4.id)
+    FeedTeam.where(team: t2, feed: f).update_all(media_saved_search_id: ss2.id)
+    FeedTeam.where(team: t3, feed: f).update_all(media_saved_search_id: ss3.id)
+    FeedTeam.where(team: t4, feed: f).update_all(media_saved_search_id: ss4.id)
     FeedTeam.update_all(shared: true)
     f.teams << t5
     m = create_uploaded_image
