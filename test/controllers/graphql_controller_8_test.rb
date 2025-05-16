@@ -220,6 +220,57 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal FeedTeam.where(feed: f, team: t).last.id, JSON.parse(@response.body).dig('data', 'team', 'feed', 'current_feed_team', 'dbid')
   end
 
+  test "should get feed saved search" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    f = create_feed media_saved_search: ss, team: t
+
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}") {
+          feed(dbid: #{f.id}) {
+            saved_search_id, saved_search { dbid }
+            }
+          }
+        }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'feed')
+
+    assert_equal ss.id, data.dig('saved_search_id')
+    assert_equal ss.id, data.dig('saved_search', 'dbid')
+  end
+
+  test "should get feed and feed team saved search" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    ss = create_saved_search team: t, filters: { foo: 'bar' }
+    f = create_feed
+    create_feed_team media_saved_search: ss, team_id: t.id, feed: f
+
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}") {
+          feed(dbid: #{f.id}) {
+            current_feed_team { dbid, saved_search { dbid }, saved_search_id }
+            }
+          }
+        }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'feed', 'current_feed_team')
+
+    assert_equal ss.id, data.dig('saved_search_id')
+    assert_equal ss.id, data.dig('saved_search', 'dbid')
+  end
+
   test "should create feed" do
     t = create_team
     u = create_user
@@ -271,7 +322,7 @@ class GraphqlController8Test < ActionController::TestCase
     query = "mutation { updateFeedTeam(input: { id: \"#{ft1.graphql_id}\", shared: true, saved_search_id: #{ss.id} }) { feed_team { shared, saved_search { dbid } } } }"
     post :create, params: { query: query, team: t1.slug }
     assert ft1.reload.shared
-    assert_equal ss.id, ft1.reload.saved_search_id
+    assert_equal ss.id, ft1.reload.media_saved_search_id
 
     query = "mutation { updateFeedTeam(input: { id: \"#{ft2.graphql_id}\", shared: true }) { feed_team { shared } } }"
     post :create, params: { query: query, team: t2.slug }
