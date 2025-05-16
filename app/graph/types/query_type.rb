@@ -115,7 +115,7 @@ class QueryType < BaseObject
   field :project_media,
         ProjectMediaType,
         description:
-          'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"',
+          'Information about a project media, The argument should be given like this: "project_media_id,team_id"',
         null: true do
     argument :ids, GraphQL::Types::String, required: true
   end
@@ -123,7 +123,6 @@ class QueryType < BaseObject
   def project_media(ids:)
     objid, tid = ids.split(",").map(&:to_i)
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-    objid = ProjectMedia.belonged_to_project(objid, pid, tid) || 0
     GraphqlCrudOperations.load_if_can(ProjectMedia, objid, context)
   end
 

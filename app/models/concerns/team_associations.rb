@@ -87,9 +87,8 @@ module TeamAssociations
 
   def medias_count(obj = nil)
     obj ||= self
-    key = obj.class.name == 'Team' ? 'team_id' : 'project_id'
     conditions = { archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED] }
-    conditions[key] = obj.id
+    conditions['team_id'] = obj.id if obj.class.name == 'Team'
     relationship_type = Team.sanitize_sql(Relationship.confirmed_type.to_yaml)
     ProjectMedia.where(conditions)
     .joins(:media).where('medias.type != ?', 'Blank')
