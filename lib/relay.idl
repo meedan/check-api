@@ -13362,6 +13362,7 @@ type TeamUser implements Node {
   dbid: Int
   id: ID!
   invited_by: User
+  last_active_at: Int
   permissions: String
   role: String
   status: String

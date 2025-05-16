@@ -198,7 +198,7 @@ class ProjectMediaType < DefaultObject
   field :tags, TagType.connection_type, null: true
 
   def tags
-    object.get_annotations('tag').map(&:load).sort_by { |tag| tag.tag_text.downcase }
+    object.get_annotations('tag').map(&:load).sort_by { |tag| tag.tag_text.to_s.downcase }.reject(&:blank?)
   end
 
   field :requests, TiplineRequestType.connection_type, null: true do
