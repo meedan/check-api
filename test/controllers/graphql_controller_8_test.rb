@@ -245,7 +245,7 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal ss.id, data.dig('saved_search', 'dbid')
   end
 
-  test "should get feed and feed team saved search" do
+  test "should get feed team saved search" do
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
