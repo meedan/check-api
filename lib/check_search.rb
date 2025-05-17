@@ -77,9 +77,7 @@ class CheckSearch
 
   def pusher_channel
     obj = nil
-    if @options['parent'] && @options['parent']['type'] == 'project'
-      obj = Project.find_by_id(@options['parent']['id'])
-    elsif @options['parent'] && @options['parent']['type'] == 'team'
+    if @options['parent'] && @options['parent']['type'] == 'team'
       obj = Team.where(slug: @options['parent']['slug']).last
     end
     obj.nil? ? nil : obj.pusher_channel
@@ -95,10 +93,6 @@ class CheckSearch
   end
 
   def teams
-    []
-  end
-
-  def projects
     []
   end
 
@@ -123,7 +117,7 @@ class CheckSearch
       result = medias_get_search_result(query)
       key = get_search_field
       @ids = result.collect{ |i| i[key] }.uniq
-      results = ProjectMedia.where(id: @ids).includes(:media).includes(:project)
+      results = ProjectMedia.where(id: @ids).includes(:media)
       @medias = sort_pg_results(results, 'project_medias')
     else
       @medias = get_pg_results
@@ -259,7 +253,7 @@ class CheckSearch
       ids = alegre_file_similar_items
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
-    relation = relation.distinct('project_medias.id').includes(:media).includes(:project).where(core_conditions)
+    relation = relation.distinct('project_medias.id').includes(:media).where(core_conditions)
     relation = relation.joins(:media).where('medias.type != ?', 'Blank') if query_all_types?
     relation
   end

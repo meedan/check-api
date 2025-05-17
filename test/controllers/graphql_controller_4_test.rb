@@ -15,13 +15,9 @@ class GraphqlController4Test < ActionController::TestCase
     @t = create_team
     @u = create_user
     @tu = create_team_user team: @t, user: @u, role: 'admin'
-    @p1 = create_project team: @t
-    @p2 = create_project team: @t
-    @p3 = create_project team: @t
-    @ps = [@p1, @p2, @p3]
-    @pm1 = create_project_media team: @t, disable_es_callbacks: false, project: @p1
-    @pm2 = create_project_media team: @t, disable_es_callbacks: false, project: @p2
-    @pm3 = create_project_media team: @t, disable_es_callbacks: false, project: @p3
+    @pm1 = create_project_media team: @t, disable_es_callbacks: false
+    @pm2 = create_project_media team: @t, disable_es_callbacks: false
+    @pm3 = create_project_media team: @t, disable_es_callbacks: false
     Sidekiq::Worker.drain_all
     sleep 1
     @pms = [@pm1, @pm2, @pm3]
@@ -104,7 +100,6 @@ class GraphqlController4Test < ActionController::TestCase
 
   test "should bulk-restore project medias from trash and assign to list" do
     RequestStore.store[:skip_delete_for_ever] = true
-    add_to = create_project team: @t
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     Sidekiq::Worker.drain_all
     sleep 1
@@ -113,7 +108,7 @@ class GraphqlController4Test < ActionController::TestCase
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_equal 0, CheckPusher::Worker.jobs.size
 
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0, \"project_id\": \"' + add_to.id.to_s + '\"}" }) { ids, team { dbid } } }'
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
 
@@ -248,59 +243,6 @@ class GraphqlController4Test < ActionController::TestCase
       assert_empty news.reload.tags.to_a
     end
   end
-
-  test "should not bulk-move project medias from a list to another if not allowed" do
-    u = create_user
-    authenticate_with_user(u)
-    p4 = create_project team: @t
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "move_to", params: "{\"move_to:\": ' + p4.id.to_s + '}"}) { team { dbid } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_error_message 'allowed'
-  end
-
-  test "should not bulk-move project medias from a list to another if there are more than 10.000 ids" do
-    ids = []
-    10001.times { ids << random_string }
-    p4 = create_project team: @t
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "move_to", params: "{\"move_to:\": ' + p4.id.to_s + '}"}) { team { dbid } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response 400
-    assert_error_message 'maximum'
-  end
-
-  test "should bulk-move project medias from a list to another" do
-    inputs = []
-    p4 = create_project team: @t
-    pm1 = create_project_media project: create_project
-    pm2 = create_project_media project: @p1
-    # add similar items
-    t_pm1 = create_project_media project: @pm1.project
-    create_relationship source_id: @pm1.id, target_id: t_pm1.id
-    t2_pm1 = create_project_media project: @pm1.project
-    create_relationship source_id: @pm1.id, target_id: t2_pm1.id
-    t_pm2 = create_project_media project: @pm2.project
-    create_relationship source_id: @pm2.id, target_id: t_pm2.id
-    invalid_id_1 = Base64.encode64("ProjectMedia/0")
-    invalid_id_2 = Base64.encode64("Project/#{pm1.id}")
-    invalid_id_3 = random_string
-    ids = []
-    [@pm1.graphql_id, @pm2.graphql_id, pm1.graphql_id, pm2.graphql_id, invalid_id_1, invalid_id_2, invalid_id_3].each { |id| ids << id }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids.to_json + ', action: "move_to", params: "{\"move_to\": \"' + p4.id.to_s + '\"}" }) { team { dbid } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    # verify move similar items
-    assert_equal p4.id, t_pm1.reload.project_id
-    assert_equal p4.id, t2_pm1.reload.project_id
-    assert_equal p4.id, t_pm2.reload.project_id
-    # verify cached folder for main & similar items
-    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{@pm1.id}:folder")
-    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{@pm2.id}:folder")
-    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t_pm1.id}:folder")
-    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t2_pm1.id}:folder")
-    assert_equal p4.title, Rails.cache.read("check_cached_field:ProjectMedia:#{t_pm2.id}:folder")
-  end
-
 
   test "should bulk-mark-read project medias" do
     u = create_user

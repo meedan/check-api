@@ -645,7 +645,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [

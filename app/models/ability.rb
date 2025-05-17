@@ -58,7 +58,6 @@ class Ability
     can :create, TeamUser, :team_id => @context_team.id, role: ['admin']
     can [:update, :destroy], TeamUser, team_id: @context_team.id
     can [:duplicate, :export_list], Team, :id => @context_team.id
-    can :set_privacy, Project, :team_id => @context_team.id
     can :read_feed_invitations, Feed, :team_id => @context_team.id
     can :destroy, Feed, :team_id => @context_team.id
     can [:create, :update], FeedTeam, :team_id => @context_team.id
@@ -79,10 +78,6 @@ class Ability
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
     can :preview_rss_feed, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
-    can [:create, :update], Project, :team_id => @context_team.id
-    can :destroy, Project do |obj|
-      obj.team_id == @context_team.id && !obj.is_default?
-    end
     can :destroy, ProjectMedia do |obj|
       obj.related_to_team?(@context_team)
     end
@@ -90,7 +85,7 @@ class Ability
     can [:bulk_create], Tag, ['annotation_type = ?', 'tag'] do |obj|
       obj.team == @context_team
     end
-    can [:cud], [SavedSearch, ProjectGroup], :team_id => @context_team.id
+    can [:cud], SavedSearch, :team_id => @context_team.id
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.team&.id == @context_team.id
     end
@@ -150,7 +145,7 @@ class Ability
     can [:create, :destroy], Assignment do |obj|
       type = obj.assigned_type
       obj = obj.assigned
-      obj.team&.id == @context_team.id && ((type == 'Annotation' && !obj.annotated_is_trashed?) || (type == 'Project' && obj.archived == CheckArchivedFlags::FlagCodes::NONE))
+      obj.team&.id == @context_team.id && type == 'Annotation' && !obj.annotated_is_trashed?
     end
     can [:cud], DynamicAnnotation::Field do |obj|
       obj.annotation.annotator_id == @user.id and !obj.annotation.annotated_is_archived?

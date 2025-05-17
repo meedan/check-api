@@ -130,9 +130,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should add short text as suggestions" do
     create_verification_status_stuff
     # Relation should be suggested if all fields size <= threshold
-    p = create_project team: @team
-    pm1 = create_project_media project: p, quote: "for testing short text", team: @team
-    pm2 = create_project_media project: p, quote: "testing short text", team: @team
+    pm1 = create_project_media quote: "for testing short text", team: @team
+    pm2 = create_project_media quote: "testing short text", team: @team
     pm2.analysis = { content: 'short text' }
     Bot::Alegre.stubs(:request).returns({
       "result" => [
@@ -173,9 +172,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should set similarity relationship based on date threshold" do
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
-    p = create_project team: @team
-    pm1 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
-    pm2 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles 2", team: @team
+    pm1 = create_project_media quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
+    pm2 = create_project_media quote: "This is also a long enough Title so as to allow an actual check of other titles 2", team: @team
     Bot::Alegre.stubs(:request).returns({
       "result" => [
         {

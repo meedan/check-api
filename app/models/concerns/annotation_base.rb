@@ -194,10 +194,6 @@ module AnnotationBase
     self.annotated_type == 'ProjectMedia' ? self.annotated : (self.annotated.project_media if self.annotated.respond_to?(:project_media))
   end
 
-  def project
-    self.annotated if self.annotated_type == 'Project'
-  end
-
   def task
     self.annotated if self.annotated_type == 'Task'
   end

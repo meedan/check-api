@@ -12,8 +12,7 @@ class VersionTest < ActiveSupport::TestCase
       t = create_team
       create_team_user user: u, team: t
       u = User.find(u.id)
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       User.current = u
       tg = create_tag annotated: pm
       User.current = nil
@@ -43,8 +42,7 @@ class VersionTest < ActiveSupport::TestCase
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
       u = User.find(u.id)
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       User.current = u
       tg = create_tag annotated: pm, tag: 'Foo', annotator: u
       tg.tag = 'Bar'
@@ -90,8 +88,7 @@ class VersionTest < ActiveSupport::TestCase
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
       u = User.find(u.id)
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       User.current = u
       tg = create_tag annotated: pm, tag: 'Foo', annotator: u
       tag_a = tg.reload.tag
@@ -108,8 +105,7 @@ class VersionTest < ActiveSupport::TestCase
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
       u = User.find(u.id)
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       User.current = u
       tg = create_tag annotated: pm, tag: 'Foo', annotator: u
       tg = Tag.last
@@ -154,7 +150,6 @@ class VersionTest < ActiveSupport::TestCase
     with_versioning do
       u = create_user is_admin: true
       t = create_team
-      p = create_project team: t
       create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
         pm = create_project_media team: t

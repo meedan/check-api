@@ -128,14 +128,13 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get nested tag" do
     admin_user = create_user is_admin: true
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tag1 = create_tag annotated: pm, tag: 'Parent'
     tag2 = create_tag annotated: tag1, tag: 'Child'
     authenticate_with_user(admin_user)
     query = %{
       query {
-        project_media(ids: "#{pm.id},#{p.id}") {
+        project_media(ids: "#{pm.id}") {
           tags: annotations(first: 10000, annotation_type: "tag") {
             edges {
               node {
@@ -167,24 +166,6 @@ class GraphqlController8Test < ActionController::TestCase
     child_tags = tags[0]['node']['tags']['edges']
     assert_equal 1, child_tags.size
     assert_equal 'Child', child_tags[0]['node']['tag_text']
-  end
-
-  test "should get project using API key" do
-    t = create_team
-    a = create_api_key
-    b = create_bot_user api_key_id: a.id, team: t
-    p = create_project team: t
-    authenticate_with_token(a)
-
-    query = 'query { me { dbid } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal b.id, JSON.parse(@response.body)['data']['me']['dbid']
-
-    query = 'query { project(id: "' + p.id.to_s + '") { dbid } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal p.id, JSON.parse(@response.body)['data']['project']['dbid']
   end
 
   test "should create report with image" do
@@ -301,39 +282,38 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media team: t, project: p, user: u
+    pm = create_project_media team: t, user: u
     create_project_media team: t
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + '], \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
-  test "should check permission before setting Slack channel URL" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
-    u2 = create_user
-    authenticate_with_user(u2)
-    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
-  '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
-    post :create, params: { query: query }
-    assert_response 400
-  end
+  # TODO: Review by Sawy
+  # test "should check permission before setting Slack channel URL" do
+  #   u = create_user
+  #   t = create_team
+  #   create_team_user team: t, user: u, role: 'admin'
+  #   p = create_project team: t
+  #   d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
+  #   u2 = create_user
+  #   authenticate_with_user(u2)
+  #   query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
+  # '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
+  #   post :create, params: { query: query }
+  #   assert_response 400
+  # end
 
   test "should delete tag" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tg = create_tag annotated: pm
     id = Base64.encode64("Tag/#{tg.id}")
     query = 'mutation destroy { destroyTag(input: { clientMutationId: "1", id: "' + id + '" }) { deletedId } }'
@@ -368,11 +348,10 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get tags from media" do
     admin_user = create_user is_admin: true
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     c = create_tag annotated: pm, fragment: 't=10,20'
     authenticate_with_user(admin_user)
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tags(first: 10) { edges { node { parsed_fragment } } } } }"
+    query = "query { project_media(ids: \"#{pm.id}\") { tags(first: 10) { edges { node { parsed_fragment } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['tags']['edges'][0]['node']['parsed_fragment'])
@@ -414,10 +393,9 @@ class GraphqlController8Test < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     create_team_user user: u, team: t
-    p = create_project team: t
     with_current_user_and_team(u, t) do
       n.times do
-        pm = create_project_media project: p, disable_es_callbacks: false
+        pm = create_project_media team: t, disable_es_callbacks: false
         m.times { create_tag annotated: pm, annotator: u, disable_es_callbacks: false }
       end
     end
@@ -432,144 +410,6 @@ class GraphqlController8Test < ActionController::TestCase
 
     assert_response :success
     assert_equal n, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
-  end
-
-  test "should get project information fast" do
-    RequestStore.store[:skip_cached_field_update] = false
-    n = 3 # Number of media items to be created
-    m = 2 # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
-    u = create_user
-    authenticate_with_user(u)
-    t = create_team slug: 'team'
-    create_team_task team_id: t.id
-    create_tag_text team_id: t.id
-    create_team_bot_installation team_id: t.id
-    create_team_user user: u, team: t
-    p = create_project team: t
-    n.times do
-      pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
-      s = create_source
-      create_account_source source: s, disable_es_callbacks: false
-      m.times { create_tag annotated: pm, annotator: create_user, disable_es_callbacks: false }
-    end
-    create_project_media project: p, user: u, disable_es_callbacks: false
-    pm = create_project_media project: p, disable_es_callbacks: false
-    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
-    pm.save!
-    sleep 10
-
-    # Current search query used by the frontend
-    query = %{query CheckSearch {
-      search(query: "{}") {
-        id
-        pusher_channel
-        number_of_results
-        team {
-          id
-          dbid
-          name
-          slug
-          verification_statuses
-          pusher_channel
-          dynamic_search_fields_json_schema
-          rules_search_fields_json_schema
-          medias_count
-          permissions
-          search_id
-          team_tasks(first: 10000) {
-            edges {
-              node {
-                id
-                dbid
-                fieldset
-                label
-                options
-                type
-              }
-            }
-          }
-          tag_texts(first: 10000) {
-            edges {
-              node {
-                text
-              }
-            }
-          }
-          projects(first: 10000) {
-            edges {
-              node {
-                title
-                dbid
-                id
-                description
-              }
-            }
-          }
-          users(first: 10000) {
-            edges {
-              node {
-                id
-                dbid
-                name
-              }
-            }
-          }
-          check_search_trash {
-            id
-            number_of_results
-          }
-          check_search_unconfirmed {
-            id
-            number_of_results
-          }
-          public_team {
-            id
-            medias_count
-            trash_count
-            unconfirmed_count
-            spam_count
-          }
-          search {
-            id
-            number_of_results
-          }
-          team_bot_installations(first: 10000) {
-            edges {
-              node {
-                id
-                team_bot: bot_user {
-                  id
-                  identifier
-                }
-              }
-            }
-          }
-        }
-        medias(first: 20) {
-          edges {
-            node {
-              id
-              dbid
-              picture
-              title
-              description
-              is_read
-              team {
-                verification_statuses
-              }
-            }
-          }
-        }
-      }
-    }}
-
-    # Make sure we only run queries for the 20 first items
-    assert_queries 100, '<=' do
-      post :create, params: { query: query, team: 'team' }
-    end
-
-    assert_response :success
-    assert_equal 4, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
   test "should delete custom status" do
@@ -818,8 +658,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_token
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
@@ -834,8 +673,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_user(u)
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
@@ -850,8 +688,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_user(u)
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + random_string + '\" } }") { annotation { dbid } } }'

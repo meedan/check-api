@@ -57,11 +57,10 @@ class TagTextTest < ActiveSupport::TestCase
 
   test "should get tags" do
     t = create_team
-    p = create_project team: t
     tt = create_tag_text team_id: t.id
-    t1 = create_tag tag: tt.id, annotated: create_project_media(project: p)
-    t2 = create_tag tag: tt.id, annotated: create_project_media(project: p)
-    t3 = create_tag tag: tt.id, annotated: create_project_media(project: p)
+    t1 = create_tag tag: tt.id, annotated: create_project_media(team: t)
+    t2 = create_tag tag: tt.id, annotated: create_project_media(team: t)
+    t3 = create_tag tag: tt.id, annotated: create_project_media(team: t)
     t4 = create_tag tag: tt.id
     assert_equal 3, tt.reload.tags_count
     assert_equal [t1, t2, t3].sort, tt.reload.tags.to_a.sort
@@ -69,9 +68,8 @@ class TagTextTest < ActiveSupport::TestCase
 
   test "should destroy tags when tag text is destroyed" do
     t = create_team
-    p = create_project team: t
     tt = create_tag_text team_id: t.id
-    3.times { create_tag(tag: tt.id, annotated: create_project_media(project: p)) }
+    3.times { create_tag(tag: tt.id, annotated: create_project_media(team: t)) }
     3.times { create_tag(tag: tt.id) }
     assert_difference 'Tag.length', -3 do
       tt.destroy
@@ -119,8 +117,7 @@ class TagTextTest < ActiveSupport::TestCase
 
   test "should update tags when tag text is updated" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tt = create_tag_text text: 'foo', team_id: t.id
     t1 = create_tag tag: tt.id, annotated: pm
     t2 = create_tag tag: tt.id
@@ -152,20 +149,17 @@ class TagTextTest < ActiveSupport::TestCase
 
   test "should merge tags if tag is updated to existing text" do
     t = create_team
-    p = create_project team: t
     tt1 = create_tag_text text: 'foo', team_id: t.id
     tt2 = create_tag_text text: 'bar', team_id: t.id
-    t1 = create_tag tag: tt1.id, annotated: create_project_media(project: p)
-    t2 = create_tag tag: tt1.id, annotated: create_project_media(project: p)
+    t1 = create_tag tag: tt1.id, annotated: create_project_media(team: t)
+    t2 = create_tag tag: tt1.id, annotated: create_project_media(team: t)
     assert_equal 'foo', t1.reload.tag_text
     assert_equal 'foo', t2.reload.tag_text
     assert_equal 0, tt2.reload.tags_count
-
     assert_difference 'TagText.count', -1 do
       tt1.text = 'bar'
       tt1.save!
     end
-
     assert_equal 'bar', t1.reload.tag_text
     assert_equal 'bar', t2.reload.tag_text
     assert_equal 2, tt2.reload.tags_count
@@ -173,9 +167,8 @@ class TagTextTest < ActiveSupport::TestCase
 
   test "should cache tags count" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
     tt = create_tag_text team_id: t.id
     assert_equal 0, tt.reload.tags_count
     t = create_tag tag: tt.id, annotated: pm

@@ -426,27 +426,6 @@ module ProjectMediaCachedFields
         }
       ]
 
-    cached_field :folder,
-      start_as: proc { |pm| pm.project&.title.to_s },
-      recalculate: :recalculate_folder,
-      update_on: [
-        {
-          model: ProjectMedia,
-          affected_ids: proc { |pm| [pm.id] },
-          if: proc { |pm| pm.saved_change_to_project_id? },
-          events: {
-            save: :recalculate,
-          }
-        },
-        {
-          model: Project,
-          affected_ids: proc { |p| p.project_media_ids.empty? ? p.project_media_ids_were.to_a : p.project_media_ids },
-          events: {
-            save: :cached_field_project_media_folder_save,
-          }
-        }
-      ]
-
     cached_field :show_warning_cover,
       start_as: false,
       recalculate: :recalculate_show_warning_cover,
@@ -832,12 +811,6 @@ module ProjectMediaCachedFields
 
     def cached_field_project_media_creator_name_update(_target)
       self.name
-    end
-  end
-
-  Project.class_eval do
-    def cached_field_project_media_folder_save(_target)
-      self.title
     end
   end
 end

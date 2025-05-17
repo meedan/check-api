@@ -35,8 +35,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
     l = create_link team: t
-    p = create_project team: t
-    pm = create_project_media project: p, media: l
+    pm = create_project_media team: t, media: l
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "keep_backup_response").count' do
         pm.create_all_archive_annotations
@@ -54,8 +53,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
     c = create_claim_media
-    p = create_project team: t
-    pm = create_project_media project: p, media: c
+    pm = create_project_media team: t, media: c
     assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "keep_backup_response").count' do
         pm.create_all_archive_annotations
@@ -73,8 +71,7 @@ class Bot::KeepTest < ActiveSupport::TestCase
     tbi.set_archive_keep_backup_enabled = true
     tbi.save!
     l = create_link team:  t
-    p = create_project team: t
-    pm = create_project_media project: p, media: l
+    pm = create_project_media team: t, media: l
     u = create_user
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "keep_backup_response").count' do

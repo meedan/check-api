@@ -70,10 +70,9 @@ class ElasticSearch5Test < ActionController::TestCase
 
   test "should destroy related items" do
     t = create_team
-    p = create_project team: t
     m = create_claim_media
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, media: m, disable_es_callbacks: false
+      pm = create_project_media team: t, media: m, disable_es_callbacks: false
       t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
       id = pm.id
       m.destroy
@@ -86,30 +85,9 @@ class ElasticSearch5Test < ActionController::TestCase
     end
   end
 
-  test "should destroy related items 2" do
-    t = create_team
-    p = create_project team: t
-    id = p.id
-    p.title = 'Change title'; p.save!
-    Sidekiq::Testing.inline! do
-      with_versioning do
-        pm = create_project_media project: p, disable_es_callbacks: false
-        t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
-        sleep 1
-        result = $repository.find(get_es_id(pm))
-        p.destroy
-        assert_equal 0, ProjectMedia.where(project_id: id).count
-        assert_equal 1, ProjectMedia.where(id: pm.id).count
-        assert_equal 2, Annotation.where(annotated_id: pm.id, annotated_type: 'ProjectMedia').count
-        assert_equal 0, PaperTrail::Version.where(item_id: id, item_type: 'Project').count
-      end
-    end
-  end
-
   test "should create update destroy elasticsearch tag" do
-    t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, disable_es_callbacks: false
+    team = create_team
+    pm = create_project_media team: team, disable_es_callbacks: false
     t = create_tag annotated: pm, tag: 'sports', disable_es_callbacks: false
     sleep 1
     result = $repository.find(get_es_id(pm))
@@ -155,9 +133,8 @@ class ElasticSearch5Test < ActionController::TestCase
   test "should search with reserved characters" do
     # The reserved characters are: + - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /
     t = create_team
-    p = create_project team: t
     m = create_claim_media quote: 'search quote'
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     sleep 1
     result = CheckSearch.new({keyword: "search / quote"}.to_json, nil, t.id)
     assert_equal [pm.id], result.medias.map(&:id)
@@ -175,9 +152,8 @@ class ElasticSearch5Test < ActionController::TestCase
     t = create_team
     t.set_media_verification_statuses(value)
     t.save!
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     assert_equal 'foo-bar', pm.last_verification_status
     sleep 2
     result = CheckSearch.new({verification_status: ['foo']}.to_json, nil, t.id)
