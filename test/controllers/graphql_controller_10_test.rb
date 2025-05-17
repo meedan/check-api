@@ -663,10 +663,10 @@ class GraphqlController10Test < ActionController::TestCase
     t3 = create_team private: false
     u = create_user
     create_team_user team: t2, user: u
-    pm1 = create_project_media team: t1, project: nil
-    pm2 = create_project_media team: t2, project: nil
-    pm3a = create_project_media team: t3, project: nil
-    pm3b = create_project_media team: t3, project: nil
+    pm1 = create_project_media team: t1
+    pm2 = create_project_media team: t2
+    pm3a = create_project_media team: t3
+    pm3b = create_project_media team: t3
     query = 'query { search(query: "{}") { number_of_results, medias(first: 10) { edges { node { dbid, permissions } } } } }'
 
     # Anonymous user searching across all teams

@@ -763,7 +763,7 @@ class Team2Test < ActiveSupport::TestCase
   test "should skip validation on team with big image" do
     team = create_team
     user = create_user
-    pm = create_project_media team: team, project: create_project(team: team)
+    pm = create_project_media team: team, team: team
     tg = create_tag annotated: pm
     File.open(File.join(Rails.root, 'test', 'data', 'rails-photo.jpg')) do |f|
       tg.file = f

@@ -349,8 +349,7 @@ class TagTest < ActiveSupport::TestCase
   test "current_team returns the team when annotated is ProjectMedia" do
     u = create_user
     team = create_team
-    p = create_project(team: team)
-    pm = create_project_media(project: p, user: u)
+    pm = create_project_media team: team, user: u
     
     tag = create_tag(annotated: pm)
     tag.annotated_type = 'ProjectMedia'

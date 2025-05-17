@@ -747,7 +747,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should create link and account using team pender key" do
     t = create_team
-    create_project(team: t)
     Team.stubs(:current).returns(t)
 
     url1 = random_url
@@ -778,7 +777,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     t = create_team
     l = create_link
     Team.stubs(:current).returns(t)
-    pm = create_project_media media: l, project: create_project(team: t)
+    pm = create_project_media media: l, team: t
 
     author_url1 = random_url
     PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})

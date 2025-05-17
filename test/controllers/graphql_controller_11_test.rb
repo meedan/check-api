@@ -310,9 +310,6 @@ class GraphqlController11Test < ActionController::TestCase
     # Authenticate with super admin user
     authenticate_with_user(super_admin)
 
-    # Create a project under the team
-    project = create_project(team: t)
-
     # Create ProjectMedia instances
     pm1 = create_project_media quote: 'Foo Bar', team: t
     pm2 = create_project_media quote: 'Foo Bar Test', team: t

@@ -219,7 +219,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = false
     tbi.save!
-    pm = create_project_media project: create_project(team: t), media: l
+    pm = create_project_media team: t, media: l
     assert pm.should_skip_create_archive_annotation?('pender_archive')
   end
 
