@@ -596,7 +596,7 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team private: true
     tu = create_team_user user: u , team: t2, status: 'banned'
-    m = create_valid_media
+    m = create_valid_media team: t2
     with_current_user_and_team(u, t2) do
       ability = Ability.new
       assert ability.can?(:read, t1)
@@ -621,7 +621,7 @@ class AbilityTest < ActiveSupport::TestCase
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash",
       "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
       "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "create Feed",
-      "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
+      "manage TagText", "manage TeamTask", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
       "create FeedInvitation", "create FeedTeam", "destroy FeedInvitation", "destroy FeedTeam", "create SavedSearch"
     ]
     

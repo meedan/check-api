@@ -291,10 +291,10 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     fi2 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Note', field_type_object: ft1
 
-    t = create_team
-    tt1 = create_team_task team_id: t.id, label: 'who?', task_type: 'free_text', mapping: { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "}
-    tt2 = create_team_task team_id: t.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}
-    tt3 = create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}
+    team = create_team
+    tt1 = create_team_task team_id: team.id, label: 'who?', task_type: 'free_text', mapping: { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "}
+    tt2 = create_team_task team_id: team.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}
+    tt3 = create_team_task team_id: team.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}
 
     Sidekiq::Testing.inline! do
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -303,7 +303,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = {"json+ld": {}}
       response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      pm = create_project_media team: t, url: url
+      pm = create_project_media team: team, url: url
       t = Task.where(annotation_type: 'task', annotated_id: pm.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
@@ -312,7 +312,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
       response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
-      pm1 = create_project_media team: t, url: url1
+      pm1 = create_project_media team: team, url: url1
       t = Task.where(annotation_type: 'task', annotated_id: pm1.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
@@ -321,7 +321,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
       response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
-      pm12 = create_project_media team: t, url: url12
+      pm12 = create_project_media team: team, url: url12
       t = Task.where(annotation_type: 'task', annotated_id: pm12.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
@@ -330,7 +330,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
       response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-      pm2 = create_project_media team: t, url: url2
+      pm2 = create_project_media team: team, url: url2
       t = Task.where(annotation_type: 'task', annotated_id: pm2.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_equal "Suggested by Krzana: first_name", t.first_response
 
@@ -339,7 +339,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
       response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
-      pm3 = create_project_media team: t, url: url3
+      pm3 = create_project_media team: team, url: url3
       t = Task.where(annotation_type: 'task', annotated_id: pm3.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_equal "Suggested by Krzana: first_name", t.first_response
 
@@ -350,7 +350,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       } }
       response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
-      pm4 = create_project_media team: t, url: url4
+      pm4 = create_project_media team: team, url: url4
       t = Task.where(annotation_type: 'task', annotated_id: pm4.id).select{ |t| t.team_task_id == tt2.id }.last
       # assert_not_nil t.first_response
 
@@ -359,7 +359,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "dateCreated": "2017-08-30T14:22:28+00:00" } }
       response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
-      pm5 = create_project_media team: t, url: url5
+      pm5 = create_project_media team: team, url: url5
       t = Task.where(annotation_type: 'task', annotated_id: pm5.id).select{ |t| t.team_task_id == tt3.id }.last
       assert_not_nil t.first_response
     end
