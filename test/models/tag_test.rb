@@ -145,7 +145,6 @@ class TagTest < ActiveSupport::TestCase
   test "should not have same tag applied to same object" do
     s1 = create_project_media
     s2 = create_project_media
-    p = create_project
     assert_difference 'Tag.length', 8 do
       assert_nothing_raised do
         create_tag tag: 'foo', annotated: s1

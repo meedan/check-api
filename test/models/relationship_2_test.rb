@@ -108,12 +108,12 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should create related report" do
-    p = create_project
-    pm = create_project_media project: p
+    t = create_team
+    pm = create_project_media team: t
     assert_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         assert_nothing_raised do
-          create_project_media related_to_id: pm, project: p
+          create_project_media related_to_id: pm, team: t
         end
       end
     end
@@ -204,11 +204,10 @@ class Relationship2Test < ActiveSupport::TestCase
     with_versioning do
       u = create_user is_admin: true
       t = create_team
-      p = create_project team: t
       r = create_relationship relationship_type: Relationship.confirmed_type
       assert_empty r.versions
-      so = create_project_media project: p
-      ta = create_project_media project: p
+      so = create_project_media team: t
+      ta = create_project_media team: t
       
       with_current_user_and_team(u, t) do
         r = create_relationship source_id: so.id, target_id: ta.id, relationship_type: Relationship.confirmed_type

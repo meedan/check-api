@@ -635,7 +635,7 @@ class GraphqlController10Test < ActionController::TestCase
 
     authenticate_with_user(u)
 
-    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") {permissions,source{permissions}}}"
+    query = "query GetById { project_media(ids: \"#{pm1.id}\") {permissions,source{permissions}}}"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success

@@ -956,14 +956,13 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team slug: 'team'
     t.set_languages []
     t.save!
-    p = create_project team: t
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
     language = create_field_type field_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
-    pm1 = create_project_media disable_es_callbacks: false, project: p
+    pm1 = create_project_media disable_es_callbacks: false, team: t
     create_dynamic_annotation annotation_type: att, annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
-    pm2 = create_project_media disable_es_callbacks: false, project: p
+    pm2 = create_project_media disable_es_callbacks: false, team: t
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
     create_flag annotated: pm2, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
@@ -982,8 +981,7 @@ class Team2Test < ActiveSupport::TestCase
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       tk = create_task annotated: pm
       create_tag annotated: tk
       pm.archived = true

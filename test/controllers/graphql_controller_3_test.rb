@@ -362,7 +362,7 @@ class GraphqlController3Test < ActionController::TestCase
     pm2 = create_project_media team: t
     create_relationship source_id: pm1.id, target_id: pm2.id
     authenticate_with_user(u)
-    query = "query { project_media(ids: \"#{pm1.id},#{p.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
+    query = "query { project_media(ids: \"#{pm1.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
   end

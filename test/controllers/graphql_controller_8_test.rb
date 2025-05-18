@@ -14,8 +14,8 @@ class GraphqlController8Test < ActionController::TestCase
 
   test "should create and retrieve clips" do
     admin_user = create_user is_admin: true
-    p = create_project
-    pm = create_project_media project: p
+    t = create_team
+    pm = create_project_media team: t
     authenticate_with_user(admin_user)
 
     query = 'mutation { createDynamic(input: { annotation_type: "clip", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", fragment: "t=10,20", set_fields: "{\"label\":\"Clip Label\"}" }) { dynamic { data, parsed_fragment } } }'
@@ -29,7 +29,7 @@ class GraphqlController8Test < ActionController::TestCase
 
     query = %{
       query {
-        project_media(ids: "#{pm.id},#{p.id}") {
+        project_media(ids: "#{pm.id}") {
           clips: annotations(first: 10000, annotation_type: "clip") {
             edges {
               node {

@@ -319,7 +319,6 @@ class TestControllerTest < ActionController::TestCase
   test "should not get user if e-mail parameter is not present" do
     u = create_bot_user
     t = create_team
-    p = create_project
     get :new_claim, params: { team_id: t.id, quote: 'Test' }
     assert_response :success
     assert_nil User.current
@@ -335,9 +334,9 @@ class TestControllerTest < ActionController::TestCase
 
   test "should create dynamic annotation" do
     data = { phone: '123', app_name: 'Test' }.to_json
-    p = create_project
+    t = create_team
     assert_difference 'Dynamic.count', 2 do
-      get :new_dynamic_annotation, params: { set_action: 'deactivate', annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
+      get :new_dynamic_annotation, params: { set_action: 'deactivate', annotated_type: 'Team', annotated_id: t.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
     end
     assert_equal 'human_mode', CheckStateMachine.new('test').state.value
     assert_response :success
@@ -346,9 +345,9 @@ class TestControllerTest < ActionController::TestCase
   test "should not create dynamic annotation if not in test mode" do
     Rails.stubs(:env).returns('development')
     data = { phone: '123', app_name: 'Test' }.to_json
-    p = create_project
+    t = create_team
     assert_no_difference 'Dynamic.count' do
-      get :new_dynamic_annotation, params: { annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
+      get :new_dynamic_annotation, params: { annotated_type: 'Team', annotated_id: t.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
     end
     assert_response 400
     Rails.unstub(:env)

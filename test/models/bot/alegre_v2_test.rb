@@ -8,13 +8,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     @bot = create_alegre_bot(name: "alegre", login: "alegre")
     @bot.approve!
-    p = create_project
-    p.team.set_languages = ['en','pt','es']
-    p.team.save!
-    @bot.install_to!(p.team)
-    @team = p.team
+    team = create_team
+    team.set_languages = ['en','pt','es']
+    team.save!
+    @bot.install_to!(team)
+    @team = team
     m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
+    @pm = create_project_media team: t, media: m
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
