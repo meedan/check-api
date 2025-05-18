@@ -431,13 +431,13 @@ class GraphqlController8Test < ActionController::TestCase
     }
     t.set_media_verification_statuses(value)
     t.save!
-    pm1 = create_project_media project: nil, team: t
+    pm1 = create_project_media team: t
     s = pm1.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id1'
     s.disable_es_callbacks = false
     s.save!
     r1 = publish_report(pm1)
-    pm2 = create_project_media project: nil, team: t
+    pm2 = create_project_media team: t
     s = pm2.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id2'
     s.disable_es_callbacks = false

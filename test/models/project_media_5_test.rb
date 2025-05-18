@@ -84,9 +84,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should have a media not not necessarily a project" do
-    assert_nothing_raised do
-      create_project_media project: nil
-    end
     assert_raise ActiveRecord::RecordInvalid do
       create_project_media media: nil
     end

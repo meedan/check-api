@@ -36,13 +36,13 @@ class GraphqlControllerTest < ActionController::TestCase
     }
     t.set_media_verification_statuses(value)
     t.save!
-    pm1 = create_project_media project: nil, team: t
+    pm1 = create_project_media team: t
     s = pm1.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id1'
     s.disable_es_callbacks = false
     s.save!
     r1 = publish_report(pm1)
-    pm2 = create_project_media project: nil, team: t
+    pm2 = create_project_media team: t
     s = pm2.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id2'
     s.disable_es_callbacks = false
@@ -645,7 +645,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     DynamicAnnotation::Field.delete_all
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'false'
     s.save!
@@ -675,7 +675,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t.set_media_verification_statuses(value)
     t.save!
     DynamicAnnotation::Field.delete_all
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = '1'
     s.save!

@@ -294,7 +294,7 @@ class GraphqlController10Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id'
     s.save!

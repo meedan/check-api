@@ -51,7 +51,7 @@ class Bot::AlegreRelationshipTest < ActiveSupport::TestCase
     pm2 = create_project_media team: t # child
     create_relationship source_id: pm1.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
 
-    pm3 = create_project_media project: p # the new item to be suggested
+    pm3 = create_project_media team: t # the new item to be suggested
     test_relationship = Bot::Alegre.add_relationships(pm3, {pm1.id => {score: 1, relationship_type: Relationship.suggested_type}})
     # check that it was created
     assert test_relationship.present?

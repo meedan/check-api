@@ -124,7 +124,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     }
     t.send :set_media_verification_statuses, value
     t.save!
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     assert_equal 'stop', pm.last_status
   end
 
@@ -141,7 +141,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     }
     t.send :set_media_verification_statuses, value
     t.save!
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     assert_nothing_raised do
       s = pm.last_status_obj
       s.status = 'done'

@@ -14,7 +14,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     @bot.install_to!(team)
     @team = team
     m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media team: t, media: m
+    @pm = create_project_media team: team, media: m
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
