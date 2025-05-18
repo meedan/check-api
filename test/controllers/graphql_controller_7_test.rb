@@ -418,7 +418,7 @@ class GraphqlController7Test < ActionController::TestCase
     create_team_user team: t, user: u
     create_team_user team: t2, user: u
     authenticate_with_user(u)
-    pm1 = create_project_media team: t1, media: l
+    pm1 = create_project_media team: t, media: l
     pm2 = create_project_media team: t2, media: l
     pm3 = create_project_media media: l
     query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"

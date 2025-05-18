@@ -41,9 +41,9 @@ class ElasticSearch4Test < ActionController::TestCase
       create_tag tag: 'search_sort', annotated: pm1, disable_es_callbacks: false
       sleep 2
       # sort with keywords
-      result = CheckSearch.new({keyword: 'search_sort', projects: [p.id]}.to_json)
+      result = CheckSearch.new({keyword: 'search_sort'}.to_json)
       assert_equal [pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
-      result = CheckSearch.new({keyword: 'search_sort', projects: [p.id], sort: 'recent_activity'}.to_json)
+      result = CheckSearch.new({keyword: 'search_sort', sort: 'recent_activity'}.to_json)
       assert_equal [pm1.id, pm3.id, pm2.id], result.medias.map(&:id)
       # sort with keywords and tags
       create_tag tag: 'sorts', annotated: pm3, disable_es_callbacks: false

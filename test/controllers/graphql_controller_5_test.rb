@@ -40,7 +40,7 @@ class GraphqlController5Test < ActionController::TestCase
     pm2 = create_project_media team: t
     Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
@@ -57,7 +57,7 @@ class GraphqlController5Test < ActionController::TestCase
     create_claim_description project_media: pm2
     Bot::Alegre.stubs(:get_items_from_similar_text).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id, fact_check { id } } } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id, fact_check { id } } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
@@ -313,7 +313,7 @@ class GraphqlController5Test < ActionController::TestCase
       pm2.id => [true, false],
       pm3.id => [false, false]
     }.each do |id, values|
-      ids = [id, p.id, t.id].join(',')
+      ids = [id, t.id].join(',')
       query = 'query { project_media(ids: "' + ids + '") { read_by_someone: is_read, read_by_me: is_read(by_me: true) } }'
       post :create, params: { query: query, team: t.slug }
       assert_response :success

@@ -129,7 +129,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     tt = create_team_task team_id: @team.id, order: 2
     tt2 = create_team_task team_id: @team.id, order: 1
-    pm = create_project_media project: p
+    pm = create_project_media team: @team
     u = create_user name: 'The Annotator'
     create_team_user user: u, team: @team
     tg = create_tag annotated: pm, annotator: u
@@ -168,6 +168,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project media and fallback to media" do
     authenticate_with_user
+    t = create_team
     pm = create_project_media team: t
     pm2 = create_project_media team: t
     m2 = create_valid_media
@@ -183,7 +184,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
 
-    query = "query GetById { project_media(ids: \"#{pm3.id},0,#{@team.id}\") { dbid } }"
+    query = "query GetById { project_media(ids: \"#{pm3.id},#{@team.id}\") { dbid } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
@@ -307,7 +308,7 @@ class GraphqlControllerTest < ActionController::TestCase
         create_tag annotated: pm, annotator: u
         create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'metadata'
       end
-      query = "query GetById { project_media(ids: \"#{pm.id}\") { last_status, domain, pusher_channel, account { url }, dbid, tags(first: 1) { edges { node { tag } } }, project { title }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
+      query = "query GetById { project_media(ids: \"#{pm.id}\") { last_status, domain, pusher_channel, account { url }, dbid, tags(first: 1) { edges { node { tag } } }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, annotation { id, created_at, updated_at }, task { id }, tag { id } } } } } }"
       post :create, params: { query: query, team: 'team' }
       assert_response :success
       assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size

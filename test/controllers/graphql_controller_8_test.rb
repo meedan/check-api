@@ -518,7 +518,7 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)
-    post :create, params: { query: 'query Query { me { get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, annotations(first: 1) { edges { node { id } } }, source { dbid }, source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
+    post :create, params: { query: 'query Query { me { get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, annotations(first: 1) { edges { node { id } } }, source { dbid }, source_id, token, is_admin, name, bot { id } } }' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']

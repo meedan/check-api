@@ -484,7 +484,7 @@ class ElasticSearch10Test < ActionController::TestCase
     pm2 = create_project_media team: t, quote: 'Test B', disable_es_callbacks: false
 
     # Add positive search results
-    create_tipline_request team_id: team.id, associated: pm1, smooch_request_type: 'relevant_search_result_requests'
+    create_tipline_request team_id: t.id, associated: pm1, smooch_request_type: 'relevant_search_result_requests'
     2.times { create_tipline_request(team_id: t.id, associated: pm2, smooch_request_type: 'relevant_search_result_requests') }
 
     # Add negative search results

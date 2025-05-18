@@ -71,24 +71,6 @@ class TestControllerTest < ActionController::TestCase
     Rails.unstub(:env)
   end
 
-  test "should create project if in test mode" do
-    t = create_team
-    assert_difference 'Project.count' do
-      get :new_project, params: { team_id: t.id }
-    end
-    assert_response :success
-  end
-
-  test "should not create project if not in test mode" do
-    t = create_team
-    Rails.stubs(:env).returns('development')
-    assert_no_difference 'Project.count' do
-      get :new_project, params: { team_id: t.id }
-    end
-    assert_response 400
-    Rails.unstub(:env)
-  end
-
   test "should create session if in test mode" do
     u = create_user
     get :new_session, params: { email: u.email }
