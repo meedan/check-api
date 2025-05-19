@@ -990,7 +990,6 @@ class Team2Test < ActiveSupport::TestCase
     t.set_languages ['en', 'es', 'pt']
     t.save!
     create_flag_annotation_type
-    create_project team: t
     create_tag_text team: t
     2.times { create_team_user team: t }
     create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo' }, { 'label' => 'Bar' }], label: 'Team Task 1'
