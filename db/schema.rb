@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_19_100047) do
+ActiveRecord::Schema.define(version: 2025_05_13_075639) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -759,6 +759,7 @@ ActiveRecord::Schema.define(version: 2025_04_19_100047) do
     t.integer "lock_version", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "last_active_at"
     t.index ["team_id", "user_id"], name: "index_team_users_on_team_id_and_user_id", unique: true
     t.index ["type"], name: "index_team_users_on_type"
     t.index ["user_id", "team_id", "status"], name: "index_team_users_on_user_id_and_team_id_and_status"

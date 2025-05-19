@@ -8,7 +8,7 @@ module Api
       skip_before_action :authenticate_from_token!
 
       before_action :authenticate_graphql_user, only: [:create, :batch]
-      before_action :set_current_user, :update_last_active_at, :load_context_team, :set_current_team, :set_timezone, :load_ability, :init_bot_events
+      before_action :set_current_user, :load_context_team, :set_current_team, :update_last_active_at, :set_timezone, :load_ability, :init_bot_events
 
       after_action :trigger_bot_events
 
@@ -188,7 +188,16 @@ module Api
 
       def update_last_active_at
         user = User.current
-        user.update_column(:last_active_at, Time.now) if user && user.last_active_at.to_i < Time.now.ago(1.day).to_i
+        if user
+          now = Time.now
+          yesterday = 1.day.ago.to_i
+          user.update_column(:last_active_at, now) if user.last_active_at.to_i < yesterday
+          # set last_active_at based on team
+          unless @context_team.nil?
+            tu = user.team_users.where(team_id: @context_team.id).last
+            tu.update_column(:last_active_at, now) if tu.present? && tu.last_active_at.to_i < yesterday
+          end
+        end
       end
     end
   end
