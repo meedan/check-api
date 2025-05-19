@@ -168,23 +168,18 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should read project media and fallback to media" do
     authenticate_with_user
-    t = create_team
-    pm = create_project_media team: t
-    pm2 = create_project_media team: t
+    pm = create_project_media team: @team
+    pm2 = create_project_media team: @team
     m2 = create_valid_media
-    pm3 = create_project_media team: t, media: m2
-
+    pm3 = create_project_media team: @team, media: m2
     query = "query GetById { project_media(ids: \"#{pm3.id}\") { dbid } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-
     query = "query GetById { project_media(ids: \"#{m2.id}\") { dbid } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
-    pp JSON.parse(@response.body)
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
-
     query = "query GetById { project_media(ids: \"#{pm3.id},#{@team.id}\") { dbid } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success

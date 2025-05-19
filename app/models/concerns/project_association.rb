@@ -24,6 +24,18 @@ module ProjectAssociation
     super.merge({ full_url: self.full_url.to_s })
   end
 
+  module ClassMethods
+    def belonged_to_team(objid, tid)
+      obj = self.find_by_id objid
+      if obj && self.to_s == 'ProjectMedia' && ProjectMedia.where(id: objid, team_id: tid).last.present?
+        return obj.id
+      else
+        obj = ProjectMedia.where(team_id: tid, media_id: objid).last
+        return obj.id if obj
+      end
+    end
+  end
+
   included do
     attr_accessor :url, :disable_es_callbacks
 

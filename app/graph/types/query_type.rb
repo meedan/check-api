@@ -123,6 +123,7 @@ class QueryType < BaseObject
   def project_media(ids:)
     objid, tid = ids.split(",").map(&:to_i)
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
+    objid = ProjectMedia.belonged_to_team(objid, tid) || 0
     GraphqlCrudOperations.load_if_can(ProjectMedia, objid, context)
   end
 
