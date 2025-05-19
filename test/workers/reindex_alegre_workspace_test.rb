@@ -9,6 +9,7 @@ class ReindexAlegreWorkspaceTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     @bot = create_alegre_bot(name: "alegre", login: "alegre")
     @bot.approve!
+    team = create_team
     team.set_languages = ['en','pt','es']
     team.save!
     @bot.install_to!(team)

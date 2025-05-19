@@ -505,7 +505,7 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
     tbi.team = t
-    pm = create_project_media quote: "Blah", team: p.team
+    pm = create_project_media quote: "Blah", team: team
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_vector_matching_threshold" => 0.92}

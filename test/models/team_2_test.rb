@@ -450,7 +450,6 @@ class Team2Test < ActiveSupport::TestCase
     a = create_account team: t
     RequestStore.store[:disable_es_callbacks] = true
     t.destroy
-    assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
     RequestStore.store[:disable_es_callbacks] = false
@@ -773,16 +772,6 @@ class Team2Test < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert copy.valid?
-  end
-
-  test "should generate new token on duplication" do
-    team = create_team
-    project = create_project team: team
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-    copy_p = copy.projects.find_by_title(project.title)
-    assert_not_equal project.token, copy_p.token
   end
 
   test "should duplicate a team with saved searches" do

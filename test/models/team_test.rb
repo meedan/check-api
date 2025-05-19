@@ -516,45 +516,46 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should match rule by user" do
-    RequestStore.store[:skip_cached_field_update] = false
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    create_team_user team: t, user: u
-    assert_equal 0, p.reload.project_medias.count
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "item_user_is",
-                "rule_value": u.id.to_s
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
-        }
-      ]
-    }
-    t.rules = rules.to_json
-    t.save!
-    create_project_media team: t, user: u
-    create_project_media team: t
-    create_project_media user: u
-    assert_equal 1, p.reload.project_medias.count
-  end
+  # TODO: Review by Sawy
+  # test "should match rule by user" do
+  #   RequestStore.store[:skip_cached_field_update] = false
+  #   t = create_team
+  #   p = create_project team: t
+  #   u = create_user
+  #   create_team_user team: t, user: u
+  #   assert_equal 0, p.reload.project_medias.count
+  #   rules = []
+  #   rules << {
+  #     "name": random_string,
+  #     "project_ids": "",
+  #     "rules": {
+  #       "operator": "and",
+  #       "groups": [
+  #         {
+  #           "operator": "and",
+  #           "conditions": [
+  #             {
+  #               "rule_definition": "item_user_is",
+  #               "rule_value": u.id.to_s
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     },
+  #     "actions": [
+  #       {
+  #         "action_definition": "move_to_project",
+  #         "action_value": p.id.to_s
+  #       }
+  #     ]
+  #   }
+  #   t.rules = rules.to_json
+  #   t.save!
+  #   create_project_media team: t, user: u
+  #   create_project_media team: t
+  #   create_project_media user: u
+  #   assert_equal 1, p.reload.project_medias.count
+  # end
 
   test "should set default language when creating team" do
     t = create_team
@@ -570,78 +571,79 @@ class TeamTest < ActiveSupport::TestCase
     assert !t.reload.get_language_detection
   end
 
-  test "should match rule when item is read" do
-    RequestStore.store[:skip_cached_field_update] = false
-    RequestStore.store[:skip_delete_for_ever] = true
-    t = create_team
-    p = create_project team: t
-    u = create_user
-    u2 = create_user
-    create_team_user team: t, user: u
-    assert_equal 0, p.reload.project_medias.count
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "item_is_read",
-                "rule_value": ""
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
-        }
-      ]
-    }
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "item_user_is",
-                "rule_value": u2.id.to_s
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "send_to_trash",
-          "action_value": ""
-        }
-      ]
-    }
-    t.rules = rules.to_json
-    t.save!
-    pm1 = create_project_media team: t, user: u2
-    pm2 = create_project_media team: t, user: u2
-    pm3 = create_project_media user: u2
-    [pm1, pm2, pm3].each { |pm| pm.archived = false ; pm.save! }
-    ProjectMediaUser.create! project_media: pm1, user: create_user, read: true
-    ProjectMediaUser.create! project_media: pm3, user: create_user, read: true
+  # TODO: Review by Sawy
+  # test "should match rule when item is read" do
+  #   RequestStore.store[:skip_cached_field_update] = false
+  #   RequestStore.store[:skip_delete_for_ever] = true
+  #   t = create_team
+  #   p = create_project team: t
+  #   u = create_user
+  #   u2 = create_user
+  #   create_team_user team: t, user: u
+  #   assert_equal 0, p.reload.project_medias.count
+  #   rules = []
+  #   rules << {
+  #     "name": random_string,
+  #     "project_ids": "",
+  #     "rules": {
+  #       "operator": "and",
+  #       "groups": [
+  #         {
+  #           "operator": "and",
+  #           "conditions": [
+  #             {
+  #               "rule_definition": "item_is_read",
+  #               "rule_value": ""
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     },
+  #     "actions": [
+  #       {
+  #         "action_definition": "move_to_project",
+  #         "action_value": p.id.to_s
+  #       }
+  #     ]
+  #   }
+  #   rules << {
+  #     "name": random_string,
+  #     "project_ids": "",
+  #     "rules": {
+  #       "operator": "and",
+  #       "groups": [
+  #         {
+  #           "operator": "and",
+  #           "conditions": [
+  #             {
+  #               "rule_definition": "item_user_is",
+  #               "rule_value": u2.id.to_s
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     },
+  #     "actions": [
+  #       {
+  #         "action_definition": "send_to_trash",
+  #         "action_value": ""
+  #       }
+  #     ]
+  #   }
+  #   t.rules = rules.to_json
+  #   t.save!
+  #   pm1 = create_project_media team: t, user: u2
+  #   pm2 = create_project_media team: t, user: u2
+  #   pm3 = create_project_media user: u2
+  #   [pm1, pm2, pm3].each { |pm| pm.archived = false ; pm.save! }
+  #   ProjectMediaUser.create! project_media: pm1, user: create_user, read: true
+  #   ProjectMediaUser.create! project_media: pm3, user: create_user, read: true
 
-    assert_equal 0, pm1.reload.archived
-    assert_equal 0, pm2.reload.archived
-    assert_equal 0, pm3.reload.archived
-    assert_equal 1, p.reload.project_medias.count
-  end
+  #   assert_equal 0, pm1.reload.archived
+  #   assert_equal 0, pm2.reload.archived
+  #   assert_equal 0, pm3.reload.archived
+  #   assert_equal 1, p.reload.project_medias.count
+  # end
 
   test "should create default fieldsets when team is created" do
     t = create_team
@@ -666,135 +668,138 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should match rule by task answer" do
-    RequestStore.store[:skip_cached_field_update] = false
-    create_task_stuff
-    t = create_team
-    tt = create_team_task team_id: t.id, task_type: 'single_choice'
-    p = create_project team: t
-    pm = create_project_media team: t
-    assert_equal 0, p.reload.project_medias.count
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "field_from_fieldset_tasks_value_is",
-                "rule_value": { team_task_id: tt.id, value: 'Foo' }
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
-        }
-      ]
-    }
-    t.rules = rules.to_json
-    t.save!
-    tk = pm.get_annotations('task').first.load
-    tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Bar' }.to_json }.to_json }.to_json
-    tk.save!
-    assert_equal 0, p.reload.project_medias.count
-    tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Foo' }.to_json }.to_json }.to_json
-    tk.save!
-    assert_equal 1, p.reload.project_medias.count
-  end
+  # TODO: Review by Sawy
+  # test "should match rule by task answer" do
+  #   RequestStore.store[:skip_cached_field_update] = false
+  #   create_task_stuff
+  #   t = create_team
+  #   tt = create_team_task team_id: t.id, task_type: 'single_choice'
+  #   p = create_project team: t
+  #   pm = create_project_media team: t
+  #   assert_equal 0, p.reload.project_medias.count
+  #   rules = []
+  #   rules << {
+  #     "name": random_string,
+  #     "project_ids": "",
+  #     "rules": {
+  #       "operator": "and",
+  #       "groups": [
+  #         {
+  #           "operator": "and",
+  #           "conditions": [
+  #             {
+  #               "rule_definition": "field_from_fieldset_tasks_value_is",
+  #               "rule_value": { team_task_id: tt.id, value: 'Foo' }
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     },
+  #     "actions": [
+  #       {
+  #         "action_definition": "move_to_project",
+  #         "action_value": p.id.to_s
+  #       }
+  #     ]
+  #   }
+  #   t.rules = rules.to_json
+  #   t.save!
+  #   tk = pm.get_annotations('task').first.load
+  #   tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Bar' }.to_json }.to_json }.to_json
+  #   tk.save!
+  #   assert_equal 0, p.reload.project_medias.count
+  #   tk = Task.find(tk.id)
+  #   tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Foo' }.to_json }.to_json }.to_json
+  #   tk.save!
+  #   assert_equal 1, p.reload.project_medias.count
+  # end
 
-  test "should match rule by assignment" do
-    RequestStore.store[:skip_cached_field_update] = false
-    create_verification_status_stuff
-    t = create_team
-    u = create_user
-    create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media team: t
-    assert_equal 0, p.reload.project_medias.count
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "item_is_assigned_to_user",
-                "rule_value": u.id.to_s
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
-        }
-      ]
-    }
-    t.rules = rules.to_json
-    t.save!
-    Assignment.create! assigned: pm.last_status_obj.becomes(Annotation), assigner: create_user, user: u
-    assert_equal 1, p.reload.project_medias.count
-  end
+  # TODO: Review by Sawy
+  # test "should match rule by assignment" do
+  #   RequestStore.store[:skip_cached_field_update] = false
+  #   create_verification_status_stuff
+  #   t = create_team
+  #   u = create_user
+  #   create_team_user team: t, user: u
+  #   p = create_project team: t
+  #   pm = create_project_media team: t
+  #   assert_equal 0, p.reload.project_medias.count
+  #   rules = []
+  #   rules << {
+  #     "name": random_string,
+  #     "project_ids": "",
+  #     "rules": {
+  #       "operator": "and",
+  #       "groups": [
+  #         {
+  #           "operator": "and",
+  #           "conditions": [
+  #             {
+  #               "rule_definition": "item_is_assigned_to_user",
+  #               "rule_value": u.id.to_s
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     },
+  #     "actions": [
+  #       {
+  #         "action_definition": "move_to_project",
+  #         "action_value": p.id.to_s
+  #       }
+  #     ]
+  #   }
+  #   t.rules = rules.to_json
+  #   t.save!
+  #   Assignment.create! assigned: pm.last_status_obj.becomes(Annotation), assigner: create_user, user: u
+  #   assert_equal 1, p.reload.project_medias.count
+  # end
 
-  test "should match rule by text task answer" do
-    RequestStore.store[:skip_cached_field_update] = false
-    create_task_stuff
-    t = create_team
-    tt = create_team_task team_id: t.id, task_type: 'free_text'
-    p = create_project team: t
-    pm = create_project_media team: t
-    assert_equal 0, p.reload.project_medias.count
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "field_from_fieldset_tasks_value_contains_keyword",
-                "rule_value": { team_task_id: tt.id, value: 'foo,bar' }
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
-        }
-      ]
-    }
-    t.rules = rules.to_json
-    t.save!
-    tk = pm.get_annotations('task').first.load
-    tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test test' }.to_json }.to_json
-    tk.save!
-    assert_equal 0, p.reload.project_medias.count
-    tk = Task.find(tk.id)
-    tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test foo test' }.to_json }.to_json
-    tk.save!
-    assert_equal 1, p.reload.project_medias.count
-  end
+  # TODO: Review by Sawy
+  # test "should match rule by text task answer" do
+  #   RequestStore.store[:skip_cached_field_update] = false
+  #   create_task_stuff
+  #   t = create_team
+  #   tt = create_team_task team_id: t.id, task_type: 'free_text'
+  #   p = create_project team: t
+  #   pm = create_project_media team: t
+  #   assert_equal 0, p.reload.project_medias.count
+  #   rules = []
+  #   rules << {
+  #     "name": random_string,
+  #     "project_ids": "",
+  #     "rules": {
+  #       "operator": "and",
+  #       "groups": [
+  #         {
+  #           "operator": "and",
+  #           "conditions": [
+  #             {
+  #               "rule_definition": "field_from_fieldset_tasks_value_contains_keyword",
+  #               "rule_value": { team_task_id: tt.id, value: 'foo,bar' }
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     },
+  #     "actions": [
+  #       {
+  #         "action_definition": "move_to_project",
+  #         "action_value": p.id.to_s
+  #       }
+  #     ]
+  #   }
+  #   t.rules = rules.to_json
+  #   t.save!
+  #   tk = pm.get_annotations('task').first.load
+  #   tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test test' }.to_json }.to_json
+  #   tk.save!
+  #   assert_equal 0, p.reload.project_medias.count
+  #   tk = Task.find(tk.id)
+  #   tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test foo test' }.to_json }.to_json
+  #   tk.save!
+  #   assert_equal 1, p.reload.project_medias.count
+  # end
 
   test "should allow default BotUser to be added on creation" do
     bu = create_bot_user(default: true, approved: true)
@@ -905,44 +910,45 @@ class TeamTest < ActiveSupport::TestCase
   #   assert_equal 0, Project.find(p1.id).project_medias.count
   # end
 
-  test "should duplicate team with tags and rules" do
-    t = create_team
-    create_tag_text team: t, text: 'new-tag'
-    p = create_project team: t
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "item_is_assigned_to_user",
-                "rule_value": "3"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
-        }
-      ]
-    }
-    t.rules = rules.to_json
-    t.save!
-    assert_nothing_raised do
-      copy = Team.duplicate(t)
-      assert_equal ['new-tag'], copy.tag_texts.map(&:text)
-      assert_equal 1, copy.get_rules.size
-      assert_equal rules.first[:name], copy.get_rules.first['name']
-    end
-  end
+  # TODO: Review by Sawy
+  # test "should duplicate team with tags and rules" do
+  #   t = create_team
+  #   create_tag_text team: t, text: 'new-tag'
+  #   p = create_project team: t
+  #   rules = []
+  #   rules << {
+  #     "name": random_string,
+  #     "project_ids": "",
+  #     "rules": {
+  #       "operator": "and",
+  #       "groups": [
+  #         {
+  #           "operator": "and",
+  #           "conditions": [
+  #             {
+  #               "rule_definition": "item_is_assigned_to_user",
+  #               "rule_value": "3"
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     },
+  #     "actions": [
+  #       {
+  #         "action_definition": "move_to_project",
+  #         "action_value": p.id.to_s
+  #       }
+  #     ]
+  #   }
+  #   t.rules = rules.to_json
+  #   t.save!
+  #   assert_nothing_raised do
+  #     copy = Team.duplicate(t)
+  #     assert_equal ['new-tag'], copy.tag_texts.map(&:text)
+  #     assert_equal 1, copy.get_rules.size
+  #     assert_equal rules.first[:name], copy.get_rules.first['name']
+  #   end
+  # end
 
   test "should duplicate team with Bots" do
     setup_smooch_bot(true)
@@ -1101,8 +1107,6 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return slack notifications as JSON schema" do
     t = create_team
-    create_project team: t
-    create_project team: t
     assert_not_nil t.slack_notifications_json_schema
   end
 
@@ -1114,11 +1118,6 @@ class TeamTest < ActiveSupport::TestCase
     tt2 = t2.team_tasks.first
     ss2 = t2.saved_searches.first
     assert_equal tt2.id.to_s, ss2.filters.dig('team_tasks', 0, 'id')
-  end
-
-  test "should have a default folder" do
-    t = create_team
-    assert_not_nil t.default_folder
   end
 
   test "should convert conditional info of team tasks when duplicating a team" do

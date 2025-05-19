@@ -11,7 +11,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     team = create_team
     team.set_languages = ['en','pt','es']
     team.save!
-    @bot.install_to!(p.team)
+    @bot.install_to!(team)
     @team = team
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media team: @team, media: m

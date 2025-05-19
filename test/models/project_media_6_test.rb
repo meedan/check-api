@@ -56,17 +56,10 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     Team.any_instance.unstub(:settings)
   end
 
-  test "should assign item to default project if project not set" do
-    t = create_team
-    pm = create_project_media team: t
-    assert_equal pm.project, t.default_folder
-  end
-
   test "should detach similar items when trash parent item" do
     setup_elasticsearch
     RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
-    default_folder = t.default_folder
     pm = create_project_media team: t, disable_es_callbacks: false
     pm1_c = create_project_media team: t, disable_es_callbacks: false
     pm1_s = create_project_media team: t, disable_es_callbacks: false
@@ -101,7 +94,6 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     setup_elasticsearch
     RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
-    default_folder = t.default_folder
     pm = create_project_media team: t, disable_es_callbacks: false
     pm1_c = create_project_media team: t, disable_es_callbacks: false
     pm1_s = create_project_media team: t, disable_es_callbacks: false

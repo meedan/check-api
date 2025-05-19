@@ -8,7 +8,7 @@ class ProjectMediaCacheWorker
     'requests_count', 'demand', 'last_seen', 'description', 'title', 'status', 'share_count',
     'reaction_count', 'report_status', 'tags_as_sentence', 'sources_as_sentence',
     'media_published_at', 'published_by', 'type_of_media', 'added_as_similar_by_name',
-    'confirmed_as_similar_by_name', 'folder', 'show_warning_cover', 'picture',
+    'confirmed_as_similar_by_name', 'show_warning_cover', 'picture',
     'team_name', 'creator_name'
   ]
 
