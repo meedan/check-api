@@ -34,19 +34,21 @@ class MediaTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
     m = create_media team: t
+    create_project_media team: t, media: m
     pu = create_user
     pt = create_team private: true
     create_team_user user: pu, team: pt, role: 'admin'
-    pm = create_media team: pt
+    m2 = create_media team: pt
+    create_project_media team: pt, media: m2
     with_current_user_and_team(u, t) { Media.find_if_can(m.id) }
     assert_raise CheckPermissions::AccessDenied do
-      with_current_user_and_team(u, pt) { Media.find_if_can(pm.id) }
+      with_current_user_and_team(u, pt) { Media.find_if_can(m2.id) }
     end
-    with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
+    with_current_user_and_team(pu, pt) { Media.find_if_can(m2.id) }
     tu = pt.team_users.last
     tu.status = 'requested'; tu.save!
     assert_raise CheckPermissions::AccessDenied do
-      with_current_user_and_team(pu, pt) { Media.find_if_can(pm.id) }
+      with_current_user_and_team(pu, pt) { Media.find_if_can(m2.id) }
     end
   end
 
@@ -64,9 +66,10 @@ class MediaTest < ActiveSupport::TestCase
 
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'collaborator'
+    create_project_media team: t, media: m
     with_current_user_and_team(u2, t) do
       assert_nothing_raised do
-        m.save!
+        m.reload.save!
       end
       assert_raise RuntimeError do
         m.destroy!

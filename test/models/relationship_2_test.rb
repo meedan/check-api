@@ -267,13 +267,6 @@ class Relationship2Test < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       create_relationship source_id: pm1.id, target_id: pm2.id
     end
-    p1 = create_project team: t1
-    p2 = create_project team: t2
-    pm1 = create_project_media project: p1
-    pm2 = create_project_media project: p2
-    assert_raises ActiveRecord::RecordInvalid do
-      create_relationship source_id: pm1.id, target_id: pm2.id
-    end
   end
 
   test "should set source type and target type independently" do

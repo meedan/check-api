@@ -363,9 +363,6 @@ module SampleData
     end
 
     m.save!
-    unless options[:team].blank?
-      create_project_media media: m, team: options[:team]
-    end
     m.reload
   end
 

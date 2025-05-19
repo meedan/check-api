@@ -149,8 +149,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal Relationship.suggested_type, r.relationship_type
     # Relation should be confirmed if at least one field size > threshold
-    pm3 = create_project_media project: p, quote: 'This is also a long enough title', team: @team
-    pm4 = create_project_media project: p, quote: 'This is also a long enough title so as to allow an actual check of other titles', team: @team
+    pm3 = create_project_media quote: 'This is also a long enough title', team: @team
+    pm4 = create_project_media quote: 'This is also a long enough title so as to allow an actual check of other titles', team: @team
     Bot::Alegre.stubs(:request).returns({
       "result" => [
         {

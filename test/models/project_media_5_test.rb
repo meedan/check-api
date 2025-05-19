@@ -351,10 +351,10 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    p1 = create_project
-    p2 = create_project
-    pm1 = create_project_media project: p1, media: m
-    pm2 = create_project_media project: p2, media: m
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team: t1, media: m
+    pm2 = create_project_media team: t2, media: m
     # fetch data (without overridden)
     data = pm1.media.metadata
     assert_equal 'test media', data['title']
@@ -581,7 +581,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should protect attributes from mass assignment" do
-    raw_params = { project: create_project, user: create_user }
+    raw_params = { team: create_team, user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
     assert_raise ActiveModel::ForbiddenAttributesError do

@@ -96,7 +96,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not throw exception for trashed item if request does not come from a client" do
-    pm = create_project_media project: p
+    pm = create_project_media
     pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm.save!
     User.current = nil

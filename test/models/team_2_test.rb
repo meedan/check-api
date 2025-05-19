@@ -733,8 +733,7 @@ class Team2Test < ActiveSupport::TestCase
     team = create_team
     user = create_user
     create_team_user team: team, user: user, role: 'admin'
-    project = create_project team: team, title: 'Project'
-    pm = create_project_media project: project
+    pm = create_project_media team: team
     source = create_source user: user
     source.team = team; source.save
 
@@ -784,21 +783,6 @@ class Team2Test < ActiveSupport::TestCase
     RequestStore.store[:disable_es_callbacks] = false
     copy_p = copy.projects.find_by_title(project.title)
     assert_not_equal project.token, copy_p.token
-  end
-
-  test "should duplicate a team when project is archived" do
-    team = create_team name: 'Team A', logo: 'rails.png'
-    project = create_project team: team
-
-    pm1 = create_project_media project: project
-    project.archived = true; project.save!
-
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-
-    copy_p = copy.projects.find_by_title(project.title)
-    assert_not_nil copy_p
   end
 
   test "should duplicate a team with saved searches" do
@@ -1291,19 +1275,6 @@ class Team2Test < ActiveSupport::TestCase
     t.settings = { languages: ['ar', 'en'], fieldsets: [{ identifier: 'foo', singular: 'foo', plural: 'foos' }] }
     t.save!
     assert_equal ['ar', 'en'], t.get_languages
-  end
-
-  test "should not crash if rules throw exception" do
-    Team.any_instance.stubs(:apply_rules).raises(RuntimeError)
-    t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    create_project_media project: p0
-    assert_equal 1, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    Team.any_instance.unstub(:apply_rules)
   end
 
   test "should not crash if text for keyword rule is nil" do

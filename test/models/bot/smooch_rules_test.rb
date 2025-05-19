@@ -98,7 +98,6 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal @team.default_folder.id, pm.project_id
     assert_equal @team.id, pm.team_id
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
