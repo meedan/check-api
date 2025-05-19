@@ -394,7 +394,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media team: t
       # Check that cached field exists (pick a key to verify the key deleted after destroy item)
-      cache_key = "check_cached_field:ProjectMedia:#{pm.id}:folder"
+      cache_key = "check_cached_field:ProjectMedia:#{pm.id}:status"
       assert Rails.cache.exist?(cache_key)
     end
     Sidekiq::Testing.fake! do

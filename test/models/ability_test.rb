@@ -569,6 +569,8 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user user: u , team: t1
     t2 = create_team private: true
     m = create_valid_media
+    pma = create_project_media team: t1, media: m
+    pmb = create_project_media team: t2, media: m
     with_current_user_and_team(u, t1) do
       ability = Ability.new
       assert ability.can?(:read, t1)
@@ -583,6 +585,8 @@ class AbilityTest < ActiveSupport::TestCase
     t2 = create_team private: true
     tu = create_team_user user: u , team: t2
     m = create_valid_media
+    pma = create_project_media team: t1, media: m
+    pmb = create_project_media team: t2, media: m
     with_current_user_and_team(u, tu) do
       ability = Ability.new
       assert ability.can?(:read, t1)
@@ -596,7 +600,9 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team private: true
     tu = create_team_user user: u , team: t2, status: 'banned'
-    m = create_valid_media team: t2
+    m = create_valid_media
+    pma = create_project_media team: t1, media: m
+    pmb = create_project_media team: t2, media: m
     with_current_user_and_team(u, t2) do
       ability = Ability.new
       assert ability.can?(:read, t1)

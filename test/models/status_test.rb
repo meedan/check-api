@@ -240,7 +240,7 @@ class StatusTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "editor should change status of own project" do
+  test "editor should change status of own project media" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'collaborator'
@@ -251,7 +251,7 @@ class StatusTest < ActiveSupport::TestCase
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
-    p.user = u; p.save!
+    pm.user = u; pm.save!
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
