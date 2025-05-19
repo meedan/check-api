@@ -364,7 +364,7 @@ module SampleData
 
     m.save!
     unless options[:team].blank?
-      create_project_media media: m, team: options[:team] unless p.nil?
+      create_project_media media: m, team: options[:team]
     end
     m.reload
   end
