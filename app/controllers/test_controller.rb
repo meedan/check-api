@@ -270,7 +270,7 @@ class TestController < ApplicationController
       user: user,
       team: team,
       published: true,
-      saved_search: saved_search,
+      media_saved_search: saved_search,
       licenses: [1],
       last_clusterized_at: Time.now,
       data_points: [1, 2]

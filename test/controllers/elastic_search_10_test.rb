@@ -437,11 +437,11 @@ class ElasticSearch10Test < ActionController::TestCase
     create_project_media team: t1, disable_es_callbacks: false
     create_project_media team: t1, disable_es_callbacks: false
     ss1 = create_saved_search team: t1, filters: {}
-    f = create_feed team: t1, saved_search: nil, data_points: [1, 2], published: true
+    f = create_feed team: t1, media_saved_search: nil, data_points: [1, 2], published: true
     t2 = create_team
     create_project_media team: t2, disable_es_callbacks: false
     ss2 = create_saved_search team: t2, filters: {}
-    ft = create_feed_team feed: f, team: t2, saved_search: nil, shared: true
+    ft = create_feed_team feed: f, team: t2, media_saved_search: nil, shared: true
     sleep 2
     Team.current = t1
     query = { feed_id: f.id, feed_view: 'media', show_similar: true }
@@ -450,21 +450,21 @@ class ElasticSearch10Test < ActionController::TestCase
     assert_equal 0, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
 
     # Only the first workspace has chosen a list
-    f.saved_search = ss1
+    f.media_saved_search = ss1
     f.save!
     assert_equal 2, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
 
     # Only the second workspace has chosen a list
-    f.saved_search = nil
+    f.media_saved_search = nil
     f.save!
-    ft.saved_search = ss2
+    ft.media_saved_search = ss2
     ft.save!
     assert_equal 1, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
 
     # Both workspaces have chosen a list
-    f.saved_search = ss1
+    f.media_saved_search = ss1
     f.save!
-    ft.saved_search = ss2
+    ft.media_saved_search = ss2
     ft.save!
     assert_equal 3, CheckSearch.new(query.to_json, nil, t1.id).number_of_results
 

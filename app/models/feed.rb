@@ -9,7 +9,7 @@ class Feed < ApplicationRecord
   has_many :feed_invitations, dependent: :destroy
   has_many :clusters
   belongs_to :user, optional: true
-  belongs_to :saved_search, optional: true
+  belongs_to :media_saved_search, class_name: 'SavedSearch', optional: true
   belongs_to :team, optional: true
 
   before_validation :set_user_and_team, :set_uuid, on: :create
@@ -49,11 +49,11 @@ class Feed < ApplicationRecord
     conditions = { shared: true }
     conditions[:team_id] = feed_team_ids if feed_team_ids.is_a?(Array)
     self.feed_teams.where(conditions).find_each do |ft|
-      saved_search = self.team_id == ft.team_id ? self.saved_search : ft.saved_search
-      if saved_search.blank? # Do not share anything from this team if they haven't chosen a list yet
+      media_saved_search = self.team_id == ft.team_id ? self.media_saved_search : ft.media_saved_search
+      if media_saved_search.blank? # Do not share anything from this team if they haven't chosen a list yet
         filters << { 'team_id' => ft.team_id, 'report_status' => ['none'] }
       else
-        filters << saved_search.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
+        filters << media_saved_search.filters.to_h.reject{ |k, _v| PROHIBITED_FILTERS.include?(k.to_s) }.merge({ 'team_id' => ft.team_id })
       end
     end
     filters
@@ -170,7 +170,7 @@ class Feed < ApplicationRecord
   end
 
   def saved_search_was
-    SavedSearch.find_by_id(self.saved_search_id_before_last_save)
+    SavedSearch.find_by_id(self.media_saved_search_id_before_last_save)
   end
 
   def get_exported_data(filters)
@@ -222,8 +222,8 @@ class Feed < ApplicationRecord
   end
 
   def saved_search_belongs_to_feed_teams
-    unless saved_search_id.blank?
-      errors.add(:saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) unless self.get_team_ids.include?(self.saved_search.team_id)
+    unless media_saved_search_id.blank?
+      errors.add(:media_saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) unless self.get_team_ids.include?(self.media_saved_search.team_id)
     end
   end
 
