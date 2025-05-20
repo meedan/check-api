@@ -189,7 +189,7 @@ class GraphqlController7Test < ActionController::TestCase
     assert_not data['is_part_of_feeds']
     assert_empty data['feeds']['edges']
     # add list to feed
-    f.saved_search_id = ss.id
+    f.media_saved_search_id = ss.id
     f.skip_check_ability = true
     f.save!
     query = "query { team(slug: \"#{t.slug}\") { saved_searches(first: 1, list_type: \"media\") { edges { node { filters, is_part_of_feeds, feeds(first: 1) { edges { node { dbid }}} } } } } }"
