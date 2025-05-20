@@ -221,70 +221,68 @@ class ProjectMedia3Test < ActiveSupport::TestCase
     end
   end
 
-  # TODO: Review by Sawy (update action)
-  # test "should run callbacks for bulk-update status" do
-  #   ProjectMedia.stubs(:clear_caches).returns(nil)
-  #   setup_elasticsearch
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   p = create_project team: t
-  #   rules = []
-  #   rules << {
-  #     "name": random_string,
-  #     "project_ids": "",
-  #     "rules": {
-  #       "operator": "and",
-  #       "groups": [
-  #         {
-  #           "operator": "and",
-  #           "conditions": [
-  #             {
-  #               "rule_definition": "status_is",
-  #               "rule_value": "verified"
-  #             }
-  #           ]
-  #         }
-  #       ]
-  #     },
-  #     "actions": [
-  #       {
-  #         "action_definition": "move_to_project",
-  #         "action_value": p.id.to_s
-  #       }
-  #     ]
-  #   }
-  #   t.rules = rules.to_json
-  #   t.save!
-  #   with_current_user_and_team(u, t) do
-  #     pm = create_project_media team: t, disable_es_callbacks: false
-  #     publish_report(pm)
-  #     pm_status = pm.last_status
-  #     pm2 = create_project_media team: t, disable_es_callbacks: false
-  #     pm3 = create_project_media team: t, disable_es_callbacks: false
-  #     sleep 2
-  #     ids = [pm.id, pm2.id, pm3.id]
-  #     updates = { action: 'update_status', params: { status: 'verified' }.to_json }
-  #     Sidekiq::Testing.inline! do
-  #       ProjectMedia.bulk_update(ids, updates, t)
-  #       sleep 2
-  #       # Verify nothing happens for published reports
-  #       assert_equal pm_status, pm.reload.last_status
-  #       result = $repository.find(get_es_id(pm))
-  #       assert_equal pm_status, result['verification_status']
-  #       # Verify rules callback
-  #       assert_equal t.default_folder.id, pm.reload.project_id
-  #       assert_equal p.id, pm2.reload.project_id
-  #       assert_equal p.id, pm3.reload.project_id
-  #       # Verify ES index
-  #       result = $repository.find(get_es_id(pm2))
-  #       assert_equal 'verified', result['verification_status']
-  #       result = $repository.find(get_es_id(pm3))
-  #       assert_equal 'verified', result['verification_status']
-  #     end
-  #   end
-  #   ProjectMedia.unstub(:clear_caches)
-  # end
+  test "should run callbacks for bulk-update status" do
+    ProjectMedia.stubs(:clear_caches).returns(nil)
+    setup_elasticsearch
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "verified"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    with_current_user_and_team(u, t) do
+      pm = create_project_media team: t, disable_es_callbacks: false
+      publish_report(pm)
+      pm_status = pm.last_status
+      pm2 = create_project_media team: t, disable_es_callbacks: false
+      pm3 = create_project_media team: t, disable_es_callbacks: false
+      sleep 2
+      ids = [pm.id, pm2.id, pm3.id]
+      updates = { action: 'update_status', params: { status: 'verified' }.to_json }
+      Sidekiq::Testing.inline! do
+        ProjectMedia.bulk_update(ids, updates, t)
+        sleep 2
+        # Verify nothing happens for published reports
+        assert_equal pm_status, pm.reload.last_status
+        result = $repository.find(get_es_id(pm))
+        assert_equal pm_status, result['verification_status']
+        # Verify rules callback
+        assert_equal ['test'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+        assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
+        # Verify ES index
+        result = $repository.find(get_es_id(pm2))
+        assert_equal 'verified', result['verification_status']
+        result = $repository.find(get_es_id(pm3))
+        assert_equal 'verified', result['verification_status']
+      end
+    end
+    ProjectMedia.unstub(:clear_caches)
+  end
 
   test "should cache picture and creator name" do
     RequestStore.store[:skip_cached_field_update] = false

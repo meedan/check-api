@@ -458,7 +458,7 @@ class GraphqlController2Test < ActionController::TestCase
     pm = create_project_media team: t
     t1 = create_task annotated: pm, fieldset: 'tasks'
     t2 = create_task annotated: pm, fieldset: 'metadata'
-    ids = [pm.id, nil, t.id].join(',')
+    ids = [pm.id, t.id].join(',')
     authenticate_with_user(u)
 
     query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'

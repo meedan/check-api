@@ -293,20 +293,18 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
-  # TODO: Review by Sawy
-  # test "should check permission before setting Slack channel URL" do
-  #   u = create_user
-  #   t = create_team
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   p = create_project team: t
-  #   d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
-  #   u2 = create_user
-  #   authenticate_with_user(u2)
-  #   query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
-  # '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
-  #   post :create, params: { query: query }
-  #   assert_response 400
-  # end
+  test "should check permission before setting Slack channel URL" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    d = create_dynamic_annotation annotated: t, annotation_type: 'smooch_user'
+    u2 = create_user
+    authenticate_with_user(u2)
+    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
+  '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
+    post :create, params: { query: query }
+    assert_response 400
+  end
 
   test "should delete tag" do
     u = create_user

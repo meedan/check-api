@@ -999,64 +999,54 @@ class Team2Test < ActiveSupport::TestCase
     assert_not_nil t.rules_json_schema
   end
 
-  # TODO: Review by Sawy
-  # test "should match rule based on status" do
-  #   RequestStore.store[:skip_cached_field_update] = false
-  #   create_verification_status_stuff
-  #   setup_elasticsearch
-  #   t = create_team
-  #   p0 = create_project team: t
-  #   p1 = create_project team: t
-  #   rules = []
-  #   rules << {
-  #     "name": random_string,
-  #     "project_ids": "",
-  #     "rules": {
-  #       "operator": "and",
-  #       "groups": [
-  #         {
-  #           "operator": "and",
-  #           "conditions": [
-  #             {
-  #               "rule_definition": "status_is",
-  #               "rule_value": "in_progress"
-  #             }
-  #           ]
-  #         }
-  #       ]
-  #     },
-  #     "actions": [
-  #       {
-  #         "action_definition": "move_to_project",
-  #         "action_value": p1.id.to_s
-  #       }
-  #     ]
-  #   }
-  #   t.rules = rules.to_json
-  #   t.save!
-  #   pm1 = create_project_media project: p0, disable_es_callbacks: false
-  #   s = pm1.last_status_obj
-  #   s.status = 'in_progress'
-  #   s.save!
-  #   sleep 2
-  #   result = $repository.find(get_es_id(pm1))
-  #   assert_equal p1.id, result['project_id']
-  #   pm2 = create_project_media project: p0, disable_es_callbacks: false
-  #   sleep 2
-  #   assert_equal p1.id, pm1.reload.project_id
-  #   assert_equal p0.id, pm2.reload.project_id
-  # end
+  test "should match rule based on status" do
+    RequestStore.store[:skip_cached_field_update] = false
+    create_verification_status_stuff
+    setup_elasticsearch
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "status_is",
+                "rule_value": "in_progress"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media team: t, disable_es_callbacks: false
+    s = pm1.last_status_obj
+    s.status = 'in_progress'
+    s.save!
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
 
   # TODO: Review by Sawy
   # test "should match rule based on tag" do
   #   t = create_team
-  #   p0 = create_project team: t
-  #   p1 = create_project team: t
-  #   p2 = create_project team: t
+  #   create_tag_text text: 'test_a', team_id: t.id
+  #   create_tag_text text: 'test_b', team_id: t.id
   #   rules = []
   #   rules << {
   #     "name": random_string,
-  #     "project_ids": "",
   #     "rules": {
   #       "operator": "and",
   #       "groups": [
@@ -1073,14 +1063,13 @@ class Team2Test < ActiveSupport::TestCase
   #     },
   #     "actions": [
   #       {
-  #         "action_definition": "move_to_project",
-  #         "action_value": p1.id.to_s
+  #         "action_definition": "add_tag",
+  #         "action_value": "tag_a"
   #       }
   #     ]
   #   }
   #   rules << {
   #     "name": random_string,
-  #     "project_ids": "",
   #     "rules": {
   #       "operator": "and",
   #       "groups": [
@@ -1097,147 +1086,134 @@ class Team2Test < ActiveSupport::TestCase
   #     },
   #     "actions": [
   #       {
-  #         "action_definition": "move_to_project",
-  #         "action_value": p2.id.to_s
+  #         "action_definition": "add_tag",
+  #         "action_value": "tag_b"
   #       }
+        
   #     ]
   #   }
   #   t.rules = rules.to_json
   #   t.save!
-  #   pm1 = create_project_media project: p0
+  #   pm1 = create_project_media team: t
   #   create_tag tag: 'foo', annotated: pm1
-  #   pm2 = create_project_media project: p0
+  #   pm2 = create_project_media team: t
   #   create_tag tag: 'bar', annotated: pm2
-  #   pm3 = create_project_media project: p0
-  #   create_tag tag: 'test', annotated: pm2
-  #   assert_equal p1.id, pm1.reload.project_id
-  #   assert_equal p2.id, pm2.reload.project_id
-  #   assert_equal p0.id, pm3.reload.project_id
+  #   pm3 = create_project_media team: t
+  #   create_tag tag: 'test', annotated: pm3
+  #   assert_equal ['test_a'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+  #   assert_equal ['test_b'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+  #   # assert_equal p0.id, pm3.reload.project_id
   # end
 
-  # TODO: Review by Sawy
-  # test "should match rule based on item type" do
-  #   ft = create_field_type field_type: 'image_path', label: 'Image Path'
-  #   at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
-  #   create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
-  #   t = create_team
-  #   u = create_user
-  #   create_team_user user: u, team: t, role: 'collaborator'
-  #   p0 = create_project team: t
-  #   p1 = create_project team: t
-  #   p2 = create_project team: t
-  #   p3 = create_project team: t
-  #   p4 = create_project team: t
-  #   rules = []
-  #   { 'claim' => p1, 'uploadedvideo' => p2, 'uploadedimage' => p3, 'link' => p4 }.each do |type, p|
-  #     rules << {
-  #       "name": random_string,
-  #       "project_ids": "",
-  #       "rules": {
-  #         "operator": "and",
-  #         "groups": [
-  #           {
-  #             "operator": "and",
-  #             "conditions": [
-  #               {
-  #                 "rule_definition": "type_is",
-  #                 "rule_value": type
-  #               }
-  #             ]
-  #           }
-  #         ]
-  #       },
-  #       "actions": [
-  #         {
-  #           "action_definition": "move_to_project",
-  #           "action_value": p.id.to_s
-  #         }
-  #       ]
-  #     }
-  #   end
-  #   t.rules = rules.to_json
-  #   t.save!
-  #   assert_equal 4, t.rules_search_fields_json_schema[:properties][:rules][:properties].keys.size
-  #   s = create_source
-  #   c = create_claim_media account: create_valid_account({team: t})
-  #   c.account.sources << s
-  #   pm1 = pm2 = pm3 = pm4 = nil
-  #   CheckSentry.stubs(:notify).raises(StandardError)
-  #   with_current_user_and_team(u, t) do
-  #     pm1 = create_project_media media: c, project: p0
-  #     pm2 = create_project_media media: create_uploaded_video, project: p0
-  #     pm3 = create_project_media media: create_uploaded_image, project: p0
-  #     pm4 = create_project_media media: create_link({team: t}), project: p0
-  #   end
-  #   assert_equal p1.id, pm1.reload.project_id
-  #   assert_equal p2.id, pm2.reload.project_id
-  #   assert_equal p3.id, pm3.reload.project_id
-  #   assert_equal p4.id, pm4.reload.project_id
-  # end
+  test "should match rule based on item type" do
+    ft = create_field_type field_type: 'image_path', label: 'Image Path'
+    at = create_annotation_type annotation_type: 'reverse_image', label: 'Reverse Image'
+    create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'collaborator'
+    create_tag_text text: 'test', team_id: t.id
+    rules = []
+    ['claim', 'uploadedvideo', 'uploadedimage', 'link'].each do |type|
+      rules << {
+        "name": random_string,
+        "project_ids": "",
+        "rules": {
+          "operator": "and",
+          "groups": [
+            {
+              "operator": "and",
+              "conditions": [
+                {
+                  "rule_definition": "type_is",
+                  "rule_value": type
+                }
+              ]
+            }
+          ]
+        },
+        "actions": [
+          {
+          "action_definition": "add_tag",
+          "action_value": "test"
+          }
+        ]
+      }
+    end
+    t.rules = rules.to_json
+    t.save!
+    assert_equal 4, t.rules_search_fields_json_schema[:properties][:rules][:properties].keys.size
+    s = create_source
+    c = create_claim_media account: create_valid_account({team: t})
+    c.account.sources << s
+    pm1 = pm2 = pm3 = pm4 = nil
+    CheckSentry.stubs(:notify).raises(StandardError)
+    with_current_user_and_team(u, t) do
+      pm1 = create_project_media media: c, team: t
+      pm2 = create_project_media media: create_uploaded_video, team: t
+      pm3 = create_project_media media: create_uploaded_image, team: t
+      pm4 = create_project_media media: create_link({team: t}), team: t
+    end
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm4.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
 
-  # TODO: Review by Sawy
-  # test "should return number of items in trash, unconfirmed, spam and outside trash" do
-  #   t = create_team
-  #   p1 = create_project team: t
-  #   p2 = create_project team: t
-  #   create_project_media project: p1
-  #   create_project_media project: p1
-  #   create_project_media project: p1
-  #   create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
-  #   create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
-  #   create_project_media project: p2, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
-  #   create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::SPAM
-  #   create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::SPAM
-  #   create_project_media
-  #   t = t.reload
-  #   assert_equal 4, t.medias_count
-  #   assert_equal 2, t.spam_count
-  #   assert_equal 2, t.trash_count
-  #   assert_equal 1, t.unconfirmed_count
-  # end
+  test "should return number of items in trash, unconfirmed, spam and outside trash" do
+    t = create_team
+    create_project_media team: t
+    create_project_media team: t
+    create_project_media team: t
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::SPAM
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::SPAM
+    create_project_media
+    t = t.reload
+    assert_equal 4, t.medias_count
+    assert_equal 2, t.spam_count
+    assert_equal 2, t.trash_count
+    assert_equal 1, t.unconfirmed_count
+  end
 
-  # TODO: Review by Sawy
-  # test "should match rule by title" do
-  #   t = create_team
-  #   p0 = create_project team: t
-  #   p1 = create_project team: t
-  #   rules = []
-  #   rules << {
-  #     "name": random_string,
-  #     "project_ids": "",
-  #     "rules": {
-  #       "operator": "and",
-  #       "groups": [
-  #         {
-  #           "operator": "and",
-  #           "conditions": [
-  #             {
-  #               "rule_definition": "title_contains_keyword",
-  #               "rule_value": "test"
-  #             }
-  #           ]
-  #         }
-  #       ]
-  #     },
-  #     "actions": [
-  #       {
-  #         "action_definition": "move_to_project",
-  #         "action_value": p1.id.to_s
-  #       }
-  #     ]
-  #   }
-  #   t.rules = rules.to_json
-  #   t.save!
-  #   assert_equal 0, Project.find(p0.id).project_medias.count
-  #   assert_equal 0, Project.find(p1.id).project_medias.count
-  #   url = 'http://test.com'
-  #   pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-  #   response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
-  #   WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-  #   create_project_media project: p0, media: nil, url: url
-  #   assert_equal 0, Project.find(p0.id).project_medias.count
-  #   assert_equal 1, Project.find(p1.id).project_medias.count
-  # end
+  test "should match rule by title" do
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    rules = []
+    rules << {
+      "name": random_string,
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "title_contains_keyword",
+                "rule_value": "test"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    url = 'http://test.com'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    pm = create_project_media team: t, media: nil, url: url
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
 
   test "should save valid languages" do
     t = create_team
@@ -1374,51 +1350,46 @@ class Team2Test < ActiveSupport::TestCase
     assert_not_nil schema[:properties]['flag_value']
   end
 
-  # TODO: Review by Sawy
-  # test "should match rule when report is published" do
-  #   t = create_team
-  #   p1 = create_project team: t
-  #   p2 = create_project team: t
-  #   pm1 = create_project_media team: t
-  #   pm2 = create_project_media project: p2
-  #   pm3 = create_project_media team: t
-  #   assert_equal 0, p1.reload.project_medias.count
-  #   assert_equal 1, p2.reload.project_medias.count
-  #   rules = []
-  #   rules << {
-  #     "name": random_string,
-  #     "project_ids": "",
-  #     "rules": {
-  #       "operator": "and",
-  #       "groups": [
-  #         {
-  #           "operator": "and",
-  #           "conditions": [
-  #             {
-  #               "rule_definition": "report_is_published",
-  #               "rule_value": ""
-  #             }
-  #           ]
-  #         }
-  #       ]
-  #     },
-  #     "actions": [
-  #       {
-  #         "action_definition": "move_to_project",
-  #         "action_value": p1.id.to_s
-  #       }
-  #     ]
-  #   }
-  #   t.rules = rules.to_json
-  #   t.save!
-  #   publish_report(pm1)
-  #   publish_report(pm2)
-  #   assert_equal 2, p1.reload.project_medias.count
-  #   assert_equal 0, p2.reload.project_medias.count
-  #   create_report(pm3, { state: 'published' }, 'publish')
-  #   assert_equal 3, p1.reload.project_medias.count
-  #   assert_equal 0, p2.reload.project_medias.count
-  # end
+  test "should match rule when report is published" do
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+    rules = []
+    rules << {
+      "name": random_string,
+      "project_ids": "",
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "report_is_published",
+                "rule_value": ""
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    publish_report(pm1)
+    publish_report(pm2)
+    create_report(pm3, { state: 'published' }, 'publish')
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
 
   test 'should have a header type available only if there are templates for it' do
     t = create_team

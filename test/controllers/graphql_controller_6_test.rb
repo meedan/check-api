@@ -178,28 +178,25 @@ class GraphqlController6Test < ActionController::TestCase
     assert_equal 1, response['item_navigation_offset']
   end
 
-  # TODO: Should review by Sawy
-  # test "should set Smooch user Slack channel URL" do
-  #   u = create_user
-  #   t = create_team
-  #   p = create_project team: t
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   set_fields = { smooch_user_data: { id: random_string }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
-  #   d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
-  #   authenticate_with_token
-  #   query = 'mutation { smoochBotAddSlackChannelUrl(input: { id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url + '\"}" }) { annotation { dbid } } }'
-  #   post :create, params: { query: query }
-  #   assert_response :success
-  # end
+  test "should set Smooch user Slack channel URL" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    set_fields = { smooch_user_data: { id: random_string }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
+    d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
+    authenticate_with_token
+    query = 'mutation { smoochBotAddSlackChannelUrl(input: { id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url + '\"}" }) { annotation { dbid } } }'
+    post :create, params: { query: query }
+    assert_response :success
+  end
 
-  # test "should not set Smooch user Slack channel URL" do
-  #   u = create_user
-  #   t = create_team
-  #   p = create_project team: t
-  #   create_team_user team: t, user: u, role: 'admin'
-  #   authenticate_with_token
-  #   query = 'mutation { smoochBotAddSlackChannelUrl(input: { id: "0", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url + '\"}" }) { annotation { dbid } } }'
-  #   post :create, params: { query: query }
-  #   assert_response :success
-  # end
+  test "should not set Smooch user Slack channel URL" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_token
+    query = 'mutation { smoochBotAddSlackChannelUrl(input: { id: "0", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url + '\"}" }) { annotation { dbid } } }'
+    post :create, params: { query: query }
+    assert_response :success
+  end
 end

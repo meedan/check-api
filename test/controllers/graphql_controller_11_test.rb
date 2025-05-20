@@ -363,7 +363,7 @@ class GraphqlController11Test < ActionController::TestCase
     r = create_relationship source: pm1, target: pm2, user: u
 
     authenticate_with_user(u)
-    query = "query { project_media(ids: \"#{pm1.id},nil,#{t.id}\") { media_cluster_relationship { dbid, user_id, confirmed_at, weight, source_field, target_field, model, user { name }, confirmed_by { name } }, media_cluster_origin, media_cluster_origin_user { dbid }, media_cluster_origin_timestamp } }"
+    query = "query { project_media(ids: \"#{pm1.id},#{t.id}\") { media_cluster_relationship { dbid, user_id, confirmed_at, weight, source_field, target_field, model, user { name }, confirmed_by { name } }, media_cluster_origin, media_cluster_origin_user { dbid }, media_cluster_origin_timestamp } }"
     post :create, params: { query: query }
     assert_response :success
 

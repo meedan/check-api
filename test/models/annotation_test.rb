@@ -284,34 +284,32 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal [task1, task2].sort, Annotation.assigned_to_user(u.id).sort
   end
 
-  # TODO: Review by Sawy
-  # test "should get project medias assigned to user" do
-  #   u = create_user
-  #   u2 = create_user
-  #   t = create_team
-  #   create_team_user user: u, team: t, status: 'member'
-  #   create_team_user user: u2, team: t, status: 'member'
-  #   pm1 = create_project_media team: t
-  #   pm2 = create_project_media team: t
-  #   pm3 = create_project_media team: t
-  #   pm4 = create_project_media team: t
-  #   pm5 = create_project_media team: t
-  #   pm6 = create_project_media team: t
-  #   s1 = create_status status: 'verified', annotated: pm1
-  #   s2 = create_status status: 'verified', annotated: pm2
-  #   s3 = create_status status: 'verified', annotated: pm1
-  #   s4 = create_status status: 'verified', annotated: pm4
-  #   task1 = create_task annotated: pm1
-  #   task2 = create_task annotated: pm3
-  #   s1.assign_user(u.id)
-  #   s2.assign_user(u.id)
-  #   s3.assign_user(u.id)
-  #   s4.assign_user(u2.id)
-  #   task1.assign_user(u.id)
-  #   task2.assign_user(u.id)
-  #   # Assignment.create! assigned: p2, user: u
-  #   assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id').sort
-  # end
+  test "should get project medias assigned to user" do
+    u = create_user
+    u2 = create_user
+    t = create_team
+    create_team_user user: u, team: t, status: 'member'
+    create_team_user user: u2, team: t, status: 'member'
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+    pm4 = create_project_media team: t
+    pm5 = create_project_media team: t
+    pm6 = create_project_media team: t
+    s1 = create_status status: 'verified', annotated: pm1
+    s2 = create_status status: 'verified', annotated: pm2
+    s3 = create_status status: 'verified', annotated: pm1
+    s4 = create_status status: 'verified', annotated: pm4
+    task1 = create_task annotated: pm1
+    task2 = create_task annotated: pm3
+    s1.assign_user(u.id)
+    s2.assign_user(u.id)
+    s3.assign_user(u.id)
+    s4.assign_user(u2.id)
+    task1.assign_user(u.id)
+    task2.assign_user(u.id)
+    assert_equal [pm1.id, pm2.id, pm3.id].sort, Annotation.project_media_assigned_to_user(u, 'id').map(&:id).sort
+  end
 
   test "should save metadata in annotation" do
     with_versioning do

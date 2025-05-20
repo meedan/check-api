@@ -652,58 +652,57 @@ class TeamTaskTest < ActiveSupport::TestCase
     assert !t.show_in_browser_extension
   end
 
-  # TODO: Review by Sawy
-  # test "should add-remove team tasks based on rule" do
-  #   create_task_stuff
-  #   t = create_team
-  #   p = create_project team: t
-  #   rules = []
-  #   rules << {
-  #     name: 'Rule 1',
-  #     rules: {
-  #       operator: 'and',
-  #       groups: [
-  #         {
-  #           operator: 'and',
-  #           conditions: [
-  #             {
-  #               rule_definition: 'title_contains_keyword',
-  #               rule_value: 'test'
-  #             },
-  #           ]
-  #         }
-  #       ]
-  #     },
-  #     actions: [
-  #       {
-  #         action_definition: 'move_to_project',
-  #         action_value: p.id
-  #       }
-  #     ]
-  #   }
-  #   t.rules = rules.to_json
-  #   t.save!
-  #   tt = create_team_task team_id: t.id
-  #   Team.stubs(:current).returns(t)
-  #   Sidekiq::Testing.inline! do
-  #     pm = nil
-  #     assert_difference 'Task.length', 1 do
-  #       pm = create_project_media team: t, quote: 'test by sawy'
-  #     end
-  #     pm_tasks = pm.annotations('task').select{|t| t.team_task_id == tt.id}
-  #     assert_equal 1, pm_tasks.count
-  #     tt2 = create_team_task team_id: t.id
-  #     pm2 = nil
-  #     assert_difference 'Task.length', 2 do
-  #       pm2 = create_project_media team: t, quote: 'another test by sawy'
-  #     end
-  #     pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}
-  #     pm2_tt2 = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}
-  #     assert_equal 1, pm2_tt.count
-  #     assert_equal 1, pm2_tt2.count
-  #   end
-  #   Team.unstub(:current)
-  # end
+  test "should add-remove team tasks based on rule" do
+    create_task_stuff
+    t = create_team
+    create_tag_text text: 'test', team_id: t.id
+    rules = []
+    rules << {
+      name: 'Rule 1',
+      rules: {
+        operator: 'and',
+        groups: [
+          {
+            operator: 'and',
+            conditions: [
+              {
+                rule_definition: 'title_contains_keyword',
+                rule_value: 'test'
+              },
+            ]
+          }
+        ]
+      },
+      actions: [
+        {
+          "action_definition": "add_tag",
+          "action_value": "test"
+        }
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    tt = create_team_task team_id: t.id
+    Team.stubs(:current).returns(t)
+    Sidekiq::Testing.inline! do
+      pm = nil
+      assert_difference 'Task.length', 1 do
+        pm = create_project_media team: t, quote: 'test by sawy'
+      end
+      pm_tasks = pm.annotations('task').select{|t| t.team_task_id == tt.id}
+      assert_equal 1, pm_tasks.count
+      tt2 = create_team_task team_id: t.id
+      pm2 = nil
+      assert_difference 'Task.length', 2 do
+        pm2 = create_project_media team: t, quote: 'another test by sawy'
+      end
+      pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}
+      pm2_tt2 = pm2.annotations('task').select{|t| t.team_task_id == tt2.id}
+      assert_equal 1, pm2_tt.count
+      assert_equal 1, pm2_tt2.count
+    end
+    Team.unstub(:current)
+  end
 
   test "should count teamwide tasks" do
     t = create_team
