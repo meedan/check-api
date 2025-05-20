@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_13_075639) do
+ActiveRecord::Schema.define(version: 2025_05_15_134234) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -349,7 +349,7 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.string "tags", default: [], array: true
     t.boolean "trashed", default: false
     t.bigint "author_id"
-    t.integer "channel", null: false
+    t.integer "channel"
     t.index "date_trunc('day'::text, created_at)", name: "explainer_created_at_day"
     t.index ["author_id"], name: "index_explainers_on_author_id"
     t.index ["channel"], name: "index_explainers_on_channel"
@@ -376,7 +376,7 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.boolean "imported", default: false
     t.boolean "trashed", default: false
     t.bigint "author_id"
-    t.integer "channel", null: false
+    t.integer "channel"
     t.index "date_trunc('day'::text, created_at)", name: "fact_check_created_at_day"
     t.index ["author_id"], name: "index_fact_checks_on_author_id"
     t.index ["channel"], name: "index_fact_checks_on_channel"
@@ -411,9 +411,9 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.boolean "shared", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "saved_search_id"
+    t.bigint "media_saved_search_id"
     t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
-    t.index ["saved_search_id"], name: "index_feed_teams_on_saved_search_id"
+    t.index ["media_saved_search_id"], name: "index_feed_teams_on_media_saved_search_id"
     t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
     t.index ["team_id"], name: "index_feed_teams_on_team_id"
   end
@@ -424,7 +424,7 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.boolean "published", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "saved_search_id"
+    t.bigint "media_saved_search_id"
     t.bigint "user_id"
     t.bigint "team_id"
     t.text "description"
@@ -434,7 +434,7 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.integer "data_points", default: [], array: true
     t.string "uuid", default: "", null: false
     t.datetime "last_clusterized_at"
-    t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
+    t.index ["media_saved_search_id"], name: "index_feeds_on_media_saved_search_id"
     t.index ["team_id"], name: "index_feeds_on_team_id"
     t.index ["user_id"], name: "index_feeds_on_user_id"
     t.index ["uuid"], name: "index_feeds_on_uuid"
@@ -1022,6 +1022,6 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE FUNCTION validate_relationships()
   SQL
 end

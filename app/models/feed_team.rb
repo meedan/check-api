@@ -3,7 +3,7 @@ class FeedTeam < ApplicationRecord
 
   belongs_to :team
   belongs_to :feed
-  belongs_to :saved_search, optional: true
+  belongs_to :media_saved_search, class_name: 'SavedSearch', optional: true
 
   validates_presence_of :team_id, :feed_id
   validate :saved_search_belongs_to_feed_team
@@ -16,18 +16,18 @@ class FeedTeam < ApplicationRecord
   end
 
   def filters
-    self.saved_search&.filters.to_h
+    self.media_saved_search&.filters.to_h
   end
 
   def saved_search_was
-    SavedSearch.find_by_id(self.saved_search_id_before_last_save)
+    SavedSearch.find_by_id(self.media_saved_search_id_before_last_save)
   end
 
   private
 
   def saved_search_belongs_to_feed_team
-    unless saved_search_id.blank?
-      errors.add(:saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) if self.team_id != self.saved_search.team_id
+    unless media_saved_search_id.blank?
+      errors.add(:media_saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) if self.team_id != self.media_saved_search.team_id
     end
   end
 
