@@ -1039,71 +1039,70 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
-  # TODO: Review by Sawy
-  # test "should match rule based on tag" do
-  #   t = create_team
-  #   create_tag_text text: 'test_a', team_id: t.id
-  #   create_tag_text text: 'test_b', team_id: t.id
-  #   rules = []
-  #   rules << {
-  #     "name": random_string,
-  #     "rules": {
-  #       "operator": "and",
-  #       "groups": [
-  #         {
-  #           "operator": "and",
-  #           "conditions": [
-  #             {
-  #               "rule_definition": "tagged_as",
-  #               "rule_value": "foo"
-  #             }
-  #           ]
-  #         }
-  #       ]
-  #     },
-  #     "actions": [
-  #       {
-  #         "action_definition": "add_tag",
-  #         "action_value": "tag_a"
-  #       }
-  #     ]
-  #   }
-  #   rules << {
-  #     "name": random_string,
-  #     "rules": {
-  #       "operator": "and",
-  #       "groups": [
-  #         {
-  #           "operator": "and",
-  #           "conditions": [
-  #             {
-  #               "rule_definition": "tagged_as",
-  #               "rule_value": "bar"
-  #             }
-  #           ]
-  #         }
-  #       ]
-  #     },
-  #     "actions": [
-  #       {
-  #         "action_definition": "add_tag",
-  #         "action_value": "tag_b"
-  #       }
+  test "should match rule based on tag" do
+    t = create_team
+    create_tag_text text: 'tag_foo', team_id: t.id
+    create_tag_text text: 'tag_bar', team_id: t.id
+    rules = []
+    rules << {
+      "name": random_string,
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "tagged_as",
+                "rule_value": "foo"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "tag_foo"
+        }
+      ]
+    }
+    rules << {
+      "name": random_string,
+      "rules": {
+        "operator": "and",
+        "groups": [
+          {
+            "operator": "and",
+            "conditions": [
+              {
+                "rule_definition": "tagged_as",
+                "rule_value": "bar"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_definition": "add_tag",
+          "action_value": "tag_bar"
+        }
         
-  #     ]
-  #   }
-  #   t.rules = rules.to_json
-  #   t.save!
-  #   pm1 = create_project_media team: t
-  #   create_tag tag: 'foo', annotated: pm1
-  #   pm2 = create_project_media team: t
-  #   create_tag tag: 'bar', annotated: pm2
-  #   pm3 = create_project_media team: t
-  #   create_tag tag: 'test', annotated: pm3
-  #   assert_equal ['test_a'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
-  #   assert_equal ['test_b'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
-  #   # assert_equal p0.id, pm3.reload.project_id
-  # end
+      ]
+    }
+    t.rules = rules.to_json
+    t.save!
+    pm1 = create_project_media team: t
+    create_tag tag: 'foo', annotated: pm1
+    pm2 = create_project_media team: t
+    create_tag tag: 'bar', annotated: pm2
+    pm3 = create_project_media team: t
+    create_tag tag: 'test', annotated: pm3
+    assert_includes pm1.get_annotations('tag').map(&:load).map(&:tag_text), 'tag_foo'
+    assert_includes pm2.get_annotations('tag').map(&:load).map(&:tag_text), 'tag_bar'
+    assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
+  end
 
   test "should match rule based on item type" do
     ft = create_field_type field_type: 'image_path', label: 'Image Path'
