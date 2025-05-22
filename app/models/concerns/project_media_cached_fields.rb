@@ -676,10 +676,6 @@ module ProjectMediaCachedFields
       r.nil? ? nil : User.find_by_id(r.confirmed_by.to_i)&.name
     end
 
-    def recalculate_folder
-      self.project&.title.to_s
-    end
-
     def recalculate_show_warning_cover
       self.get_dynamic_annotation('flag')&.get_field_value('show_cover') || false
     end

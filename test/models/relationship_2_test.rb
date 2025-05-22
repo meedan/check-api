@@ -276,6 +276,16 @@ class Relationship2Test < ActiveSupport::TestCase
     assert r.is_confirmed?
   end
 
+  test "should archive detach to specific list" do
+    t = create_team
+    pm_s = create_project_media team: t
+    pm_t = create_project_media team: t
+    r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
+    r.archive_target = CheckArchivedFlags::FlagCodes::SPAM
+    r.destroy
+    assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm_t.reload.archived
+  end
+
   test "should re-point targets to new source when adding as a target an item that already has targets" do
     t = create_team
     i1 = create_project_media(team: t).id

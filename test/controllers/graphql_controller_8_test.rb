@@ -461,6 +461,133 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal n, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
+  test "should get CheckSearch information fast" do
+    RequestStore.store[:skip_cached_field_update] = false
+    n = 3 # Number of media items to be created
+    m = 2 # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
+    u = create_user
+    authenticate_with_user(u)
+    t = create_team slug: 'team'
+    create_team_task team_id: t.id
+    create_tag_text team_id: t.id
+    create_team_bot_installation team_id: t.id
+    create_team_user user: u, team: t
+    n.times do
+      pm = create_project_media team: t, user: create_user, disable_es_callbacks: false
+      s = create_source
+      create_account_source source: s, disable_es_callbacks: false
+      m.times { create_tag annotated: pm, annotator: create_user, disable_es_callbacks: false }
+    end
+    create_project_media team: t, user: u, disable_es_callbacks: false
+    pm = create_project_media team: t, disable_es_callbacks: false
+    pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
+    pm.save!
+    sleep 10
+
+    # Current search query used by the frontend
+    query = %{query CheckSearch {
+      search(query: "{}") {
+        id
+        pusher_channel
+        number_of_results
+        team {
+          id
+          dbid
+          name
+          slug
+          verification_statuses
+          pusher_channel
+          dynamic_search_fields_json_schema
+          rules_search_fields_json_schema
+          medias_count
+          permissions
+          search_id
+          team_tasks(first: 10000) {
+            edges {
+              node {
+                id
+                dbid
+                fieldset
+                label
+                options
+                type
+              }
+            }
+          }
+          tag_texts(first: 10000) {
+            edges {
+              node {
+                text
+              }
+            }
+          }
+          users(first: 10000) {
+            edges {
+              node {
+                id
+                dbid
+                name
+              }
+            }
+          }
+          check_search_trash {
+            id
+            number_of_results
+          }
+          check_search_unconfirmed {
+            id
+            number_of_results
+          }
+          public_team {
+            id
+            medias_count
+            trash_count
+            unconfirmed_count
+            spam_count
+          }
+          search {
+            id
+            number_of_results
+          }
+          team_bot_installations(first: 10000) {
+            edges {
+              node {
+                id
+                team_bot: bot_user {
+                  id
+                  identifier
+                }
+              }
+            }
+          }
+        }
+        medias(first: 20) {
+          edges {
+            node {
+              id
+              dbid
+              picture
+              title
+              description
+              is_read
+              team {
+                verification_statuses
+              }
+            }
+          }
+        }
+      }
+    }}
+
+    # Make sure we only run queries for the 20 first items
+    assert_queries 100, '<=' do
+      post :create, params: { query: query, team: 'team' }
+    end
+
+    assert_response :success
+    assert_equal 4, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+  end
+
   test "should delete custom status" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false

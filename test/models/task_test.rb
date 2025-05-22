@@ -607,4 +607,25 @@ class TaskTest < ActiveSupport::TestCase
     pm = create_project_media team: t
     assert_equal tt, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).last.team_task
   end
+
+  test "should not create duplicate assignment" do
+    Sidekiq::Testing.inline! do
+      create_verification_status_stuff
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t
+      pm = create_project_media team: t
+      3.times { create_task(annotated: pm) }
+      id = pm.last_verification_status_obj.id
+      a = Assignment.new(user: u, assigned_type: 'Annotation', assigned_id: id)
+      Assignment.import([a])
+      a = YAML::dump(a)
+      Assignment.propagate_assignments(a, 0, :assign)
+      n = Assignment.count
+      Assignment.any_instance.stubs(:nil?).returns(true)
+      Assignment.propagate_assignments(a, 0, :assign)
+      Assignment.any_instance.unstub(:nil?)
+      assert_equal n, Assignment.count
+    end
+  end
 end

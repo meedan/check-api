@@ -119,10 +119,12 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user is_admin: true
     authenticate_with_user(u)
     pm = create_project_media
-    create_flag annotated: pm
-    query = "query GetById { project_media(ids: \"#{pm.id},nil,#{pm.team_id}\") { source { id }, flags(first: 10) { edges { node { id } } }, annotation(annotation_type: \"flag\") { permissions, medias(first: 1) { edges { node { id } } } project_media { id } }, annotations(annotation_type: \"flag\") { edges { node { ... on Flag { id } } } } } }"
+    f = create_flag annotated: pm
+    query = "query GetById { project_media(ids: \"#{pm.id},#{pm.team_id}\") { source { id }, flags(first: 10) { edges { node { id } } }, annotation(annotation_type: \"flag\") { permissions, medias(first: 1) { edges { node { id } } } project_media { id } }, annotations(annotation_type: \"flag\") { edges { node { ... on Flag { id } } } } } }"
     post :create, params: { query: query, team: pm.team.slug }
     assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 1, data['flags']['edges'].size
   end
 
   test "should read project medias" do
