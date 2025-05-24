@@ -735,6 +735,32 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     assert_equal u.id, pm.send(:user_id_callback, 'test@test.com')
   end
 
+  test "should restore and confirm item if not super admin" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin', is_admin: false
+    Sidekiq::Testing.inline! do
+      # test restore
+      pm = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED
+      assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
+      with_current_user_and_team(u, t) do
+        pm.archived = CheckArchivedFlags::FlagCodes::NONE
+        pm.save!
+      end
+      pm = pm.reload
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
+      # test confirm
+      pm = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
+      assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
+      with_current_user_and_team(u, t) do
+        pm.archived = CheckArchivedFlags::FlagCodes::NONE
+        pm.save!
+      end
+      pm = pm.reload
+      assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
+    end
+  end
+
   test "should set media type for links" do
     l = create_link
     pm = create_project_media url: l.url

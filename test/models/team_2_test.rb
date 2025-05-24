@@ -1232,6 +1232,14 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
+  test "should not crash if rules throw exception" do
+    Team.any_instance.stubs(:apply_rules).raises(RuntimeError)
+    t = create_team
+    CheckSentry.expects(:notify).once
+    create_project_media team: t
+    Team.any_instance.unstub(:apply_rules)
+  end
+
   test "should get languages" do
     t = create_team
     assert_equal ['en'], t.get_languages

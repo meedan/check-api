@@ -327,4 +327,26 @@ class StatusTest < ActiveSupport::TestCase
     pm = create_project_media
     assert_kind_of Hash, Workflow::Workflow.get_status(pm, 'verification_status', 'in_progress')
   end
+
+  test "should propagate assignments" do
+    Sidekiq::Testing.inline! do
+      create_verification_status_stuff
+      stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
+        t = create_team
+        u = create_user
+        create_team_user user: u, team: t
+        pm = create_project_media team: t
+        s = pm.last_verification_status_obj
+        3.times { create_task(annotated: pm) }
+        a = nil
+        assert_difference 'Assignment.count', 4 do
+          a = s.assign_user(u.id)
+        end
+        assert_not_nil a
+        assert_difference 'Assignment.count', -4 do
+          a.destroy!
+        end
+      end
+    end
+  end
 end
