@@ -420,7 +420,7 @@ class Bot::SmoochTest < ActiveSupport::TestCase
   test "should send report to user" do
     text = random_string
     uid = random_string
-    child1 = create_project_media project: @project
+    child1 = create_project_media team: @team
     u = create_user
     messages = [
       {

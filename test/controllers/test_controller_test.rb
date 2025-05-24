@@ -71,24 +71,6 @@ class TestControllerTest < ActionController::TestCase
     Rails.unstub(:env)
   end
 
-  test "should create project if in test mode" do
-    t = create_team
-    assert_difference 'Project.count' do
-      get :new_project, params: { team_id: t.id }
-    end
-    assert_response :success
-  end
-
-  test "should not create project if not in test mode" do
-    t = create_team
-    Rails.stubs(:env).returns('development')
-    assert_no_difference 'Project.count' do
-      get :new_project, params: { team_id: t.id }
-    end
-    assert_response 400
-    Rails.unstub(:env)
-  end
-
   test "should create session if in test mode" do
     u = create_user
     get :new_session, params: { email: u.email }
@@ -127,9 +109,8 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
     RequestStore.store[:disable_es_callbacks] = true
-    get :new_claim, params: { email: u.email, team_id: t.id, project_id: p.id, quote: 'Test' }
+    get :new_claim, params: { email: u.email, team_id: t.id, quote: 'Test' }
     RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
@@ -139,8 +120,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    get :new_claim, params: { email: u.email, team_id: t.id, project_id: p.id, quote: 'Test' }
+    get :new_claim, params: { email: u.email, team_id: t.id, quote: 'Test' }
     assert_response 400
     Rails.unstub(:env)
   end
@@ -153,9 +133,8 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
     RequestStore.store[:disable_es_callbacks] = true
-    get :new_link, params: { email: u.email, team_id: t.id, project_id: p.id, url: url }
+    get :new_link, params: { email: u.email, team_id: t.id, url: url }
     RequestStore.store[:disable_es_callbacks] = false
     assert_response :success
   end
@@ -169,8 +148,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    get :new_link, params: { email: u.email, team_id: t.id, project_id: p.id, url: url }
+    get :new_link, params: { email: u.email, team_id: t.id, url: url }
     assert_response 400
     Rails.unstub(:env)
   end
@@ -210,8 +188,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :media_status, params: { pm_id: pm.id, status: 'in_progress' }
     assert_response :success
   end
@@ -224,8 +201,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     Rails.stubs(:env).returns('development')
     get :media_status, params: { pm_id: pm.id, status: 'false' }
     assert_response 400
@@ -240,8 +216,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :new_media_tag, params: { email:u.email, pm_id: pm.id, tag: 'TAG' }
     assert_response :success
   end
@@ -254,8 +229,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     Rails.stubs(:env).returns('development')
     get :new_media_tag, params: { email: u.email, pm_id: pm.id, tag: 'TAG' }
     assert_response 400
@@ -299,8 +273,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :new_task, params: { email: u.email, pm_id: pm.id }
     assert_response :success
   end
@@ -314,8 +287,7 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     get :new_task, params: { email: u.email, pm_id: pm.id }
     assert_response 400
     Rails.unstub(:env)
@@ -329,28 +301,9 @@ class TestControllerTest < ActionController::TestCase
   test "should not get user if e-mail parameter is not present" do
     u = create_bot_user
     t = create_team
-    p = create_project
-    get :new_claim, params: { team_id: t.id, project_id: p.id, quote: 'Test' }
+    get :new_claim, params: { team_id: t.id, quote: 'Test' }
     assert_response :success
     assert_nil User.current
-  end
-
-  test "should archive project if in test mode" do
-    p = create_project
-    assert_equal 0, p.archived
-    get :archive_project, params: { project_id: p.id }
-    assert_response :success
-    assert_equal 1, p.reload.archived
-  end
-
-  test "should not archive project if not in test mode" do
-    Rails.stubs(:env).returns('development')
-    p = create_project
-    assert_equal 0, p.archived
-    get :archive_project, params: { project_id: p.id }
-    assert_response 400
-    assert_equal 0, p.reload.archived
-    Rails.unstub(:env)
   end
 
   test "should create team" do
@@ -363,9 +316,9 @@ class TestControllerTest < ActionController::TestCase
 
   test "should create dynamic annotation" do
     data = { phone: '123', app_name: 'Test' }.to_json
-    p = create_project
+    t = create_team
     assert_difference 'Dynamic.count', 2 do
-      get :new_dynamic_annotation, params: { set_action: 'deactivate', annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
+      get :new_dynamic_annotation, params: { set_action: 'deactivate', annotated_type: 'Team', annotated_id: t.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
     end
     assert_equal 'human_mode', CheckStateMachine.new('test').state.value
     assert_response :success
@@ -374,9 +327,9 @@ class TestControllerTest < ActionController::TestCase
   test "should not create dynamic annotation if not in test mode" do
     Rails.stubs(:env).returns('development')
     data = { phone: '123', app_name: 'Test' }.to_json
-    p = create_project
+    t = create_team
     assert_no_difference 'Dynamic.count' do
-      get :new_dynamic_annotation, params: { annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
+      get :new_dynamic_annotation, params: { annotated_type: 'Team', annotated_id: t.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
     end
     assert_response 400
     Rails.unstub(:env)
@@ -426,10 +379,9 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm2, team_id: t.id }
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm3, team_id: t.id }
     assert_response 200
@@ -444,10 +396,9 @@ class TestControllerTest < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm2, team_id: t.id }
     get :suggest_similarity_item, params: { pm1: pm1, pm2: pm3, team_id: t.id }
     assert_response 400

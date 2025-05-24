@@ -140,23 +140,6 @@ class AbilityTest < ActiveSupport::TestCase
 
   # Verify comman permisions for  'editor' and 'admin'
   ['editor', 'admin'].each do |role|
-    test "#{role} permissions for list" do
-      u = create_user
-      t = create_team
-      t2 = create_team
-      tu = create_team_user user: u , team: t, role: role
-      p = create_project team: t
-      p2 = create_project team: t2
-      with_current_user_and_team(u, t) do
-        ability = Ability.new
-        assert ability.can?(:create, Project)
-        assert ability.can?(:update, p)
-        assert ability.can?(:destroy, p)
-        assert ability.cannot?(:update, p2)
-        assert ability.cannot?(:destroy, p2)
-      end
-    end
-
     test "#{role} permissions for account source" do
       u = create_user
       t = create_team
@@ -265,8 +248,7 @@ class AbilityTest < ActiveSupport::TestCase
         u = create_user
         t = create_team
         tu = create_team_user team: t, user: u, role: role
-        p = create_project team: t
-        pm = create_project_media project: p
+        pm = create_project_media team: t
         with_current_user_and_team(u, t) do
           s = create_status annotated: pm, status: 'verified'
           tag = create_tag annotated: pm
@@ -290,8 +272,7 @@ class AbilityTest < ActiveSupport::TestCase
         t = create_team
         u = create_user
         tu = create_team_user team: t, user: u, role: role
-        p = create_project team: t
-        pm = create_project_media project: p
+        pm = create_project_media team: t
         tag = create_tag annotated: pm, annotator: u
         tag2 = create_tag annotated: pm
         with_current_user_and_team(u, t) do
@@ -429,23 +410,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "collaborator permissions for list" do
-    u = create_user
-    t = create_team
-    t2 = create_team
-    tu = create_team_user user: u , team: t, role: 'collaborator'
-    p = create_project team: t
-    p2 = create_project team: t2
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.cannot?(:create, Project)
-      assert ability.cannot?(:update, p)
-      assert ability.cannot?(:destroy, p)
-      assert ability.cannot?(:update, p2)
-      assert ability.cannot?(:destroy, p2)
-    end
-  end
-
   test "collaborator permissions for ProjectMedia" do
     u = create_user
     t = create_team
@@ -557,8 +521,7 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'collaborator'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task = create_task annotated: pm
     with_current_user_and_team(u, t) do
       assert_nothing_raised do
@@ -590,8 +553,7 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     em = create_metadata annotated: pm
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -606,18 +568,13 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     tu = create_team_user user: u , team: t1
     t2 = create_team private: true
-    pa = create_project team: t1
-    pb = create_project team: t2
     m = create_valid_media
-    pma = create_project_media project: pa, media: m
-    pmb = create_project_media project: pb, media: m
-
+    pma = create_project_media team: t1, media: m
+    pmb = create_project_media team: t2, media: m
     with_current_user_and_team(u, t1) do
       ability = Ability.new
       assert ability.can?(:read, t1)
       assert ability.cannot?(:read, t2)
-      assert ability.can?(:read, pa)
-      assert ability.cannot?(:read, pb)
       assert ability.can?(:read, m)
     end
   end
@@ -627,17 +584,13 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team private: true
     tu = create_team_user user: u , team: t2
-    pa = create_project team: t1
-    pb = create_project team: t2
     m = create_valid_media
-    pma = create_project_media project: pa, media: m
-    pmb = create_project_media project: pb, media: m
+    pma = create_project_media team: t1, media: m
+    pmb = create_project_media team: t2, media: m
     with_current_user_and_team(u, tu) do
       ability = Ability.new
       assert ability.can?(:read, t1)
       assert ability.can?(:read, t2)
-      assert ability.can?(:read, pa)
-      assert ability.can?(:read, pb)
       assert ability.can?(:read, m)
     end
   end
@@ -647,18 +600,13 @@ class AbilityTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team private: true
     tu = create_team_user user: u , team: t2, status: 'banned'
-    pa = create_project team: t1
-    pb = create_project team: t2
     m = create_valid_media
-    pma = create_project_media project: pa, media: m
-    pmb = create_project_media project: pb, media: m
-
+    pma = create_project_media team: t1, media: m
+    pmb = create_project_media team: t2, media: m
     with_current_user_and_team(u, t2) do
       ability = Ability.new
       assert ability.can?(:read, t1)
       assert ability.cannot?(:read, t2)
-      assert ability.can?(:read, pa)
-      assert ability.cannot?(:read, pb)
       assert ability.can?(:read, m)
     end
   end
@@ -671,45 +619,20 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:manage, :all)
   end
 
-  test "super admins can do anything" do
-    u = create_user
-    u.is_admin = true
-    u.save
-    t = create_team
-    tu = create_team_user user: u , team: t
-    p = create_project team: t
-    p2 = create_project
-
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.can?(:create, Project)
-      assert ability.can?(:update, p)
-      assert ability.can?(:destroy, p)
-      assert ability.can?(:update, p2)
-      assert ability.can?(:destroy, p2)
-    end
-  end
-
   test "should get permissions" do
     u = create_user
     t = create_team current_user: u
-    p = create_project team: t
     a = create_account
     team_perms = [
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash",
-      "create Project", "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
+      "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
       "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "create Feed",
-      "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
+      "manage TagText", "manage TeamTask", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
       "create FeedInvitation", "create FeedTeam", "destroy FeedInvitation", "destroy FeedTeam", "create SavedSearch"
     ]
-    project_perms = [
-      "read Project", "update Project", "destroy Project", "create Source", "create Media", "create ProjectMedia",
-      "create Claim","create Link"
-    ]
-
+    
     with_current_user_and_team(u, t) do
       assert_equal team_perms.sort, JSON.parse(t.permissions).keys.sort
-      assert_equal project_perms.sort, JSON.parse(p.permissions).keys.sort
       assert_equal ["read Account", "update Account", "destroy Account", "create Media", "create Link", "create Claim"].sort, JSON.parse(a.permissions).keys.sort
     end
   end
@@ -814,8 +737,7 @@ class AbilityTest < ActiveSupport::TestCase
 
   test "api key read permissions for everything" do
     t = create_team private: true
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     a = create_api_key
     ApiKey.current = a
     ability = Ability.new
@@ -872,15 +794,13 @@ class AbilityTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task1 = create_task annotated: pm
 
     u2 = create_user
     t2 = create_team
     tu2 = create_team_user team: t2, user: u2, role: 'admin'
-    p2 = create_project team: t2
-    pm2 = create_project_media project: p2
+    pm2 = create_project_media team: t2
     task2 = create_task annotated: pm2
 
     with_current_user_and_team(u2, t2) do
@@ -900,8 +820,7 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     tu = create_team_user team: t, user: u, role: 'collaborator'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:update, pm)
@@ -918,8 +837,7 @@ class AbilityTest < ActiveSupport::TestCase
       t = create_team
       u = create_user
       tu = create_team_user team: t, user: u, role: 'collaborator'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       task1 = create_task annotated: pm, annotator: u
       task2 = create_task annotated: pm
       with_current_user_and_team(u, t) do
@@ -1118,19 +1036,17 @@ class AbilityTest < ActiveSupport::TestCase
 
   test "permissions for assignment" do
     t = create_team
-    p = create_project team: t
     u = create_user
     create_team_user team: t, user: u
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task1 = create_task annotated: pm
     task1.assign_user(u.id)
     a = task1.assignments.last
 
     t2 = create_team
-    p2 = create_project team: t2
     u2 = create_user
     create_team_user team: t2, user: u2
-    pm2 = create_project_media project: p2
+    pm2 = create_project_media team: t2
     task2 = create_task annotated: pm2
     task2.assign_user(u2.id)
     a2 = task2.assignments.last

@@ -428,31 +428,26 @@ en:
       update_h: Last Update
       tasks_h: Tasks Completed
     assignment:
-      assign_task_subject: "[%{team} - %{project}] A task was assigned to you"
-      unassign_task_subject: "[%{team} - %{project}] A task was unassigned from you"
-      assign_project_subject: "[%{team} - %{project}] A folder was assigned to you"
-      unassign_project_subject: "[%{team} - %{project}] A folder was unassigned from
+      assign_task_subject: "[%{team}] A task was assigned to you"
+      unassign_task_subject: "[%{team}] A task was unassigned from you"
+      assign_project_subject: "[%{team}] A folder was assigned to you"
+      unassign_project_subject: "[%{team}] A folder was unassigned from
         you"
-      assign_media_subject: "[%{team} - %{project}] An item was assigned to you"
-      unassign_media_subject: "[%{team} - %{project}] An item was unassigned from
+      assign_media_subject: "[%{team}] An item was assigned to you"
+      unassign_media_subject: "[%{team}] An item was unassigned from
         you"
-      assign_project_title: Folder Assigned
-      unassign_project_title: Folder Unassigned
-      assign_project_text: "%{author} assigned folder %{project} in %{team}."
-      unassign_project_text: "%{author} unassigned folder %{project} in %{team}."
       assign_task_title: Task Assigned
       unassign_task_title: Task Unassigned
-      assign_task_text: "%{author} assigned a task in folder %{project} in %{team}."
-      unassign_task_text: "%{author} unassigned a task in folder %{project} in %{team}."
+      assign_task_text: "%{author} assigned a task in %{team}."
+      unassign_task_text: "%{author} unassigned a task in %{team}."
       assign_media_title: Item Assigned
       unassign_media_title: Item Unassigned
-      assign_media_text: "%{author} assigned an item in folder %{project} in %{team}."
-      unassign_media_text: "%{author} unassigned an item in folder %{project} in %{team}."
+      assign_media_text: "%{author} assigned an item in %{team}."
+      unassign_media_text: "%{author} unassigned an item in %{team}."
       assign_log: "%{author} assigned %{model} to %{username}"
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
-      project_button: Go to the folder page
     request_to_join:
       subject: Request to join workspace %{team}
       team_page: workspace page

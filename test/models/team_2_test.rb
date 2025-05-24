@@ -187,14 +187,6 @@ class Team2Test < ActiveSupport::TestCase
     assert_equal 2, t.members_count
   end
 
-  test "should return number of projects" do
-    t = create_team
-    create_project team: t
-    create_project team: t
-    # should add default folder to total count
-    assert_equal 3, t.projects_count
-  end
-
   test "should have a JSON version" do
     assert_kind_of Hash, create_team.as_json
   end
@@ -254,7 +246,6 @@ class Team2Test < ActiveSupport::TestCase
 
   test "should validate Slack channel" do
     t = create_team
-    p = create_project team: t
     slack_notifications = []
     slack_notifications << {
       "label": random_string,
@@ -289,9 +280,9 @@ class Team2Test < ActiveSupport::TestCase
     team = create_team
     perm_keys = [
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team",
-      "destroy Team", "empty Trash", "create Project", "create ProjectMedia", "create Account", "create TeamUser",
+      "destroy Team", "empty Trash", "create ProjectMedia", "create Account", "create TeamUser",
       "create User", "invite Members", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia",
-      "duplicate Team", "manage TagText", "manage TeamTask", "set_privacy Project", "update Relationship",
+      "duplicate Team", "manage TagText", "manage TeamTask", "update Relationship",
       "destroy Relationship", "create TiplineNewsletter", "create Feed", "create FeedTeam", "create FeedInvitation",
       "destroy FeedInvitation", "destroy FeedTeam", "create SavedSearch"
     ].sort
@@ -340,8 +331,7 @@ class Team2Test < ActiveSupport::TestCase
       t.set_media_verification_statuses(value)
       t.save!
     end
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     s = pm.last_verification_status_obj.get_field_value('verification_status_status')
     assert_equal '1', s
     assert_equal 2, t.get_media_verification_statuses[:statuses].size
@@ -456,12 +446,10 @@ class Team2Test < ActiveSupport::TestCase
     id = t.id
     t.description = 'update description'; t.save!
     tu = create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     a = create_account team: t
     RequestStore.store[:disable_es_callbacks] = true
     t.destroy
-    assert_equal 0, Project.where(team_id: id).count
     assert_equal 0, TeamUser.where(team_id: id).count
     assert_equal 0, Account.where(team_id: id).count
     RequestStore.store[:disable_es_callbacks] = false
@@ -484,20 +472,16 @@ class Team2Test < ActiveSupport::TestCase
   test "should archive sources, projects and project medias when team is archived" do
     Sidekiq::Testing.inline! do
       t = create_team
-      p1 = create_project
-      p2 = create_project team: t
       s1 = create_source
       s2 = create_source team: t
       pm1 = create_project_media
-      pm2 = create_project_media project: p2
-      pm3 = create_project_media project: p2
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
       t.archived = 1
       t.save!
       assert_equal 0, pm1.reload.archived
       assert_equal 1, pm2.reload.archived
       assert_equal 1, pm3.reload.archived
-      assert_equal 0, p1.reload.archived
-      assert_equal 1, p2.reload.archived
       assert_equal 0, s1.reload.archived
       assert_equal 1, s2.reload.archived
     end
@@ -506,8 +490,7 @@ class Team2Test < ActiveSupport::TestCase
   test "should archive sources, project and project medias in background when team is archived" do
     Sidekiq::Testing.fake! do
       t = create_team
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
       t.archived = true
@@ -516,11 +499,10 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should not archive project and project medias in background if team is updated but archived flag does not change" do
+  test "should not archive project medias in background if team is updated but archived flag does not change" do
     Sidekiq::Testing.fake! do
       t = create_team
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
       t.name = random_string
@@ -529,43 +511,36 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should restore sources, project and project medias when team is restored" do
+  test "should restore sourcesand project medias when team is restored" do
     Sidekiq::Testing.inline! do
       t = create_team
-      p1 = create_project team: t
-      p2 = create_project
       s1 = create_source team: t
       s2 = create_source
       pm1 = create_project_media
-      pm2 = create_project_media project: p1
-      pm3 = create_project_media project: p1
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
       t.archived = 1
       t.save!
       assert_equal 0, pm1.reload.archived
       assert_equal 1, pm2.reload.archived
       assert_equal 1, pm3.reload.archived
-      assert_equal 1, p1.reload.archived
-      assert_equal 0, p2.reload.archived
       t = Team.find(t.id)
       t.archived = 0
       t.save!
       assert_equal 0, pm1.reload.archived
       assert_equal 0, pm2.reload.archived
       assert_equal 0, pm3.reload.archived
-      assert_equal 0, p1.reload.archived
-      assert_equal 0, p2.reload.archived
       assert_equal 0, s1.reload.archived
       assert_equal 0, s2.reload.archived
     end
   end
 
-  test "should delete sources, project and project medias in background when team is deleted" do
+  test "should delete sources and project medias in background when team is deleted" do
     Sidekiq::Testing.fake! do
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       n = Sidekiq::Extensions::DelayedClass.jobs.size
       t = Team.find(t.id)
       with_current_user_and_team(u, t) do
@@ -575,18 +550,16 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should anonymize sources and delete projects and project medias when team is deleted" do
+  test "should anonymize sources and project medias when team is deleted" do
     Sidekiq::Testing.inline! do
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p1 = create_project
-      p2 = create_project team: t
       s1 = create_source
       s2 = create_source team: t
       pm1 = create_project_media
-      pm2 = create_project_media project: p2
-      pm3 = create_project_media project: p2
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
       tg = create_tag annotated: pm2
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
@@ -596,8 +569,6 @@ class Team2Test < ActiveSupport::TestCase
       assert_not_nil ProjectMedia.where(id: pm1.id).last
       assert_nil ProjectMedia.where(id: pm2.id).last
       assert_nil ProjectMedia.where(id: pm3.id).last
-      assert_not_nil Project.where(id: p1.id).last
-      assert_nil Project.where(id: p2.id).last
       assert_not_nil Source.where(id: s1.id).last
       assert_nil Source.where(id: s2.id).last.team_id
       assert_nil Tag.where(id: tg.id).last
@@ -618,8 +589,7 @@ class Team2Test < ActiveSupport::TestCase
   test "should empty trash in background" do
     Sidekiq::Testing.fake! do
       t = create_team
-      p = create_project team: t
-      3.times { create_project_media(project: p, archived: true) }
+      3.times { create_project_media(team: t, archived: true) }
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
       n = Sidekiq::Extensions::DelayedClass.jobs.size
@@ -637,9 +607,8 @@ class Team2Test < ActiveSupport::TestCase
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
-      2.times { create_project_media(project: p) }
+      3.times { pm = create_project_media(team: t); pm.archived = true; pm.save! }
+      2.times { create_project_media(team: t) }
       RequestStore.store[:disable_es_callbacks] = true
       with_current_user_and_team(u, t) do
         assert_difference 'ProjectMedia.count', -3 do
@@ -657,9 +626,8 @@ class Team2Test < ActiveSupport::TestCase
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'collaborator'
-      p = create_project team: t
-      3.times { pm = create_project_media(project: p); pm.archived = true; pm.save! }
-      2.times { create_project_media(project: p) }
+      3.times { pm = create_project_media(team: t); pm.archived = true; pm.save! }
+      2.times { create_project_media(team: t) }
       with_current_user_and_team(u, t) do
         assert_no_difference 'ProjectMedia.count' do
           assert_raises RuntimeError do
@@ -676,9 +644,8 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     pm1.archived = true
     pm1.save!
     pm2.archived = true
@@ -765,8 +732,7 @@ class Team2Test < ActiveSupport::TestCase
     team = create_team
     user = create_user
     create_team_user team: team, user: user, role: 'admin'
-    project = create_project team: team, title: 'Project'
-    pm = create_project_media project: project
+    pm = create_project_media team: team
     source = create_source user: user
     source.team = team; source.save
 
@@ -795,7 +761,7 @@ class Team2Test < ActiveSupport::TestCase
   test "should skip validation on team with big image" do
     team = create_team
     user = create_user
-    pm = create_project_media team: team, project: create_project(team: team)
+    pm = create_project_media team: team, team: team
     tg = create_tag annotated: pm
     File.open(File.join(Rails.root, 'test', 'data', 'rails-photo.jpg')) do |f|
       tg.file = f
@@ -808,64 +774,18 @@ class Team2Test < ActiveSupport::TestCase
     assert copy.valid?
   end
 
-  test "should generate new token on duplication" do
-    team = create_team
-    project = create_project team: team
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-    copy_p = copy.projects.find_by_title(project.title)
-    assert_not_equal project.token, copy_p.token
-  end
-
-  test "should duplicate a team when project is archived" do
-    team = create_team name: 'Team A', logo: 'rails.png'
-    project = create_project team: team
-
-    pm1 = create_project_media project: project
-    project.archived = true; project.save!
-
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-
-    copy_p = copy.projects.find_by_title(project.title)
-    assert_not_nil copy_p
-  end
-
-  test "should duplicate a team with project groups and saved searches" do
+  test "should duplicate a team with saved searches" do
     team = create_team name: 'Team A'
-    pg_1 = create_project_group team: team
-    pg_2 = create_project_group team: team
-    project_1 = create_project team: team, project_group_id: pg_1.id
-    project_2 = create_project team: team, project_group_id: pg_1.id
-    project_3 = create_project team: team
-    ss_1 = create_saved_search team: team, filters: {"show"=>["images"], "projects"=>[project_1.id.to_s, project_3.id.to_s], "project_group_id"=>[pg_2.id.to_s]}.to_json
-    ss_2 = create_saved_search team: team, filters: {"projects"=>[]}.to_json
+    ss_1 = create_saved_search team: team, filters: {"show"=>["images"]}.to_json
     ss_3 = create_saved_search team: team, filters: nil
 
     RequestStore.store[:disable_es_callbacks] = true
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
 
-    # Projects Groups and projects are copied
-    copy_pg_1 = copy.project_groups.find_by_title(pg_1.title)
-    copy_project_1 = copy.projects.find_by_title(project_1.title)
-    copy_project_2 = copy.projects.find_by_title(project_2.title)
-    assert_equal copy_pg_1.projects.sort, [copy_project_1, copy_project_2].sort
-
-    # Saved searches are copied and the projects and project groups are updated on filters
-    copy_pg_2 = copy.project_groups.find_by_title(pg_2.title)
-    copy_project_3 = copy.projects.find_by_title(project_3.title)
+    # Saved searches are copied
     copy_ss_1 = copy.saved_searches.find_by_title(ss_1.title)
     assert_equal ['images'], copy_ss_1.filters['show']
-    assert_equal [copy_project_1.id.to_s, copy_project_3.id.to_s], copy_ss_1.filters['projects']
-    assert_equal [copy_pg_2.id.to_s], copy_ss_1.filters['project_group_id']
-
-    # Saved searches without projects and project groups defined are copied
-    copy_ss_2 = copy.saved_searches.find_by_title(ss_2.title)
-    assert_equal [], copy_ss_2.filters['projects']
-    assert !copy_ss_2.filters.has_key?('project_group_id')
 
     # Saved searches without filters are copied
     copy_ss_3 = copy.saved_searches.find_by_title(ss_3.title)
@@ -1009,14 +929,13 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team slug: 'team'
     t.set_languages []
     t.save!
-    p = create_project team: t
     att = 'language'
     at = create_annotation_type annotation_type: att, label: 'Language'
     language = create_field_type field_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', field_type_object: language
-    pm1 = create_project_media disable_es_callbacks: false, project: p
+    pm1 = create_project_media disable_es_callbacks: false, team: t
     create_dynamic_annotation annotation_type: att, annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
-    pm2 = create_project_media disable_es_callbacks: false, project: p
+    pm2 = create_project_media disable_es_callbacks: false, team: t
     create_dynamic_annotation annotation_type: att, annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
     create_flag annotated: pm2, disable_es_callbacks: false
     schema = t.dynamic_search_fields_json_schema
@@ -1035,8 +954,7 @@ class Team2Test < ActiveSupport::TestCase
       t = create_team
       u = create_user
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       tk = create_task annotated: pm
       create_tag annotated: tk
       pm.archived = true
@@ -1072,7 +990,6 @@ class Team2Test < ActiveSupport::TestCase
     t.set_languages ['en', 'es', 'pt']
     t.save!
     create_flag_annotation_type
-    create_project team: t
     create_tag_text team: t
     2.times { create_team_user team: t }
     create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo' }, { 'label' => 'Bar' }], label: 'Team Task 1'
@@ -1087,8 +1004,7 @@ class Team2Test < ActiveSupport::TestCase
     create_verification_status_stuff
     setup_elasticsearch
     t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       "name": random_string,
@@ -1109,35 +1025,27 @@ class Team2Test < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p0, disable_es_callbacks: false
+    pm1 = create_project_media team: t, disable_es_callbacks: false
     s = pm1.last_status_obj
     s.status = 'in_progress'
     s.save!
-    sleep 2
-    result = $repository.find(get_es_id(pm1))
-    assert_equal p1.id, result['project_id']
-    pm2 = create_project_media project: p0, disable_es_callbacks: false
-    sleep 2
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p0.id, pm2.reload.project_id
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match rule based on tag" do
     t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'tag_foo', team_id: t.id
+    create_tag_text text: 'tag_bar', team_id: t.id
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -1154,14 +1062,13 @@ class Team2Test < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "tag_foo"
         }
       ]
     }
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -1178,22 +1085,23 @@ class Team2Test < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p2.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "tag_bar"
         }
+        
       ]
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p0
+    pm1 = create_project_media team: t
     create_tag tag: 'foo', annotated: pm1
-    pm2 = create_project_media project: p0
+    pm2 = create_project_media team: t
     create_tag tag: 'bar', annotated: pm2
-    pm3 = create_project_media project: p0
-    create_tag tag: 'test', annotated: pm2
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p2.id, pm2.reload.project_id
-    assert_equal p0.id, pm3.reload.project_id
+    pm3 = create_project_media team: t
+    create_tag tag: 'test', annotated: pm3
+    assert_includes pm1.get_annotations('tag').map(&:load).map(&:tag_text), 'tag_foo'
+    assert_includes pm2.get_annotations('tag').map(&:load).map(&:tag_text), 'tag_bar'
+    assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match rule based on item type" do
@@ -1203,13 +1111,9 @@ class Team2Test < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'collaborator'
-    p0 = create_project team: t
-    p1 = create_project team: t
-    p2 = create_project team: t
-    p3 = create_project team: t
-    p4 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
-    { 'claim' => p1, 'uploadedvideo' => p2, 'uploadedimage' => p3, 'link' => p4 }.each do |type, p|
+    ['claim', 'uploadedvideo', 'uploadedimage', 'link'].each do |type|
       rules << {
         "name": random_string,
         "project_ids": "",
@@ -1229,8 +1133,8 @@ class Team2Test < ActiveSupport::TestCase
         },
         "actions": [
           {
-            "action_definition": "move_to_project",
-            "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
           }
         ]
       }
@@ -1244,29 +1148,27 @@ class Team2Test < ActiveSupport::TestCase
     pm1 = pm2 = pm3 = pm4 = nil
     CheckSentry.stubs(:notify).raises(StandardError)
     with_current_user_and_team(u, t) do
-      pm1 = create_project_media media: c, project: p0
-      pm2 = create_project_media media: create_uploaded_video, project: p0
-      pm3 = create_project_media media: create_uploaded_image, project: p0
-      pm4 = create_project_media media: create_link({team: t}), project: p0
+      pm1 = create_project_media media: c, team: t
+      pm2 = create_project_media media: create_uploaded_video, team: t
+      pm3 = create_project_media media: create_uploaded_image, team: t
+      pm4 = create_project_media media: create_link({team: t}), team: t
     end
-    assert_equal p1.id, pm1.reload.project_id
-    assert_equal p2.id, pm2.reload.project_id
-    assert_equal p3.id, pm3.reload.project_id
-    assert_equal p4.id, pm4.reload.project_id
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm4.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should return number of items in trash, unconfirmed, spam and outside trash" do
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
-    create_project_media project: p1
-    create_project_media project: p1
-    create_project_media project: p1
-    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
-    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::TRASHED
-    create_project_media project: p2, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
-    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::SPAM
-    create_project_media project: p1, archived: CheckArchivedFlags::FlagCodes::SPAM
+    create_project_media team: t
+    create_project_media team: t
+    create_project_media team: t
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::SPAM
+    create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::SPAM
     create_project_media
     t = t.reload
     assert_equal 4, t.medias_count
@@ -1277,12 +1179,10 @@ class Team2Test < ActiveSupport::TestCase
 
   test "should match rule by title" do
     t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -1299,22 +1199,19 @@ class Team2Test < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"this is a test","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    create_project_media project: p0, media: nil, url: url
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    pm = create_project_media team: t, media: nil, url: url
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should save valid languages" do
@@ -1335,25 +1232,20 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
+  test "should not crash if rules throw exception" do
+    Team.any_instance.stubs(:apply_rules).raises(RuntimeError)
+    t = create_team
+    CheckSentry.expects(:notify).once
+    create_project_media team: t
+    Team.any_instance.unstub(:apply_rules)
+  end
+
   test "should get languages" do
     t = create_team
     assert_equal ['en'], t.get_languages
     t.settings = { languages: ['ar', 'en'], fieldsets: [{ identifier: 'foo', singular: 'foo', plural: 'foos' }] }
     t.save!
     assert_equal ['ar', 'en'], t.get_languages
-  end
-
-  test "should not crash if rules throw exception" do
-    Team.any_instance.stubs(:apply_rules).raises(RuntimeError)
-    t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    create_project_media project: p0
-    assert_equal 1, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    Team.any_instance.unstub(:apply_rules)
   end
 
   test "should not crash if text for keyword rule is nil" do
@@ -1467,13 +1359,10 @@ class Team2Test < ActiveSupport::TestCase
 
   test "should match rule when report is published" do
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     pm1 = create_project_media team: t
-    pm2 = create_project_media project: p2
+    pm2 = create_project_media team: t
     pm3 = create_project_media team: t
-    assert_equal 0, p1.reload.project_medias.count
-    assert_equal 1, p2.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -1494,8 +1383,8 @@ class Team2Test < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -1503,11 +1392,10 @@ class Team2Test < ActiveSupport::TestCase
     t.save!
     publish_report(pm1)
     publish_report(pm2)
-    assert_equal 2, p1.reload.project_medias.count
-    assert_equal 0, p2.reload.project_medias.count
     create_report(pm3, { state: 'published' }, 'publish')
-    assert_equal 3, p1.reload.project_medias.count
-    assert_equal 0, p2.reload.project_medias.count
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test 'should have a header type available only if there are templates for it' do

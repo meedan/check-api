@@ -163,7 +163,6 @@ class GraphqlCrudOperations
     if obj.is_a?(Relationship)
       obj.archive_target = inputs[:archive_target]
     end
-    obj.items_destination_project_id = inputs[:items_destination_project_id] if obj.is_a?(Project)
     obj.disable_es_callbacks = (Rails.env.to_s == 'test') if obj.respond_to?(:disable_es_callbacks)
     obj.respond_to?(:destroy_later) ? obj.destroy_later(ctx[:ability]) : ApplicationRecord.connection_pool.with_connection { obj&.destroy }
 

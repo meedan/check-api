@@ -65,12 +65,6 @@ class MeType < DefaultObject
     object.is_admin if object == User.current
   end
 
-  field :current_project, ProjectType, null: true
-
-  def current_project
-    User.current == object ? object.current_project : nil
-  end
-
   field :confirmed, GraphQL::Types::Boolean, null: true
 
   def confirmed

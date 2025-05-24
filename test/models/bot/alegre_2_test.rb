@@ -106,7 +106,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should match audio with similar audio from video" do
-    p = create_project
     pm1 = create_project_media team: @team, media: create_uploaded_video
     pm2 = create_project_media team: @team, media: create_uploaded_audio
     pm3 = create_project_media team: @team, media: create_uploaded_audio
@@ -428,85 +427,85 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should respond to a media_file_url request" do
-    p = create_project
+    t = create_team
     m = create_uploaded_image
-    pm1 = create_project_media project: p, is_image: true, media: m
+    pm1 = create_project_media team: t, is_image: true, media: m
     assert_equal Bot::Alegre.media_file_url(pm1).class, String
   end
   
   test "should return singular model for indexing" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
+    tbi.team = t
     tbi.settings = {"alegre_model_in_use" => "xlm-r-bert-base-nli-stsb-mean-tokens"}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), "xlm-r-bert-base-nli-stsb-mean-tokens"
   end
 
   test "should return multiple models for indexing" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
+    tbi.team = t
     tbi.settings = {"alegre_model_in_use" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]
   end
 
   test "should return default model for indexing" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
+    tbi.team = t
     tbi.settings = {}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_indexing_models(tbi), Bot::Alegre.default_model
   end
 
   test "should return singular model for matching" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
+    tbi.team = t
     tbi.settings = {"text_similarity_model" => "xlm-r-bert-base-nli-stsb-mean-tokens"}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_matching_models(tbi), "xlm-r-bert-base-nli-stsb-mean-tokens"
   end
 
   test "should return multiple models for matching" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
+    tbi.team = t
     tbi.settings = {"text_similarity_model" => ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_matching_models(tbi), ["xlm-r-bert-base-nli-stsb-mean-tokens", "gooby"]
   end
 
   test "should return default model for matching" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
+    tbi.team = t
     tbi.settings = {}
     tbi.save!
     assert_equal Bot::Alegre.get_tbi_matching_models(tbi), Bot::Alegre.default_model
   end
 
   test "should return a generic key/val" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    pm = create_project_media quote: "Blah", team: p.team
+    tbi.team = t
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_vector_matching_threshold" => 0.92}
@@ -515,12 +514,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return a specific key/val" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    pm = create_project_media quote: "Blah", team: p.team
+    tbi.team = t
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_matching_threshold" => 0.97}
@@ -529,12 +528,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return a generic key/val for suggestion" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    pm = create_project_media quote: "Blah", team: p.team
+    tbi.team = t
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_vector_suggestion_threshold" => 0.92}
@@ -543,12 +542,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return a specific key/val for suggestion" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    pm = create_project_media quote: "Blah", team: p.team
+    tbi.team = t
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_vector_suggestion_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
@@ -557,12 +556,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return properly formatted get_threshold_for_query response, single model" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    pm = create_project_media quote: "Blah", team: p.team
+    tbi.team = t
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_similarity_model": "xlm-r-bert-base-nli-stsb-mean-tokens", "alegre_model_in_use": "xlm-r-bert-base-nli-stsb-mean-tokens", "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
@@ -572,12 +571,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return properly formatted get_threshold_for_query response, multi model" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    pm = create_project_media quote: "Blah", team: p.team
+    tbi.team = t
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_similarity_model": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_model_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
@@ -587,12 +586,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return properly formatted get_threshold_for_query response, single & multi model with mixed settings - only uses new mapping" do
-    p = create_project
+    t = create_team
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
-    pm = create_project_media quote: "Blah", team: p.team
+    tbi.team = t
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { title: 'Title 1' }
     pm.save!
     tbi.settings = {"text_similarity_model": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "alegre_model_in_use": ["indian-sbert", "xlm-r-bert-base-nli-stsb-mean-tokens"], "text_vector_matching_threshold" => 0.92, "text_vector_xlm-r-bert-base-nli-stsb-mean-tokens_suggestion_threshold" => 0.97}
@@ -602,10 +601,10 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   end
 
   test "should return an alegre indexing model" do
-    p = create_project
+    t = create_team
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    pm = create_project_media quote: "Blah", team: p.team
+    pm = create_project_media quote: "Blah", team: t
     pm.analysis = { content: 'Description 1' }
     pm.save!
     BotUser.stubs(:alegre_user).returns(User.new)
@@ -645,7 +644,6 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -797,8 +795,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   test "should be able to request deletion from index for a media given specific field" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    p = create_project
-    pm = create_project_media project: p, media: create_uploaded_video
+    t = create_team
+    pm = create_project_media team: t, media: create_uploaded_video
     pm.media.type = "UploadedVideo"
     pm.media.save!
     pm.save!
@@ -810,8 +808,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
   test "should pass through the send audio to similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    p = create_project
-    pm = create_project_media project: p, media: create_uploaded_audio
+    t = create_team
+    pm = create_project_media team: t, media: create_uploaded_audio
     pm.media.type = "UploadedAudio"
     pm.media.save!
     pm.save!
