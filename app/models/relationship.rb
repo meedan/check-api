@@ -385,7 +385,7 @@ class Relationship < ApplicationRecord
   end
 
   def apply_status_to_target
-    Relationship.sync_statuses(self.target, self.source.last_verification_status)
+    Relationship.sync_statuses(self.target, self.source&.last_verification_status)
   end
 
   def destroy_same_suggested_item
