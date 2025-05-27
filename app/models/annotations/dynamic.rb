@@ -149,8 +149,10 @@ class Dynamic < ApplicationRecord
   def handle_extracted_text(op)
     if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'extracted_text'
       pm = self.annotated
-      value = op == 'destroy' ? '' : self.data['text']
-      pm.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, pm.id, true)
+      unless pm.nil?
+        value = op == 'destroy' ? '' : self.data['text']
+        pm.update_elasticsearch_doc(['extracted_text'], { 'extracted_text' => value }, pm.id, true)
+      end
     end
   end
 
