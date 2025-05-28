@@ -63,7 +63,6 @@ module AssignmentConcern
     def project_media_assigned_to_user(user, select = nil)
       uid = user.is_a?(User) ? user.id : user
       pmids = []
-      pids = []
       assignments = Assignment.where(user_id: uid).includes(:assigned).to_a
       assignments.each do |a|
         pmids << a.assigned&.annotated_id if a.assigned_type == 'Annotation'
