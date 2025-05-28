@@ -60016,7 +60016,7 @@
             },
             {
               "name": "project_media",
-              "description": "Information about a project media, The argument should be given like this: \"project_media_id,project_id,team_id\"",
+              "description": "Information about a project media, The argument should be given like this: \"project_media_id,team_id\"",
               "args": [
                 {
                   "name": "ids",

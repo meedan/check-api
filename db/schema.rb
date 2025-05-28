@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_13_111137) do
+ActiveRecord::Schema.define(version: 2025_05_15_134234) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -349,7 +349,7 @@ ActiveRecord::Schema.define(version: 2025_05_13_111137) do
     t.string "tags", default: [], array: true
     t.boolean "trashed", default: false
     t.bigint "author_id"
-    t.integer "channel"
+    t.integer "channel", null: false
     t.index "date_trunc('day'::text, created_at)", name: "explainer_created_at_day"
     t.index ["author_id"], name: "index_explainers_on_author_id"
     t.index ["channel"], name: "index_explainers_on_channel"
@@ -376,7 +376,7 @@ ActiveRecord::Schema.define(version: 2025_05_13_111137) do
     t.boolean "imported", default: false
     t.boolean "trashed", default: false
     t.bigint "author_id"
-    t.integer "channel"
+    t.integer "channel", null: false
     t.index "date_trunc('day'::text, created_at)", name: "fact_check_created_at_day"
     t.index ["author_id"], name: "index_fact_checks_on_author_id"
     t.index ["channel"], name: "index_fact_checks_on_channel"

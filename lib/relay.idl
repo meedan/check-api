@@ -11540,7 +11540,7 @@ type Query {
   ): Node
 
   """
-  Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"
+  Information about a project media, The argument should be given like this: "project_media_id,team_id"
   """
   project_media(ids: String!): ProjectMedia
   project_medias(
