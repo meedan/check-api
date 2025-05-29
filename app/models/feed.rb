@@ -17,6 +17,7 @@ class Feed < ApplicationRecord
   validates_presence_of :name
   validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
   validate :saved_search_belongs_to_feed_teams
+  validate :validate_saved_search_types
 
   after_create :create_feed_team
   before_destroy :destroy_feed_team, prepend: true
@@ -229,6 +230,16 @@ class Feed < ApplicationRecord
       unless self.get_team_ids.include?(saved_search.team_id)
         errors.add("#{saved_search.list_type}_saved_search_id".to_sym, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
       end
+    end
+  end
+
+  def validate_saved_search_types
+    if media_saved_search.present? && media_saved_search.list_type != 'media'
+      errors.add(:media_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
+    end
+
+    if article_saved_search.present? && article_saved_search.list_type != 'article'
+      errors.add(:article_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
     end
   end
 
