@@ -80,6 +80,32 @@ class FeedTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
+  test "should have a article and/or media list that belong to feed teams" do
+    t = create_team
+    media_ss = create_saved_search team: t, list_type: 'media'
+    article_ss = create_saved_search team: t, list_type: 'article'
+    Team.stubs(:current).returns(t)
+    feed = create_feed media_saved_search: media_ss, article_saved_search: article_ss, team: t
+
+    assert_equal media_ss, feed.media_saved_search
+    assert_equal article_ss, feed.article_saved_search
+
+    Team.unstub(:current)
+  end
+
+  test "should not create a duplicate FeedTeam with the same saved_search" do
+    t = create_team
+    ss = create_saved_search team: t
+    Team.stubs(:current).returns(t)
+    assert_difference 'Feed.count' do
+      create_feed media_saved_search: ss, team: t
+    end
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed media_saved_search: create_saved_search
+    end
+    Team.unstub(:current)
+  end
+
   test "should get feed filters" do
     t = create_team
     ss = create_saved_search team: t, filters: { foo: 'bar' }

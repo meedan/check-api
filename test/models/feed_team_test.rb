@@ -25,7 +25,17 @@ class FeedTeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have a list that belong to feed teams" do
+  test "should have a article and/or media list that belong to feed teams" do
+    t = create_team
+    f = create_feed
+    media_ss = create_saved_search team: t, list_type: 'media'
+    article_ss = create_saved_search team: t, list_type: 'article'
+    ft = create_feed_team media_saved_search: media_ss, article_saved_search: article_ss, team_id: t.id, feed: f
+    assert_equal media_ss, ft.media_saved_search
+    assert_equal article_ss, ft.article_saved_search
+  end
+
+  test "should not create a duplicate FeedTeam with the same saved_search" do
     t = create_team
     f = create_feed
     ss = create_saved_search team: t
