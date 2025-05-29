@@ -4,6 +4,7 @@ class FeedTeam < ApplicationRecord
   belongs_to :team
   belongs_to :feed
   belongs_to :media_saved_search, class_name: 'SavedSearch', optional: true
+  belongs_to :article_saved_search, class_name: 'SavedSearch', optional: true
 
   validates_presence_of :team_id, :feed_id
   validate :saved_search_belongs_to_feed_team

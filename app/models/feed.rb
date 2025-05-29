@@ -10,6 +10,7 @@ class Feed < ApplicationRecord
   has_many :clusters
   belongs_to :user, optional: true
   belongs_to :media_saved_search, class_name: 'SavedSearch', optional: true
+  belongs_to :article_saved_search, class_name: 'SavedSearch', optional: true
   belongs_to :team, optional: true
 
   before_validation :set_user_and_team, :set_uuid, on: :create
