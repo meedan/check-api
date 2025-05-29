@@ -124,7 +124,8 @@ class QueryType < BaseObject
     # Get the first and last id to handle the ids: in format '1,,2', '1,null,2' or '1,0,2'
     all_ids = ids.split(",").map(&:to_i)
     objid = all_ids.first
-    tid = all_ids.last
+    # Check the size to avoid assigning the same id to objid and tid in case we only have one item, i.e., ids: '1'
+    tid = all_ids.size > 1 ? all_ids.last : nil
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
     objid = ProjectMedia.belonged_to_team(objid, tid) || 0
     GraphqlCrudOperations.load_if_can(ProjectMedia, objid, context)
