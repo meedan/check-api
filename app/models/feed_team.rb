@@ -8,6 +8,7 @@ class FeedTeam < ApplicationRecord
 
   validates_presence_of :team_id, :feed_id
   validate :saved_search_belongs_to_feed_team
+  validate :validate_saved_search_types
 
   after_destroy :delete_invitations
 
@@ -33,6 +34,16 @@ class FeedTeam < ApplicationRecord
       if  self.team_id != saved_search.team_id
         errors.add("#{saved_search.list_type}_saved_search_id".to_sym, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
       end
+    end
+  end
+
+  def validate_saved_search_types
+    if media_saved_search.present? && media_saved_search.list_type != 'media'
+      errors.add(:media_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
+    end
+
+    if article_saved_search.present? && article_saved_search.list_type != 'article'
+      errors.add(:article_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
     end
   end
 
