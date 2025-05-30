@@ -28,14 +28,10 @@ class GenericWorkerTest < ActiveSupport::TestCase
 
   test "should run a job, without raising an error, for a method that takes standalone parameters" do
     Sidekiq::Testing.inline!
-
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-
+    pm = create_project_media team: t
     project_media_id = pm.id
     tags_json = ['one', 'two'].to_json
-
     assert_difference "Tag.where(annotation_type: 'tag').count", 2 do
       GenericWorker.perform_async('Tag', 'create_project_media_tags', project_media_id, tags_json, user_id: pm.user_id)
     end
@@ -69,18 +65,13 @@ class GenericWorkerTest < ActiveSupport::TestCase
 
   test "should schedule a job, without raising an error, for a method that takes standalone parameters" do
     Sidekiq::Testing.fake!
-
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
-
+    pm = create_project_media team: t
     project_media_id = pm.id
     tags_json = ['one', 'two'].to_json
-
     assert_nothing_raised do
       GenericWorker.perform_async('Tag', 'create_project_media_tags', project_media_id, tags_json, user_id: pm.user_id)
     end
-
     assert_equal 1, GenericWorker.jobs.size
   end
 end

@@ -31,52 +31,12 @@ class ElasticSearchTest < ActionController::TestCase
     assert_equal [pm2.id], ids
   end
 
-  test "should search media with multiple projects" do
-    @team = create_team
-    u = create_user
-    p = create_project team: @team
-    p2 = create_project team: @team
-    authenticate_with_user(u)
-    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = 'http://test.com'
-    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "title_a", "description":"search_desc"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    url2 = 'http://test2.com'
-    response = '{"type":"media","data":{"url":"' + url2 + '/normalized","type":"item", "title": "title_a", "description":"new_description"}}'
-    WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-    m = create_media(account: create_valid_account, url: url)
-    m2 = create_media(account: create_valid_account, url: url2)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
-    pm2 = create_project_media project: p2, media: m2,  disable_es_callbacks:  false
-    sleep 2
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, params: { query: query }
-    assert_response :success
-    m_ids = []
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      m_ids << id["node"]["dbid"]
-    end
-    assert_equal [pm.id, pm2.id], m_ids.sort
-    pm2.analysis = { content: 'new_description' }
-    sleep 2
-    query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, description } } } } }'
-    post :create, params: { query: query }
-    assert_response :success
-    result = {}
-    JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
-      result[id["node"]["dbid"]] = id["node"]["description"]
-    end
-    assert_equal 'new_description', result[pm2.id]
-    assert_equal 'search_desc', result[pm.id]
-  end
-
   test "should read first response from task" do
     u = create_user
     @team = create_team
-    p = create_project team: @team
     create_team_user user: u, team: @team
     m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: @team, media: m, disable_es_callbacks: false
     authenticate_with_user(u)
     t = create_task annotated: pm
     at = create_annotation_type annotation_type: 'task_response_test'
@@ -84,7 +44,7 @@ class ElasticSearchTest < ActionController::TestCase
     create_field_instance annotation_type_object: at, field_type_object: ft2, name: 'response'
     t.response = { annotation_type: 'task_response_test', set_fields: { response: 'Test' }.to_json }.to_json
     t.save!
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
+    query = "query { project_media(ids: \"#{pm.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
     node = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']
@@ -147,11 +107,10 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should search with tags or status" do
     t = create_team
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    pm2 = create_project_media team: t, media: m2, disable_es_callbacks: false
     create_status status: 'verified', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'sports', annotated: pm2, disable_es_callbacks: false
@@ -187,9 +146,8 @@ class ElasticSearchTest < ActionController::TestCase
 
   test "should search tags case-insensitive" do
     t = create_team
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     create_tag tag: 'two Words', annotated: pm, disable_es_callbacks: false
     sleep 2
     Team.current = t
@@ -229,9 +187,6 @@ class ElasticSearchTest < ActionController::TestCase
   end
 
   test "should get Pusher channel" do
-    p = create_project
-    cs = CheckSearch.new({ 'parent' => { 'type' => 'project', 'id' => p.id }, 'projects' => [p.id] }.to_json, nil, p.team_id)
-    assert_equal p.pusher_channel, cs.pusher_channel
     t = create_team
     cs = CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => t.slug } }.to_json, nil, t.id)
     assert_equal t.pusher_channel, cs.pusher_channel

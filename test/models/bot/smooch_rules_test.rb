@@ -18,59 +18,7 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
     RequestStore.store[:skip_delete_for_ever] = true
     s1 = @team.settings.clone
     s2 = @team.settings.clone
-    p1 = create_project team: @team
-    p2 = create_project team: @team
     s2['rules'] = [
-      {
-        "name": "Rule 1",
-        "rules": {
-          "operator": "and",
-          "groups": [
-            {
-              "operator": "and",
-              "conditions": [
-                {
-                  "rule_definition": "contains_keyword",
-                  "rule_value": "hi,hello, sorry, Please"
-                },
-                {
-                  "rule_definition": "has_less_than_x_words",
-                  "rule_value": "5"
-                }
-              ]
-            }
-          ]
-        },
-        "actions": [
-          {
-            "action_definition": "move_to_project",
-            "action_value": p1.id.to_s
-          }
-        ]
-      },
-      {
-        "name": "Rule 2",
-        "rules": {
-          "operator": "and",
-          "groups": [
-            {
-              "operator": "and",
-              "conditions": [
-                {
-                  "rule_definition": "has_less_than_x_words",
-                  "rule_value": "2"
-                }
-              ]
-            }
-          ]
-        },
-        "actions": [
-          {
-            "action_definition": "move_to_project",
-            "action_value": p2.id.to_s
-          }
-        ]
-      },
       {
         "name": "Rule 3",
         "rules": {
@@ -150,62 +98,7 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.run(payload)
     pm = ProjectMedia.last
-    assert_equal @team.default_folder.id, pm.project_id
     assert_equal @team.id, pm.team_id
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
-
-    messages = [
-      {
-        '_id': random_string,
-        authorId: uid,
-        type: 'text',
-        source: { type: "whatsapp" },
-        language: 'en',
-        text: ([random_string] * 3).join(' ') + ' pLease?'
-      }
-    ]
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-    assert Bot::Smooch.run(payload)
-    pm = ProjectMedia.last
-    assert_equal p1.id, pm.project_id
-    assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
-
-    messages = [
-      {
-        '_id': random_string,
-        authorId: uid,
-        type: 'text',
-        source: { type: "whatsapp" },
-        language: 'en',
-        text: random_string
-      }
-    ]
-    payload = {
-      trigger: 'message:appUser',
-      app: {
-        '_id': @app_id
-      },
-      version: 'v1.1',
-      messages: messages,
-      appUser: {
-        '_id': random_string,
-        'conversationStarted': true
-      }
-    }.to_json
-    assert Bot::Smooch.run(payload)
-    pm = ProjectMedia.last
-    assert_equal p2.id, pm.project_id
     assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
 
     quote = 'The lazy dog jumped over the brown fox'
@@ -297,54 +190,14 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
   end
 
   test "should match keyword with rule" do
-    p = create_project team: @team
     ['^&$#(hospital', 'hospital?!', 'Hospital!!!'].each do |text|
-      pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+      pm = create_project_media quote: text, team: @team, smooch_message: { 'text' => text }
       assert @team.contains_keyword(pm, 'hospital', nil)
     end
   end
 
-  test "should be moved to another project as a result of a rule" do
-    p0 = create_project team: @team
-    p1 = create_project team: @team
-    rules = []
-    rules << {
-      "name": random_string,
-      "project_ids": "",
-      "rules": {
-        "operator": "and",
-        "groups": [
-          {
-            "operator": "and",
-            "conditions": [
-              {
-                "rule_definition": "title_matches_regexp",
-                "rule_value": "^start_with_title"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
-        }
-      ]
-    }
-    @team.rules = rules.to_json
-    @team.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    m = create_claim_media quote: 'start_with_title match title'
-    create_project_media project: p0, media: m, smooch_message: { 'text' => 'start_with_request match request' }
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
-  end
-
   test "should match rule by number of words and type" do
-    p0 = create_project team: @team
-    p1 = create_project team: @team
+    create_tag_text text: 'test', team_id: @team.id
     rules = []
     rules << {
       "name": random_string,
@@ -369,26 +222,23 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     @team.rules = rules.to_json
     @team.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
     m = create_claim_media quote: 'test'
-    create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
+    pm1 = create_project_media team: @team, media: m, smooch_message: { 'text' => 'test' }
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
     m = create_link team: @team
-    create_project_media project: p0, media: m, smooch_message: { 'text' => 'test' }
-    assert_equal 1, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    pm2 = create_project_media team: @team, media: m, smooch_message: { 'text' => 'test' }
+    assert_empty pm2.get_annotations('tag')
   end
 
   test "should match rule by number of words" do
-    p0 = create_project team: @team
-    p1 = create_project team: @team
+    create_tag_text text: 'test', team_id: @team.id
     rules = []
     rules << {
       "name": random_string,
@@ -409,24 +259,20 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     @team.rules = rules.to_json
     @team.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    create_project_media project: p0, media: create_claim_media, smooch_message: { 'text' => 'test' }
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    pm = create_project_media team: @team, media: create_claim_media, smooch_message: { 'text' => 'test' }
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match with regexp" do
-    p0 = create_project team: @team
-    p1 = create_project team: @team
-    p2 = create_project team: @team
+    create_tag_text text: 'test_a', team_id: @team.id
+    create_tag_text text: 'test_b', team_id: @team.id
     rules = []
     rules << {
       "name": random_string,
@@ -447,8 +293,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test_a"
         }
       ]
     }
@@ -471,23 +317,22 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p2.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test_b"
         }
       ]
     }
     @team.rules = rules.to_json
     @team.save!
-    pm1 = create_project_media project: p0, quote: 'start_with_title match title'
-    assert_equal p1.id, pm1.reload.project_id
-    pm2 = create_project_media project: p0, quote: 'title', smooch_message: { 'text' => 'start_with_request match request' }
-    assert_equal p2.id, pm2.reload.project_id
-    pm3 = create_project_media project: p0, quote: 'did not match', smooch_message: { 'text' => 'did not match' }
-    assert_equal p0.id, pm3.reload.project_id
+    pm1 = create_project_media team: @team, quote: 'start_with_title match title'
+    assert_equal ['test_a'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    pm2 = create_project_media team: @team, quote: 'title', smooch_message: { 'text' => 'start_with_request match request' }
+    assert_equal ['test_b'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+    pm3 = create_project_media team: @team, quote: 'did not match', smooch_message: { 'text' => 'did not match' }
+    assert_empty pm3.get_annotations('tag')
   end
 
   test "should skip permission when applying action" do
-    p = create_project team: @team
     rules = []
     rules << {
       "name": random_string,
@@ -543,17 +388,15 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     assert_nothing_raised do
       with_current_user_and_team(@bot, @team) do
-        create_project_media project: p, media: nil, url: url, smooch_message: { 'text' => 'test' }
+        create_project_media team: @team, media: nil, url: url, smooch_message: { 'text' => 'test' }
       end
     end
   end
 
   test "should support emojis in regexp rule" do
-    p0 = create_project team: @team
-    p1 = create_project team: @team
+    create_tag_text text: 'test_emojis', team_id: @team.id
     rules = [{
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -570,8 +413,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test_emojis"
         }
       ]
     }]
@@ -598,8 +441,8 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test_emojis"
         }
       ]
     }]
@@ -607,17 +450,13 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
     assert_nothing_raised do
       @team.save!
     end
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
     m = create_claim_media quote: '😊'
-    create_project_media project: p0, media: m, smooch_message: { 'text' => '😊' }
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    pm = create_project_media team: @team, media: m, smooch_message: { 'text' => '😊' }
+    assert_equal ['test_emojis'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match rules with operators" do
-    p1 = create_project team: @team
-    p2 = create_project team: @team
+    create_tag_text text: 'test_op', team_id: @team.id
     rules = []
     rules << {
       name: 'Rule 1',
@@ -654,41 +493,37 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: p2.id
+          "action_definition": "add_tag",
+          "action_value": "test_op"
         }
       ]
     }
     @team.rules = rules.to_json
     @team.save!
-    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }, media: create_claim_media
-    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }, media: create_claim_media
-    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }, media: create_claim_media
-    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }, media: create_claim_media
-    assert_equal p2, pm1.project
-    assert_equal p2, pm2.project
-    assert_equal p1, pm3.project
-    assert_equal p1, pm4.project
+    pm1 = create_project_media team: @team, smooch_message: { 'text' => '1 test bar' }, media: create_claim_media
+    pm2 = create_project_media team: @team, smooch_message: { 'text' => '2 foo bar' }, media: create_claim_media
+    pm3 = create_project_media team: @team, smooch_message: { 'text' => 'a b c d e f test foo' }, media: create_claim_media
+    pm4 = create_project_media team: @team, smooch_message: { 'text' => 'test bar a b c d e f' }, media: create_claim_media
+    assert_equal ['test_op'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test_op'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
     rules[0][:rules][:operator] = 'or'
     rules[0][:rules][:groups][0][:operator] = 'and'
     rules[0][:rules][:groups][1][:operator] = 'or'
     @team.rules = rules.to_json
     @team.save!
-    p1 = p1.reload
-    pm1 = create_project_media project: p1, smooch_message: { 'text' => '1 test bar' }, media: create_claim_media
-    pm2 = create_project_media project: p1, smooch_message: { 'text' => '2 foo bar' }, media: create_claim_media
-    pm3 = create_project_media project: p1, smooch_message: { 'text' => 'a b c d e f test foo' }, media: create_claim_media
-    pm4 = create_project_media project: p1, smooch_message: { 'text' => 'test bar a b c d e f' }, media: create_claim_media
-    assert_equal p2, pm1.project
-    assert_equal p2, pm2.project
-    assert_equal p2, pm3.project
-    assert_equal p2, pm4.project
+    pm1 = create_project_media team: @team, smooch_message: { 'text' => '1 test bar' }, media: create_claim_media
+    pm2 = create_project_media team: @team, smooch_message: { 'text' => '2 foo bar' }, media: create_claim_media
+    pm3 = create_project_media team: @team, smooch_message: { 'text' => 'a b c d e f test foo' }, media: create_claim_media
+    pm4 = create_project_media team: @team, smooch_message: { 'text' => 'test bar a b c d e f' }, media: create_claim_media
+    assert_equal ['test_op'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test_op'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test_op'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test_op'], pm4.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match keyword with spaces with rule" do
-    p = create_project team: @team
     text = 'foo fake news bar'
-    pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+    pm = create_project_media quote: text, team: @team, smooch_message: { 'text' => text }
     assert @team.contains_keyword(pm, 'fake news', nil)
     assert @team.contains_keyword(pm, 'foo', nil)
     assert @team.contains_keyword(pm, 'bar', nil)
@@ -698,7 +533,7 @@ class Bot::SmoochRulesTest < ActiveSupport::TestCase
     assert !@team.contains_keyword(pm, 'oo', nil)
     assert !@team.contains_keyword(pm, 'ake new', nil)
     text = 'fake news'
-    pm = create_project_media quote: text, project: p, smooch_message: { 'text' => text }
+    pm = create_project_media quote: text, team: @team, smooch_message: { 'text' => text }
     assert @team.contains_keyword(pm, 'fake news', nil)
     assert !@team.contains_keyword(pm, 'ake new', nil)
   end

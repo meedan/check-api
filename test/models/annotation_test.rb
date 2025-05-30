@@ -51,10 +51,9 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should get annotation team" do
     t = create_team
-    p = create_project team: t
     m = create_valid_media
     m1 = create_metadata annotated: nil
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     pm.add_annotation m1
     assert_equal m1.team, t
     m2 = create_metadata annotated: nil
@@ -77,8 +76,7 @@ class AnnotationTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    p  = create_project team: t
-    pm = create_project_media
+    pm = create_project_media team: t
     task = create_task
     pm.add_annotation task
     with_current_user_and_team(u, t) do
@@ -90,15 +88,13 @@ class AnnotationTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u
-    p = create_project team: t
     m = create_media team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tag = create_tag annotated: pm
     pu = create_user
     pt = create_team private: true
     create_team_user team: pt, user: pu
-    pp = create_project team: pt
-    ppm = create_project_media project: pp
+    ppm = create_project_media team: pt
     tag2 = create_tag annotated: ppm
 
     with_current_user_and_team(u, t) { Tag.find_if_can(tag.id) }
@@ -119,8 +115,7 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'collaborator'
     create_team_user team: t, user: u2, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     s = create_status annotated: pm, locked: true, status: 'undetermined'
     tag = create_tag annotated: pm, locked: true
     with_current_user_and_team(u, t) do
@@ -191,8 +186,7 @@ class AnnotationTest < ActiveSupport::TestCase
       u = create_user
       t = create_team
       create_team_user user: u, team: t
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       tag = create_tag annotated: pm, annotator: u
       with_current_user_and_team(u, t) do
         assert_difference 'PaperTrail::Version.count' do
@@ -215,8 +209,7 @@ class AnnotationTest < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     pm.create_all_archive_annotations
     a = pm.get_annotations('archiver').last.load
     f = a.get_field('pender_archive_response')
@@ -240,8 +233,7 @@ class AnnotationTest < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     pm.create_all_archive_annotations
     a = pm.get_annotations('archiver').last.load
     f = a.get_field('pender_archive_response')
@@ -261,8 +253,7 @@ class AnnotationTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t, status: 'member'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task = create_task annotated: pm
     u.assign_annotation(task)
     assert_equal [u], task.reload.assigned_users
@@ -271,8 +262,7 @@ class AnnotationTest < ActiveSupport::TestCase
   test "should not assign annotation to user if user is not a member of the same team as the annotation" do
     u = create_user
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task = create_task annotated: pm
     assert_raises ActiveRecord::RecordInvalid do
       task.assign_user(u.id)
@@ -284,8 +274,7 @@ class AnnotationTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user user: u, team: t, status: 'member'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task1 = create_task annotated: pm
     task2 = create_task annotated: pm
     task3 = create_task annotated: pm
@@ -301,14 +290,12 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, status: 'member'
     create_team_user user: u2, team: t, status: 'member'
-    p = create_project team: t
-    p2 = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
-    pm4 = create_project_media project: p
-    pm5 = create_project_media project: p2
-    pm6 = create_project_media project: p2
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
+    pm4 = create_project_media team: t
+    pm5 = create_project_media team: t
+    pm6 = create_project_media team: t
     s1 = create_status status: 'verified', annotated: pm1
     s2 = create_status status: 'verified', annotated: pm2
     s3 = create_status status: 'verified', annotated: pm1
@@ -321,8 +308,7 @@ class AnnotationTest < ActiveSupport::TestCase
     s4.assign_user(u2.id)
     task1.assign_user(u.id)
     task2.assign_user(u.id)
-    Assignment.create! assigned: p2, user: u
-    assert_equal [pm1, pm2, pm3, pm5, pm6].sort, Annotation.project_media_assigned_to_user(u, 'id').sort
+    assert_equal [pm1.id, pm2.id, pm3.id].sort, Annotation.project_media_assigned_to_user(u, 'id').map(&:id).sort
   end
 
   test "should save metadata in annotation" do
@@ -330,8 +316,7 @@ class AnnotationTest < ActiveSupport::TestCase
       u = create_user
       t = create_team
       tu = create_team_user user: u, team: t, status: 'member', role: 'admin'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       u1 = create_user name: 'Foo'
       u2 = create_user name: 'Bar'
       create_team_user user: u1, team: t, status: 'member'
@@ -360,8 +345,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
   test "should assign and unassign users" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task = create_task annotated: pm
     u1 = create_user
     u2 = create_user
@@ -400,8 +384,7 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task = create_task annotated: pm
     task.assign_user(u.id)
     assert_equal t, task.assignments.last.team
@@ -411,8 +394,7 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     a = create_tag annotated: pm
     assert_difference 'Assignment.count', 1 do
       a.assign_user(u.id)

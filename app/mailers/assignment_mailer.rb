@@ -22,12 +22,6 @@ class AssignmentMailer < ApplicationMailer
       updated_at = project_media.updated_at
       total_tasks = project_media.get_annotations('task').count
       completed_tasks =  project_media.completed_tasks_count
-    elsif assigned.is_a?(Project)
-      project = assigned
-      title = project.title
-      url = project.url
-      team = project.team
-      description = project.description
     end
     created_at = assigned.created_at
     unless author.nil?
@@ -46,7 +40,6 @@ class AssignmentMailer < ApplicationMailer
       author: author_name,
       author_id: author_id,
       team: team.name,
-      project: project&.title&.to_s,
       title: title,
       media_title: media_title,
       url: url,
@@ -61,13 +54,12 @@ class AssignmentMailer < ApplicationMailer
       button: I18n.t("slack.fields.view_button", **{
         type: I18n.t("activerecord.models.#{model}"), app: CheckConfig.get('app_name')
       }),
-      project_url: project&.url&.to_s,
       description: description,
       message: message
     }
 
     Rails.logger.info "Sending e-mail from event #{event} to #{recipient}"
-    subject = I18n.t("mails_notifications.assignment.#{info[:event_key]}_subject", team: info[:team], project: info[:project])
+    subject = I18n.t("mails_notifications.assignment.#{info[:event_key]}_subject", team: info[:team])
     self.set_template_var(info, recipient)
     mail(to: recipient, email_type: 'assignment', subject: subject)
   end

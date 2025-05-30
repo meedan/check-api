@@ -8,7 +8,7 @@ module TeamRules
            'report_is_paused', 'item_language_is', 'item_user_is', 'item_is_read', 'item_is_assigned_to_user',
             'extracted_text_contains_keyword']
 
-  ACTIONS = ['send_to_trash', 'move_to_project', 'ban_submitter', 'add_tag', 'add_warning_cover']
+  ACTIONS = ['send_to_trash', 'ban_submitter', 'add_tag', 'add_warning_cover']
 
   RULES_JSON_SCHEMA = File.read(File.join(Rails.root, 'public', 'rules_json_schema.json'))
 
@@ -165,19 +165,6 @@ module TeamRules
       end
     end
 
-    def move_to_project(pm, value, _rule_id)
-      project = Project.where(team_id: self.id, id: value.to_i).last
-      unless project.nil?
-        pm = ProjectMedia.where(id: pm.id).last
-        unless pm.nil? || pm.project_id == project.id
-          pm.project_id = project.id
-          pm.skip_check_ability = true
-          pm.save!
-          CheckNotification::InfoMessages.send('moved_to_project_by_rule', item_title: pm.title, list_link: project.url, list_name: project.title)
-        end
-      end
-    end
-
     def add_tag(pm, value, _rule_id)
       tag_text = TagText.where(text: value, team_id: pm.team_id).last
       return if tag_text.nil?
@@ -218,7 +205,6 @@ module TeamRules
     choice_field_objs = self.team_tasks.where(associated_type: 'ProjectMedia').where("task_type LIKE '%_choice'").to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
     text_field_objs = self.team_tasks.where(associated_type: 'ProjectMedia').where(task_type: 'free_text').to_a.map(&:as_json).group_by{ |tt| tt[:fieldset] }
     namespace = OpenStruct.new({
-      projects: self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } },
       types: ['Claim', 'Link', 'UploadedImage', 'UploadedVideo'].collect{ |t| { key: t.downcase, value: I18n.t("team_rule_type_is_#{t.downcase}") } },
       tags: self.tag_texts.collect{ |t| { key: t.text, value: t.text } },
       statuses: statuses_objs.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } },

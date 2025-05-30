@@ -8,13 +8,13 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     @bot = create_alegre_bot(name: "alegre", login: "alegre")
     @bot.approve!
-    p = create_project
-    p.team.set_languages = ['en','pt','es']
-    p.team.save!
-    @bot.install_to!(p.team)
-    @team = p.team
+    team = create_team
+    team.set_languages = ['en','pt','es']
+    team.save!
+    @bot.install_to!(team)
+    @team = team
     m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
+    @pm = create_project_media team: @team, media: m
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
@@ -262,10 +262,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should not replace when parent is blank" do
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, media: Blank.new
-    pm3 = create_project_media project: p, media: Blank.new
+    t = create_team
+    pm1 = create_project_media team: t, is_image: true
+    pm2 = create_project_media team: t, media: Blank.new
+    pm3 = create_project_media team: t, media: Blank.new
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
@@ -275,20 +275,20 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
 
   test "should notify Sentry if there's a bad relationship" do
     CheckSentry.expects(:notify).once
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true
+    t = create_team
+    pm1 = create_project_media team: t, is_image: true
+    pm2 = create_project_media team: t, is_image: true
+    pm3 = create_project_media team: t, is_image: true
     create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     Bot::Alegre.report_exception_if_bad_relationship(Relationship.last, {ball: 1}, "boop")
   end
 
   test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, media: Blank.new
-    pm3 = create_project_media project: p, media: Blank.new
-    pm4 = create_project_media project: p, media: Blank.new
+    t = create_team
+    pm1 = create_project_media team: t, is_image: true
+    pm2 = create_project_media team: t, media: Blank.new
+    pm3 = create_project_media team: t, media: Blank.new
+    pm4 = create_project_media team: t, media: Blank.new
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, model: Bot::Alegre::ELASTICSEARCH_MODEL, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}, pm4.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}})
@@ -298,10 +298,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should store relationship for highest-scoring match" do
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, media: Blank.new
-    pm3 = create_project_media project: p, media: Blank.new
+    t = create_team
+    pm1 = create_project_media team: t, is_image: true
+    pm2 = create_project_media team: t, media: Blank.new
+    pm3 = create_project_media team: t, media: Blank.new
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, relationship_type: Relationship.confirmed_type}})
@@ -311,29 +311,29 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should not create suggestion when parent is trashed" do
-    p = create_project
-    pm2 = create_project_media project: p, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
-    pm3 = create_project_media project: p, is_image: true
+    t = create_team
+    pm2 = create_project_media team: t, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    pm3 = create_project_media team: t, is_image: true
     assert_no_difference 'Relationship.count' do
       Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.suggested_type}})
     end
   end
 
   test "should not create suggestion when child is trashed" do
-    p = create_project
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
+    t = create_team
+    pm2 = create_project_media team: t, is_image: true
+    pm3 = create_project_media team: t, is_image: true, archived: CheckArchivedFlags::FlagCodes::TRASHED
     assert_no_difference 'Relationship.count' do
       Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.suggested_type}})
     end
   end
 
   test "should return empty when shouldnt get similar items of certain type" do
-    p = create_project
-    pm1 = create_project_media project: p, quote: "Blah", team: @team
+    t = create_team
+    pm1 = create_project_media team: t, quote: "Blah", team: @team
     pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm1.save!
-    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    pm2 = create_project_media team: t, quote: "Blah2", team: @team
     pm2.save!
     Bot::Alegre.get_merged_items_with_similar_text(pm2, Bot::Alegre.get_threshold_for_query('text', pm2))
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => 0.99})
@@ -341,7 +341,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     tbi = TeamBotInstallation.new
     tbi.set_text_similarity_enabled = false
     tbi.user = BotUser.alegre_user
-    tbi.team = p.team
+    tbi.team = t
     tbi.save!
     TeamBotInstallation.stubs(:find_by_team_id_and_user_id).returns(tbi)
     assert_equal Bot::Alegre.get_similar_items(pm2), {}
@@ -350,11 +350,11 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should return matches for non-blank cases" do
-    p = create_project
-    pm1 = create_project_media project: p, quote: "Blah", team: @team
+    t = create_team
+    pm1 = create_project_media team: t, quote: "Blah", team: @team
     pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm1.save!
-    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    pm2 = create_project_media team: t, quote: "Blah2", team: @team
     pm2.save!
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2)).returns({pm1.id => {score: 0.99, context: {"team_id" => pm1.team_id, "blah" => 1}}})
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm2, Bot::Alegre.get_threshold_for_query('text', pm2, true)).returns({})
@@ -363,13 +363,13 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should not return matches for blank cases" do
-    p = create_project
-    pm1 = create_project_media project: p, quote: "Blah", team: @team
+    t = create_team
+    pm1 = create_project_media team: t, quote: "Blah", team: @team
     pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm1.save!
-    pm2 = create_project_media project: p, quote: "Blah2", team: @team
+    pm2 = create_project_media team: t, quote: "Blah2", team: @team
     pm2.save!
-    pm3 = create_project_media project: p, media: Blank.new
+    pm3 = create_project_media team: t, media: Blank.new
     pm3.save!
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}, pm2.id => {score: 0.99, context: {"blah" => 1}}})
     assert_equal Bot::Alegre.get_similar_items(pm3), {}
@@ -377,10 +377,10 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should add relationships" do
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true
+    t = create_team
+    pm1 = create_project_media team: t, is_image: true
+    pm2 = create_project_media team: t, is_image: true
+    pm3 = create_project_media team: t, is_image: true
     assert_difference 'Relationship.count' do
       response = Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
     end
@@ -391,8 +391,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should get similar items" do
-    p = create_project
-    pm1 = create_project_media project: p
+    t = create_team
+    pm1 = create_project_media team: t
     Bot::Alegre.stubs(:matching_model_to_use).with(pm1.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
@@ -400,8 +400,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   end
 
   test "should get empty similar items when not text or image" do
-    p = create_project
-    pm1 = create_project_media project: p
+    t = create_team
+    pm1 = create_project_media team: t
     pm1.media.type = "Bloop"
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
@@ -555,8 +555,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   test "should pass through the send video to similarity index call" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
-    p = create_project
-    pm = create_project_media project: p, media: create_uploaded_video
+    t = create_team
+    pm = create_project_media team: t, media: create_uploaded_video
     pm.media.type = "UploadedVideo"
     pm.media.save!
     pm.save!

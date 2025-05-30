@@ -8,13 +8,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     @bot = create_alegre_bot(name: "alegre", login: "alegre")
     @bot.approve!
-    p = create_project
-    p.team.set_languages = ['en','pt','es']
-    p.team.save!
-    @bot.install_to!(p.team)
-    @team = p.team
+    team = create_team
+    team.set_languages = ['en','pt','es']
+    team.save!
+    @bot.install_to!(team)
+    @team = team
     m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
+    @pm = create_project_media team: team, media: m
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
@@ -63,14 +63,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should return proper types per object" do
-    p = create_project team: @team
-    pm1 = create_project_media project: p, team: @team, media: create_uploaded_audio
+    pm1 = create_project_media team: @team, media: create_uploaded_audio
     assert_equal Bot::Alegre.get_type(pm1), "audio"
-    pm2 = create_project_media project: p, team: @team, media: create_uploaded_video
+    pm2 = create_project_media team: @team, media: create_uploaded_video
     assert_equal Bot::Alegre.get_type(pm2), "video"
-    pm3 = create_project_media project: p, team: @team, media: create_uploaded_image
+    pm3 = create_project_media team: @team, media: create_uploaded_image
     assert_equal Bot::Alegre.get_type(pm3), "image"
-    pm4 = create_project_media project: p, quote: "testing short text", team: @team
+    pm4 = create_project_media quote: "testing short text", team: @team
     assert_equal Bot::Alegre.get_type(pm4), "text"
   end
 
@@ -327,8 +326,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should generate per model threshold for text" do
-    p = create_project team: @team
-    pm1 = create_project_media project: p, quote: "testing short text", team: @team
+    pm1 = create_project_media quote: "testing short text", team: @team
     sample = [{:value=>0.9, :key=>"vector_hash_suggestion_threshold", :automatic=>false, :model=>"vector"}]
     assert_equal Bot::Alegre.get_per_model_threshold(pm1, sample), {:per_model_threshold=>[{:model=>"vector", :value=>0.9}]}
   end

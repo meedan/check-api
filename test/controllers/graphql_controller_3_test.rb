@@ -112,20 +112,19 @@ class GraphqlController3Test < ActionController::TestCase
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
 
       Time.stubs(:now).returns(Time.new(2019, 05, 18, 13, 00))
-      pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
+      pm1 = create_project_media team: t, quote: 'Test A', disable_es_callbacks: false
       pm1.update_attribute(:updated_at, Time.new(2019, 05, 19))
       sleep 1
 
       Time.stubs(:now).returns(Time.new(2019, 05, 20, 13, 00))
-      pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'Test B', disable_es_callbacks: false
       pm2.update_attribute(:updated_at, Time.new(2019, 05, 21, 12, 00))
       sleep 1
 
       Time.stubs(:now).returns(Time.new(2019, 05, 22, 13, 00))
-      pm3 = create_project_media project: p, quote: 'Test C', disable_es_callbacks: false
+      pm3 = create_project_media team: t, quote: 'Test C', disable_es_callbacks: false
       pm3.update_attribute(:updated_at, Time.new(2019, 05, 23))
       sleep 1
 
@@ -137,7 +136,7 @@ class GraphqlController3Test < ActionController::TestCase
       queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
 
       # query on PG
-      queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+      queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"start_time\":\"2019-05-19\",\"end_time\":\"2019-05-24\"},\"updated_at\":{\"start_time\":\"2019-05-20\",\"end_time\":\"2019-05-21\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
 
       queries.each do |query|
         post :create, params: { query: query, team: t.slug }
@@ -154,12 +153,11 @@ class GraphqlController3Test < ActionController::TestCase
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
 
       Time.stubs(:now).returns(Time.new - 5.week)
-      pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
+      pm1 = create_project_media team: t, quote: 'Test A', disable_es_callbacks: false
       Time.stubs(:now).returns(Time.new - 3.week)
-      pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
+      pm2 = create_project_media team: t, quote: 'Test B', disable_es_callbacks: false
       sleep 1
 
       Time.unstub(:now)
@@ -169,7 +167,7 @@ class GraphqlController3Test < ActionController::TestCase
       # query on ES
       queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       # query on PG
-      queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+      queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       queries.each do |query|
         post :create, params: { query: query, team: t.slug }
         assert_response :success
@@ -181,7 +179,7 @@ class GraphqlController3Test < ActionController::TestCase
       # query on ES
       queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"condition\":\"more_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       # query on PG
-      queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"condition\":\"more_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+      queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"condition\":\"more_than\",\"period\":\"1\",\"period_type\":\"m\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       queries.each do |query|
         post :create, params: { query: query, team: t.slug }
         assert_response :success
@@ -193,7 +191,7 @@ class GraphqlController3Test < ActionController::TestCase
       # query on ES
       queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"4\",\"period_type\":\"w\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       # query on PG
-      queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"4\",\"period_type\":\"w\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+      queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"4\",\"period_type\":\"w\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       queries.each do |query|
         post :create, params: { query: query, team: t.slug }
         assert_response :success
@@ -205,7 +203,7 @@ class GraphqlController3Test < ActionController::TestCase
       # query on ES
       queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"1\",\"period_type\":\"y\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       # query on PG
-      queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"1\",\"period_type\":\"y\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+      queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"1\",\"period_type\":\"y\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       queries.each do |query|
         post :create, params: { query: query, team: t.slug }
         assert_response :success
@@ -217,7 +215,7 @@ class GraphqlController3Test < ActionController::TestCase
       # query on ES
       queries << 'query CheckSearch { search(query: "{\"keyword\":\"Test\", \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"7\",\"period_type\":\"d\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       # query on PG
-      queries << 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + '], \"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"7\",\"period_type\":\"d\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
+      queries << 'query CheckSearch { search(query: "{\"range\": {\"created_at\":{\"condition\":\"less_than\",\"period\":\"7\",\"period_type\":\"d\"},\"timezone\":\"America/Bahia\"}}") { id,medias(first:20){edges{node{dbid}}}}}'
       queries.each do |query|
         post :create, params: { query: query, team: t.slug }
         assert_response :success
@@ -234,12 +232,11 @@ class GraphqlController3Test < ActionController::TestCase
       authenticate_with_user(u)
       t = create_team slug: 'team'
       create_team_user user: u, team: t
-      p = create_project team: t
       m = create_uploaded_image
-      pm = create_project_media project: p, user: create_user, media: m, disable_es_callbacks: false
+      pm = create_project_media team: t, user: create_user, media: m, disable_es_callbacks: false
       info = { title: random_string, content: random_string }; pm.analysis = info; pm.save!
       create_tipline_request team_id: t.id, associated: pm, smooch_data: {}
-      pm2 = create_project_media project: p
+      pm2 = create_project_media team: t
       r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
       create_tipline_request team_id: t.id, associated: pm2, smooch_data: {}
       create_claim_description project_media: pm, description: 'Test'
@@ -247,7 +244,7 @@ class GraphqlController3Test < ActionController::TestCase
       sleep 10
 
       query = '
-        query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") {
+        query CheckSearch { search(query: "{}") {
           id
           number_of_results
           medias(first: 1) {
@@ -361,12 +358,11 @@ class GraphqlController3Test < ActionController::TestCase
   test "should get related items if filters are null" do
     u = create_user is_admin: true
     t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     create_relationship source_id: pm1.id, target_id: pm2.id
     authenticate_with_user(u)
-    query = "query { project_media(ids: \"#{pm1.id},#{p.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
+    query = "query { project_media(ids: \"#{pm1.id}\") { relationships { targets(first: 10, filters: \"null\") { edges { node { id } } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
   end

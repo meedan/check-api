@@ -66,8 +66,7 @@ class StatusTest < ActiveSupport::TestCase
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       with_current_user_and_team(u, t) do
         st = create_status(status: 'undetermined', annotated: pm)
         assert_equal 1, st.get_field('verification_status_status').versions.count
@@ -118,9 +117,8 @@ class StatusTest < ActiveSupport::TestCase
     create_verification_status_stuff
     u = create_user
     t = create_team
-    p = create_project team: t
     create_team_user team: t, user: u, role: 'editor'
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       st = create_status annotated: pm, annotator: nil, current_user: u, status: 'false', skip_check_ability: true
       assert_equal u, st.annotator
@@ -132,9 +130,8 @@ class StatusTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'editor'
-    p = create_project team: t
     m = create_valid_media current_user: u2
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     st = create_status annotated: pm, annotator: u1, current_user: u2, status: 'false'
     assert_equal u1, st.annotator
   end
@@ -168,9 +165,8 @@ class StatusTest < ActiveSupport::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
-      p = create_project team: t
       m = create_valid_media
-      pm = create_project_media project: p, media: m
+      pm = create_project_media team: t, media: m
       create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
       s = create_status status: 'false', annotator: u, annotated: pm
       assert_not s.sent_to_slack
@@ -178,8 +174,8 @@ class StatusTest < ActiveSupport::TestCase
       s.status = 'verified'; s.save!
       assert_nil s.sent_to_slack
       # claim report
-      m = create_claim_media project_id: p.id
-      pm = create_project_media project: p, media: m
+      m = create_claim_media team: t
+      pm = create_project_media team: t, media: m
       create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
       s = create_status status: 'false', annotator: u, annotated: pm
       assert_nil s.sent_to_slack
@@ -191,18 +187,14 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should validate status" do
     t = create_team
-    p = create_project team: t
     pm = create_project_media
-
     assert_raises ActiveRecord::RecordInvalid do
       create_status annotated: pm, status: '1'
     end
-
     value = { label: 'Test', default: '1', active: '1', statuses: [{ id: '1', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'blue' } }] }
     t.set_media_verification_statuses(value)
     t.save!
-
-    pm2 = create_project_media project: p
+    pm2 = create_project_media team: t
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       create_status annotated: pm2, status: '1'
     end
@@ -211,23 +203,20 @@ class StatusTest < ActiveSupport::TestCase
   test "should get default id" do
     t = create_team
     t2 = create_team
-    p = create_project team: t
-    p2 = create_project team: t2
     pm = create_project_media
-
     assert_equal 'undetermined', Workflow::Workflow.options(pm, 'verification_status')[:default]
 
     value = { label: 'Test', active: '1', default: '1', statuses: [{ id: '1', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'blue' } }] }
     t.set_media_verification_statuses(value)
     t.save!
 
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     assert_equal '1', Workflow::Workflow.options(pm.reload, 'verification_status')[:default]
 
     value = { label: 'Test', active: 'first', default: 'first', statuses: [{ id: 'first', locales: { en: { label: 'Analyzing', description: 'Testing' } }, style: { color: 'red' } }] }
     t2.set_media_verification_statuses(value)
     t2.save!
-    pm2 = create_project_media project: p2
+    pm2 = create_project_media team: t2
 
     assert_equal 'first', Workflow::Workflow.options(pm2.reload, 'verification_status')[:default]
     assert_equal 'undetermined', Workflow::Workflow.options(create_project_media, 'verification_status')[:default]
@@ -237,9 +226,8 @@ class StatusTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'collaborator'
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     Team.stubs(:current).returns(t)
     # Ticket #5373
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
@@ -252,19 +240,18 @@ class StatusTest < ActiveSupport::TestCase
     Team.unstub(:current)
   end
 
-  test "editor should change status of own project" do
+  test "editor should change status of own project media" do
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'collaborator'
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     Team.stubs(:current).returns(t)
     # Ticket #5373
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
-    p.user = u; p.save!
+    pm.user = u; pm.save!
     assert_difference "Dynamic.where(['annotation_type LIKE ?', '%status%']).count" do
       s = create_status status: 'verified', annotated: pm, current_user: u, annotator: u
     end
@@ -290,20 +277,16 @@ class StatusTest < ActiveSupport::TestCase
 
   test "should define Slack message" do
     create_verification_status_stuff
-
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     User.current = u
-
     s = create_status status: 'false', annotated: pm, annotator: u
     s = Dynamic.find(s.id)
     s.status = 'verified'
     s.save!
     assert_match /verification status/, s.slack_notification_message
-
     u1 = create_user
     create_team_user user: u1, team: t
     u2 = create_user
@@ -321,10 +304,8 @@ class StatusTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     User.current = u
-
     u1 = create_user
     create_team_user user: u1, team: t
     u2 = create_user
@@ -345,5 +326,27 @@ class StatusTest < ActiveSupport::TestCase
     create_verification_status_stuff
     pm = create_project_media
     assert_kind_of Hash, Workflow::Workflow.get_status(pm, 'verification_status', 'in_progress')
+  end
+
+  test "should propagate assignments" do
+    Sidekiq::Testing.inline! do
+      create_verification_status_stuff
+      stub_configs({ 'default_project_media_workflow' => 'verification_status' }) do
+        t = create_team
+        u = create_user
+        create_team_user user: u, team: t
+        pm = create_project_media team: t
+        s = pm.last_verification_status_obj
+        3.times { create_task(annotated: pm) }
+        a = nil
+        assert_difference 'Assignment.count', 4 do
+          a = s.assign_user(u.id)
+        end
+        assert_not_nil a
+        assert_difference 'Assignment.count', -4 do
+          a.destroy!
+        end
+      end
+    end
   end
 end
