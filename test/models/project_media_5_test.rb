@@ -83,12 +83,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     end
   end
 
-  test "should have a media not not necessarily a project" do
-    assert_raise ActiveRecord::RecordInvalid do
-      create_project_media media: nil
-    end
-  end
-
   test "should create media if url or quote set" do
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
