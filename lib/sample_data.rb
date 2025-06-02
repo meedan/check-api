@@ -435,15 +435,21 @@ module SampleData
   def create_project_media(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)
-    options[:media_type] = 'Link' unless options[:url].blank?
-    options[:media_type] = 'Claim' unless options[:quote].blank?
-    options[:media_type] = 'UploadedImage' if options[:is_image]
-    pm = ProjectMedia.new
-    if options.has_key?(:project) && !options[:project].nil?
-      options[:team] = options[:project].team
+    unless options[:url].blank?
+      options[:media_type] = 'Link'
+      options[:media] = create_valid_media({team: options[:team], url: options[:url]})
     end
+    unless options[:quote].blank?
+      options[:media_type] = 'Claim'
+      options[:media] = create_claim_media({ quote: options[:quote]})
+    end
+    if options[:is_image]
+      options[:media_type] = 'UploadedImage'
+      options[:media] = create_uploaded_image
+    end
+    pm = ProjectMedia.new
     options[:team] = create_team unless options.has_key?(:team)
-    options[:media] = create_valid_media({team: options[:team]}) unless options.has_key?(:media)
+    options[:media] = create_claim_media unless options.has_key?(:media) || options.has_key?(:set_original_claim)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
@@ -482,7 +488,7 @@ module SampleData
 
   def create_valid_media(options = {})
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = random_url
+    url = options[:url] || random_url
     params = { url: url }
     params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
     WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
