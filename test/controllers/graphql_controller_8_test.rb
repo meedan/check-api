@@ -224,9 +224,9 @@ class GraphqlController8Test < ActionController::TestCase
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
-    media_ss = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
-    article_ss = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
-    f = create_feed media_saved_search: media_ss, article_saved_search:article_ss, team: t
+    media_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
+    f = create_feed media_saved_search: media_saved_search, article_saved_search:article_saved_search, team: t
 
     query = <<~GRAPHQL
       query {
@@ -245,20 +245,20 @@ class GraphqlController8Test < ActionController::TestCase
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'team', 'feed')
 
-    assert_equal media_ss.id, data.dig('media_saved_search_id')
-    assert_equal media_ss.id, data.dig('media_saved_search', 'dbid')
-    assert_equal article_ss.id, data.dig('article_saved_search_id')
-    assert_equal article_ss.id, data.dig('article_saved_search', 'dbid')
+    assert_equal media_saved_search.id, data.dig('media_saved_search_id')
+    assert_equal media_saved_search.id, data.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, data.dig('article_saved_search_id')
+    assert_equal article_saved_search.id, data.dig('article_saved_search', 'dbid')
   end
 
   test "should get feed team saved search" do
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
-    media_ss = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
-    article_ss = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
+    media_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
     f = create_feed
-    create_feed_team media_saved_search: media_ss, article_saved_search:article_ss, team_id: t.id, feed: f
+    create_feed_team media_saved_search: media_saved_search, article_saved_search:article_saved_search, team_id: t.id, feed: f
 
     query = <<~GRAPHQL
       query {
@@ -280,10 +280,10 @@ class GraphqlController8Test < ActionController::TestCase
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'team', 'feed', 'current_feed_team')
 
-    assert_equal media_ss.id, data.dig('media_saved_search_id')
-    assert_equal media_ss.id, data.dig('media_saved_search', 'dbid')
-    assert_equal article_ss.id, data.dig('article_saved_search_id')
-    assert_equal article_ss.id, data.dig('article_saved_search', 'dbid')
+    assert_equal media_saved_search.id, data.dig('media_saved_search_id')
+    assert_equal media_saved_search.id, data.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, data.dig('article_saved_search_id')
+    assert_equal article_saved_search.id, data.dig('article_saved_search', 'dbid')
   end
 
   test "should create feed" do
