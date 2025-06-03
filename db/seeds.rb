@@ -104,7 +104,7 @@ class Setup
       all_teams[:main_team_a] = main_team_a
       all_teams
     end
-  end 
+  end
 
   private
 
@@ -239,7 +239,7 @@ class PopulatedWorkspaces
   end
 
   def populate_projects
-    projects_params_main_user_a = 
+    projects_params_main_user_a =
       {
         title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
         user: users[:main_user_a],
@@ -263,7 +263,7 @@ class PopulatedWorkspaces
     Project.create!(projects_params_main_user_a)
 
     if invited_teams
-      project_params_invited_users = 
+      project_params_invited_users =
       [
         {
           title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
@@ -360,7 +360,7 @@ class PopulatedWorkspaces
       user: users[:main_user_a],
       team: teams[:main_team_a],
       published: true,
-      saved_search: SavedSearch.where(team: teams[:main_team_a]).first,
+      media_saved_search: SavedSearch.where(team: teams[:main_team_a]).first,
       licenses: [1],
       last_clusterized_at: last_clusterized_at,
       data_points: data_points
@@ -825,5 +825,5 @@ ActiveRecord::Base.transaction do
     setup.get_users_emails_and_passwords.each { |user_info| puts user_info }
   end
 end
-  
+
 Rails.cache.clear
