@@ -618,7 +618,9 @@ module ProjectMediaCachedFields
       else
         self.update_column(:custom_title, title)
       end
-      title.to_s
+      # Ensure the field value does not exceed ~32KB (ref: CV2-6395);
+      # truncate at 30_000 to stay safely under 32KB as the maximum size should be 32 * 1024 bytes.
+      title.to_s.truncate(30_000)
     end
 
     def recalculate_status
