@@ -36,12 +36,11 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should find similar items to media item" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p, media: create_uploaded_audio(file: 'rails.mp3')
-    pm2 = create_project_media project: p
+    pm = create_project_media team: t, media: create_uploaded_audio(file: 'rails.mp3')
+    pm2 = create_project_media team: t
     Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
@@ -51,15 +50,14 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should find similar items to text item" do
     t = create_team
-    p = create_project team: t
     m = create_claim_media quote: 'This is a test'
     m2 = create_claim_media quote: 'Foo bar'
-    pm = create_project_media project: p, media: m
-    pm2 = create_project_media project: p, media: m2
+    pm = create_project_media team: t, media: m
+    pm2 = create_project_media team: t, media: m2
     create_claim_description project_media: pm2
     Bot::Alegre.stubs(:get_items_from_similar_text).returns({ pm2.id => 0.9, pm.id => 0.8 })
 
-    query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id, fact_check { id } } } } } } }'
+    query = 'query { project_media(ids: "' + [pm.id, t.id].join(',') + '") { similar_items(first: 10000) { edges { node { dbid, claim_description { id, fact_check { id } } } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal pm2.id, JSON.parse(@response.body)['data']['project_media']['similar_items']['edges'][0]['node']['dbid']
@@ -97,10 +95,9 @@ class GraphqlController5Test < ActionController::TestCase
   test "should return number of tasks related to a team task" do
     t = create_team
     tt = create_team_task team_id: t.id
-    p = create_project team: t
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
     # add response to task for pm
     pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
     pm_tt.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
@@ -134,67 +131,21 @@ class GraphqlController5Test < ActionController::TestCase
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
       pm = nil
       with_current_user_and_team(u, t) do
-        pm = create_project_media project: p
+        pm = create_project_media team: t
         s = pm.last_status_obj
         s.status = 'in_progress'
         s.save!
       end
       authenticate_with_user(u)
-      query = 'query { project_media(ids: "' + [pm.id, p.id, t.id].join(',') + '") {  log(annotation_types: ["verification_status"]) { edges { node { annotation { annotation_type } } } } } }'
+      query = 'query { project_media(ids: "' + [pm.id, t.id].join(',') + '") {  log(annotation_types: ["verification_status"]) { edges { node { annotation { annotation_type } } } } } }'
       post :create, params: { query: query, team: t.slug }
       assert_response :success
       log = JSON.parse(@response.body)['data']['project_media']['log']['edges'].collect{ |e| e['node'] }
       assert_equal 1, log.size
       assert_equal 'verification_status', log[0]['annotation']['annotation_type']
     end
-  end
-
-  test "should paginate folder items" do
-    u = create_user is_admin: true
-    t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
-    authenticate_with_user(u)
-
-    # Paginating one item per page
-
-    # Page 1
-    query = 'query { project(id: "' + p.id.to_s + '") { project_medias(first: 1) { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project']['project_medias']
-    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
-    assert_equal 1, results.size
-    assert_equal pm3.id, results[0]
-    page_info = data['pageInfo']
-    assert page_info['hasNextPage']
-
-    # Page 2
-    query = 'query { project(id: "' + p.id.to_s + '") { project_medias(first: 1, after: "' + page_info['endCursor'] + '") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project']['project_medias']
-    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
-    assert_equal 1, results.size
-    assert_equal pm2.id, results[0]
-    page_info = data['pageInfo']
-    assert page_info['hasNextPage']
-
-    # Page 3
-    query = 'query { project(id: "' + p.id.to_s + '") { project_medias(first: 1, after: "' + page_info['endCursor'] + '") { pageInfo { endCursor, startCursor, hasPreviousPage, hasNextPage } edges { node { dbid } } } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['project']['project_medias']
-    results = data['edges'].to_a.collect{ |e| e['node']['dbid'] }
-    assert_equal 1, results.size
-    assert_equal pm1.id, results[0]
-    page_info = data['pageInfo']
-    assert !page_info['hasNextPage']
   end
 
   test "should not create more items than what the rate limit allows" do
@@ -204,14 +155,13 @@ class GraphqlController5Test < ActionController::TestCase
     a.save!
     b = create_bot_user api_key_id: a.id
     create_team_user team: t, user: b
-    p = create_project team: t
     authenticate_with_token(a)
 
-    query = 'mutation { createProjectMedia(input: { project_id: ' + p.id.to_s + ', quote: "Foo" }) { project_media { dbid } } }'
+    query = 'mutation { createProjectMedia(input: { quote: "Foo" }) { project_media { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
 
-    query = 'mutation { createProjectMedia(input: { project_id: ' + p.id.to_s + ', quote: "Bar" }) { project_media { dbid } } }'
+    query = 'mutation { createProjectMedia(input: { quote: "Bar" }) { project_media { dbid } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response 429
   end
@@ -351,12 +301,11 @@ class GraphqlController5Test < ActionController::TestCase
   test "should return if item is read" do
     u = create_user is_admin: true
     t = create_team
-    p = create_project team: t
-    pm1 = create_project_media project: p
+    pm1 = create_project_media team: t
     ProjectMediaUser.create! user: u, project_media: pm1, read: true
-    pm2 = create_project_media project: p
+    pm2 = create_project_media team: t
     ProjectMediaUser.create! user: create_user, project_media: pm2, read: true
-    pm3 = create_project_media project: p
+    pm3 = create_project_media team: t
     authenticate_with_user(u)
 
     {
@@ -364,7 +313,7 @@ class GraphqlController5Test < ActionController::TestCase
       pm2.id => [true, false],
       pm3.id => [false, false]
     }.each do |id, values|
-      ids = [id, p.id, t.id].join(',')
+      ids = [id, t.id].join(',')
       query = 'query { project_media(ids: "' + ids + '") { read_by_someone: is_read, read_by_me: is_read(by_me: true) } }'
       post :create, params: { query: query, team: t.slug }
       assert_response :success

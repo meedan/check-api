@@ -4,18 +4,6 @@ require 'error_codes'
 module ProjectAssociation
   extend ActiveSupport::Concern
 
-  def check_search_project
-    self.project.check_search_project unless self.project.nil?
-  end
-
-  def project_was
-    Project.find_by_id(self.previous_project_id) unless self.previous_project_id.nil?
-  end
-
-  def check_search_project_was
-    self.project_was.check_search_project unless self.project_was.nil?
-  end
-
   def check_search_team
     self.team.check_search_team
   end
@@ -37,12 +25,12 @@ module ProjectAssociation
   end
 
   module ClassMethods
-    def belonged_to_project(objid, pid, tid)
+    def belonged_to_team(objid, tid)
       obj = self.find_by_id objid
-      if obj && (obj.project_id == pid || (self.to_s == 'ProjectMedia' && !ProjectMedia.where(id: objid, team_id: tid).last.nil?))
+      if obj && self.to_s == 'ProjectMedia' && ProjectMedia.where(id: objid, team_id: tid).last.present?
         return obj.id
       else
-        obj = ProjectMedia.where(project_id: pid, media_id: objid).last
+        obj = ProjectMedia.where(team_id: tid, media_id: objid).last
         return obj.id if obj
       end
     end
@@ -87,7 +75,7 @@ module ProjectAssociation
     def update_elasticsearch_data
       return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
       data = {}
-      ['team_id', 'user_id', 'read', 'source_id', 'project_id', 'unmatched'].each do |fname|
+      ['team_id', 'user_id', 'read', 'source_id', 'unmatched'].each do |fname|
         data[fname] = self.send(fname).to_i if self.send("saved_change_to_#{fname}?")
       end
       data['archived'] = { method: 'archived', klass: 'ProjectMedia', id: self.id, type: 'int' } if self.send(:saved_change_to_archived?)

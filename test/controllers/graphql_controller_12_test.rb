@@ -620,12 +620,10 @@ class GraphqlController12Test < ActionController::TestCase
     a = ApiKey.create!
     b = create_bot_user api_key_id: a.id
     create_team_user team: t, user: b
-    p = create_project team: t
     authenticate_with_token(a)
 
     query1 = ' mutation create {
               createProjectMedia(input: {
-                project_id: ' + p.id.to_s + ',
                 media_type: "Blank",
                 channel: { main: 1 },
                 set_tags: ["science"],
@@ -656,7 +654,6 @@ class GraphqlController12Test < ActionController::TestCase
 
     query2 = ' mutation create {
       createProjectMedia(input: {
-        project_id: ' + p.id.to_s + ',
         media_type: "Blank",
         channel: { main: 1 },
         set_tags: ["science "],
@@ -691,12 +688,10 @@ class GraphqlController12Test < ActionController::TestCase
     a = ApiKey.create!
     b = create_bot_user api_key_id: a.id
     create_team_user team: t, user: b
-    p = create_project team: t
     authenticate_with_token(a)
 
     query1 = ' mutation create {
               createProjectMedia(input: {
-                project_id: ' + p.id.to_s + ',
                 media_type: "Blank",
                 channel: { main: 1 },
                 set_tags: ["science", "science", "#science"],
@@ -745,7 +740,6 @@ class GraphqlController12Test < ActionController::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response_body)
 
     t = create_team
-    p = create_project team: t
     pm = ProjectMedia.create!(team: t, set_original_claim: url)
 
     assert_not_nil pm
@@ -758,7 +752,6 @@ class GraphqlController12Test < ActionController::TestCase
     query = <<~GRAPHQL
       mutation {
         createProjectMedia(input: {
-          project_id: #{p.id},
           media_type: "Blank",
           channel: { main: 1 },
           set_tags: ["tag"],
@@ -807,7 +800,6 @@ class GraphqlController12Test < ActionController::TestCase
     t = create_team
     t.settings[:languages] << 'pt'
     t.save!
-    p = create_project team: t
     pm = ProjectMedia.create!(team: t, set_original_claim: url)
     c = create_claim_description project_media: pm
     fc_1 = create_fact_check claim_description: c
@@ -822,7 +814,6 @@ class GraphqlController12Test < ActionController::TestCase
     query = <<~GRAPHQL
       mutation {
         createProjectMedia(input: {
-          project_id: #{p.id},
           media_type: "Blank",
           channel: { main: 1 },
           set_tags: ["tag"],
@@ -911,15 +902,14 @@ class GraphqlController12Test < ActionController::TestCase
   test "should get annotations count" do
     admin_user = create_user is_admin: true
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     create_tag annotated: pm
     create_tag annotated: pm
     authenticate_with_user(admin_user)
 
     query = %{
       query {
-        project_media(ids: "#{pm.id},#{p.id}") {
+        project_media(ids: "#{pm.id}") {
           annotations_count(annotation_type: "tag")
         }
       }

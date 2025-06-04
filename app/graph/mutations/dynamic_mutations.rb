@@ -1,6 +1,6 @@
 module DynamicMutations
   MUTATION_TARGET = 'dynamic'.freeze
-  PARENTS = ['project_media', 'source', 'project', 'task', 'version'].freeze
+  PARENTS = ['project_media', 'source', 'task', 'version'].freeze
 
   module SharedCreateAndUpdateFields
     extend ActiveSupport::Concern

@@ -16,7 +16,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   test "should not crash when there is no Meme Buster annotation" do
     c = random_string
     m = create_claim_media quote: c
-    pm = create_project_media project: @project, media: m
+    pm = create_project_media team: @team, media: m
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'
     s.save!
@@ -84,8 +84,8 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   end
 
   test "should replicate status to related items" do
-    parent = create_project_media project: @project
-    child = create_project_media project: @project
+    parent = create_project_media team: @team
+    child = create_project_media team: @team
     create_relationship source_id: parent.id, target_id: child.id, user: create_user, relationship_type: Relationship.confirmed_type
     s = parent.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'
@@ -95,13 +95,13 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
   end
 
   test "should inherit status from parent" do
-    parent = create_project_media project: @project
+    parent = create_project_media team: @team
     s = parent.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'verified'
     s.save!
 
-    child = create_project_media project: @project
-    create_tipline_request team_id: @project.team_id, associated: child, language: 'en', smooch_message_id: random_string, smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }
+    child = create_project_media team: @team
+    create_tipline_request team_id: @team.id, associated: child, language: 'en', smooch_message_id: random_string, smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }
     r = create_relationship source_id: parent.id, target_id: child.id, relationship_type: Relationship.confirmed_type, user: create_user
     s = child.annotations.where(annotation_type: 'verification_status').last.load
     assert_equal 'verified', s.status
@@ -112,10 +112,10 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     u = create_user
     create_team_user team: @team, user: u, role: 'admin'
     with_current_user_and_team(u, @team) do
-      child2 = create_project_media project: @project
+      child2 = create_project_media team: @team
       s2 = child2.annotations.where(annotation_type: 'verification_status').last.load
       assert_equal 'undetermined', s2.status
-      create_tipline_request team_id: @project.team_id, associated: child2, language: 'en', smooch_message_id: random_string, smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }
+      create_tipline_request team_id: @team.id, associated: child2, language: 'en', smooch_message_id: random_string, smooch_data: { app_id: @app_id, authorId: random_string, language: 'en' }
       r = create_relationship source_id: parent.id, target_id: child2.id, relationship_type: Relationship.confirmed_type, user: @bot
       s2 = child2.annotations.where(annotation_type: 'verification_status').last.load
       assert_equal 'verified', s2.status

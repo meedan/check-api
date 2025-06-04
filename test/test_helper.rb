@@ -160,7 +160,7 @@ class ActiveSupport::TestCase
 
   def setup
     Sidekiq::Testing.fake!
-    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, Project, TiplineResource, TiplineRequest].each{ |klass| klass.delete_all }
+    [Account, Media, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship, TiplineResource, TiplineRequest].each{ |klass| klass.delete_all }
 
     # Some of our non-GraphQL tests rely on behavior that this requires. As a result,
     # we'll keep it around for now and just recreate any needed dynamic annotation data
@@ -289,8 +289,7 @@ class ActiveSupport::TestCase
     create_team_user user: u1, team: t, role: 'admin'
     create_team_user user: u2, team: t, role: 'admin'
     create_team_user user: u3, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
 
     at = DynamicAnnotation::AnnotationType.where(annotation_type: 'task_response_free_text').first || create_annotation_type(annotation_type: 'task_response_free_text', label: 'Task')
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
@@ -334,7 +333,7 @@ class ActiveSupport::TestCase
       assert_equal [u1.id, u3.id].join(','), a.reload.attribution
     end
 
-    [t, p, pm]
+    [t, pm]
   end
 
   # CRUD helpers for GraphQL types
@@ -856,7 +855,6 @@ class ActiveSupport::TestCase
     messages = (1..20).to_a.collect{ |_i| OpenStruct.new({ message: OpenStruct.new({ id: random_string }) }) }
     SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(*messages)
     @team = create_team
-    @project = create_project team_id: @team.id
     @bid = random_string
     ApiKey.delete_all
     BotUser.delete_all
@@ -864,7 +862,7 @@ class ActiveSupport::TestCase
 
     @bot = create_smooch_bot
 
-    @pm_for_menu_option = create_project_media(project: @project)
+    @pm_for_menu_option = create_project_media(team: @team)
     @settings = {
       'smooch_webhook_secret' => 'test',
       'smooch_app_id' => @app_id,

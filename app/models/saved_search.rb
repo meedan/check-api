@@ -7,8 +7,8 @@ class SavedSearch < ApplicationRecord
   validates :title, uniqueness: { scope: [:team_id, :list_type] }, unless: proc { |ss| ss.is_being_copied }
 
   belongs_to :team, optional: true
-  has_many :feeds, dependent: :nullify
-  has_many :feed_teams, dependent: :nullify
+  has_many :feeds, dependent: :nullify, foreign_key: :media_saved_search_id
+  has_many :feed_teams, dependent: :nullify, foreign_key: :media_saved_search_id
 
   def items_count
     if self.list_type == 'article'

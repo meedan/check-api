@@ -7,13 +7,12 @@ class Bot::TaggerTest < ActiveSupport::TestCase
     @AlegreBot = create_alegre_bot(name: "alegre", login: "alegre")
     @TaggerBot.approve!
     @AlegreBot.approve!
-    p = create_project
-    p.team.save!
-    @AlegreBot.install_to!(p.team)
-    @TaggerBot.install_to!(p.team)
-    @team = p.team
+    team = create_team
+    @AlegreBot.install_to!(team)
+    @TaggerBot.install_to!(team)
+    @team = team
     m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
+    @pm = create_project_media team: team, media: m
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
