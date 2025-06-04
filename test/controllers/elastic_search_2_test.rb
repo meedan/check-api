@@ -146,7 +146,7 @@ class ElasticSearch2Test < ActionController::TestCase
     assert_equal [pm.id, pm2.id, pm3.id], result.medias.map(&:id).sort
     result = CheckSearch.new({ sources: [s3.id] }.to_json, nil, t.id)
     assert_empty result.medias
-    result = CheckSearch.new({ sources: [s2.id], show: ['weblink'] }.to_json, nil, t.id)
+    result = CheckSearch.new({ sources: [s2.id], show: ['claims'] }.to_json, nil, t.id)
     assert_equal [pm3.id], result.medias.map(&:id)
   end
 

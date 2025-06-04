@@ -435,13 +435,14 @@ module SampleData
   def create_project_media(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)
+    enforce_create_media = true
     unless options[:url].blank?
       options[:media_type] = 'Link'
-      options[:media] = create_valid_media({team: options[:team], url: options[:url]})
+      enforce_create_media = false
     end
     unless options[:quote].blank?
       options[:media_type] = 'Claim'
-      options[:media] = create_claim_media({ quote: options[:quote]})
+      enforce_create_media = false
     end
     if options[:is_image]
       options[:media_type] = 'UploadedImage'
@@ -449,7 +450,7 @@ module SampleData
     end
     pm = ProjectMedia.new
     options[:team] = create_team unless options.has_key?(:team)
-    options[:media] = create_claim_media unless options.has_key?(:media) || options.has_key?(:set_original_claim)
+    options[:media] = create_claim_media if enforce_create_media && !options.has_key?(:set_original_claim)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
