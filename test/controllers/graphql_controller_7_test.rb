@@ -258,38 +258,25 @@ class GraphqlController7Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    p = create_project team: t
-    pm1 = create_project_media team: t, project: p, read: true
-    pm2 = create_project_media team: t, project: p
+    pm1 = create_project_media team: t, team: t, read: true
+    pm2 = create_project_media team: t, team: t
     pm3 = create_project_media
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"read\":true, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"read\":true}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"read\":false, \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"read\":false}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm2.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
 
-    query = 'query CheckSearch { search(query: "{\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
-  end
-
-  test "should set a project as default" do
-    default_folder = @t.default_folder.id
-    p = create_project team: @t
-    query = "mutation { updateProject(input: { clientMutationId: \"1\", id: \"#{p.graphql_id}\", previous_default_project_id: #{default_folder},is_default: true}) { project { is_default }, previous_default_project { dbid, is_default } } }"
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    data = JSON.parse(@response.body)['data']['updateProject']
-    assert data['project']['is_default']
-    assert_equal default_folder, data['previous_default_project']['dbid']
-    assert !data['previous_default_project']['is_default']
   end
 
   test "should create related project media for source" do
@@ -331,9 +318,8 @@ class GraphqlController7Test < ActionController::TestCase
 
   test "should search as anonymous user" do
     t = create_team slug: 'team', private: false
-    p = create_project team: t
     2.times do
-      pm = create_project_media project: p, disable_es_callbacks: false
+      pm = create_project_media team: t, disable_es_callbacks: false
     end
     sleep 2
 
@@ -345,10 +331,10 @@ class GraphqlController7Test < ActionController::TestCase
   end
 
   test "should read attribution" do
-    t, p, pm = assert_task_response_attribution
+    t, pm = assert_task_response_attribution
     u = create_user is_admin: true
     authenticate_with_user(u)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { tasks { edges { node { first_response { attribution { edges { node { name } } } } } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
@@ -388,7 +374,6 @@ class GraphqlController7Test < ActionController::TestCase
       u = create_user
       t = create_team
       create_team_user user: u, team: t, role: 'admin'
-      p = create_project team: t
       authenticate_with_user(u)
 
       query = 'mutation { createProjectMedia(input: { clientMutationId: "1", url: "' + url + '"}) { project_media { id } } }'
@@ -433,10 +418,8 @@ class GraphqlController7Test < ActionController::TestCase
     create_team_user team: t, user: u
     create_team_user team: t2, user: u
     authenticate_with_user(u)
-    p1 = create_project team: t
-    p2 = create_project team: t2
-    pm1 = create_project_media project: p1, media: l
-    pm2 = create_project_media project: p2, media: l
+    pm1 = create_project_media team: t, media: l
+    pm2 = create_project_media team: t2, media: l
     pm3 = create_project_media media: l
     query = "query GetById { project_medias(url: \"#{l.url}\", first: 10000) { edges { node { dbid } } } }"
     post :create, params: { query: query, team: t.slug }
@@ -454,8 +437,7 @@ class GraphqlController7Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u
     authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     query = "query GetById { project_medias(url: \"#{url}\", first: 10000) { edges { node { dbid } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success

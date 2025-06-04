@@ -1,6 +1,6 @@
 module TaskMutations
   MUTATION_TARGET = 'task'.freeze
-  PARENTS = ['project_media', 'source', 'project', 'version'].freeze
+  PARENTS = ['project_media', 'source', 'version'].freeze
 
   module SharedCreateAndUpdateFields
     extend ActiveSupport::Concern

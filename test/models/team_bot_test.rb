@@ -102,12 +102,10 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should notify team bots in background when project media is created or updated" do
     t1 = create_team
-    p1 = create_project team: t1
     tb1a = create_team_bot team_author_id: t1.id, set_events: [{ event: 'create_project_media', graphql: nil }]
     tb1b = create_team_bot team_author_id: t1.id, set_events: [{ event: 'update_project_media', graphql: nil }]
 
     t2 = create_team
-    p2 = create_project team: t2
     tb2a = create_team_bot team_author_id: t2.id, set_events: [{ event: 'create_project_media', graphql: nil }]
     tb2b = create_team_bot team_author_id: t2.id, set_events: [{ event: 'update_project_media', graphql: nil }]
 
@@ -116,7 +114,7 @@ class TeamBotTest < ActiveSupport::TestCase
     #assert_nil tb2a.reload.last_called_at
     #assert_nil tb2b.reload.last_called_at
 
-    pm1 = create_project_media project: p1
+    pm1 = create_project_media team: t1
 
     #tb1at = tb1a.reload.last_called_at
     #assert_not_nil tb1at
@@ -124,7 +122,7 @@ class TeamBotTest < ActiveSupport::TestCase
     #assert_nil tb2a.reload.last_called_at
     #assert_nil tb2b.reload.last_called_at
 
-    pm2 = create_project_media project: p2
+    pm2 = create_project_media team: t2
 
     #tb2at = tb2a.reload.last_called_at
     #assert_equal tb1at, tb1a.reload.last_called_at
@@ -153,10 +151,9 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should not notify team bot if object is marked to skip notifications" do
     t = create_team
-    p = create_project team: t
     tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: nil }]
     #assert_nil tb.reload.last_called_at
-    pm = create_project_media project: p, skip_notifications: true
+    pm = create_project_media team: t, skip_notifications: true
     #assert_nil tb.reload.last_called_at
   end
 
@@ -211,9 +208,8 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should get GraphQL result" do
     t = create_team private: true
-    p = create_project team: t
     tb = create_team_bot team_author_id: t.id
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     task = create_task label: 'Test task'
     s = create_source name: 'Test Source'
     assert_equal pm.id, tb.graphql_result('id, dbid', pm, t)['dbid']
@@ -227,23 +223,18 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should call bot over event subscription" do
     RequestStore.store[:disable_es_callbacks] = true
     t = create_team name: 'Test Team'
-    p1 = create_project team: t, title: 'Test Project'
-    p2 = create_project team: t, title: 'Another Test Project'
     tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'team { name }' }], set_request_url: 'http://bot'
     data = { event: 'create_project_media', data: { team: { name: 'Test Team' } } }
     WebMock.disable_net_connect! allow: /#{CheckConfig.get('storage_endpoint')}/
     WebMock.stub_request(:post, 'http://bot').with(body: hash_including(data)).to_return(body: 'ok')
-
     with_current_user_and_team(nil, nil) do
       assert_nothing_raised do
-        create_project_media project: p1
+        create_project_media team: t
       end
-
       t.name = random_string
       t.save!
-
       assert_raises WebMock::NetConnectNotAllowedError do
-        create_project_media project: p2
+        create_project_media team: t
       end
     end
     RequestStore.store[:disable_es_callbacks] = false
@@ -252,10 +243,9 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should call bot over own annotation updates" do
     t = create_team
-    p = create_project team: t
     tb1 = create_team_bot team_author_id: t.id, set_events: [{ event: 'update_annotation_own', graphql: nil }]
     tb2 = create_team_bot team_author_id: t.id, set_events: [{ event: 'update_annotation_own', graphql: nil }]
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     a1 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json
     a2 = create_dynamic_annotation annotated: pm, annotation_type: 'team_bot_response', set_fields: { team_bot_response_formatted_data: { title: 'Foo', description: 'Bar' }.to_json }.to_json, annotator: tb1
 
@@ -273,7 +263,6 @@ class TeamBotTest < ActiveSupport::TestCase
   test "should enqueue bot notifications" do
     RequestStore.store[:disable_es_callbacks] = true
     t = create_team
-    p = create_project team: t, title: 'Test Project'
     tb = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_project_media', graphql: 'team { slug }' }, { event: 'update_project_media', graphql: 'team { slug }' }], set_request_url: 'http://bot'
     data_create = { event: 'create_project_media', data: { team: { slug: t.slug } } }
     data_update = { event: 'update_project_media', data: { team: { slug: t.slug } } }
@@ -285,7 +274,7 @@ class TeamBotTest < ActiveSupport::TestCase
       BotUser.init_event_queue
 
       assert_nothing_raised do
-        pm = create_project_media project: p
+        pm = create_project_media team: t
         pm.user_id = create_user
         pm.save!
         pm.user_id = create_user
@@ -473,8 +462,7 @@ class TeamBotTest < ActiveSupport::TestCase
 
   test "should notify team bots in background when task is created" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tb1 = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_annotation_task_free_text', graphql: nil }]
     tb2 = create_team_bot team_author_id: t.id, set_events: [{ event: 'create_annotation_task_datetime', graphql: nil }]
 

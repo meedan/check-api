@@ -115,22 +115,6 @@ module TeamPrivate
     end
   end
 
-  def create_default_folder
-    return if self.is_being_copied
-    p = Project.new
-    p.team_id = self.id
-    p.title = 'Unnamed folder (default)'
-    p.skip_check_ability = true
-    p.is_default = true
-    p.save!
-  end
-
-  def remove_is_default_project_flag
-    # Call this method before destory team to delete all related projects
-    # as admin not allowed to delete the default project
-    self.default_folder.update_columns(is_default: false)
-  end
-
   def empty_data_structure
     data_structure = MonthlyTeamStatistic.new.formatted_hash
     data_structure["Language"] = self.default_language

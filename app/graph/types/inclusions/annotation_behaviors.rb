@@ -63,8 +63,6 @@ module Types::Inclusions
 
       field :locked, GraphQL::Types::Boolean, null: true
 
-      field :project, ::ProjectType, null: true
-
       field :team, ::TeamType, null: true
 
       field :file_data, ::JsonStringType, null: true, camelize: false

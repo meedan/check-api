@@ -4,7 +4,6 @@ module TeamAssociations
   extend ActiveSupport::Concern
 
   included do
-    has_many :projects, dependent: :destroy
     has_many :accounts # No "dependent: :destroy" because they will be anonymized
     has_many :team_users, dependent: :destroy
     has_many :users, through: :team_users
@@ -14,7 +13,6 @@ module TeamAssociations
     has_many :project_medias, dependent: :destroy
     has_many :tipline_resources, dependent: :destroy
     has_many :saved_searches, dependent: :destroy
-    has_many :project_groups, dependent: :destroy
     has_many :feed_teams, dependent: :destroy
     has_many :feeds, through: :feed_teams
     has_many :monthly_team_statistics # No "dependent: :destroy" because we want to retain statistics
@@ -57,10 +55,6 @@ module TeamAssociations
     self.team_bots_created
   end
 
-  def recent_projects
-    self.projects
-  end
-
   def spam
     ProjectMedia.where({ team_id: self.id, archived: CheckArchivedFlags::FlagCodes::SPAM , sources_count: 0 })
   end
@@ -93,9 +87,8 @@ module TeamAssociations
 
   def medias_count(obj = nil)
     obj ||= self
-    key = obj.class.name == 'Team' ? 'team_id' : 'project_id'
     conditions = { archived: [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED] }
-    conditions[key] = obj.id
+    conditions['team_id'] = obj.id if obj.class.name == 'Team'
     relationship_type = Team.sanitize_sql(Relationship.confirmed_type.to_yaml)
     ProjectMedia.where(conditions)
     .joins(:media).where('medias.type != ?', 'Blank')

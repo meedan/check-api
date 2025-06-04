@@ -14,7 +14,6 @@ class WebhooksControllerTest < ActionController::TestCase
       { name: 'smooch_template_namespace', label: 'Smooch Template Namespace', type: 'string', default: '' },
     ]
     @team = create_team
-    @project = create_project team_id: @team.id
     @bot = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: []
     settings = {
       'smooch_webhook_secret' => 'test',
@@ -64,8 +63,7 @@ class WebhooksControllerTest < ActionController::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     pm.create_all_archive_annotations
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
@@ -97,8 +95,7 @@ class WebhooksControllerTest < ActionController::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     pm.create_all_archive_annotations
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
 
@@ -152,8 +149,7 @@ class WebhooksControllerTest < ActionController::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CheckConfig.get('secret_token'), payload)
@@ -182,8 +178,7 @@ class WebhooksControllerTest < ActionController::TestCase
     t.save!
     BotUser.delete_all
     tb = create_team_bot login: 'keep', set_settings: [{ name: 'archive_pender_archive_enabled', type: 'boolean' }], set_approved: true
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     pm.create_all_archive_annotations
 
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json

@@ -16,7 +16,6 @@ module UserMutations
 
     argument :email, GraphQL::Types::String, required: false
     argument :name, GraphQL::Types::String, required: false
-    argument :current_project_id, GraphQL::Types::Int, required: false, camelize: false
     argument :password, GraphQL::Types::String, required: false
     argument :password_confirmation, GraphQL::Types::String, required: false, camelize: false
 

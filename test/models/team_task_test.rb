@@ -145,12 +145,10 @@ class TeamTaskTest < ActiveSupport::TestCase
     u2 = create_user
     create_team_user team: t, user: u, role: 'admin'
     create_team_user team: t, user: u2
-    p = create_project team: t
-    p2 = create_project team: t
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p, archived: 1
+      pm = create_project_media team: t, archived: 1
       tt =create_team_task team_id: t.id
-      pm2 = create_project_media project: p2
+      pm2 = create_project_media team: t
       # Assign task to user and archive the item
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm2_tt.assigned_to_ids = u2.id
@@ -177,9 +175,8 @@ class TeamTaskTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       tt = nil
       with_current_user_and_team(u, t) do
-        p = create_project team: t
         tt = create_team_task team_id: t.id, description: 'Foo', options: [{ label: 'Foo' }]
-        pm = create_project_media project: p
+        pm = create_project_media team: t
         pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
         assert_not_nil pm_tt
       end
@@ -425,12 +422,11 @@ class TeamTaskTest < ActiveSupport::TestCase
 
   test "should not update type from teamwide tasks with answers" do
     t = create_team
-    p = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
-      pm = create_project_media project: p
-      pm2 = create_project_media project: p
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
       # add response to task for pm2
@@ -453,12 +449,11 @@ class TeamTaskTest < ActiveSupport::TestCase
 
   test "should delete teamwide tasks based on keep_completed_tasks attr" do
     t = create_team
-    p = create_project team: t
     tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', options: [{ label: 'Foo' }]
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
-      pm2 = create_project_media project: p
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
       at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
@@ -481,14 +476,13 @@ class TeamTaskTest < ActiveSupport::TestCase
 
   test "should destroy teamwide tasks" do
     t = create_team
-    p = create_project team: t
     Team.stubs(:current).returns(t)
     tt = create_team_task team_id: t.id
     Sidekiq::Testing.inline! do
-      pm = create_project_media project: p
-      pm2 = create_project_media project: p
-      pm3 = create_project_media project: p
-      pm4 = create_project_media project: p
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      pm4 = create_project_media team: t
       pm_tt = pm.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm2_tt = pm2.annotations('task').select{|t| t.team_task_id == tt.id}.last
       pm3_tt = pm3.annotations('task').select{|t| t.team_task_id == tt.id}.last
@@ -661,7 +655,7 @@ class TeamTaskTest < ActiveSupport::TestCase
   test "should add-remove team tasks based on rule" do
     create_task_stuff
     t = create_team
-    p = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       name: 'Rule 1',
@@ -681,8 +675,8 @@ class TeamTaskTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: p.id
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -712,14 +706,13 @@ class TeamTaskTest < ActiveSupport::TestCase
 
   test "should count teamwide tasks" do
     t = create_team
-    p = create_project team: t
     Team.stubs(:current).returns(t)
     Sidekiq::Testing.inline! do
       tt = create_team_task team_id: t.id, label: 'Foo', description: 'Foo', task_type: 'single_choice', options: [{ label: 'Foo' }]
-      pm = create_project_media project: p
-      pm2 = create_project_media project: p
-      pm3 = create_project_media project: p
-      pm4 = create_project_media project: p
+      pm = create_project_media team: t
+      pm2 = create_project_media team: t
+      pm3 = create_project_media team: t
+      pm4 = create_project_media team: t
       # add response to task for pm4
       at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task'
       ft1 = create_field_type field_type: 'single_choice', label: 'Single Choice'

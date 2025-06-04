@@ -162,7 +162,6 @@ class ElasticSearch10Test < ActionController::TestCase
 
   test "should sort items by creator name" do
     t = create_team
-    p = create_project team: t
     # create users with capital and small letters to verify sort with case insensitive
     u1 = create_user name: 'ahmad'
     u2 = create_user name: 'Ali'
@@ -173,14 +172,14 @@ class ElasticSearch10Test < ActionController::TestCase
     create_team_user team: t, user: u3
     create_team_user team: t, user: u4
     RequestStore.store[:skip_cached_field_update] = false
-    pm1 = create_project_media project: p, user: u1, disable_es_callbacks: false
-    pm2 = create_project_media project: p, user: u2, disable_es_callbacks: false
-    pm3 = create_project_media project: p, user: u3, disable_es_callbacks: false
-    pm4 = create_project_media project: p, user: u4, disable_es_callbacks: false
+    pm1 = create_project_media team: t, user: u1, disable_es_callbacks: false
+    pm2 = create_project_media team: t, user: u2, disable_es_callbacks: false
+    pm3 = create_project_media team: t, user: u3, disable_es_callbacks: false
+    pm4 = create_project_media team: t, user: u4, disable_es_callbacks: false
     sleep 2
-    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'asc' }.to_json, nil, t.id)
+    result = CheckSearch.new({ sort: 'creator_name', sort_type: 'asc' }.to_json, nil, t.id)
     assert_equal [pm1.id, pm2.id, pm3.id, pm4.id], result.medias.map(&:id)
-    result = CheckSearch.new({ projects: [p.id], sort: 'creator_name', sort_type: 'desc' }.to_json, nil, t.id)
+    result = CheckSearch.new({ sort: 'creator_name', sort_type: 'desc' }.to_json, nil, t.id)
     assert_equal [pm4.id, pm3.id, pm2.id, pm1.id], result.medias.map(&:id)
   end
 
@@ -474,23 +473,23 @@ class ElasticSearch10Test < ActionController::TestCase
 
   test "should filter by positive_tipline_search_results_count and negative_tipline_search_results_count numeric range" do
     RequestStore.store[:skip_cached_field_update] = false
-    p = create_project
+    t = create_team
     [:positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
-      query = { projects: [p.id], "#{field}": { max: 5 } }
+      query = { "#{field}": { max: 5 } }
       query[field][:min] = 0
-      result = CheckSearch.new(query.to_json, nil, p.team_id)
+      result = CheckSearch.new(query.to_json, nil, t.id)
       assert_equal 0, result.medias.count
     end
-    pm1 = create_project_media project: p, quote: 'Test A', disable_es_callbacks: false
-    pm2 = create_project_media project: p, quote: 'Test B', disable_es_callbacks: false
+    pm1 = create_project_media team: t, quote: 'Test A', disable_es_callbacks: false
+    pm2 = create_project_media team: t, quote: 'Test B', disable_es_callbacks: false
 
     # Add positive search results
-    create_tipline_request team_id: p.team_id, associated: pm1, smooch_request_type: 'relevant_search_result_requests'
-    2.times { create_tipline_request(team_id: p.team_id, associated: pm2, smooch_request_type: 'relevant_search_result_requests') }
+    create_tipline_request team_id: t.id, associated: pm1, smooch_request_type: 'relevant_search_result_requests'
+    2.times { create_tipline_request(team_id: t.id, associated: pm2, smooch_request_type: 'relevant_search_result_requests') }
 
     # Add negative search results
-    create_tipline_request team_id: p.team_id, associated: pm1, smooch_request_type: 'irrelevant_search_result_requests'
-    2.times { create_tipline_request(team_id: p.team_id, associated: pm2, smooch_request_type: 'irrelevant_search_result_requests') }
+    create_tipline_request team_id: t.id, associated: pm1, smooch_request_type: 'irrelevant_search_result_requests'
+    2.times { create_tipline_request(team_id: t.id, associated: pm2, smooch_request_type: 'irrelevant_search_result_requests') }
 
     sleep 2
 
@@ -502,10 +501,10 @@ class ElasticSearch10Test < ActionController::TestCase
     }
 
     [:positive_tipline_search_results_count, :negative_tipline_search_results_count].each do |field|
-      query = { projects: [p.id], "#{field}": { max: 5 } }
+      query = { "#{field}": { max: 5 } }
       min_mapping.each do |min, items|
         query[field][:min] = min.to_s
-        result = CheckSearch.new(query.to_json, nil, p.team_id)
+        result = CheckSearch.new(query.to_json, nil, t.id)
         assert_equal items.sort, result.medias.map(&:id).sort
       end
     end

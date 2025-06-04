@@ -3,7 +3,7 @@ class Team < ApplicationRecord
 
   # These two callbacks must be in the top
   after_create :create_team_partition
-  before_destroy :delete_created_bots, :remove_is_default_project_flag
+  before_destroy :delete_created_bots
 
   include SearchHelper
   include ValidationsHelper
@@ -29,7 +29,7 @@ class Team < ApplicationRecord
   before_validation :normalize_slug, on: :create
   before_validation :set_default_language, on: :create
   before_validation :set_default_fieldsets, on: :create
-  after_create :add_user_to_team, :add_default_bots_to_team, :create_default_folder
+  after_create :add_user_to_team, :add_default_bots_to_team
   after_update :archive_or_restore_projects_if_needed
   after_update :update_reports_if_labels_changed
   after_update :update_reports_if_languages_changed
@@ -56,17 +56,12 @@ class Team < ApplicationRecord
     self.team_users.where(status: 'member').permissioned(self).count
   end
 
-  def projects_count
-    self.projects.permissioned.count
-  end
-
   def as_json(_options = {})
     {
       dbid: self.id,
       id: self.team_graphql_id,
       avatar: self.avatar,
       name: self.name,
-      projects: self.recent_projects,
       slug: self.slug
     }
   end
@@ -176,12 +171,7 @@ class Team < ApplicationRecord
     CheckSearch.id({ 'parent' => { 'type' => 'team', 'slug' => self.slug } })
   end
 
-  def default_folder
-    self.projects.where(is_default: true).last
-  end
-
   def self.archive_or_restore_projects_if_needed(archived, team_id)
-    Project.where({ team_id: team_id }).update_all({ archived: archived })
     Source.where({ team_id: team_id }).update_all({ archived: archived })
     ProjectMedia.where(team_id:team_id).update_all({ archived: archived })
   end
@@ -234,7 +224,6 @@ class Team < ApplicationRecord
     tmp = ProjectMedia.new(team_id: self.id, archived: CheckArchivedFlags::FlagCodes::NONE)
     tag_text = TagText.new(team_id: self.id)
     team_task = TeamTask.new(team_id: self.id)
-    project = Project.new(team_id: self.id)
     relationship = Relationship.new(source: tmp, target: tmp)
     perms["empty Trash"] = ability.can?(:destroy, :trash)
     perms["invite Members"] = ability.can?(:invite_members, self)
@@ -245,7 +234,6 @@ class Team < ApplicationRecord
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
-    perms["set_privacy Project"] = ability.can?(:set_privacy, project)
     perms["update Relationship"] = ability.can?(:update, relationship)
     perms["destroy Relationship"] = ability.can?(:destroy, relationship)
     perms["manage TagText"] = ability.can?(:manage, tag_text)
