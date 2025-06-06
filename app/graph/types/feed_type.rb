@@ -16,14 +16,17 @@ class FeedType < DefaultObject
   field :root_requests_count, GraphQL::Types::Int, null: true
   field :tags, [GraphQL::Types::String, null: true], null: true
   field :licenses, [GraphQL::Types::Int, null: true], null: true
-  field :saved_search_id, GraphQL::Types::Int, null: true, method: :media_saved_search_id
+  field :media_saved_search_id, GraphQL::Types::Int, null: true
+  field :article_saved_search_id, GraphQL::Types::Int, null: true
   field :discoverable, GraphQL::Types::Boolean, null: true
   field :last_clusterized_at, GraphQL::Types::String, null: true
   field :user, UserType, null: true
 
   field :team, PublicTeamType, null: true
-  field :saved_search, SavedSearchType, null: true, method: :media_saved_search
-  field :saved_search_was, SavedSearchType, null: true
+  field :media_saved_search, SavedSearchType, null: true
+  field :media_saved_search_was, SavedSearchType, null: true
+  field :article_saved_search, SavedSearchType, null: true
+  field :article_saved_search_was, SavedSearchType, null: true
 
   field :requests, RequestType.connection_type, null: true do
     argument :request_id, GraphQL::Types::Int, required: false, camelize: false
