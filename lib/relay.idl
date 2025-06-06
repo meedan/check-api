@@ -8363,6 +8363,7 @@ Feed type
 type Feed implements Node {
   article_saved_search: SavedSearch
   article_saved_search_id: Int
+  article_saved_search_was: SavedSearch
   cluster(project_media_id: Int!): Cluster
   clusters(
     """
@@ -8451,6 +8452,7 @@ type Feed implements Node {
   licenses: [Int]
   media_saved_search: SavedSearch
   media_saved_search_id: Int
+  media_saved_search_was: SavedSearch
   name: String
   permissions: String
   published: Boolean
@@ -8488,7 +8490,6 @@ type Feed implements Node {
   ): RequestConnection
   requests_count: Int
   root_requests_count: Int
-  saved_search_was: SavedSearch
   tags: [String]
   team: PublicTeam
   team_id: Int
@@ -8614,6 +8615,7 @@ Feed team type
 type FeedTeam implements Node {
   article_saved_search: SavedSearch
   article_saved_search_id: Int
+  article_saved_search_was: SavedSearch
   created_at: String
   dbid: Int
   feed: Feed
@@ -8622,9 +8624,9 @@ type FeedTeam implements Node {
   id: ID!
   media_saved_search: SavedSearch
   media_saved_search_id: Int
+  media_saved_search_was: SavedSearch
   permissions: String
   requests_filters: JsonStringType
-  saved_search_was: SavedSearch
   shared: Boolean
   team: PublicTeam
   team_id: Int

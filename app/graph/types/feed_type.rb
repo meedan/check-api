@@ -24,8 +24,9 @@ class FeedType < DefaultObject
 
   field :team, PublicTeamType, null: true
   field :media_saved_search, SavedSearchType, null: true
+  field :media_saved_search_was, SavedSearchType, null: true
   field :article_saved_search, SavedSearchType, null: true
-  field :saved_search_was, SavedSearchType, null: true
+  field :article_saved_search_was, SavedSearchType, null: true
 
   field :requests, RequestType.connection_type, null: true do
     argument :request_id, GraphQL::Types::Int, required: false, camelize: false
