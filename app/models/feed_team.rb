@@ -21,8 +21,12 @@ class FeedTeam < ApplicationRecord
     self.media_saved_search&.filters.to_h
   end
 
-  def saved_search_was
+  def media_saved_search_was
     SavedSearch.find_by_id(self.media_saved_search_id_before_last_save)
+  end
+
+  def article_saved_search_was
+    SavedSearch.find_by_id(self.article_saved_search_id_before_last_save)
   end
 
   private

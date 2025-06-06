@@ -19,6 +19,7 @@ class FeedTeamType < DefaultObject
   end
 
   field :media_saved_search, SavedSearchType, null: true
+  field :media_saved_search_was, SavedSearchType, null: true
   field :article_saved_search, SavedSearchType, null: true
-  field :saved_search_was, SavedSearchType, null: true
+  field :article_saved_search_was, SavedSearchType, null: true
 end

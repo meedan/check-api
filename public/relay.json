@@ -45405,6 +45405,20 @@
               "deprecationReason": null
             },
             {
+              "name": "article_saved_search_was",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SavedSearch",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "cluster",
               "description": null,
               "args": [
@@ -46070,6 +46084,20 @@
               "deprecationReason": null
             },
             {
+              "name": "media_saved_search_was",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SavedSearch",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "name",
               "description": null,
               "args": [
@@ -46327,20 +46355,6 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "saved_search_was",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "SavedSearch",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -47014,6 +47028,20 @@
               "deprecationReason": null
             },
             {
+              "name": "article_saved_search_was",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SavedSearch",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "created_at",
               "description": null,
               "args": [
@@ -47130,6 +47158,20 @@
               "deprecationReason": null
             },
             {
+              "name": "media_saved_search_was",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SavedSearch",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "permissions",
               "description": null,
               "args": [
@@ -47152,20 +47194,6 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "JsonStringType",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "saved_search_was",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "SavedSearch",
                 "ofType": null
               },
               "isDeprecated": false,
