@@ -109,6 +109,6 @@ class FeedTeamTest < ActiveSupport::TestCase
     feed_team = create_feed_team team: team, media_saved_search: media_saved_search1
     feed_team.media_saved_search = media_saved_search2
     feed_team.save!
-    assert_equal media_saved_search1, feed_team.saved_search_was
+    assert_equal media_saved_search1, feed_team.media_saved_search_was
   end
 end
