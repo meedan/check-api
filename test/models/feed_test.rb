@@ -106,7 +106,10 @@ class FeedTest < ActiveSupport::TestCase
     feed = create_feed team: team
 
     media_saved_search = create_saved_search team: team, list_type: 'media'
+    article_saved_search = create_saved_search team: team, list_type: 'article'
+
     feed.article_saved_search = media_saved_search
+    feed.media_saved_search = article_saved_search
 
     assert_raises ActiveRecord::RecordInvalid do
       feed.save!
@@ -255,13 +258,23 @@ class FeedTest < ActiveSupport::TestCase
     assert_equal({}, feed.get_feed_filters(:media))
   end
 
-  test "should return previous list" do
+  test "should return previous media list" do
     team = create_team
     media_saved_search1 = create_saved_search team: team
-    media_saved_search1 = create_saved_search team: team
+    media_saved_search2 = create_saved_search team: team
     feed = create_feed team: team, media_saved_search: media_saved_search1
-    feed.media_saved_search = media_saved_search1
+    feed.media_saved_search = media_saved_search2
     feed.save!
     assert_equal media_saved_search1, feed.media_saved_search_was
+  end
+
+  test "should return previous article list" do
+    team = create_team
+    article_saved_search1 = create_saved_search team: team, list_type: 'article'
+    article_saved_search2 = create_saved_search team: team, list_type: 'article'
+    feed = create_feed team: team, article_saved_search: article_saved_search1
+    feed.article_saved_search = article_saved_search2
+    feed.save!
+    assert_equal article_saved_search1, feed.article_saved_search_was
   end
 end

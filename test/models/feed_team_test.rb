@@ -39,9 +39,14 @@ class FeedTeamTest < ActiveSupport::TestCase
     team = create_team
     feed = create_feed
     media_saved_search = create_saved_search team: team, list_type: 'media'
+    article_saved_search = create_saved_search team: team, list_type: 'article'
 
     assert_raises ActiveRecord::RecordInvalid do
       create_feed_team article_saved_search: media_saved_search, team_id: team.id, feed: feed
+    end
+
+    assert_raises ActiveRecord::RecordInvalid do
+      create_feed_team media_saved_search: article_saved_search, team_id: team.id, feed: feed
     end
   end
 
@@ -102,7 +107,7 @@ class FeedTeamTest < ActiveSupport::TestCase
     assert_nil FeedInvitation.find_by_id(feed_invitation.id)
   end
 
-  test "should return previous list" do
+  test "should return previous media list" do
     team = create_team
     media_saved_search1 = create_saved_search team: team
     media_saved_search2 = create_saved_search team: team
@@ -110,5 +115,15 @@ class FeedTeamTest < ActiveSupport::TestCase
     feed_team.media_saved_search = media_saved_search2
     feed_team.save!
     assert_equal media_saved_search1, feed_team.media_saved_search_was
+  end
+
+  test "should return previous article list" do
+    team = create_team
+    article_saved_search1 = create_saved_search team: team, list_type: 'article'
+    article_saved_search2 = create_saved_search team: team, list_type: 'article'
+    feed_team = create_feed_team team: team, article_saved_search: article_saved_search1
+    feed_team.article_saved_search = article_saved_search2
+    feed_team.save!
+    assert_equal article_saved_search1, feed_team.article_saved_search_was
   end
 end
