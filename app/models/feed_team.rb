@@ -3,10 +3,12 @@ class FeedTeam < ApplicationRecord
 
   belongs_to :team
   belongs_to :feed
-  belongs_to :media_saved_search, class_name: 'SavedSearch', optional: true
+  belongs_to :media_saved_search, -> { where(list_type: 'media') }, class_name: 'SavedSearch', optional: true
+  belongs_to :article_saved_search, -> { where(list_type: 'article') }, class_name: 'SavedSearch', optional: true
 
   validates_presence_of :team_id, :feed_id
   validate :saved_search_belongs_to_feed_team
+  validate :validate_saved_search_types
 
   after_destroy :delete_invitations
 
@@ -19,15 +21,33 @@ class FeedTeam < ApplicationRecord
     self.media_saved_search&.filters.to_h
   end
 
-  def saved_search_was
+  def media_saved_search_was
     SavedSearch.find_by_id(self.media_saved_search_id_before_last_save)
+  end
+
+  def article_saved_search_was
+    SavedSearch.find_by_id(self.article_saved_search_id_before_last_save)
   end
 
   private
 
   def saved_search_belongs_to_feed_team
-    unless media_saved_search_id.blank?
-      errors.add(:media_saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) if self.team_id != self.media_saved_search.team_id
+    [media_saved_search, article_saved_search].each do |saved_search|
+      next if saved_search.blank?
+
+      if  self.team_id != saved_search.team_id
+        errors.add("#{saved_search.list_type}_saved_search_id".to_sym, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
+      end
+    end
+  end
+
+  def validate_saved_search_types
+    if media_saved_search.present? && media_saved_search.list_type != 'media'
+      errors.add(:media_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
+    end
+
+    if article_saved_search.present? && article_saved_search.list_type != 'article'
+      errors.add(:article_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
     end
   end
 

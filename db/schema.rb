@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_15_134234) do
+ActiveRecord::Schema.define(version: 2025_05_29_135205) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -412,6 +412,8 @@ ActiveRecord::Schema.define(version: 2025_05_15_134234) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "media_saved_search_id"
+    t.bigint "article_saved_search_id"
+    t.index ["article_saved_search_id"], name: "index_feed_teams_on_article_saved_search_id"
     t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
     t.index ["media_saved_search_id"], name: "index_feed_teams_on_media_saved_search_id"
     t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
@@ -434,6 +436,8 @@ ActiveRecord::Schema.define(version: 2025_05_15_134234) do
     t.integer "data_points", default: [], array: true
     t.string "uuid", default: "", null: false
     t.datetime "last_clusterized_at"
+    t.bigint "article_saved_search_id"
+    t.index ["article_saved_search_id"], name: "index_feeds_on_article_saved_search_id"
     t.index ["media_saved_search_id"], name: "index_feeds_on_media_saved_search_id"
     t.index ["team_id"], name: "index_feeds_on_team_id"
     t.index ["user_id"], name: "index_feeds_on_user_id"
@@ -982,7 +986,9 @@ ActiveRecord::Schema.define(version: 2025_05_15_134234) do
   add_foreign_key "feed_invitations", "feeds"
   add_foreign_key "feed_invitations", "users"
   add_foreign_key "feed_teams", "feeds"
+  add_foreign_key "feed_teams", "saved_searches", column: "article_saved_search_id"
   add_foreign_key "feed_teams", "teams"
+  add_foreign_key "feeds", "saved_searches", column: "article_saved_search_id"
   add_foreign_key "project_media_requests", "project_medias"
   add_foreign_key "project_media_requests", "requests"
   add_foreign_key "requests", "feeds"
