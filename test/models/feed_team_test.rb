@@ -54,13 +54,14 @@ class FeedTeamTest < ActiveSupport::TestCase
     team = create_team
     feed = create_feed
     media_saved_search = create_saved_search team: team
+    feed_team = nil
     assert_difference 'FeedTeam.count' do
-      create_feed_team media_saved_search: media_saved_search, team_id: team.id, feed: feed
+      feed_team = create_feed_team media_saved_search: media_saved_search, team_id: team.id, feed: feed
     end
     assert_nothing_raised do
-      ss.destroy
+      media_saved_search.destroy
     end
-    assert_nil ft.reload.media_saved_search_id
+    assert_nil feed_team.reload.media_saved_search_id
     assert_raises ActiveRecord::RecordInvalid do
       create_feed_team media_saved_search: create_saved_search, feed: feed
     end
