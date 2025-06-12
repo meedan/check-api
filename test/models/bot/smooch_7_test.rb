@@ -205,7 +205,7 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
   test "should perform a keyword search if text with less or equal to 3 words" do
     t = create_team
-    pm = create_project_media team: t
+    pm = create_project_media team: t, media: create_valid_media
     publish_report(pm)
     b = create_bot_user login: 'alegre', name: 'Alegre', approved: true
     b.install_to!(t)
