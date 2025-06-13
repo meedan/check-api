@@ -43,11 +43,11 @@ class FeedTeam < ApplicationRecord
 
   def validate_saved_search_types
     if media_saved_search.present? && media_saved_search.list_type != 'media'
-      errors.add(:media_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
+      errors.add(:media_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_list_type"))
     end
 
     if article_saved_search.present? && article_saved_search.list_type != 'article'
-      errors.add(:article_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
+      errors.add(:article_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_list_type"))
     end
   end
 
