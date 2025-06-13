@@ -104,7 +104,7 @@ class Setup
       all_teams[:main_team_a] = main_team_a
       all_teams
     end
-  end 
+  end
 
   private
 
@@ -293,14 +293,17 @@ class PopulatedWorkspaces
   end
 
   def main_user_feed(to_be_shared)
-    if to_be_shared == "share_factchecks"
-      data_points = [1]
+    if to_be_shared == "share_media"
+      data_points = [2]
       last_clusterized_at = nil
+      saved_search = { media_saved_search: SavedSearch.where(team: teams[:main_team_a], list_type: 'media').first }
     elsif to_be_shared == "share_everything"
       data_points = [1,2]
       last_clusterized_at = Time.now
-    else
-      data_points = [2]
+      saved_search = {
+        media_saved_search: SavedSearch.where(team: teams[:main_team_a], list_type: 'media').first,
+        article_saved_search: SavedSearch.where(team: teams[:main_team_a], list_type: 'article').first
+      }
     end
 
     feed_params = {
@@ -308,11 +311,10 @@ class PopulatedWorkspaces
       user: users[:main_user_a],
       team: teams[:main_team_a],
       published: true,
-      media_saved_search: SavedSearch.where(team: teams[:main_team_a]).first,
       licenses: [1],
       last_clusterized_at: last_clusterized_at,
       data_points: data_points
-    }
+    }.merge(saved_search)
     Feed.create!(feed_params)
   end
 
@@ -444,14 +446,22 @@ class PopulatedWorkspaces
   def saved_search(team)
     user = team.team_users.find_by(role: 'admin').user
 
-    saved_search_params = {
-      title: "#{user.name.capitalize}'s list",
+    media_saved_search_params = {
+      title: "#{user.name.capitalize}'s media list",
       team: team,
       filters: {created_by: user},
+      list_type: 'media',
+    }
+    article_saved_search_params = {
+      title: "#{user.name.capitalize}'s article list",
+      team: team,
+      filters: {created_by: user},
+      list_type: 'article',
     }
 
     if team.saved_searches.empty?
-      SavedSearch.create!(saved_search_params)
+      SavedSearch.create!(media_saved_search_params)
+      SavedSearch.create!(article_saved_search_params)
     else
       team.saved_searches.first
     end
@@ -736,7 +746,7 @@ ActiveRecord::Base.transaction do
     puts 'Creating saved searches for all teams...'
     populated_workspaces.saved_searches
     puts 'Creating feed...'
-    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    feed_1 = populated_workspaces.main_user_feed("share_media")
     feed_2 = populated_workspaces.main_user_feed("share_everything")
     puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
     populated_workspaces.share_feed(feed_1)
@@ -773,5 +783,5 @@ ActiveRecord::Base.transaction do
     setup.get_users_emails_and_passwords.each { |user_info| puts user_info }
   end
 end
-  
+
 Rails.cache.clear
