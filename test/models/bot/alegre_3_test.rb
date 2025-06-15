@@ -392,7 +392,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
 
   test "should get similar items" do
     t = create_team
-    pm1 = create_project_media team: t
+    pm1 = create_project_media team: t, media: create_valid_media
     Bot::Alegre.stubs(:matching_model_to_use).with(pm1.team_id).returns(Bot::Alegre::ELASTICSEARCH_MODEL)
     response = Bot::Alegre.get_similar_items(pm1)
     assert_equal response.class, Hash
