@@ -9,13 +9,15 @@ class Feed < ApplicationRecord
   has_many :feed_invitations, dependent: :destroy
   has_many :clusters
   belongs_to :user, optional: true
-  belongs_to :media_saved_search, class_name: 'SavedSearch', optional: true
+  belongs_to :media_saved_search, -> { where(list_type: 'media') }, class_name: 'SavedSearch', optional: true
+  belongs_to :article_saved_search, -> { where(list_type: 'article') }, class_name: 'SavedSearch', optional: true
   belongs_to :team, optional: true
 
   before_validation :set_user_and_team, :set_uuid, on: :create
   validates_presence_of :name
   validates_presence_of :licenses, if: proc { |feed| feed.discoverable }
   validate :saved_search_belongs_to_feed_teams
+  validate :validate_saved_search_types
 
   after_create :create_feed_team
   before_destroy :destroy_feed_team, prepend: true
@@ -23,7 +25,7 @@ class Feed < ApplicationRecord
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
   LICENSES = { 1 => 'academic', 2 => 'commercial', 3 => 'open_source' }
   validates_inclusion_of :licenses, in: LICENSES.keys, if: proc { |feed| feed.discoverable }
-  DATA_POINTS = { 1 => 'published_fact_checks', 2 => 'media_claim_requests', 3 => 'tags' }
+  DATA_POINTS = { 1 => 'articles', 2 => 'media_claim_requests', 3 => 'tags' }
   validates_inclusion_of :data_points, in: DATA_POINTS.keys
 
   # Filters for the whole feed: applies to all data from all teams
@@ -169,8 +171,12 @@ class Feed < ApplicationRecord
     query
   end
 
-  def saved_search_was
+  def media_saved_search_was
     SavedSearch.find_by_id(self.media_saved_search_id_before_last_save)
+  end
+
+  def article_saved_search_was
+    SavedSearch.find_by_id(self.article_saved_search_id_before_last_save)
   end
 
   def get_exported_data(filters)
@@ -222,8 +228,22 @@ class Feed < ApplicationRecord
   end
 
   def saved_search_belongs_to_feed_teams
-    unless media_saved_search_id.blank?
-      errors.add(:media_saved_search_id, I18n.t(:"errors.messages.invalid_feed_saved_search_value")) unless self.get_team_ids.include?(self.media_saved_search.team_id)
+    [media_saved_search, article_saved_search].each do |saved_search|
+      next if saved_search.blank?
+
+      unless self.get_team_ids.include?(saved_search.team_id)
+        errors.add("#{saved_search.list_type}_saved_search_id".to_sym, I18n.t(:"errors.messages.invalid_feed_saved_search_value"))
+      end
+    end
+  end
+
+  def validate_saved_search_types
+    if media_saved_search.present? && media_saved_search.list_type != 'media'
+      errors.add(:media_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_list_type"))
+    end
+
+    if article_saved_search.present? && article_saved_search.list_type != 'article'
+      errors.add(:article_saved_search, I18n.t(:"errors.messages.invalid_feed_saved_search_list_type"))
     end
   end
 

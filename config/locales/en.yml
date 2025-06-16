@@ -110,7 +110,8 @@ en:
       invalid_project_media_archived_value: Sorry, archived value not supported
       invalid_article_language_value: Sorry, language value not supported
       fact_check_empty_title_and_summary: Sorry, you should fill title or summary
-      invalid_feed_saved_search_value: should belong to a workspace that is part of this feed
+      invalid_feed_saved_search_value: Should belong to a workspace that is part of this feed.
+      invalid_feed_saved_search_list_type: The saved search list type is invalid.
       platform_allowed_values_error: 'cannot be of type %{type}, allowed types: %{allowed_types}'
   activerecord:
     models:
