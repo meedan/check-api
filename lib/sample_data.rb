@@ -450,7 +450,7 @@ module SampleData
     end
     pm = ProjectMedia.new
     options[:team] = create_team unless options.has_key?(:team)
-    options[:media] = create_claim_media if enforce_create_media && !options.has_key?(:set_original_claim)
+    options[:media] = create_valid_media({team: options[:team]}) if enforce_create_media && !options.has_key?(:set_original_claim)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
