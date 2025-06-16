@@ -11195,6 +11195,7 @@ type ProjectMedia implements Node {
   permissions: String
   picture: String
   positive_tipline_search_results_count: Int
+  project_id: String @deprecated(reason: "Deprecate folder feature.")
   public_team: PublicTeam
   published: String
   pusher_channel: String

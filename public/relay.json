@@ -58162,6 +58162,20 @@
               "deprecationReason": null
             },
             {
+              "name": "project_id",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": true,
+              "deprecationReason": "Deprecate folder feature."
+            },
+            {
               "name": "public_team",
               "description": null,
               "args": [
