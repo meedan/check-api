@@ -779,7 +779,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "checks for false item titles are similar" do
-    pm = create_project_media media: create_valid_media
+    pm = create_project_media
     t = create_team
     assert !t.item_titles_are_similar(pm, "blah", 1)
   end

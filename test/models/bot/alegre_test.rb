@@ -106,7 +106,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     WebMock.stub_request(:post, 'http://alegre/similarity/async/text').to_return(body: {results: []}.to_json)
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       WebMock.stub_request(:delete, 'http://alegre/text/similarity/').to_return(status: 200, body: '{}')
-      pm = create_project_media media: create_valid_media
+      pm = create_project_media
       pm.archived = CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS
       pm.save!
       assert_equal CheckArchivedFlags::FlagCodes::PENDING_SIMILARITY_ANALYSIS, pm.reload.archived

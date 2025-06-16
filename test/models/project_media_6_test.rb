@@ -456,7 +456,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     assert_match /^text-/, pm.title # Cached
     # Verify save the title as a custom title
     ProjectMedia.stubs(:get_title).returns(nil)
-    pm = create_project_media media: create_valid_media, custom_title: 'Custom Title'
+    pm = create_project_media custom_title: 'Custom Title'
     assert_equal 'Custom Title', pm.title
     assert_equal 'custom_title', pm.reload.title_field
     ProjectMedia.unstub(:get_title)
