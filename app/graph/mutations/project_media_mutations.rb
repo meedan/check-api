@@ -15,6 +15,7 @@ module ProjectMediaMutations
     included do
       argument :media_id, GraphQL::Types::Int, required: false, camelize: false
       argument :related_to_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :project_id, GraphQL::Types::Int, required: false, camelize: false, deprecation_reason: "Deprecate folder feature."
 
       field :affected_id, GraphQL::Types::ID, null: true
     end

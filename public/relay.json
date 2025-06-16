@@ -14925,6 +14925,18 @@
               "deprecationReason": null
             },
             {
+              "name": "project_id",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": true,
+              "deprecationReason": "Deprecate folder feature."
+            },
+            {
               "name": "url",
               "description": null,
               "type": {
@@ -58258,6 +58270,20 @@
               "deprecationReason": null
             },
             {
+              "name": "project_id",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": true,
+              "deprecationReason": "Deprecate folder feature."
+            },
+            {
               "name": "public_team",
               "description": null,
               "args": [
@@ -83667,6 +83693,18 @@
               "defaultValue": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "project_id",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": true,
+              "deprecationReason": "Deprecate folder feature."
             },
             {
               "name": "refresh_media",
