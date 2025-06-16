@@ -178,9 +178,8 @@ class ProjectMedia8Test < ActiveSupport::TestCase
 
       url = 'https://httpstat.us/200?sleep=2000'
       pm = create_project_media set_original_claim: url, media: Blank.create!
-      # TODO: fix by Sawy
-      # assert_equal 'UploadedImage', pm.media.type
-      # assert_equal Digest::MD5.hexdigest(image_data), Digest::MD5.hexdigest(pm.media.file.file.read)
+      assert_equal 'UploadedImage', pm.media.type
+      assert_equal Digest::MD5.hexdigest(image_data), Digest::MD5.hexdigest(pm.media.file.file.read)
     end
   end
 end
