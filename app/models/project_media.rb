@@ -1,5 +1,5 @@
 class ProjectMedia < ApplicationRecord
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_claim_context, :set_fact_check, :set_tags, :set_title, :set_status, :set_original_claim
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_claim_context, :set_fact_check, :set_tags, :set_title, :set_status, :set_original_claim, :project_id
 
   belongs_to :media
   has_one :claim_description

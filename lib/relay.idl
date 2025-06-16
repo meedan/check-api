@@ -2525,6 +2525,7 @@ input CreateProjectMediaInput {
   clientMutationId: String
   media_id: Int
   media_type: String
+  project_id: Int @deprecated(reason: "Deprecate folder feature.")
   quote: String
   quote_attributions: String
   related_to_id: Int
@@ -11195,7 +11196,7 @@ type ProjectMedia implements Node {
   permissions: String
   picture: String
   positive_tipline_search_results_count: Int
-  project_id: String @deprecated(reason: "Deprecate folder feature.")
+  project_id: Int @deprecated(reason: "Deprecate folder feature.")
   public_team: PublicTeam
   published: String
   pusher_channel: String
@@ -15349,6 +15350,7 @@ input UpdateProjectMediaInput {
   custom_title: String
   id: ID
   media_id: Int
+  project_id: Int @deprecated(reason: "Deprecate folder feature.")
   read: Boolean
   refresh_media: Int
   related_to_id: Int

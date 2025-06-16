@@ -14913,6 +14913,18 @@
               "deprecationReason": null
             },
             {
+              "name": "project_id",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": true,
+              "deprecationReason": "Deprecate folder feature."
+            },
+            {
               "name": "url",
               "description": null,
               "type": {
@@ -58169,7 +58181,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": true,
@@ -83561,6 +83573,18 @@
               "defaultValue": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "project_id",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": true,
+              "deprecationReason": "Deprecate folder feature."
             },
             {
               "name": "refresh_media",
