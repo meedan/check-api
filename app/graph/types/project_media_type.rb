@@ -407,4 +407,6 @@ class ProjectMediaType < DefaultObject
 
   field :has_tipline_requests_that_never_received_articles, GraphQL::Types::Boolean, null: true
   field :number_of_tipline_requests_that_never_received_articles_by_time, JsonStringType, null: true
+
+  field :project_id, GraphQL::Types::Int, null: true, deprecation_reason: "Deprecate folder feature."
 end
