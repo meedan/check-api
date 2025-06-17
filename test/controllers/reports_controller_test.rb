@@ -31,7 +31,7 @@ class ReportsControllerTest < ActionController::TestCase
     authenticate_with_token @a
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'published', options: { language: 'en', image: '' } }.to_json, action: 'save', annotated: @pm
     pm = create_project_media team: @t, archived: 1
-    pm2 = create_project_media team: @t, quote: random_string, media: nil
+    pm2 = create_project_media team: @t, quote: random_string
     pm3 = create_project_media team: @t
     create_dynamic_annotation annotation_type: 'report_design', set_fields: { state: 'paused', options: { language: 'en', image: '' } }.to_json, action: 'save', annotated: pm3
     pm4 = create_project_media team: @t
