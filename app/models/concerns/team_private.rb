@@ -115,6 +115,17 @@ module TeamPrivate
     end
   end
 
+  def update_tipline_if_default_language_changed
+    language = self.settings.to_h.with_indifferent_access[:language]
+    language_were = self.settings_before_last_save.to_h.with_indifferent_access[:language]
+    if language != language_were
+      tbi = self.team_bot_installations.where(user: BotUser.smooch_user).last
+      w = tbi.get_smooch_workflows[0]
+      w['smooch_workflow_language'] = language
+      tbi.save!
+    end
+  end
+
   def empty_data_structure
     data_structure = MonthlyTeamStatistic.new.formatted_hash
     data_structure["Language"] = self.default_language
