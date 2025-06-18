@@ -250,6 +250,8 @@ class Feed < ApplicationRecord
   def create_feed_team
     unless self.team.nil?
       feed_team = FeedTeam.new(feed: self, team: self.team, shared: true)
+      feed_team.media_saved_search = self.media_saved_search.presence
+      feed_team.article_saved_search = self.article_saved_search.presence
       feed_team.skip_check_ability = true
       feed_team.save!
     end

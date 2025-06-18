@@ -282,4 +282,23 @@ class FeedTest < ActiveSupport::TestCase
     feed.save!
     assert_equal article_saved_search1, feed.article_saved_search_was
   end
+
+  test "main feed should have saved search information in its feed team equivalent" do
+    team = create_team
+    media_saved_search = create_saved_search team: team, list_type: 'media'
+    feed1 = create_feed team: team, media_saved_search: media_saved_search
+    feed1.reload
+    feed_team1 = feed1.feed_teams.first
+
+    assert_equal feed1.media_saved_search, feed_team1.media_saved_search
+    assert_nil feed_team1.article_saved_search
+
+    article_saved_search = create_saved_search team: team, list_type: 'article'
+    feed2 = create_feed team: team, article_saved_search: article_saved_search
+    feed2.reload
+    feed_team2 = feed2.feed_teams.first
+
+    assert_nil feed_team2.media_saved_search
+    assert_equal feed2.article_saved_search, feed_team2.article_saved_search
+  end
 end
