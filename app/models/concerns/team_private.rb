@@ -115,14 +115,16 @@ module TeamPrivate
     end
   end
 
-  def update_tipline_if_default_language_changed
-    language = self.settings.to_h.with_indifferent_access[:language]
-    language_were = self.settings_before_last_save.to_h.with_indifferent_access[:language]
-    if language != language_were
-      tbi = self.team_bot_installations.where(user: BotUser.smooch_user).last
+  def update_tipline_if_default_language_deleted
+    tbi = self.team_bot_installations.where(user: BotUser.smooch_user).last
+    unless tbi.nil?
+      languages = self.settings.to_h.with_indifferent_access[:languages]
       w = tbi.get_smooch_workflows[0]
-      w['smooch_workflow_language'] = language
-      tbi.save!
+      # Update tipline language if the tipline's default language has been deleted
+      unless languages.include?(w['smooch_workflow_language'])
+        w['smooch_workflow_language'] = self.get_language
+        tbi.save!
+      end
     end
   end
 
