@@ -295,6 +295,7 @@ class Bot::Smooch < BotUser
         end
         true
       when 'message:delivery:failure'
+        self.unsubscribe_user_on_optout(json)
         self.resend_message(json)
         true
       when 'conversation:start', 'conversation:referral'
