@@ -67,7 +67,7 @@ class FeedTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have a list that belong to feed teams" do
+  test "should have a list that belongs to feed teams" do
     team = create_team
     media_saved_search = create_saved_search team: team
     Team.stubs(:current).returns(team)
@@ -116,7 +116,7 @@ class FeedTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not create a duplicate FeedTeam with the same saved_search" do
+  test "should not create a duplicate Feed with the same saved_search" do
     team = create_team
     media_saved_search = create_saved_search team: team
     Team.stubs(:current).returns(team)
