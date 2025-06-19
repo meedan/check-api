@@ -106,12 +106,31 @@ module TeamPrivate
     self.class.delay_for(1.second).update_reports_if_labels_changed(self.id, statuses_were, statuses)
   end
 
-  def update_reports_if_languages_changed
+  def update_report_and_tipline_based_on_languages_changed
     languages = self.settings.to_h.with_indifferent_access[:languages]
     languages_were = self.settings_before_last_save.to_h.with_indifferent_access[:languages]
     if languages && languages_were
       diff = languages_were - languages
-      self.class.delay_for(1.second).update_reports_if_languages_changed(self.id, diff) unless diff.blank?
+      unless diff.blank?
+        update_reports_if_languages_changed(diff)
+        update_tipline_if_default_language_deleted(languages)
+      end
+    end
+  end
+
+  def update_reports_if_languages_changed(diff)
+     self.class.delay_for(1.second).update_reports_if_languages_changed(self.id, diff)
+  end
+
+  def update_tipline_if_default_language_deleted(languages)
+    tbi = self.team_bot_installations.where(user: BotUser.smooch_user).last
+    unless tbi.nil?
+      w = tbi.get_smooch_workflows[0]
+      # Update tipline language if the tipline's default language has been deleted
+      unless languages.include?(w['smooch_workflow_language'])
+        w['smooch_workflow_language'] = self.get_language
+        tbi.save!
+      end
     end
   end
 
