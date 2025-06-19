@@ -1038,6 +1038,25 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 'status_label')
   end
 
+  test "should update tipline languge if default language changed" do
+    setup_smooch_bot(true)
+    tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
+    w = tbi.get_smooch_workflows[0]
+    assert_equal 'en', w['smooch_workflow_language']
+    @team.set_languages = ['en', 'fr']
+    @team.set_language = 'fr'
+    @team.save!
+    tbi = tbi.reload
+    w = tbi.get_smooch_workflows[0]
+    assert_equal 'en', w['smooch_workflow_language']
+    @team.set_languages = ['fr']
+    @team.set_language = 'fr'
+    @team.save!
+    tbi = tbi.reload
+    w = tbi.get_smooch_workflows[0]
+    assert_equal 'fr', w['smooch_workflow_language']
+  end
+
   test "should add trash link to duplicated team" do
     m = create_valid_media
     t1 = create_team

@@ -30,9 +30,7 @@ class Team < ApplicationRecord
   before_validation :set_default_language, on: :create
   before_validation :set_default_fieldsets, on: :create
   after_create :add_user_to_team, :add_default_bots_to_team
-  after_update :archive_or_restore_projects_if_needed
-  after_update :update_reports_if_labels_changed
-  after_update :update_reports_if_languages_changed
+  after_update :archive_or_restore_projects_if_needed, :update_reports_if_labels_changed, :update_report_and_tipline_based_on_languages_changed
   before_destroy :anonymize_sources_and_accounts
   after_destroy :reset_current_team
 
