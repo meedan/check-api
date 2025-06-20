@@ -10,16 +10,9 @@ namespace :check do
       started = Time.now.to_i
 
       # Find all main feeds
-      FeedTeam.find_each do |feed_team|
-        #  update only if the feed team is the main feed's feed_team
-        feed = Feed.find(feed_team.feed_id)
-        next unless feed_team.team_id == feed.team_id
-
-        # Update media_saved_search and article_saved_search if they are present
-        feed_team.media_saved_search = feed.media_saved_search.presence
-        feed_team.article_saved_search = feed.article_saved_search.presence
-        feed_team.save!
-        puts "[#{Time.now}] Updated feed_team, #{feed_team.id},  for feed ID: #{feed.id}, Team ID: #{feed_team.team_id}."
+      Feed.find_each do |feed|
+        feed.send(:update_feed_team)
+        puts "[#{Time.now}] Updated feed_team for feed ID: #{feed.id}, Team ID: #{feed.team_id}."
       end
 
       minutes = ((Time.now.to_i - started) / 60).to_i
