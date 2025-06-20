@@ -177,8 +177,6 @@ class GraphqlController7Test < ActionController::TestCase
   end
 
   test "should get saved search filters" do
-    admin_user = create_user is_admin: true
-    authenticate_with_user(admin_user)
     t = create_team
     ss = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
     ss_article = create_saved_search team: t, list_type: 'article'

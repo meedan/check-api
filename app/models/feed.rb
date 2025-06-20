@@ -264,6 +264,7 @@ class Feed < ApplicationRecord
 
     feed_team.media_saved_search = self.media_saved_search.presence
     feed_team.article_saved_search = self.article_saved_search.presence
+    feed_team.skip_check_ability = true
     feed_team.save!
   end
 
