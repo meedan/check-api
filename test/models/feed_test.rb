@@ -301,4 +301,21 @@ class FeedTest < ActiveSupport::TestCase
     assert_nil feed_team2.media_saved_search
     assert_equal feed2.article_saved_search, feed_team2.article_saved_search
   end
+
+  test "should update main feed's feed team" do
+    team = create_team
+    media_saved_search = create_saved_search team: team, list_type: 'media'
+    feed = create_feed team: team, media_saved_search: media_saved_search
+    feed.reload
+    feed_team = feed.feed_teams.first
+
+    assert_equal feed.media_saved_search, feed_team.media_saved_search
+
+    new_media_saved_search = create_saved_search team: team, list_type: 'media'
+    feed.media_saved_search = new_media_saved_search
+    feed.save!
+
+    assert_equal new_media_saved_search, feed.media_saved_search
+    assert_equal new_media_saved_search, feed_team.reload.media_saved_search
+  end
 end
