@@ -267,18 +267,18 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal article_saved_search.id, data.dig('article_saved_search', 'dbid')
   end
 
-  test "should return current shared feed owner saved searches in feed teams" do
+  test "should return shared feed main feed (owner's feed) saved searches in feed teams" do
     user = create_user
     authenticate_with_user(user)
 
-    # shared feed owner
+    # shared feed owner, main feed
     team = create_team
     create_team_user user: user, team: team, role: 'admin'
     media_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'media'
     article_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'article'
     feed = create_feed media_saved_search: media_saved_search, article_saved_search: article_saved_search, team: team
 
-    # shared feed guest
+    # shared feed guest, invited team feed
     team2 = create_team
     media_saved_search2 = create_saved_search team: team2, filters: { foo: 'bar' }, list_type: 'media'
     article_saved_search2 = create_saved_search team: team2, filters: { foo: 'bar' }, list_type: 'article'
