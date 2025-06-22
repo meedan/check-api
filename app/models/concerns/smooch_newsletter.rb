@@ -25,9 +25,13 @@ module SmoochNewsletter
       TiplineNewsletter.where(team_id: team_id, language: language).last
     end
 
-    def self.unsubscribe_user_on_optout(json)
+    def unsubscribe_user_on_optout(json)
       # unsubscribing user from all newsletters if the error code is 131050 and the platform is WhatsApp
-      self.toggle_subscription(uid, language, team_id, platform, workflow)
+      if json.dig('destination', 'type') == 'whatsapp' && json.dig('error', 'underlyingError', 'errors', 0, 'code') == 131050
+        uid = json['appUser']['_id']
+        language = self.get_user_language(uid)
+        self.toggle_subscription(uid, language, self.config['team_id'].to_i, 'whatsapp', self.get_workflow(language))
+      end
     end
   end
 end
