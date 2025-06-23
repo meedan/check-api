@@ -8,13 +8,12 @@ class ElasticSearch3Test < ActionController::TestCase
 
   test "should search with diacritics pt" do
     t = create_team
-    p = create_project team: t
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "coração", "description":"vovô foi à são paulo"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     sleep 1
     Team.current = t
     result = CheckSearch.new({keyword: "coração"}.to_json)
@@ -28,13 +27,12 @@ class ElasticSearch3Test < ActionController::TestCase
 
   test "should search with diacritics FR" do
     t = create_team
-    p = create_project team: t
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "cañon", "description":"légion française"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     sleep 1
     Team.current = t
     result = CheckSearch.new({keyword: "cañon"}.to_json)
@@ -50,13 +48,12 @@ class ElasticSearch3Test < ActionController::TestCase
 
   test "should search with diacritics AR" do
     t = create_team
-    p = create_project team: t
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"تْشِك"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     sleep 1
     Team.current = t
     result = CheckSearch.new({keyword: "ﻻ"}.to_json)
@@ -72,13 +69,12 @@ class ElasticSearch3Test < ActionController::TestCase
 
   test "should search arabic #6066" do
      t = create_team
-     p = create_project team: t
      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
      url = 'http://test.com'
      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "ﻻ", "description":"بِسْمِ ٱللهِ ٱلرَّحْمٰنِ ٱلرَّحِيمِ"}}'
      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
      m = create_media(account: create_valid_account, url: url)
-     pm = create_project_media project: p, media: m, disable_es_callbacks: false
+     pm = create_project_media team: t, media: m, disable_es_callbacks: false
      sleep 1
      Team.current = t
      result = CheckSearch.new({keyword: "بسم"}.to_json)
@@ -94,13 +90,12 @@ class ElasticSearch3Test < ActionController::TestCase
     create_field_instance annotation_type_object: at, name: 'reverse_image_path', label: 'Reverse Image', field_type_object: ft, optional: false
     create_bot name: 'Check Bot'
     t = create_team
-    p = create_project team: t
     c = create_claim_media
-    pm = create_project_media project: p, media: c, disable_es_callbacks: false
+    pm = create_project_media team: t, media: c, disable_es_callbacks: false
     m = create_valid_media
-    create_project_media project: p, media: m, disable_es_callbacks: false
+    create_project_media team: t, media: m, disable_es_callbacks: false
     i = create_uploaded_image
-    create_project_media project: p, media: i, disable_es_callbacks: false
+    create_project_media team: t, media: i, disable_es_callbacks: false
     sleep 2
     Team.current = t
     result = CheckSearch.new({}.to_json)
@@ -129,11 +124,10 @@ class ElasticSearch3Test < ActionController::TestCase
 
   test "should search case-insensitive tags" do
     t = create_team
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m, disable_es_callbacks: false
+    pm = create_project_media team: t, media: m, disable_es_callbacks: false
     m2 = create_valid_media
-    pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
+    pm2 = create_project_media team: t, media: m2, disable_es_callbacks: false
     create_tag tag: 'test', annotated: pm, disable_es_callbacks: false
     create_tag tag: 'Test', annotated: pm2, disable_es_callbacks: false
     sleep 2

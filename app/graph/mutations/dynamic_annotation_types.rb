@@ -21,7 +21,7 @@ module DynamicAnnotation::AnnotationTypeManager
 
       module DynamicAnnotation#{klass}Mutations
         MUTATION_TARGET = "#{mutation_target}".freeze
-        PARENTS = ['project_media', 'source', 'project'].freeze
+        PARENTS = ['project_media', 'source'].freeze
 
         module SharedCreateAndUpdateFields
           extend ActiveSupport::Concern

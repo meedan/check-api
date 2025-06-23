@@ -21,8 +21,7 @@ class ProjectMediasControllerTest < ActionController::TestCase
 
   test "should get oembed of private media" do
     t = create_team private: true
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     get :oembed, params: { id: pm.id }
     assert_response :success
   end

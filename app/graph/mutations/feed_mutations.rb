@@ -8,7 +8,8 @@ module FeedMutations
     included do
       argument :description, GraphQL::Types::String, required: false
       argument :tags, [GraphQL::Types::String, null: true], required: false
-      argument :saved_search_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :media_saved_search_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :article_saved_search_id, GraphQL::Types::Int, required: false, camelize: false
       argument :published, GraphQL::Types::Boolean, required: false, camelize: false
       argument :discoverable, GraphQL::Types::Boolean, required: false, camelize: false
     end

@@ -9,15 +9,6 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     create_verification_status_stuff
   end
 
-  test "should get project id for migration" do
-    p = create_project
-    mapping = Hash.new
-    pm = ProjectMedia.new
-    assert_nil pm.send(:project_id_callback, 1, mapping)
-    mapping[1] = p.id
-    assert_equal p.id, pm.send(:project_id_callback, 1, mapping)
-  end
-
   test "should set annotation" do
     ft = DynamicAnnotation::FieldType.where(field_type: 'text').last || create_field_type(field_type: 'text', label: 'Text')
     lt = create_field_type(field_type: 'language', label: 'Language')
@@ -99,15 +90,13 @@ class ProjectMedia4Test < ActiveSupport::TestCase
   test "should have oEmbed URL" do
     RequestStore[:request] = nil
     t = create_team private: false
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     stub_configs({ 'checkdesk_base_url' => 'https://checkmedia.org' }) do
       assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
     end
 
     t = create_team private: true
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     stub_configs({ 'checkdesk_base_url' => 'https://checkmedia.org' }) do
       assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
     end
@@ -279,11 +268,10 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     fi2 = create_field_instance annotation_type_object: at, name: 'note_free_text', label: 'Note', field_type_object: ft1
 
     t = create_team
-    p = create_project team: t
     create_team_task team_id: t.id, label: 'When?'
     Sidekiq::Testing.inline! do
       assert_difference 'Task.length', 1 do
-        pm = create_project_media project: p, set_tasks_responses: { 'when' => 'Yesterday' }
+        pm = create_project_media team: t, set_tasks_responses: { 'when' => 'Yesterday' }
         task = pm.annotations('task').last
         assert_equal 'Yesterday', task.first_response
       end
@@ -303,13 +291,10 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     fi2 = create_field_instance annotation_type_object: at, name: 'response_free_text', label: 'Note', field_type_object: ft1
 
-    t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
-    p3 = create_project team: t
-    tt1 = create_team_task team_id: t.id, label: 'who?', task_type: 'free_text', mapping: { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "}
-    tt2 = create_team_task team_id: t.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}
-    tt3 = create_team_task team_id: t.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}
+    team = create_team
+    tt1 = create_team_task team_id: team.id, label: 'who?', task_type: 'free_text', mapping: { "type" => "free_text", "match" => "$.mentions[?(@['@type'] == 'Person')].name", "prefix" => "Suggested by Krzana: "}
+    tt2 = create_team_task team_id: team.id, label: 'where?', task_type: 'geolocation', mapping: { "type" => "geolocation", "match" => "$.mentions[?(@['@type'] == 'Place')]", "prefix" => ""}
+    tt3 = create_team_task team_id: team.id, label: 'when?', type: 'datetime', mapping: { "type" => "datetime", "match" => "dateCreated", "prefix" => ""}
 
     Sidekiq::Testing.inline! do
       pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -318,7 +303,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = {"json+ld": {}}
       response = {'type':'media','data': {'url': url, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      pm = create_project_media project: p, url: url
+      pm = create_project_media team: team, url: url
       t = Task.where(annotation_type: 'task', annotated_id: pm.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
@@ -327,7 +312,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person" } ] } }
       response = {'type':'media','data': {'url': url1, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url1 } }).to_return(body: response)
-      pm1 = create_project_media project: p, url: url1
+      pm1 = create_project_media team: team, url: url1
       t = Task.where(annotation_type: 'task', annotated_id: pm1.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
@@ -336,7 +321,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "" } ] } }
       response = {'type':'media','data': {'url': url12, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url12 } }).to_return(body: response)
-      pm12 = create_project_media project: p, url: url12
+      pm12 = create_project_media team: team, url: url12
       t = Task.where(annotation_type: 'task', annotated_id: pm12.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_nil t.first_response
 
@@ -345,7 +330,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" } ] } }
       response = {'type':'media','data': {'url': url2, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url2 } }).to_return(body: response)
-      pm2 = create_project_media project: p, url: url2
+      pm2 = create_project_media team: team, url: url2
       t = Task.where(annotation_type: 'task', annotated_id: pm2.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_equal "Suggested by Krzana: first_name", t.first_response
 
@@ -354,7 +339,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "mentions": [ { "@type": "Person", "name": "first_name" }, { "@type": "Person", "name": "last_name" } ] } }
       response = {'type':'media','data': {'url': url3, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url3 } }).to_return(body: response)
-      pm3 = create_project_media project: p, url: url3
+      pm3 = create_project_media team: team, url: url3
       t = Task.where(annotation_type: 'task', annotated_id: pm3.id).select{ |t| t.team_task_id == tt1.id }.last
       assert_equal "Suggested by Krzana: first_name", t.first_response
 
@@ -365,7 +350,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       } }
       response = {'type':'media','data': {'url': url4, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url4 } }).to_return(body: response)
-      pm4 = create_project_media project: p2, url: url4
+      pm4 = create_project_media team: team, url: url4
       t = Task.where(annotation_type: 'task', annotated_id: pm4.id).select{ |t| t.team_task_id == tt2.id }.last
       # assert_not_nil t.first_response
 
@@ -374,7 +359,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
       raw = { "json+ld": { "dateCreated": "2017-08-30T14:22:28+00:00" } }
       response = {'type':'media','data': {'url': url5, 'type': 'item', 'raw': raw}}.to_json
       WebMock.stub_request(:get, pender_url).with({ query: { url: url5 } }).to_return(body: response)
-      pm5 = create_project_media project: p3, url: url5
+      pm5 = create_project_media team: team, url: url5
       t = Task.where(annotation_type: 'task', annotated_id: pm5.id).select{ |t| t.team_task_id == tt3.id }.last
       assert_not_nil t.first_response
     end
@@ -394,13 +379,6 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     assert_raises RuntimeError do
       pm.save!
       assert_equal PenderClient::ErrorCodes::DUPLICATED, pm.media.pender_error_code
-    end
-  end
-
-  test "should not create project media under archived project" do
-    p = create_project archived: CheckArchivedFlags::FlagCodes::TRASHED
-    assert_raises ActiveRecord::RecordInvalid do
-      create_project_media project_id: p.id
     end
   end
 
@@ -476,8 +454,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: l, team: t, project_id: p.id
+    pm = create_project_media media: l, team: t
     assert_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.create_all_archive_annotations
@@ -496,8 +473,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     tbi = create_team_bot_installation user_id: tb.id, team_id: t.id
     tbi.set_archive_pender_archive_enabled = true
     tbi.save!
-    p = create_project team: t
-    pm = create_project_media media: c, project: p
+    pm = create_project_media media: c, team: t
     assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.create_all_archive_annotations
@@ -510,8 +486,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
     t = create_team
     t.set_limits_keep = true
     t.save!
-    p = create_project team: t
-    pm = create_project_media media: l, project: p
+    pm = create_project_media media: l, team: t
     assert_no_difference 'Dynamic.where(annotation_type: "archiver").count' do
       assert_no_difference 'DynamicAnnotation::Field.where(annotation_type: "archiver", field_name: "pender_archive_response").count' do
         pm.create_all_archive_annotations
@@ -595,8 +570,7 @@ class ProjectMedia4Test < ActiveSupport::TestCase
 
     m = create_media team: t, url: url, account: nil, account_id: nil
     a = m.account
-    p = create_project team: t
-    pm = create_project_media media: m, project: p
+    pm = create_project_media media: m, team: t
     sleep 2
     pm = ProjectMedia.find(pm.id)
     with_current_user_and_team(u, t) do

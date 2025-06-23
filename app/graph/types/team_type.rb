@@ -11,7 +11,6 @@ class TeamType < DefaultObject
   field :description, GraphQL::Types::String, null: true
   field :dbid, GraphQL::Types::Int, null: true
   field :members_count, GraphQL::Types::Int, null: true
-  field :projects_count, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
   field :get_slack_webhook, GraphQL::Types::String, null: true
   field :get_embed_whitelist, GraphQL::Types::String, null: true
@@ -196,12 +195,6 @@ class TeamType < DefaultObject
 
   field :users, UserType.connection_type, null: true
 
-  field :projects, ProjectType.connection_type, null: true
-
-  def projects
-    object.recent_projects
-  end
-
   field :sources_count, GraphQL::Types::Int, null: true do
     argument :keyword, GraphQL::Types::String, required: false
   end
@@ -256,8 +249,6 @@ class TeamType < DefaultObject
     object.team_tasks.where(id: dbid.to_i).last
   end
 
-  field :default_folder, ProjectType, null: true
-
   field :feed, FeedType, null: true do
     argument :dbid, GraphQL::Types::Int, required: true
   end
@@ -282,7 +273,6 @@ class TeamType < DefaultObject
     object.saved_searches.where(list_type: list_type)
   end
 
-  field :project_groups, ProjectGroupType.connection_type, null: true
   field :feeds, FeedType.connection_type, null: true
   field :feed_teams, FeedTeamType.connection_type, null: false
   field :tipline_newsletters, TiplineNewsletterType.connection_type, null: true

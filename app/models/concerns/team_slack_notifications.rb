@@ -19,7 +19,6 @@ module TeamSlackNotifications
     pm = ProjectMedia.new(team_id: self.id)
     statuses_objs = ::Workflow::Workflow.options(pm, pm.default_project_media_status_type)[:statuses]
     namespace = OpenStruct.new({
-      projects: self.projects.order('title ASC').collect{ |p| { key: p.id, value: p.title } },
       statuses: statuses_objs.collect{ |st| { key: st.with_indifferent_access['id'], value: st.with_indifferent_access['label'] } }
     })
     ERB.new(SLACK_NOTIFICATIONS_JSON_SCHEMA).result(namespace.instance_eval { binding })

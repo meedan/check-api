@@ -80,9 +80,8 @@ class MetadataTest < ActiveSupport::TestCase
     u2 = create_user
     t = create_team
     create_team_user team: t, user: u2, role: 'admin'
-    p = create_project team: t
     with_current_user_and_team(u2, t) do
-      em = create_metadata annotated: p, annotator: nil
+      em = create_metadata annotated: t, annotator: nil
       assert_equal u2, em.reload.annotator
     end
   end

@@ -8,16 +8,7 @@ module ProjectMediaBulk
       params = begin JSON.parse(updates[:params]).with_indifferent_access rescue {} end
       case updates[:action]
       when 'archived'
-        self.bulk_archive(ids, params[:archived], params[:previous_project_id], params[:project_id], team)
-      when 'move_to'
-        project = Project.where(team_id: team&.id, id: params[:move_to]).last
-        unless project.nil?
-          self.bulk_move(ids, project, team)
-          # Bulk move secondary items
-          self.bulk_move_secondary_items(ids, project, team)
-          # Send pusher and set parent objects for graphql
-          self.send_pusher_and_parents(project, params[:previous_project_id], team)
-        end
+        self.bulk_archive(ids, params[:archived], team)
       when 'assigned_to_ids'
         self.bulk_assign(ids, params[:assigned_to_ids], params[:assignment_message], team)
       when 'update_status'
@@ -27,15 +18,13 @@ module ProjectMediaBulk
       end
     end
 
-    def bulk_archive(ids, archived, previous_project_id, project_id, team)
+    def bulk_archive(ids, archived, team)
       # Include related items
       ids.concat(Relationship.where(source_id: ids).select(:target_id).map(&:target_id))
 
       # SQL bulk-update
       updated_at = Time.now
       update_columns = { archived: archived, updated_at: updated_at }
-      target_project = Project.where(id: project_id.to_i, team_id: team.id).last
-      update_columns[:project_id] = target_project.id if archived == CheckArchivedFlags::FlagCodes::NONE && !target_project.nil?
       ProjectMedia.where(id: ids, team_id: team&.id).update_all(update_columns)
 
       # Enqueue in delete_forever
@@ -45,77 +34,17 @@ module ProjectMediaBulk
         ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, pm_id, YAML.dump(options)) }
       end
 
-      # Update "medias_count" cache of each list
-      pids = ProjectMedia.where(id: ids).map(&:project_id).uniq
-      Project.bulk_update_medias_count(pids)
-
-      # Get a project, if any
-      project_id = previous_project_id || project_id
-      project = Project.where(id: project_id.to_i, team_id: team.id).last
-
       # Pusher
       team.notify_pusher_channel
-      project&.notify_pusher_channel
 
       # ElasticSearch
       source = "ctx._source.archived = params.archived"
       params = { archived: archived.to_i }
-      unless target_project.nil?
-        source << ";ctx._source.project_id = params.project_id"
-        params[:project_id] = target_project.id
-      end
       script = { source: source, params: params }
       self.bulk_reindex(ids.to_json, script)
 
-      self.update_folder_cache(ids, target_project)
-
       {
         team: team,
-        project: project,
-        check_search_project: project&.check_search_project,
-        check_search_team: team.check_search_team,
-        check_search_spam: team.check_search_spam,
-        check_search_trash: team.check_search_trash
-      }
-    end
-
-    def bulk_move(ids, project, team)
-      pmp_mapping = {}
-      ProjectMedia.where(id: ids).collect{ |pm| pmp_mapping[pm.id] = pm.project_id }
-      # SQL bulk-update
-      ProjectMedia.where(id: ids, team_id: team&.id).update_all({ project_id: project.id })
-
-      # Update "medias_count" cache of each list
-      pids = pmp_mapping.values.uniq.reject{ |v| v.nil? }
-      pids << project.id
-      Project.bulk_update_medias_count(pids)
-
-      self.update_folder_cache(ids, project)
-
-      # ElasticSearch
-      script = { source: "ctx._source.project_id = params.project_id", params: { project_id: project.id } }
-      self.bulk_reindex(ids.to_json, script)
-    end
-
-    def bulk_move_secondary_items(ids, project, team)
-      target_ids = Relationship.where(source_id: ids).map(&:target_id)
-      secondary_ids = ProjectMedia.where(id: target_ids).where.not(project_id: project.id).map(&:id)
-      self.bulk_move(secondary_ids, project, team)
-    end
-
-    def send_pusher_and_parents(project, previous_project_id, team)
-      # Get previous_project
-      project_was = Project.find_by_id previous_project_id unless previous_project_id.blank?
-      # Pusher
-      team.notify_pusher_channel
-      project.notify_pusher_channel
-      project_was&.notify_pusher_channel
-      {
-        team: team,
-        project: project,
-        check_search_project: project&.check_search_project,
-        project_was: project_was,
-        check_search_project_was: project_was&.check_search_project,
         check_search_team: team.check_search_team,
         check_search_spam: team.check_search_spam,
         check_search_trash: team.check_search_trash
@@ -133,11 +62,6 @@ module ProjectMediaBulk
         }
       }
       $repository.client.update_by_query options
-    end
-
-    def update_folder_cache(ids, project)
-      # Update "folder" cache of each list
-      ids.each{ |pm_id| Rails.cache.write("check_cached_field:ProjectMedia:#{pm_id}:folder", project.title.to_s) } unless project.nil?
     end
 
     def bulk_assign(ids, assigned_to_ids, assignment_message, team)

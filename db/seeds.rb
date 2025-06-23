@@ -104,7 +104,7 @@ class Setup
       all_teams[:main_team_a] = main_team_a
       all_teams
     end
-  end 
+  end
 
   private
 
@@ -238,93 +238,41 @@ class PopulatedWorkspaces
     end
   end
 
-  def populate_projects
-    projects_params_main_user_a = 
-      {
-        title: "#{teams[:main_team_a][:name]} / [a] Main User: Main Team",
-        user: users[:main_user_a],
-        team: teams[:main_team_a],
-        project_medias_attributes: medias_params.map.with_index { |media_params, index|
-          {
-            media_attributes: media_params,
-            user: users[:main_user_a],
-            team: teams[:main_team_a],
-            channel: channel(media_params[:type]),
-            claim_description_attributes: {
-              description: claim_title(media_params),
-              context: Faker::Lorem.sentence,
-              user: media_params[:type] == "Blank" ? bot : users[:main_user_a],
-              fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:main_user_a]),
-            }
-          }
-        }
-      }
-
-    Project.create!(projects_params_main_user_a)
-
+  def populate_project_medias
+    project_media_params = [{
+      user: users[:main_user_a],
+      team: teams[:main_team_a],
+    }]
     if invited_teams
-      project_params_invited_users = 
-      [
+      project_media_params.concat([
         {
-          title: "#{teams[:invited_team_b1][:name]} / [b] Invited User: Project Team #1",
           user: users[:invited_user_b],
           team: teams[:invited_team_b1],
-          project_medias_attributes: medias_params.map.with_index { |media_params, index|
-            {
-              media_attributes: media_params,
-              user: users[:invited_user_b],
-              team: teams[:invited_team_b1],
-              channel: channel(media_params[:type]),
-              claim_description_attributes: {
-                description: claim_title(media_params),
-                context: Faker::Lorem.sentence,
-                user: media_params[:type] == "Blank" ? bot : users[:invited_user_b],
-                fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
-              }
-            }
-          }
         },
         {
-          title: "#{teams[:invited_team_b2][:name]} / [b] Invited User: Project Team #2",
           user: users[:invited_user_b],
           team: teams[:invited_team_b2],
-          project_medias_attributes: medias_params.map.with_index { |media_params, index|
-            {
-              media_attributes: media_params,
-              user: users[:invited_user_b],
-              team: teams[:invited_team_b2],
-              channel: channel(media_params[:type]),
-              claim_description_attributes: {
-                description: claim_title(media_params),
-                context: Faker::Lorem.sentence,
-                user: media_params[:type] == "Blank" ? bot : users[:invited_user_b],
-                fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:invited_user_b]),
-              }
-            }
-          }
         },
         {
-          title: "#{teams[:invited_team_c][:name]} / [c] Invited User: Project Team #1",
           user: users[:invited_user_c],
           team: teams[:invited_team_c],
-          project_medias_attributes: medias_params.map.with_index { |media_params, index|
-            {
-              media_attributes: media_params,
-              user: users[:invited_user_c],
-              team: teams[:invited_team_c],
-              channel: channel(media_params[:type]),
-              claim_description_attributes: {
-                description: claim_title(media_params),
-                context: Faker::Lorem.sentence,
-                user: media_params[:type] == "Blank" ? bot : users[:invited_user_c],
-                fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, users[:invited_user_c]),
-              }
-            }
-          }
         }
-      ]
-
-      project_params_invited_users.each { |params| Project.create!(params) }
+      ])
+    end
+    project_media_params.each do |params|
+      medias_params.map.with_index do |media_params, index|
+        params.merge!({
+          channel: channel(media_params[:type]),
+          media_attributes: media_params,
+          claim_description_attributes: {
+            description: claim_title(media_params),
+            context: Faker::Lorem.sentence,
+            user: media_params[:type] == "Blank" ? bot : params[:user],
+            fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, params[:user]),
+          }
+        })
+        ProjectMedia.create!(params)
+      end
     end
   end
 
@@ -345,14 +293,17 @@ class PopulatedWorkspaces
   end
 
   def main_user_feed(to_be_shared)
-    if to_be_shared == "share_factchecks"
-      data_points = [1]
+    if to_be_shared == "share_media"
+      data_points = [2]
       last_clusterized_at = nil
+      saved_search = { media_saved_search: SavedSearch.where(team: teams[:main_team_a], list_type: 'media').first }
     elsif to_be_shared == "share_everything"
       data_points = [1,2]
       last_clusterized_at = Time.now
-    else
-      data_points = [2]
+      saved_search = {
+        media_saved_search: SavedSearch.where(team: teams[:main_team_a], list_type: 'media').first,
+        article_saved_search: SavedSearch.where(team: teams[:main_team_a], list_type: 'article').first
+      }
     end
 
     feed_params = {
@@ -360,11 +311,10 @@ class PopulatedWorkspaces
       user: users[:main_user_a],
       team: teams[:main_team_a],
       published: true,
-      saved_search: SavedSearch.where(team: teams[:main_team_a]).first,
       licenses: [1],
       last_clusterized_at: last_clusterized_at,
       data_points: data_points
-    }
+    }.merge(saved_search)
     Feed.create!(feed_params)
   end
 
@@ -496,14 +446,22 @@ class PopulatedWorkspaces
   def saved_search(team)
     user = team.team_users.find_by(role: 'admin').user
 
-    saved_search_params = {
-      title: "#{user.name.capitalize}'s list",
+    media_saved_search_params = {
+      title: "#{user.name.capitalize}'s media list",
       team: team,
       filters: {created_by: user},
+      list_type: 'media',
+    }
+    article_saved_search_params = {
+      title: "#{user.name.capitalize}'s article list",
+      team: team,
+      filters: {created_by: user},
+      list_type: 'article',
     }
 
     if team.saved_searches.empty?
-      SavedSearch.create!(saved_search_params)
+      SavedSearch.create!(media_saved_search_params)
+      SavedSearch.create!(article_saved_search_params)
     else
       team.saved_searches.first
     end
@@ -781,14 +739,14 @@ ActiveRecord::Base.transaction do
   begin
     puts 'Creating users and teams...'
     setup = Setup.new(answer.presence) # .presence : returns nil or the string
-    puts 'Creating projects for all users...'
+    puts 'Creating project medias for all users...'
     populated_workspaces = PopulatedWorkspaces.new(setup)
     populated_workspaces.fetch_bot_installation
-    populated_workspaces.populate_projects
+    populated_workspaces.populate_project_medias
     puts 'Creating saved searches for all teams...'
     populated_workspaces.saved_searches
     puts 'Creating feed...'
-    feed_1 = populated_workspaces.main_user_feed("share_factchecks")
+    feed_1 = populated_workspaces.main_user_feed("share_media")
     feed_2 = populated_workspaces.main_user_feed("share_everything")
     puts 'Making and inviting to Shared Feed... (won\'t run if you are not creating any invited users)'
     populated_workspaces.share_feed(feed_1)
@@ -825,5 +783,5 @@ ActiveRecord::Base.transaction do
     setup.get_users_emails_and_passwords.each { |user_info| puts user_info }
   end
 end
-  
+
 Rails.cache.clear

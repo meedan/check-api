@@ -11,9 +11,9 @@ class Bot::AlegreContractTest < ActiveSupport::TestCase
     create_flag_annotation_type
     create_annotation_type(annotation_type: 'language')
 
-    p = create_project
+    t = create_team
     m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
+    @pm = create_project_media team: t, media: m
     response = JSON.parse("{ \"text\": \"X X X\\n3\\nTranslate this sentence\\nو عندي وقت في الساعة العاشرة.\\n\" }")
     @extracted_text = response['text']
     @url = 'https://i.imgur.com/ewGClFQ.png'

@@ -4,7 +4,6 @@ class Relationship2Test < ActiveSupport::TestCase
   def setup
     Sidekiq::Testing.fake!
     @team = create_team
-    @project = create_project team: @team
   end
 
   def teardown
@@ -18,15 +17,15 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should have source" do
-    pm = create_project_media(project: @project)
-    pm2 = create_project_media(project: @project)
+    pm = create_project_media(team: @team)
+    pm2 = create_project_media(team: @team)
     r = create_relationship source_id: pm.id, target_id: pm2.id
     assert_equal pm, r.source
   end
 
   test "should have target" do
-    pm = create_project_media project: @project
-    r = create_relationship target_id: pm.id, source_id: create_project_media(project: @project).id
+    pm = create_project_media team: @team
+    r = create_relationship target_id: pm.id, source_id: create_project_media(team: @team).id
     assert_equal pm, r.target
   end
 
@@ -81,10 +80,10 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should not have duplicate relationships" do
-    s = create_project_media project: @project
-    s2 = create_project_media project: @project
-    t = create_project_media project: @project
-    t2 = create_project_media project: @project
+    s = create_project_media team: @team
+    s2 = create_project_media team: @team
+    t = create_project_media team: @team
+    t2 = create_project_media team: @team
     name = { source: 'duplicates', target: 'duplicate_of' }
     create_relationship source_id: s.id, target_id: t.id, relationship_type: name
     assert_no_difference 'Relationship.count' do
@@ -96,8 +95,8 @@ class Relationship2Test < ActiveSupport::TestCase
 
   test "should increment and decrement counters when relationship is created or destroyed" do
     RequestStore.store[:skip_cached_field_update] = false
-    s = create_project_media project: @project
-    t = create_project_media project: @project
+    s = create_project_media team: @team
+    t = create_project_media team: @team
     assert_equal 0, s.sources_count
     assert_equal 0, t.sources_count
     r = create_relationship source_id: s.id, target_id: t.id, relationship_type: Relationship.confirmed_type
@@ -109,25 +108,25 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should create related report" do
-    p = create_project
-    pm = create_project_media project: p
+    t = create_team
+    pm = create_project_media team: t
     assert_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         assert_nothing_raised do
-          create_project_media related_to_id: pm, project: p
+          create_project_media related_to_id: pm, team: t
         end
       end
     end
   end
 
   test "should not create related report if source report does not exist" do
-    pm = create_project_media project: @project
+    pm = create_project_media team: @team
     id = pm.id
     pm.delete
     assert_no_difference 'ProjectMedia.count' do
       assert_no_difference 'Relationship.count' do
         assert_raises RuntimeError do
-          create_project_media related_to_id: id, project: @project
+          create_project_media related_to_id: id, team: @team
         end
       end
     end
@@ -136,9 +135,9 @@ class Relationship2Test < ActiveSupport::TestCase
   test "should archive or restore medias when source is archived or restored" do
     Sidekiq::Testing.inline!
     RequestStore.store[:skip_delete_for_ever] = true
-    s = create_project_media project: @project
-    t1 = create_project_media project: @project
-    t2 = create_project_media project: @project
+    s = create_project_media team: @team
+    t1 = create_project_media team: @team
+    t2 = create_project_media team: @team
     create_relationship source_id: s.id, target_id: t1.id
     create_relationship source_id: s.id, target_id: t2.id
     assert_equal CheckArchivedFlags::FlagCodes::NONE, t1.reload.archived
@@ -155,9 +154,9 @@ class Relationship2Test < ActiveSupport::TestCase
 
   test "should delete medias when source is deleted" do
     Sidekiq::Testing.inline!
-    s = create_project_media project: @project
-    t1 = create_project_media project: @project
-    t2 = create_project_media project: @project
+    s = create_project_media team: @team
+    t1 = create_project_media team: @team
+    t2 = create_project_media team: @team
     create_relationship source_id: s.id, target_id: t1.id
     create_relationship source_id: s.id, target_id: t2.id
     assert_not_nil ProjectMedia.where(id: t1.id).last
@@ -180,22 +179,22 @@ class Relationship2Test < ActiveSupport::TestCase
   end
 
   test "should not be default" do
-    s = create_project_media project: @project
-    t1 = create_project_media project: @project
+    s = create_project_media team: @team
+    t1 = create_project_media team: @team
     r = create_relationship source_id: s.id, target_id: t1.id, relationship_type: Relationship.confirmed_type
     assert_not r.is_default?
   end
 
   test "should not be sugggested" do
-    s = create_project_media project: @project
-    t1 = create_project_media project: @project
+    s = create_project_media team: @team
+    t1 = create_project_media team: @team
     r = create_relationship source_id: s.id, target_id: t1.id
     assert_not r.is_suggested?
   end
 
   test "should not be confirmed" do
-    s = create_project_media project: @project
-    t1 = create_project_media project: @project
+    s = create_project_media team: @team
+    t1 = create_project_media team: @team
     r = create_relationship source_id: s.id, target_id: t1.id
     assert_not r.is_confirmed?
   end
@@ -205,11 +204,10 @@ class Relationship2Test < ActiveSupport::TestCase
     with_versioning do
       u = create_user is_admin: true
       t = create_team
-      p = create_project team: t
       r = create_relationship relationship_type: Relationship.confirmed_type
       assert_empty r.versions
-      so = create_project_media project: p
-      ta = create_project_media project: p
+      so = create_project_media team: t
+      ta = create_project_media team: t
       
       with_current_user_and_team(u, t) do
         r = create_relationship source_id: so.id, target_id: ta.id, relationship_type: Relationship.confirmed_type
@@ -244,10 +242,10 @@ class Relationship2Test < ActiveSupport::TestCase
     u = create_user is_admin: true
     t = create_team
     with_current_user_and_team(u, t) do
-      s = create_project_media project: @project
-      t1 = create_project_media project: @project
-      t2 = create_project_media project: @project
-      t3 = create_project_media project: @project
+      s = create_project_media team: @team
+      t1 = create_project_media team: @team
+      t2 = create_project_media team: @team
+      t3 = create_project_media team: @team
       r1 = create_relationship source_id: s.id, target_id: t1.id
       r2 = create_relationship source_id: s.id, target_id: t2.id
       r3 = create_relationship source_id: s.id, target_id: t3.id
@@ -269,13 +267,6 @@ class Relationship2Test < ActiveSupport::TestCase
     assert_raises ActiveRecord::RecordInvalid do
       create_relationship source_id: pm1.id, target_id: pm2.id
     end
-    p1 = create_project team: t1
-    p2 = create_project team: t2
-    pm1 = create_project_media project: p1
-    pm2 = create_project_media project: p2
-    assert_raises ActiveRecord::RecordInvalid do
-      create_relationship source_id: pm1.id, target_id: pm2.id
-    end
   end
 
   test "should set source type and target type independently" do
@@ -287,16 +278,12 @@ class Relationship2Test < ActiveSupport::TestCase
 
   test "should archive detach to specific list" do
     t = create_team
-    p = create_project team: t
-    p2 = create_project team: t
     pm_s = create_project_media team: t
-    pm_t = create_project_media project: p
+    pm_t = create_project_media team: t
     r = create_relationship source_id: pm_s.id, target_id: pm_t.id, relationship_type: Relationship.confirmed_type
-    assert_equal p.id, pm_t.project_id
     r.archive_target = CheckArchivedFlags::FlagCodes::SPAM
     r.destroy
     assert_equal CheckArchivedFlags::FlagCodes::SPAM, pm_t.reload.archived
-
   end
 
   test "should re-point targets to new source when adding as a target an item that already has targets" do

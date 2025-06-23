@@ -589,8 +589,6 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
         Bot::Smooch.save_message(message.to_json, @app_id)
       end
       pm = ProjectMedia.last
-      pm.project = create_project team_id: @team.id
-      pm.save
 
       assert_equal medias_count + 1, Media.count
       medias_count = Media.count

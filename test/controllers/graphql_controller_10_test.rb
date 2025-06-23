@@ -38,8 +38,7 @@ class GraphqlController10Test < ActionController::TestCase
 
     test "should get task by id" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
@@ -56,8 +55,7 @@ class GraphqlController10Test < ActionController::TestCase
 
   test "should get team tag_texts" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
@@ -94,8 +92,7 @@ class GraphqlController10Test < ActionController::TestCase
 
   test "should get team tasks" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
@@ -121,48 +118,30 @@ class GraphqlController10Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'collaborator'
     create_team_user user: u2, team: t
     authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p, user: u2
+    pm = create_project_media team: t, user: u2
     t = create_task annotated: pm
     t.assign_user(u.id)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { user { id } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { user { id } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
-  end
-
-  test "should get project assignments" do
-    u = create_user is_admin: true
-    u2 = create_user name: 'Assigned to Project'
-    t = create_team
-    create_team_user user: u2, team: t
-    p = create_project team: t
-    p.assign_user(u2.id)
-    authenticate_with_user(u)
-
-    post :create, params: { query: "query { project(ids: \"#{p.id},#{t.id}\") { assignments_count, assigned_users(first: 10000) { edges { node { name } } } } }", team: t.slug }
-    data = JSON.parse(@response.body)['data']['project']
-    assert_equal 1, data['assignments_count']
-    assert_equal 'Assigned to Project', data['assigned_users']['edges'][0]['node']['name']
   end
 
   test "should filter user assignments by team" do
     u = create_user
     t1 = create_team
     create_team_user team: t1, user: u
-    p1 = create_project team: t1
-    pm1 = create_project_media project: p1
+    pm1 = create_project_media team: t1
     tk1 = create_task annotated: pm1
     tk1.assign_user(u.id)
     t2 = create_team
     create_team_user team: t2, user: u
-    p2 = create_project team: t2
-    pm2 = create_project_media project: p2
+    pm2 = create_project_media team: t2
     tk2 = create_task annotated: pm2
     tk2.assign_user(u.id)
     authenticate_with_user(u)
 
-    post :create, params: { query: "query { me { current_project { id }, current_team { id }, user_teams, teams(first: 10) { edges { node { id } } }, assignments(first: 10000) { edges { node { dbid } } } } }", team: t1.slug }
+    post :create, params: { query: "query { me { current_team { id }, user_teams, teams(first: 10) { edges { node { id } } }, assignments(first: 10000) { edges { node { dbid } } } } }", team: t1.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']['assignments']['edges']
     assert_equal 2, data.size
@@ -186,11 +165,10 @@ class GraphqlController10Test < ActionController::TestCase
       authenticate_with_user(u)
       t = create_team slug: 'team'
       create_team_user user: u, team: t
-      p = create_project team: t
 
-      pm1 = create_project_media disable_es_callbacks: false, project: p
+      pm1 = create_project_media disable_es_callbacks: false, team: t
       create_dynamic_annotation annotation_type: 'language', annotated: pm1, set_fields: { language: 'en' }.to_json, disable_es_callbacks: false
-      pm2 = create_project_media disable_es_callbacks: false, project: p
+      pm2 = create_project_media disable_es_callbacks: false, team: t
       create_dynamic_annotation annotation_type: 'language', annotated: pm2, set_fields: { language: 'pt' }.to_json, disable_es_callbacks: false
 
       sleep 2
@@ -234,9 +212,8 @@ class GraphqlController10Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id
     assert_equal pm1, r.reload.source
     assert_equal pm2, r.reload.target
@@ -257,9 +234,8 @@ class GraphqlController10Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     r = create_relationship source_id: pm1.id, target_id: pm2.id
     assert_not_nil Relationship.where(id: r.id).last
     authenticate_with_user(u)
@@ -269,13 +245,6 @@ class GraphqlController10Test < ActionController::TestCase
     assert_equal pm1.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['source_project_media']['id']
     assert_equal pm2.graphql_id, JSON.parse(@response.body)['data']['destroyRelationship']['target_project_media']['id']
     assert_nil Relationship.where(id: r.id).last
-    # detach to specific list
-    p2 = create_project team: t
-    r = create_relationship source_id: pm1.id, target_id: pm2.id
-    assert_equal p.id, pm2.project_id
-    query = 'mutation { destroyRelationship(input: { clientMutationId: "1", id: "' + r.graphql_id + '" }) { deletedId, source_project_media { id }, target_project_media { id } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
   end
 
   test "should get version from global id" do
@@ -297,8 +266,7 @@ class GraphqlController10Test < ActionController::TestCase
       u = create_user
       team = create_team
       create_team_user team: team, user: u, role: 'admin'
-      p = create_project team: team
-      create_project_media archived: CheckArchivedFlags::FlagCodes::TRASHED, project: p
+      create_project_media archived: CheckArchivedFlags::FlagCodes::TRASHED, team: team
       assert_equal 1, team.reload.trash_count
       id = team.graphql_id
       authenticate_with_user(u)
@@ -326,7 +294,7 @@ class GraphqlController10Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
 
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     s = pm.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id'
     s.save!
@@ -582,8 +550,7 @@ class GraphqlController10Test < ActionController::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     query = 'mutation create { createTag(input: { clientMutationId: "1", tag: "egypt", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '"}) { tag { id } } }'
     post :create, params: { query: query }
     assert_response :success
@@ -597,9 +564,8 @@ class GraphqlController10Test < ActionController::TestCase
     t = create_team
     tu = create_team_user team: t, user: u, role: 'collaborator'
     create_team_user team: create_team, user: u, role: 'admin'
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     s = pm.last_verification_status_obj
     s = Dynamic.find(s.id)
     f = s.get_field('verification_status_status')
@@ -620,9 +586,8 @@ class GraphqlController10Test < ActionController::TestCase
     tu = create_team_user team: t, user: u, role: 'collaborator'
     create_team_user team: t, user: u2, role: 'collaborator'
     create_team_user team: create_team, user: u, role: 'admin'
-    p = create_project team: t
     m = create_valid_media
-    pm = create_project_media project: p, media: m
+    pm = create_project_media team: t, media: m
     s = pm.last_verification_status_obj
     s = Dynamic.find(s.id)
     f = s.get_field('verification_status_status')
@@ -647,8 +612,7 @@ class GraphqlController10Test < ActionController::TestCase
 
   test "should create related report" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     u = create_user
     create_team_user user: u, team: t, role: 'collaborator'
     authenticate_with_user(u)
@@ -663,16 +627,15 @@ class GraphqlController10Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
-    pm1 = create_project_media project: p, user: u
+    pm = create_project_media team: t
+    pm1 = create_project_media team: t, user: u
     create_relationship source_id: pm.id, target_id: pm1.id
     pm1.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm1.save!
 
     authenticate_with_user(u)
 
-    query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") {permissions,source{permissions}}}"
+    query = "query GetById { project_media(ids: \"#{pm1.id}\") {permissions,source{permissions}}}"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
@@ -680,8 +643,7 @@ class GraphqlController10Test < ActionController::TestCase
 
   test "should create dynamic annotation type" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
@@ -701,10 +663,10 @@ class GraphqlController10Test < ActionController::TestCase
     t3 = create_team private: false
     u = create_user
     create_team_user team: t2, user: u
-    pm1 = create_project_media team: t1, project: nil
-    pm2 = create_project_media team: t2, project: nil
-    pm3a = create_project_media team: t3, project: nil
-    pm3b = create_project_media team: t3, project: nil
+    pm1 = create_project_media team: t1
+    pm2 = create_project_media team: t2
+    pm3a = create_project_media team: t3
+    pm3b = create_project_media team: t3
     query = 'query { search(query: "{}") { number_of_results, medias(first: 10) { edges { node { dbid, permissions } } } } }'
 
     # Anonymous user searching across all teams

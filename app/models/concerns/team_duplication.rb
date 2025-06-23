@@ -9,15 +9,11 @@ module TeamDuplication
     def self.duplicate(t, custom_slug = nil, custom_name = nil)
       @bot_ids = []
       @clones = []
-      @project_id_map = {}
-      @project_group_id_map = {}
       @team_id = nil
       @custom_name = custom_name
       @custom_slug = custom_slug
       ApplicationRecord.transaction do
         team = t.deep_clone include: [
-          { project_groups: [:projects] },
-          { projects: { if: lambda{ |p| p.project_group_id.blank? }}},
           :saved_searches,
           :tag_texts,
           :team_tasks
@@ -64,16 +60,6 @@ module TeamDuplication
       copy.set_slack_notifications_enabled = false
     end
 
-    def self.alter_project_copy(copy)
-      copy.generate_token(true)
-      copy.team.is_being_copied = true
-      copy.set_slack_notifications_enabled = false
-    end
-
-    def self.alter_project_group_copy(copy)
-      copy.is_being_copied = true
-    end
-
     def self.alter_saved_search_copy(copy)
       copy.is_being_copied = true
     end
@@ -102,11 +88,7 @@ module TeamDuplication
       copy.skip_check_ability = true # We use a specific "duplicate" permission before calling the Team.duplicate method
       self.send("alter_#{original.class_name.underscore}_copy", copy)
       copy.save!
-      if original.is_a?(Project)
-        @project_id_map[original.id] = copy.id
-      elsif original.is_a?(ProjectGroup)
-        @project_group_id_map[original.id] = copy.id
-      elsif copy.is_a?(Team)
+      if copy.is_a?(Team)
         @team_id = copy.id
       end
     end
@@ -122,11 +104,6 @@ module TeamDuplication
     def self.update_team_rules(new_team)
       team_task_map = self.team_task_map
       new_team.get_rules.to_a.each do |rule|
-        rule["actions"].to_a.each do |action|
-          if ["move_to_project", "copy_to_project", "add_to_project"].include?(action["action_definition"])
-            action["action_value"] = @project_id_map[action["action_value"].to_i]
-          end
-        end
         rule.dig("rules", "groups").to_a.each do |group|
           group["conditions"].each do |condition|
             if ["item_is_assigned_to_user", "item_user_is"].include?(condition["rule_definition"])
@@ -153,9 +130,7 @@ module TeamDuplication
     def self.store_clones
       @clones.each do |clone|
         if !clone[:original].is_a?(Team)
-          if clone[:original].is_a?(Project)
-            clone[:clone].team_id = @team_id
-          elsif clone[:original].is_a?(SavedSearch)
+          if clone[:original].is_a?(SavedSearch)
             clone[:clone].filters = self.update_saved_search_filters(clone[:clone].filters)
           end
         end
@@ -167,14 +142,6 @@ module TeamDuplication
     def self.update_saved_search_filters(filters)
       return filters if filters.nil?
       filters = JSON.parse(filters.to_s) if filters.is_a?(String)
-      {
-        'projects' => @project_id_map,
-        'project_group_id' => @project_group_id_map
-      }.each do |filter, collection|
-        unless filters[filter].blank?
-          filters[filter] = filters[filter].collect { |id| collection[id.to_i].to_s }
-        end
-      end
       filters['team_tasks'].to_a.each_with_index { |filter, i| filters['team_tasks'][i]['id'] = self.team_task_map[filter['id'].to_i].to_s }
       filters
     end

@@ -107,60 +107,12 @@ class ProjectMedia3Test < ActiveSupport::TestCase
     assert_equal Media.types.index(pm.type_of_media), es['type_of_media']
   end
 
-  test "should cache project title" do
-    RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.inline! do
-      t = create_team
-      p1 = create_project title: 'Foo', team: t
-      p2 = create_project title: 'Bar', team: t
-      pm = create_project_media team: t
-      default_folder = t.default_folder
-      assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
-      pm.project_id = p1.id
-      pm.save!
-      assert_queries(0, '=') { assert_equal 'Foo', pm.folder }
-      p1.title = 'Test'
-      p1.save!
-      assert_queries(0, '=') { assert_equal 'Test', pm.folder }
-      pm.project_id = p2.id
-      pm.save!
-      assert_queries(0, '=') { assert_equal 'Bar', pm.folder }
-      assert_equal p2.id, pm.reload.project_id
-      p2.destroy!
-      assert_equal t.default_folder.id, pm.reload.project_id
-      assert_queries(0, '=') { assert_equal default_folder.title, pm.folder }
-    end
-  end
-
   test "should get original title for uploaded files" do
     RequestStore.store[:skip_cached_field_update] = false
     pm = create_project_media media: create_uploaded_image
     create_claim_description project_media: pm, description: 'Custom Title'
     assert_equal 'Custom Title', pm.reload.title
     assert_equal media_filename('rails.png'), pm.reload.original_title
-  end
-
-  test "should move secondary item to same main item project" do
-    RequestStore.store[:skip_cached_field_update] = false
-    Sidekiq::Testing.inline! do
-      t = create_team
-      p = create_project team: t
-      p2 = create_project team: t
-      pm = create_project_media project: p
-      pm2 = create_project_media project: p
-      pm3 = create_project_media project: p
-      assert_equal p.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm.id}:folder")
-      create_relationship source_id: pm.id, target_id: pm2.id
-      create_relationship source_id: pm.id, target_id: pm3.id
-      pm.project_id = p2.id
-      pm.save!
-      assert_equal p2.id, pm2.reload.project_id
-      assert_equal p2.id, pm3.reload.project_id
-      # verify cached folder value
-      assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm.id}:folder")
-      assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm2.id}:folder")
-      assert_equal p2.title, Rails.cache.read("check_cached_field:ProjectMedia:#{pm3.id}:folder")
-    end
   end
 
   test "should get report information" do
@@ -273,9 +225,9 @@ class ProjectMedia3Test < ActiveSupport::TestCase
     ProjectMedia.stubs(:clear_caches).returns(nil)
     setup_elasticsearch
     t = create_team
+    create_tag_text text: 'test', team_id: t.id
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     rules = []
     rules << {
       "name": random_string,
@@ -296,8 +248,8 @@ class ProjectMedia3Test < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -320,9 +272,8 @@ class ProjectMedia3Test < ActiveSupport::TestCase
         result = $repository.find(get_es_id(pm))
         assert_equal pm_status, result['verification_status']
         # Verify rules callback
-        assert_equal t.default_folder.id, pm.reload.project_id
-        assert_equal p.id, pm2.reload.project_id
-        assert_equal p.id, pm3.reload.project_id
+        assert_equal ['test'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+        assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
         # Verify ES index
         result = $repository.find(get_es_id(pm2))
         assert_equal 'verified', result['verification_status']

@@ -14,8 +14,8 @@ class GraphqlController8Test < ActionController::TestCase
 
   test "should create and retrieve clips" do
     admin_user = create_user is_admin: true
-    p = create_project
-    pm = create_project_media project: p
+    t = create_team
+    pm = create_project_media team: t
     authenticate_with_user(admin_user)
 
     query = 'mutation { createDynamic(input: { annotation_type: "clip", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '", fragment: "t=10,20", set_fields: "{\"label\":\"Clip Label\"}" }) { dynamic { data, parsed_fragment } } }'
@@ -29,7 +29,7 @@ class GraphqlController8Test < ActionController::TestCase
 
     query = %{
       query {
-        project_media(ids: "#{pm.id},#{p.id}") {
+        project_media(ids: "#{pm.id}") {
           clips: annotations(first: 10000, annotation_type: "clip") {
             edges {
               node {
@@ -128,14 +128,13 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get nested tag" do
     admin_user = create_user is_admin: true
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tag1 = create_tag annotated: pm, tag: 'Parent'
     tag2 = create_tag annotated: tag1, tag: 'Child'
     authenticate_with_user(admin_user)
     query = %{
       query {
-        project_media(ids: "#{pm.id},#{p.id}") {
+        project_media(ids: "#{pm.id}") {
           tags: annotations(first: 10000, annotation_type: "tag") {
             edges {
               node {
@@ -167,24 +166,6 @@ class GraphqlController8Test < ActionController::TestCase
     child_tags = tags[0]['node']['tags']['edges']
     assert_equal 1, child_tags.size
     assert_equal 'Child', child_tags[0]['node']['tag_text']
-  end
-
-  test "should get project using API key" do
-    t = create_team
-    a = create_api_key
-    b = create_bot_user api_key_id: a.id, team: t
-    p = create_project team: t
-    authenticate_with_token(a)
-
-    query = 'query { me { dbid } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal b.id, JSON.parse(@response.body)['data']['me']['dbid']
-
-    query = 'query { project(id: "' + p.id.to_s + '") { dbid } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_equal p.id, JSON.parse(@response.body)['data']['project']['dbid']
   end
 
   test "should create report with image" do
@@ -220,62 +201,271 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal FeedTeam.where(feed: f, team: t).last.id, JSON.parse(@response.body).dig('data', 'team', 'feed', 'current_feed_team', 'dbid')
   end
 
-  test "should create feed" do
+  test "should get feed saved search" do
     t = create_team
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
-    ss = create_saved_search team: t, filters: { foo: 'bar' }
-    authenticate_with_user(u)
+    media_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
+    f = create_feed media_saved_search: media_saved_search, article_saved_search:article_saved_search, team: t
+
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}") {
+          feed(dbid: #{f.id}) {
+            media_saved_search_id,
+            media_saved_search { dbid },
+            article_saved_search_id,
+            article_saved_search { dbid }
+            }
+          }
+        }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'feed')
+
+    assert_equal media_saved_search.id, data.dig('media_saved_search_id')
+    assert_equal media_saved_search.id, data.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, data.dig('article_saved_search_id')
+    assert_equal article_saved_search.id, data.dig('article_saved_search', 'dbid')
+  end
+
+  test "should get feed team saved search" do
+    t = create_team
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    media_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
+    f = create_feed
+    create_feed_team media_saved_search: media_saved_search, article_saved_search:article_saved_search, team_id: t.id, feed: f
+
+    query = <<~GRAPHQL
+      query {
+        team(slug: "#{t.slug}") {
+          feed(dbid: #{f.id}) {
+            current_feed_team {
+              dbid,
+              media_saved_search_id,
+              media_saved_search { dbid },
+              article_saved_search_id,
+              article_saved_search { dbid }
+              }
+            }
+          }
+        }
+    GRAPHQL
+
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'feed', 'current_feed_team')
+
+    assert_equal media_saved_search.id, data.dig('media_saved_search_id')
+    assert_equal media_saved_search.id, data.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, data.dig('article_saved_search_id')
+    assert_equal article_saved_search.id, data.dig('article_saved_search', 'dbid')
+  end
+
+  test "should return shared feed main feed (owner's feed) saved searches in feed teams" do
+    user = create_user
+    authenticate_with_user(user)
+
+    # shared feed owner, main feed
+    team = create_team
+    create_team_user user: user, team: team, role: 'admin'
+    media_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'article'
+    feed = create_feed media_saved_search: media_saved_search, article_saved_search: article_saved_search, team: team
+
+    # shared feed guest, invited team feed
+    team2 = create_team
+    media_saved_search2 = create_saved_search team: team2, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search2 = create_saved_search team: team2, filters: { foo: 'bar' }, list_type: 'article'
+    create_feed_team media_saved_search: media_saved_search2, article_saved_search: article_saved_search2, feed: feed, team: team2
+
+    query = <<~GRAPHQL
+      query {
+        me {
+          current_team {
+            name
+            dbid
+            feed(dbid: #{feed.id}) {
+              team_id
+              media_saved_search {
+                team_id
+                dbid
+              }
+              article_saved_search {
+                team_id
+                dbid
+              }
+              feed_teams {
+                edges {
+                  node {
+                    team_id
+                    media_saved_search {
+                      dbid
+                    }
+                    article_saved_search {
+                      dbid
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: team.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)
+    feed = data.dig('data', 'me', 'current_team', 'feed')
+    feed_teams_node_owner = feed.dig('feed_teams', 'edges').first['node']
+    feed_teams_node_guest = feed.dig('feed_teams', 'edges').last['node']
+
+    assert_equal media_saved_search.id, feed.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, feed.dig('article_saved_search', 'dbid')
+    assert_equal media_saved_search.id, feed_teams_node_owner.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, feed_teams_node_owner.dig('article_saved_search', 'dbid')
+    assert_equal media_saved_search2.id, feed_teams_node_guest.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search2.id, feed_teams_node_guest.dig('article_saved_search', 'dbid')
+  end
+
+  test "should create feed" do
+    team = create_team
+    user = create_user
+    create_team_user user: user, team: team, role: 'admin'
+    media_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'article'
+    authenticate_with_user(user)
+
     assert_difference 'Feed.count' do
       tags = ['tag_a', 'tag_b'].to_json
       licenses = [1, 2].to_json
-      query = 'mutation { createFeed(input: { clientMutationId: "1",tags: ' + tags + ', licenses: ' + licenses + ', saved_search_id: ' + ss.id.to_s + ', name: "FeedTitle", description: "FeedDescription" }) { feed { name, description, published, filters, tags, licenses, team_id, saved_search_id, team { dbid }, saved_search { dbid } } } }'
-      post :create, params: { query: query, team: t.slug }
+      query = <<~GRAPHQL
+        mutation {
+          createFeed(input: {
+            clientMutationId: "1",
+            tags: #{tags},
+            licenses: #{licenses},
+            media_saved_search_id: #{media_saved_search.id},
+            article_saved_search_id: #{article_saved_search.id},
+            name: "FeedTitle", description: "FeedDescription"
+          }) {
+            feed {
+              name,
+              description,
+              published,
+              filters,
+              tags,
+              licenses,
+              team_id,
+              media_saved_search_id,
+              media_saved_search { dbid }
+              article_saved_search_id,
+              article_saved_search { dbid }
+              team { dbid },
+            }
+          }
+        }
+      GRAPHQL
+
+      post :create, params: { query: query, team: team.slug }
       assert_response :success
     end
   end
 
   test "should update feed" do
-    u = create_user
-    authenticate_with_user(u)
+    user = create_user
+    authenticate_with_user(user)
 
-    t1 = create_team private: true
-    create_team_user(user: u, team: t1, role: 'admin')
-    f = create_feed team_id: t1.id
-    ss = create_saved_search team: t1
-    assert_not f.reload.published
-    query = "mutation { updateFeed(input: { id: \"#{f.graphql_id}\", published: true, saved_search_id: #{ss.id} }) { feed { published, saved_search_id } } }"
-    post :create, params: { query: query, team: t1.slug }
+    team = create_team private: true
+    create_team_user(user: user, team: team, role: 'admin')
+    feed = create_feed team_id: team.id
+    media_saved_search = create_saved_search team: team, list_type: 'media'
+    article_saved_search = create_saved_search team: team, list_type: 'article'
+
+    query = <<~GRAPHQL
+      mutation {
+        updateFeed(input: {
+          id: "#{feed.graphql_id}",
+          published: true,
+          media_saved_search_id: #{media_saved_search.id}
+          article_saved_search_id: #{article_saved_search.id}
+        }) {
+          feed {
+            published,
+            media_saved_search_id
+            article_saved_search_id
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: team.slug }
     assert_response :success
+
     data = JSON.parse(@response.body).dig('data', 'updateFeed', 'feed')
     assert data['published']
-    assert ss.id, data['saved_search_id']
+    assert media_saved_search.id, data['media_saved_search_id']
+    assert article_saved_search.id, data['article_saved_search_id']
   end
 
   test "should update feed team" do
-    u = create_user
-    authenticate_with_user(u)
+    user = create_user
+    authenticate_with_user(user)
 
-    t1 = create_team private: true
-    create_team_user(user: u, team: t1, role: 'admin')
-    t2 = create_team private: true
-    ss = create_saved_search team: t1
-    f = create_feed
-    f.teams << t1
-    f.teams << t2
-    ft1 = FeedTeam.where(team: t1, feed: f).last
-    ft2 = FeedTeam.where(team: t2, feed: f).last
-    assert !ft1.shared
-    assert !ft2.shared
+    team1 = create_team private: true
+    create_team_user(user: user, team: team1, role: 'admin')
+    team2 = create_team private: true
+    media_saved_search = create_saved_search team: team1, type: 'media'
+    article_saved_search = create_saved_search team: team1, type: 'article'
+    feed = create_feed
+    feed.teams << team1
+    feed.teams << team2
+    feed_team1 = FeedTeam.where(team: team1, feed: feed).last
+    feed_team2 = FeedTeam.where(team: team2, feed: feed).last
+    assert !feed_team1.shared
+    assert !feed_team2.shared
 
-    query = "mutation { updateFeedTeam(input: { id: \"#{ft1.graphql_id}\", shared: true, saved_search_id: #{ss.id} }) { feed_team { shared, saved_search { dbid } } } }"
-    post :create, params: { query: query, team: t1.slug }
-    assert ft1.reload.shared
-    assert_equal ss.id, ft1.reload.saved_search_id
+    query = <<~GRAPHQL
+      mutation {
+        updateFeedTeam(input: {
+          id: "#{feed_team1.graphql_id}",
+          shared: true,
+          media_saved_search_id: #{media_saved_search.id}
+          article_saved_search_id: #{article_saved_search.id}
+        }) {
+          feed_team {
+            shared,
+            media_saved_search { dbid }
+            article_saved_search { dbid }
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: team1.slug }
+    assert feed_team1.reload.shared
+    assert_equal media_saved_search.id, feed_team1.reload.media_saved_search_id
+    assert_equal article_saved_search.id, feed_team1.reload.article_saved_search_id
 
-    query = "mutation { updateFeedTeam(input: { id: \"#{ft2.graphql_id}\", shared: true }) { feed_team { shared } } }"
-    post :create, params: { query: query, team: t2.slug }
-    assert !ft2.reload.shared
+    query = <<~GRAPHQL
+      mutation {
+        updateFeedTeam(input: {
+          id: "#{feed_team2.graphql_id}",
+          shared: true,
+        }) {
+          feed_team {
+            shared
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: team2.slug }
+    assert !feed_team2.reload.shared
   end
 
   test "should mark item as read" do
@@ -301,12 +491,11 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    p = create_project team: t
-    pm = create_project_media team: t, project: p, user: u
+    pm = create_project_media team: t, user: u
     create_project_media team: t
     authenticate_with_user(u)
 
-    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + '], \"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
+    query = 'query CheckSearch { search(query: "{\"users\":[' + u.id.to_s + ']}") { medias(first: 10) { edges { node { dbid } } } } }'
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
@@ -317,8 +506,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user'
+    d = create_dynamic_annotation annotated: t, annotation_type: 'smooch_user'
     u2 = create_user
     authenticate_with_user(u2)
     query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
@@ -332,8 +520,7 @@ class GraphqlController8Test < ActionController::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tg = create_tag annotated: pm
     id = Base64.encode64("Tag/#{tg.id}")
     query = 'mutation destroy { destroyTag(input: { clientMutationId: "1", id: "' + id + '" }) { deletedId } }'
@@ -368,11 +555,10 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get tags from media" do
     admin_user = create_user is_admin: true
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     c = create_tag annotated: pm, fragment: 't=10,20'
     authenticate_with_user(admin_user)
-    query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tags(first: 10) { edges { node { parsed_fragment } } } } }"
+    query = "query { project_media(ids: \"#{pm.id}\") { tags(first: 10) { edges { node { parsed_fragment } } } } }"
     post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal({ 't' => [10, 20] }, JSON.parse(@response.body)['data']['project_media']['tags']['edges'][0]['node']['parsed_fragment'])
@@ -414,10 +600,9 @@ class GraphqlController8Test < ActionController::TestCase
     authenticate_with_user(u)
     t = create_team slug: 'team'
     create_team_user user: u, team: t
-    p = create_project team: t
     with_current_user_and_team(u, t) do
       n.times do
-        pm = create_project_media project: p, disable_es_callbacks: false
+        pm = create_project_media team: t, disable_es_callbacks: false
         m.times { create_tag annotated: pm, annotator: u, disable_es_callbacks: false }
       end
     end
@@ -434,7 +619,7 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal n, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
-  test "should get project information fast" do
+  test "should get CheckSearch information fast" do
     RequestStore.store[:skip_cached_field_update] = false
     n = 3 # Number of media items to be created
     m = 2 # Number of annotations per media (doesn't matter in this case because we use the cached count - using random values to make sure it remains consistent)
@@ -445,15 +630,14 @@ class GraphqlController8Test < ActionController::TestCase
     create_tag_text team_id: t.id
     create_team_bot_installation team_id: t.id
     create_team_user user: u, team: t
-    p = create_project team: t
     n.times do
-      pm = create_project_media project: p, user: create_user, disable_es_callbacks: false
+      pm = create_project_media team: t, user: create_user, disable_es_callbacks: false
       s = create_source
       create_account_source source: s, disable_es_callbacks: false
       m.times { create_tag annotated: pm, annotator: create_user, disable_es_callbacks: false }
     end
-    create_project_media project: p, user: u, disable_es_callbacks: false
-    pm = create_project_media project: p, disable_es_callbacks: false
+    create_project_media team: t, user: u, disable_es_callbacks: false
+    pm = create_project_media team: t, disable_es_callbacks: false
     pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm.save!
     sleep 10
@@ -492,16 +676,6 @@ class GraphqlController8Test < ActionController::TestCase
             edges {
               node {
                 text
-              }
-            }
-          }
-          projects(first: 10000) {
-            edges {
-              node {
-                title
-                dbid
-                id
-                description
               }
             }
           }
@@ -591,13 +765,13 @@ class GraphqlController8Test < ActionController::TestCase
     }
     t.set_media_verification_statuses(value)
     t.save!
-    pm1 = create_project_media project: nil, team: t
+    pm1 = create_project_media team: t
     s = pm1.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id1'
     s.disable_es_callbacks = false
     s.save!
     r1 = publish_report(pm1)
-    pm2 = create_project_media project: nil, team: t
+    pm2 = create_project_media team: t
     s = pm2.annotations.where(annotation_type: 'verification_status').last.load
     s.status = 'id2'
     s.disable_es_callbacks = false
@@ -678,7 +852,7 @@ class GraphqlController8Test < ActionController::TestCase
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)
-    post :create, params: { query: 'query Query { me { get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, annotations(first: 1) { edges { node { id } } }, source { dbid }, source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
+    post :create, params: { query: 'query Query { me { get_send_email_notifications, get_send_successful_login_notifications, get_send_failed_login_notifications, annotations(first: 1) { edges { node { id } } }, source { dbid }, source_id, token, is_admin, name, bot { id } } }' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']
@@ -818,8 +992,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_token
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
@@ -834,8 +1007,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_user(u)
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
@@ -850,8 +1022,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
     authenticate_with_user(u)
     query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + random_string + '\" } }") { annotation { dbid } } }'

@@ -31,9 +31,7 @@ class ProjectMediaType < DefaultObject
   field :report_status, GraphQL::Types::String, null: true
   field :confirmed_as_similar_by_name, GraphQL::Types::String, null: true
   field :added_as_similar_by_name, GraphQL::Types::String, null: true
-  field :project_id, GraphQL::Types::Int, null: true
   field :source_id, GraphQL::Types::Int, null: true
-  field :project_group, ProjectGroupType, null: true
   field :show_warning_cover, GraphQL::Types::Boolean, null: true
   field :creator_name, GraphQL::Types::String, null: true
   field :team_name, GraphQL::Types::String, null: true
@@ -153,12 +151,6 @@ class ProjectMediaType < DefaultObject
 
   def public_team
     RecordLoader.for(Team).load(object.team_id)
-  end
-
-  field :project, ProjectType, null: true
-
-  def project
-    RecordLoader.for(Project).load(object.project_id)
   end
 
   field :media, MediaType, null: true
@@ -415,4 +407,6 @@ class ProjectMediaType < DefaultObject
 
   field :has_tipline_requests_that_never_received_articles, GraphQL::Types::Boolean, null: true
   field :number_of_tipline_requests_that_never_received_articles_by_time, JsonStringType, null: true
+
+  field :project_id, GraphQL::Types::Int, null: true, deprecation_reason: "Deprecate folder feature."
 end

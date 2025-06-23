@@ -64,17 +64,6 @@ module SampleData
     ss.reload
   end
 
-  def create_project_group(options = {})
-    pg = ProjectGroup.new
-    pg.team = options[:team] || create_team
-    pg.title = random_string
-    options.each do |key, value|
-      pg.send("#{key}=", value) if pg.respond_to?("#{key}=")
-    end
-    pg.save!
-    pg.reload
-  end
-
   def create_bot_user(options = {})
     u = BotUser.new
     u.name = options[:name] || random_string
@@ -202,8 +191,7 @@ module SampleData
     }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_media project: p
+      options[:annotated] = create_project_media team: t
     end
     t = Tag.new
     options.each do |key, value|
@@ -223,8 +211,7 @@ module SampleData
     }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       remove_default_status(pm)
       options[:annotated] = pm
     end
@@ -261,8 +248,7 @@ module SampleData
     }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_media project: p
+      options[:annotated] = create_project_media team: t
     end
     f = Dynamic.new
     f.annotation_type = 'flag'
@@ -327,29 +313,6 @@ module SampleData
     account.reload
   end
 
-  def create_project(options = {})
-    project = Project.new
-    project.title = options[:title] || random_string
-    project.description = options[:description] || random_string(40)
-    project.user = options.has_key?(:user) ? options[:user] : create_user
-    project.is_default = options[:is_default] if options.has_key?(:is_default)
-    file = 'rails.png'
-    if options.has_key?(:lead_image)
-      file = options[:lead_image]
-    end
-    unless file.nil?
-      File.open(File.join(Rails.root, 'test', 'data', file)) do |f|
-        project.lead_image = f
-      end
-    end
-    project.archived = options[:archived] || 0
-    team = options[:team] || create_team unless options.has_key?(:team_id)
-    project.team_id = options[:team_id] || team.id
-    project.project_group_id = options[:project_group_id] if options.has_key?(:project_group_id)
-    project.save!
-    project.reload
-  end
-
   def create_recent_project(options = {})
     create_project(options)
   end
@@ -400,10 +363,6 @@ module SampleData
     end
 
     m.save!
-    unless options[:project_id].blank?
-      p = Project.where(id: options[:project_id]).last
-      create_project_media media: m, project: p unless p.nil?
-    end
     m.reload
   end
 
@@ -476,15 +435,22 @@ module SampleData
   def create_project_media(options = {})
     u = options[:user] || create_user
     options = { disable_es_callbacks: true, user: u }.merge(options)
-    options[:media_type] = 'Link' unless options[:url].blank?
-    options[:media_type] = 'Claim' unless options[:quote].blank?
-    options[:media_type] = 'UploadedImage' if options[:is_image]
-    pm = ProjectMedia.new
-    if options.has_key?(:project) && !options[:project].nil?
-      options[:team] = options[:project].team
+    enforce_create_media = options.has_key?(:media) ? false : true
+    unless options[:url].blank?
+      options[:media_type] = 'Link'
+      enforce_create_media = false
     end
+    unless options[:quote].blank?
+      options[:media_type] = 'Claim'
+      enforce_create_media = false
+    end
+    if options[:is_image]
+      options[:media_type] = 'UploadedImage'
+      options[:media] = create_uploaded_image
+    end
+    pm = ProjectMedia.new
     options[:team] = create_team unless options.has_key?(:team)
-    options[:media] = create_valid_media({team: options[:team]}) unless options.has_key?(:media)
+    options[:media] = create_valid_media({team: options[:team]}) if enforce_create_media && !options.has_key?(:set_original_claim)
     options.each do |key, value|
       pm.send("#{key}=", value) if pm.respond_to?("#{key}=")
     end
@@ -523,7 +489,7 @@ module SampleData
 
   def create_valid_media(options = {})
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-    url = random_url
+    url = options[:url] || random_url
     params = { url: url }
     params[:archivers] = Team.current.enabled_archivers if !Team.current&.enabled_archivers.blank?
     WebMock.stub_request(:get, pender_url).with({ query: params }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","archives":{}}}')
@@ -683,8 +649,7 @@ module SampleData
     }.merge(options)
     unless options.has_key?(:annotated)
       t = options[:team] || create_team
-      p = create_project team: t
-      options[:annotated] = create_project_media project: p
+      options[:annotated] = create_project_media team: t
     end
     t = Task.new
     options.each do |key, value|

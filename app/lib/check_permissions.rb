@@ -35,7 +35,7 @@ module CheckPermissions
         obj = self.find_by_id(id)
       end
       return nil if obj.nil?
-      if self.name == 'Project' || self.name == 'ProjectMedia'
+      if self.name == 'ProjectMedia'
         obj.team&.inactive ? nil : obj
       elsif self.name == 'Team'
         obj.inactive? ? nil : obj
@@ -55,7 +55,7 @@ module CheckPermissions
         role = User.current.role(self)
         role ||= 'authenticated'
         role = 'super_admin' if User.current.is_admin?
-        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_20250507092210"
+        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_20250526174300"
         perms = Rails.cache.read(cache_key) if Rails.cache.exist?(cache_key)
       end
       if perms.blank?
@@ -78,15 +78,14 @@ module CheckPermissions
 
   def get_create_permissions
     {
-      'Team' => [Project, Account, TeamUser, User, TagText, ProjectMedia, TiplineNewsletter, Feed, FeedTeam, FeedInvitation, SavedSearch],
+      'Team' => [Account, TeamUser, User, TagText, ProjectMedia, TiplineNewsletter, Feed, FeedTeam, FeedInvitation, SavedSearch],
       'Account' => [Media, Link, Claim],
       'Media' => [ProjectMedia, Tag, Dynamic, Task],
       'Link' => [ProjectMedia, Tag, Dynamic, Task],
       'Claim' => [ProjectMedia, Tag, Dynamic, Task],
-      'Project' => [Source, Media, ProjectMedia, Claim, Link],
       'ProjectMedia' => [Tag, Dynamic, Task, Relationship, ClaimDescription],
-      'Source' => [Account, Project, Dynamic, Task],
-      'User' => [Source, TeamUser, Team, Project]
+      'Source' => [Account, Dynamic, Task],
+      'User' => [Source, TeamUser, Team]
     }
   end
 

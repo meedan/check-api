@@ -92,8 +92,6 @@ class ProjectMedia7Test < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with(query: { url: link_url }).to_return(body: link_response)
 
     t = create_team
-    create_project team: t
-
     assert_raise RuntimeError do
       2.times { create_project_media(team: t, set_original_claim: link_url) }
     end
@@ -108,8 +106,6 @@ class ProjectMedia7Test < ActiveSupport::TestCase
       WebMock.stub_request(:get, image_url).to_return(body: file.read, headers: { 'Content-Type' => 'image/jpeg' })
 
       t = create_team
-      create_project team: t
-
       assert_raise RuntimeError do
         2.times { create_project_media(team: t, set_original_claim: image_url) }
       end
@@ -118,8 +114,6 @@ class ProjectMedia7Test < ActiveSupport::TestCase
 
   test "should not create duplicate media from original claim URL as Claim" do
     t = create_team
-    create_project team: t
-
     assert_raise RuntimeError do
       2.times { create_project_media(team: t, set_original_claim: 'This is a claim.') }
     end
