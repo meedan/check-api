@@ -267,6 +267,73 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal article_saved_search.id, data.dig('article_saved_search', 'dbid')
   end
 
+  test "should return shared feed main feed (owner's feed) saved searches in feed teams" do
+    user = create_user
+    authenticate_with_user(user)
+
+    # shared feed owner, main feed
+    team = create_team
+    create_team_user user: user, team: team, role: 'admin'
+    media_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search = create_saved_search team: team, filters: { foo: 'bar' }, list_type: 'article'
+    feed = create_feed media_saved_search: media_saved_search, article_saved_search: article_saved_search, team: team
+
+    # shared feed guest, invited team feed
+    team2 = create_team
+    media_saved_search2 = create_saved_search team: team2, filters: { foo: 'bar' }, list_type: 'media'
+    article_saved_search2 = create_saved_search team: team2, filters: { foo: 'bar' }, list_type: 'article'
+    create_feed_team media_saved_search: media_saved_search2, article_saved_search: article_saved_search2, feed: feed, team: team2
+
+    query = <<~GRAPHQL
+      query {
+        me {
+          current_team {
+            name
+            dbid
+            feed(dbid: #{feed.id}) {
+              team_id
+              media_saved_search {
+                team_id
+                dbid
+              }
+              article_saved_search {
+                team_id
+                dbid
+              }
+              feed_teams {
+                edges {
+                  node {
+                    team_id
+                    media_saved_search {
+                      dbid
+                    }
+                    article_saved_search {
+                      dbid
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    post :create, params: { query: query, team: team.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)
+    feed = data.dig('data', 'me', 'current_team', 'feed')
+    feed_teams_node_owner = feed.dig('feed_teams', 'edges').first['node']
+    feed_teams_node_guest = feed.dig('feed_teams', 'edges').last['node']
+
+    assert_equal media_saved_search.id, feed.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, feed.dig('article_saved_search', 'dbid')
+    assert_equal media_saved_search.id, feed_teams_node_owner.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search.id, feed_teams_node_owner.dig('article_saved_search', 'dbid')
+    assert_equal media_saved_search2.id, feed_teams_node_guest.dig('media_saved_search', 'dbid')
+    assert_equal article_saved_search2.id, feed_teams_node_guest.dig('article_saved_search', 'dbid')
+  end
+
   test "should create feed" do
     team = create_team
     user = create_user
