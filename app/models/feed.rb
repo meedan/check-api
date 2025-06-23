@@ -20,6 +20,7 @@ class Feed < ApplicationRecord
   validate :validate_saved_search_types
 
   after_create :create_feed_team
+  after_update :update_feed_team
   before_destroy :destroy_feed_team, prepend: true
 
   PROHIBITED_FILTERS = ['team_id', 'feed_id', 'clusterize']
@@ -250,9 +251,21 @@ class Feed < ApplicationRecord
   def create_feed_team
     unless self.team.nil?
       feed_team = FeedTeam.new(feed: self, team: self.team, shared: true)
+      feed_team.media_saved_search = self.media_saved_search.presence
+      feed_team.article_saved_search = self.article_saved_search.presence
       feed_team.skip_check_ability = true
       feed_team.save!
     end
+  end
+
+  def update_feed_team
+    feed_team = FeedTeam.where(feed: self, team: self.team).last
+    return if feed_team.nil?
+
+    feed_team.media_saved_search = self.media_saved_search.presence
+    feed_team.article_saved_search = self.article_saved_search.presence
+    feed_team.skip_check_ability = true
+    feed_team.save!
   end
 
   def destroy_feed_team
