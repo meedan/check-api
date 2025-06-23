@@ -84,8 +84,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     }
     t.set_media_verification_statuses(value)
     t.save!
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     assert_equal 'Undetermined', pm.status_i18n(nil, { locale: 'pt' })
     I18n.stubs(:exists?).with('custom_message_status_test_test').returns(true)
     I18n.stubs(:t).returns('')
@@ -97,7 +96,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   end
 
   test "should not throw exception for trashed item if request does not come from a client" do
-    pm = create_project_media project: p
+    pm = create_project_media
     pm.archived = CheckArchivedFlags::FlagCodes::TRASHED
     pm.save!
     User.current = nil
@@ -125,7 +124,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     }
     t.send :set_media_verification_statuses, value
     t.save!
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     assert_equal 'stop', pm.last_status
   end
 
@@ -142,7 +141,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     }
     t.send :set_media_verification_statuses, value
     t.save!
-    pm = create_project_media project: nil, team: t
+    pm = create_project_media team: t
     assert_nothing_raised do
       s = pm.last_status_obj
       s.status = 'done'
@@ -177,9 +176,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should validate duplicate based on team" do
     t = create_team
-    p = create_project team: t
     t2 = create_team
-    p2 = create_project team: t2
     # Create media in different team with no list
     m = create_valid_media
     create_project_media team: t, media: m
@@ -192,7 +189,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     # Create item in a list then try to add it via all items(with no list)
     m2 = create_valid_media
-    create_project_media team:t, project_id: p.id, media: m2
+    create_project_media team:t, media: m2
     assert_raises RuntimeError do
       create_project_media team: t, url: m2.url
     end
@@ -202,7 +199,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     # create item in a list then try to add it to all items in different team
     m3 = create_valid_media
-    create_project_media team: t, project_id: p.id, media: m3
+    create_project_media team: t, media: m3
     assert_nothing_raised do
       create_project_media team: t2, url: m3.url
     end
@@ -397,7 +394,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     Sidekiq::Testing.inline! do
       pm = create_project_media team: t
       # Check that cached field exists (pick a key to verify the key deleted after destroy item)
-      cache_key = "check_cached_field:ProjectMedia:#{pm.id}:folder"
+      cache_key = "check_cached_field:ProjectMedia:#{pm.id}:status"
       assert Rails.cache.exist?(cache_key)
     end
     Sidekiq::Testing.fake! do

@@ -149,9 +149,8 @@ class DynamicTest < ActiveSupport::TestCase
     u1 = User.find(u1.id)
     u2 = User.find(u2.id)
     u3 = User.find(u3.id)
-    p = create_project team: t
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
     at = create_annotation_type
     User.current = u1
     d1 = create_dynamic_annotation annotator: u3, annotated: pm1, annotation_type: at.annotation_type
@@ -233,8 +232,7 @@ class DynamicTest < ActiveSupport::TestCase
     create_team_user team: t, user: u1
     create_team_user team: t, user: u2
     create_team_user team: t, user: u3, status: 'requested'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     at = create_annotation_type annotation_type: 'task_response_foo_bar'
     d = create_dynamic_annotation annotated: pm, annotation_type: 'task_response_foo_bar'
     assert_nothing_raised do

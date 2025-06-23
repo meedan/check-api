@@ -67,37 +67,11 @@ module ProjectMediaPrivate
   end
 
   def set_team_id
-    if self.team_id.blank? && !self.project_id.blank?
-      project = Project.find_by_id self.project_id
-      self.team_id = project.team_id unless project.nil?
-    end
     self.team_id = Team.current.id if self.team_id.blank? && !Team.current.blank?
-  end
-
-  def set_project_id
-    if self.project_id.blank?
-      self.project = self.team.default_folder unless self.team.nil?
-    end
   end
 
   def source_belong_to_team
     errors.add(:base, "Source should belong to media team.") if self.team_id != self.source.team_id
-  end
-
-  def move_similar_item
-    # move similar items to same project as main item
-    if self.saved_change_to_project_id?
-      secondary_ids = self.source_relationships.map(&:target_id)
-      ProjectMedia.bulk_move(secondary_ids, self.project, self.team) unless secondary_ids.blank?
-    end
-  end
-
-  def send_move_to_slack_notification
-    self.send_slack_notification('move_to') if self.project_id_changed?
-  end
-
-  def project_is_not_archived
-    parent_is_not_archived(self.project, I18n.t(:error_project_archived)) unless self.project.nil?
   end
 
   def set_channel

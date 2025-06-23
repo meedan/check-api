@@ -55,9 +55,8 @@ class SourceTest < ActiveSupport::TestCase
     u = create_user
     t = create_team
     tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     with_current_user_and_team(u, t) do
-      s = create_source project_id: p.id
+      s = create_source team: t
       assert_equal u, s.user
       assert_equal t, s.team
     end
@@ -160,7 +159,7 @@ class SourceTest < ActiveSupport::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
     s = create_source
-    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Project", "create Task", "create Dynamic"].sort
+    perm_keys = ["read Source", "update Source", "destroy Source", "create Account", "create Task", "create Dynamic"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(s.permissions).keys.sort }

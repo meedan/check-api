@@ -10,16 +10,11 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should match rule when report is paused" do
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     pm1 = create_project_media team: t
-    pm2 = create_project_media project: p2
-    assert_equal 0, p1.reload.project_medias.count
-    assert_equal 1, p2.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -36,28 +31,23 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
+    assert_empty pm1.get_annotations('tag')
     r1 = create_report(pm1, { state: 'published' }, 'publish')
-    r2 = create_report(pm2, { state: 'published' }, 'publish')
-    assert_equal 0, p1.reload.project_medias.count
-    assert_equal 1, p2.reload.project_medias.count
     r1.set_fields = { state: 'paused' }.to_json ; r1.action = 'pause' ; r1.save!
-    r2.set_fields = { state: 'paused' }.to_json ; r2.action = 'pause' ; r2.save!
-    assert_equal 2, p1.reload.project_medias.count
-    assert_equal 0, p2.reload.project_medias.count
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match rules with operators 2" do
     create_verification_status_stuff
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       name: 'Rule 1',
@@ -81,16 +71,16 @@ class TeamTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: p2.id
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p1, quote: 'foo test'
-    pm2 = create_project_media project: p1, quote: 'foo bar'
-    pm3 = create_project_media project: p1, quote: 'bar test'
+    pm1 = create_project_media team: t, quote: 'foo test'
+    pm2 = create_project_media team: t, quote: 'foo bar'
+    pm3 = create_project_media team: t, quote: 'bar test'
 
     s = pm1.last_status_obj
     s.status = 'In Progress'
@@ -103,15 +93,14 @@ class TeamTest < ActiveSupport::TestCase
     s = pm3.last_status_obj
     s.status = 'Verified'
     s.save!
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_empty pm2.get_annotations('tag')
+    assert_empty pm3.get_annotations('tag')
   end
 
   test "should match rules with operators 3" do
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       name: 'Rule 1',
@@ -135,30 +124,29 @@ class TeamTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: p2.id
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p1, quote: 'foo test'
-    pm2 = create_project_media project: p1, quote: 'foo bar'
-    pm3 = create_project_media project: p1, quote: 'bar test'
+    pm1 = create_project_media team: t, quote: 'foo test'
+    pm2 = create_project_media team: t, quote: 'foo bar'
+    pm3 = create_project_media team: t, quote: 'bar test'
 
     create_tag tag: 'foo', annotated: pm1
     create_tag tag: 'foo', annotated: pm2
     create_tag tag: 'bar', annotated: pm3
 
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_includes pm1.get_annotations('tag').map(&:load).map(&:tag_text), 'test'
+    assert_not_includes pm2.get_annotations('tag').map(&:load).map(&:tag_text), 'test'
+    assert_not_includes pm3.get_annotations('tag').map(&:load).map(&:tag_text), 'test'
   end
 
   test "should match rules with operators 4" do
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       name: 'Rule 1',
@@ -182,30 +170,29 @@ class TeamTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: p2.id
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p1, quote: 'foo test'
-    pm2 = create_project_media project: p1, quote: 'foo bar'
-    pm3 = create_project_media project: p1, quote: 'bar test'
+    pm1 = create_project_media team: t, quote: 'foo test'
+    pm2 = create_project_media team: t, quote: 'foo bar'
+    pm3 = create_project_media team: t, quote: 'bar test'
 
     publish_report(pm1)
     publish_report(pm2)
 
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_empty pm2.get_annotations('tag')
+    assert_empty pm3.get_annotations('tag')
   end
 
   test "should match rules with operators 5" do
     create_flag_annotation_type
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       name: 'Rule 1',
@@ -229,16 +216,16 @@ class TeamTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: p2.id
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p1, quote: 'foo test'
-    pm2 = create_project_media project: p1, quote: 'foo bar'
-    pm3 = create_project_media project: p1, quote: 'bar test'
+    pm1 = create_project_media team: t, quote: 'foo test'
+    pm2 = create_project_media team: t, quote: 'foo bar'
+    pm3 = create_project_media team: t, quote: 'bar test'
 
     data = valid_flags_data(false)
     data[:flags]['spam'] = 3
@@ -247,16 +234,15 @@ class TeamTest < ActiveSupport::TestCase
     data[:flags]['spam'] = 1
     create_flag set_fields: data.to_json, annotated: pm3
 
-    assert_equal p2, pm1.reload.project
-    assert_equal p1, pm2.reload.project
-    assert_equal p1, pm3.reload.project
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_empty pm2.get_annotations('tag')
+    assert_empty pm3.get_annotations('tag')
   end
 
   test "should not match rules" do
     create_verification_status_stuff
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       name: 'Rule 1',
@@ -276,22 +262,20 @@ class TeamTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: p2.id
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    pm1 = create_project_media project: p1, quote: 'foo test'
-    assert_equal p2, pm1.reload.project
-    pm1.project_id = p1.id
-    pm1.save!
-    assert_equal p1, pm1.reload.project
+    pm1 = create_project_media team: t, quote: 'foo test'
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    pm1.get_annotations('tag').destroy_all
     s = pm1.last_status_obj
     s.status = 'In Progress'
     s.save!
-    assert_equal p1, pm1.reload.project
+    assert_empty pm1.get_annotations('tag')
   end
 
   test "should not have rules with blank names or duplicated names" do
@@ -314,8 +298,8 @@ class TeamTest < ActiveSupport::TestCase
       },
       actions: [
         {
-          action_definition: 'move_to_project',
-          action_value: 1
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -342,13 +326,10 @@ class TeamTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'language'
     create_field_instance name: 'language', annotation_type_object: at
     t = create_team
-    p1 = create_project team: t
-    p2 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     pm1 = create_project_media team: t
-    pm2 = create_project_media project: p2
+    pm2 = create_project_media team: t
     pm3 = create_project_media team: t
-    assert_equal 0, p1.reload.project_medias.count
-    assert_equal 1, p2.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -369,8 +350,8 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -379,13 +360,13 @@ class TeamTest < ActiveSupport::TestCase
     create_dynamic_annotation annotated: pm1, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
     create_dynamic_annotation annotated: pm2, annotation_type: 'language', set_fields: { language: 'pt' }.to_json
     a = create_dynamic_annotation annotated: pm3, annotation_type: 'language', set_fields: { language: 'es' }.to_json
-    assert_equal 2, p1.reload.project_medias.count
-    assert_equal 0, p2.reload.project_medias.count
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_equal ['test'], pm2.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_empty pm3.get_annotations('tag')
     a = Dynamic.find(a.id)
     a.set_fields = { language: 'pt' }.to_json
     a.save!
-    assert_equal 3, p1.reload.project_medias.count
-    assert_equal 0, p2.reload.project_medias.count
+    assert_equal ['test'], pm3.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should get custom status" do
@@ -511,10 +492,9 @@ class TeamTest < ActiveSupport::TestCase
   test "should match rule by user" do
     RequestStore.store[:skip_cached_field_update] = false
     t = create_team
-    p = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     u = create_user
     create_team_user team: t, user: u
-    assert_equal 0, p.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -535,17 +515,19 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    create_project_media team: t, user: u
-    create_project_media team: t
-    create_project_media user: u
-    assert_equal 1, p.reload.project_medias.count
+    pm1 = create_project_media team: t, user: u
+    pm2 = create_project_media team: t
+    pm3 = create_project_media user: u
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_empty pm2.get_annotations('tag')
+    assert_empty pm3.get_annotations('tag')                      
   end
 
   test "should set default language when creating team" do
@@ -566,15 +548,13 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     RequestStore.store[:skip_delete_for_ever] = true
     t = create_team
-    p = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     u = create_user
     u2 = create_user
     create_team_user team: t, user: u
-    assert_equal 0, p.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -591,8 +571,8 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -632,7 +612,8 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 0, pm1.reload.archived
     assert_equal 0, pm2.reload.archived
     assert_equal 0, pm3.reload.archived
-    assert_equal 1, p.reload.project_medias.count
+    assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
+    assert_empty pm3.get_annotations('tag')
   end
 
   test "should create default fieldsets when team is created" do
@@ -662,10 +643,9 @@ class TeamTest < ActiveSupport::TestCase
     RequestStore.store[:skip_cached_field_update] = false
     create_task_stuff
     t = create_team
+    create_tag_text text: 'test', team_id: t.id
     tt = create_team_task team_id: t.id, task_type: 'single_choice'
-    p = create_project team: t
     pm = create_project_media team: t
-    assert_equal 0, p.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -686,8 +666,8 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -696,26 +676,24 @@ class TeamTest < ActiveSupport::TestCase
     tk = pm.get_annotations('task').first.load
     tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Bar' }.to_json }.to_json }.to_json
     tk.save!
-    assert_equal 0, p.reload.project_medias.count
+    assert_empty pm.get_annotations('tag')
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response_single_choice', set_fields: { response_single_choice: { selected: 'Foo' }.to_json }.to_json }.to_json
     tk.save!
-    assert_equal 1, p.reload.project_medias.count
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match rule by assignment" do
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
     t = create_team
+    create_tag_text text: 'test', team_id: t.id
     u = create_user
     create_team_user team: t, user: u
-    p = create_project team: t
     pm = create_project_media team: t
-    assert_equal 0, p.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -732,25 +710,24 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
     Assignment.create! assigned: pm.last_status_obj.becomes(Annotation), assigner: create_user, user: u
-    assert_equal 1, p.reload.project_medias.count
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should match rule by text task answer" do
     RequestStore.store[:skip_cached_field_update] = false
     create_task_stuff
     t = create_team
+    create_tag_text text: 'test', team_id: t.id
     tt = create_team_task team_id: t.id, task_type: 'free_text'
-    p = create_project team: t
     pm = create_project_media team: t
-    assert_equal 0, p.reload.project_medias.count
     rules = []
     rules << {
       "name": random_string,
@@ -771,8 +748,8 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -781,11 +758,10 @@ class TeamTest < ActiveSupport::TestCase
     tk = pm.get_annotations('task').first.load
     tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test test' }.to_json }.to_json
     tk.save!
-    assert_equal 0, p.reload.project_medias.count
     tk = Task.find(tk.id)
     tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_free_text: 'test foo test' }.to_json }.to_json
     tk.save!
-    assert_equal 1, p.reload.project_medias.count
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should allow default BotUser to be added on creation" do
@@ -817,12 +793,10 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should match rule by title with spaces" do
     t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -839,28 +813,24 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","title":"Bar Foo","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    create_project_media project: p0, media: nil, url: url
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    pm = create_project_media team: t, media: nil, url: url
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should not match rule by number of words if request is empty" do
     t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       "name": random_string,
@@ -881,24 +851,20 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
-    create_project_media project: p0
-    assert_equal 1, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
+    pm = create_project_media team: t
+    assert_empty pm.get_annotations('tag')
   end
 
   test "should duplicate team with tags and rules" do
     t = create_team
     create_tag_text team: t, text: 'new-tag'
-    p = create_project team: t
     rules = []
     rules << {
       "name": random_string,
@@ -919,8 +885,8 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
@@ -1003,12 +969,10 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should match rule by description" do
     t = create_team
-    p0 = create_project team: t
-    p1 = create_project team: t
+    create_tag_text text: 'test', team_id: t.id
     rules = []
     rules << {
       "name": random_string,
-      "project_ids": "",
       "rules": {
         "operator": "and",
         "groups": [
@@ -1025,22 +989,19 @@ class TeamTest < ActiveSupport::TestCase
       },
       "actions": [
         {
-          "action_definition": "move_to_project",
-          "action_value": p1.id.to_s
+          "action_definition": "add_tag",
+          "action_value": "test"
         }
       ]
     }
     t.rules = rules.to_json
     t.save!
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 0, Project.find(p1.id).project_medias.count
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     response = '{"type":"media","data":{"url":"' + url + '","description":"this is a test","title":"foo","type":"item"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-    create_project_media project: p0, media: nil, url: url
-    assert_equal 0, Project.find(p0.id).project_medias.count
-    assert_equal 1, Project.find(p1.id).project_medias.count
+    pm = create_project_media team: t, media: nil, url: url
+    assert_equal ['test'], pm.get_annotations('tag').map(&:load).map(&:tag_text)
   end
 
   test "should update reports when status is changed at team level" do
@@ -1077,6 +1038,25 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 'status_label')
   end
 
+  test "should update tipline languge if default language changed" do
+    setup_smooch_bot(true)
+    tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
+    w = tbi.get_smooch_workflows[0]
+    assert_equal 'en', w['smooch_workflow_language']
+    @team.set_languages = ['en', 'fr']
+    @team.set_language = 'fr'
+    @team.save!
+    tbi = tbi.reload
+    w = tbi.get_smooch_workflows[0]
+    assert_equal 'en', w['smooch_workflow_language']
+    @team.set_languages = ['fr']
+    @team.set_language = 'fr'
+    @team.save!
+    tbi = tbi.reload
+    w = tbi.get_smooch_workflows[0]
+    assert_equal 'fr', w['smooch_workflow_language']
+  end
+
   test "should add trash link to duplicated team" do
     m = create_valid_media
     t1 = create_team
@@ -1090,8 +1070,6 @@ class TeamTest < ActiveSupport::TestCase
 
   test "should return slack notifications as JSON schema" do
     t = create_team
-    create_project team: t
-    create_project team: t
     assert_not_nil t.slack_notifications_json_schema
   end
 
@@ -1103,11 +1081,6 @@ class TeamTest < ActiveSupport::TestCase
     tt2 = t2.team_tasks.first
     ss2 = t2.saved_searches.first
     assert_equal tt2.id.to_s, ss2.filters.dig('team_tasks', 0, 'id')
-  end
-
-  test "should have a default folder" do
-    t = create_team
-    assert_not_nil t.default_folder
   end
 
   test "should convert conditional info of team tasks when duplicating a team" do

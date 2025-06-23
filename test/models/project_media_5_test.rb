@@ -83,15 +83,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     end
   end
 
-  test "should have a media not not necessarily a project" do
-    assert_nothing_raised do
-      create_project_media project: nil
-    end
-    assert_raise ActiveRecord::RecordInvalid do
-      create_project_media media: nil
-    end
-  end
-
   test "should create media if url or quote set" do
     url = 'http://test.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -248,8 +239,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    p2 = create_project team: t
     t.set_slack_notifications_enabled = 1
     t.set_slack_webhook = 'https://hooks.slack.com/services/123'
     slack_notifications = []
@@ -273,7 +262,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       m = create_claim_media
       pm = create_project_media team: t, media: m
       assert pm.sent_to_slack
-      pm = create_project_media project: p
+      pm = create_project_media team: t
       assert pm.sent_to_slack
       # status changes
       s = pm.last_status_obj
@@ -326,9 +315,8 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     pm = create_project_media
     assert pm.sent_to_pusher
     t = create_team
-    p = create_project team: t
-    m = create_claim_media project_id: p.id
-    pm = create_project_media project: p, media: m
+    m = create_claim_media team: t
+    pm = create_project_media team: t, media: m
     assert pm.sent_to_pusher
   end
 
@@ -342,10 +330,9 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   test "should notify Pusher in background" do
     Rails.stubs(:env).returns(:production)
     t = create_team
-    p = create_project team:  t
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
-    create_project_media project: p
+    create_project_media team: t
     assert_equal 2, CheckPusher::Worker.jobs.size
     CheckPusher::Worker.drain
     assert_equal 0, CheckPusher::Worker.jobs.size
@@ -358,10 +345,10 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
     m = create_media(account: create_valid_account, url: url)
-    p1 = create_project
-    p2 = create_project
-    pm1 = create_project_media project: p1, media: m
-    pm2 = create_project_media project: p2, media: m
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team: t1, media: m
+    pm2 = create_project_media team: t2, media: m
     # fetch data (without overridden)
     data = pm1.media.metadata
     assert_equal 'test media', data['title']
@@ -398,8 +385,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     u = create_user
     t = create_team current_user: u
     tu = create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p, current_user: u
+    pm = create_project_media team: t, current_user: u
     perm_keys = [
       "read ProjectMedia", "update ProjectMedia", "destroy ProjectMedia",
       "create Tag", "create Task", "create Dynamic", "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia",
@@ -589,7 +575,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should protect attributes from mass assignment" do
-    raw_params = { project: create_project, user: create_user }
+    raw_params = { team: create_team, user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
     assert_raise ActiveModel::ForbiddenAttributesError do
@@ -649,12 +635,10 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       m = create_valid_media
       u = create_user
       t = create_team
-      p = create_project team: t
-      p2 = create_project team: t
       create_team_user user: u, team: t, role: 'admin'
 
       with_current_user_and_team(u, t) do
-        pm = create_project_media project: p, media: m, user: u
+        pm = create_project_media team: t, media: m, user: u
         t = create_task annotated: pm
         tg = create_tag annotated: pm
         f = create_flag annotated: pm
@@ -669,17 +653,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
         ].sort, pm.get_versions_log.map(&:event_type).sort
       end
     end
-  end
-
-  test "should get previous project and previous project search object" do
-    p1 = create_project
-    p2 = create_project
-    pm = create_project_media project: p1
-    assert_nil pm.project_was
-    pm.previous_project_id = p1.id
-    pm.save!
-    assert_equal p1, pm.project_was
-    assert_kind_of CheckSearch, pm.check_search_project_was
   end
 
   test "should refresh Pender data" do
@@ -758,34 +731,27 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should restore and confirm item if not super admin" do
     t = create_team
-    p = create_project team: t
-    p3 = create_project team: t
     u = create_user
     create_team_user user: u, team: t, role: 'admin', is_admin: false
     Sidekiq::Testing.inline! do
       # test restore
-      pm = create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::TRASHED
+      pm = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::TRASHED
       assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE
-        pm.project_id = p3.id
         pm.save!
       end
       pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
-      assert_equal p3.id, pm.project_id
       # test confirm
-      pm = create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
-      assert_equal p.id, pm.project_id
+      pm = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
       assert_equal CheckArchivedFlags::FlagCodes::UNCONFIRMED, pm.archived
       with_current_user_and_team(u, t) do
         pm.archived = CheckArchivedFlags::FlagCodes::NONE
-        pm.project_id = p3.id
         pm.save!
       end
       pm = pm.reload
       assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived
-      assert_equal p3.id, pm.project_id
     end
   end
 
@@ -798,7 +764,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
 
   test "should create link and account using team pender key" do
     t = create_team
-    create_project(team: t)
     Team.stubs(:current).returns(t)
 
     url1 = random_url
@@ -829,7 +794,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     t = create_team
     l = create_link
     Team.stubs(:current).returns(t)
-    pm = create_project_media media: l, project: create_project(team: t)
+    pm = create_project_media media: l, team: t
 
     author_url1 = random_url
     PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: l.url, refresh: '1' }, CheckConfig.get('pender_key'), nil).returns({"type" => "media","data" => {"url" => l.url, "type" => "item", "title" => "Default token", "author_url" => author_url1}})

@@ -115,18 +115,19 @@ class QueryType < BaseObject
   field :project_media,
         ProjectMediaType,
         description:
-          'Information about a project media, The argument should be given like this: "project_media_id,project_id,team_id"',
+          'Information about a project media, The argument should be given like this: "project_media_id,team_id"',
         null: true do
     argument :ids, GraphQL::Types::String, required: true
   end
 
   def project_media(ids:)
-    objid, pid, tid = ids.split(",").map(&:to_i)
+    # Get the first and last id to handle the ids: in format '1,,2', '1,null,2' or '1,0,2'
+    all_ids = ids.split(",").map(&:to_i)
+    objid = all_ids.first
+    # Check the size to avoid assigning the same id to objid and tid in case we only have one item, i.e., ids: '1'
+    tid = all_ids.size > 1 ? all_ids.last : nil
     tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-    project = Project.where(id: pid, team_id: tid).last
-    pid = project.nil? ? 0 : project.id
-    Project.current = project
-    objid = ProjectMedia.belonged_to_project(objid, pid, tid) || 0
+    objid = ProjectMedia.belonged_to_team(objid, tid) || 0
     GraphqlCrudOperations.load_if_can(ProjectMedia, objid, context)
   end
 
@@ -143,24 +144,6 @@ class QueryType < BaseObject
 
     tids = Team.current ? [Team.current.id] : User.current.team_ids
     ProjectMedia.where(media_id: m.id, team_id: tids)
-  end
-
-  field :project,
-        ProjectType,
-        description:
-          "Information about a project, given its id and its team id",
-        null: true do
-    argument :id, GraphQL::Types::String, required: false
-    argument :ids, GraphQL::Types::String, required: false
-  end
-
-  def project(id: nil, ids: nil)
-    pid = id.to_i unless id.blank?
-    pid, tid = ids.split(",").map(&:to_i) unless ids.blank?
-    tid = (Team.current.blank? && tid.nil?) ? 0 : (tid || Team.current.id)
-    project = Project.where(id: pid, team_id: tid).last
-    id = project.nil? ? 0 : project.id
-    GraphqlCrudOperations.load_if_can(Project, id, context)
   end
 
   field :search,
@@ -232,7 +215,6 @@ class QueryType < BaseObject
     task
     tag_text
     bot_user
-    project_group
     saved_search
     feed
     request

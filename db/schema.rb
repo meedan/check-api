@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_13_075639) do
+ActiveRecord::Schema.define(version: 2025_05_29_135205) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -411,9 +411,11 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.boolean "shared", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "saved_search_id"
+    t.bigint "media_saved_search_id"
+    t.bigint "article_saved_search_id"
+    t.index ["article_saved_search_id"], name: "index_feed_teams_on_article_saved_search_id"
     t.index ["feed_id"], name: "index_feed_teams_on_feed_id"
-    t.index ["saved_search_id"], name: "index_feed_teams_on_saved_search_id"
+    t.index ["media_saved_search_id"], name: "index_feed_teams_on_media_saved_search_id"
     t.index ["team_id", "feed_id"], name: "index_feed_teams_on_team_id_and_feed_id", unique: true
     t.index ["team_id"], name: "index_feed_teams_on_team_id"
   end
@@ -424,7 +426,7 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.boolean "published", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "saved_search_id"
+    t.bigint "media_saved_search_id"
     t.bigint "user_id"
     t.bigint "team_id"
     t.text "description"
@@ -434,7 +436,9 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.integer "data_points", default: [], array: true
     t.string "uuid", default: "", null: false
     t.datetime "last_clusterized_at"
-    t.index ["saved_search_id"], name: "index_feeds_on_saved_search_id"
+    t.bigint "article_saved_search_id"
+    t.index ["article_saved_search_id"], name: "index_feeds_on_article_saved_search_id"
+    t.index ["media_saved_search_id"], name: "index_feeds_on_media_saved_search_id"
     t.index ["team_id"], name: "index_feeds_on_team_id"
     t.index ["user_id"], name: "index_feeds_on_user_id"
     t.index ["uuid"], name: "index_feeds_on_uuid"
@@ -522,15 +526,6 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
   end
 
-  create_table "project_groups", id: :serial, force: :cascade do |t|
-    t.string "title", null: false
-    t.text "description"
-    t.integer "team_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["team_id"], name: "index_project_groups_on_team_id"
-  end
-
   create_table "project_media_requests", force: :cascade do |t|
     t.bigint "project_media_id", null: false
     t.bigint "request_id", null: false
@@ -551,7 +546,6 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
   end
 
   create_table "project_medias", id: :serial, force: :cascade do |t|
-    t.integer "project_id"
     t.integer "media_id"
     t.integer "user_id"
     t.integer "source_id"
@@ -571,34 +565,10 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
     t.index ["channel"], name: "index_project_medias_on_channel"
     t.index ["last_seen"], name: "index_project_medias_on_last_seen"
     t.index ["media_id"], name: "index_project_medias_on_media_id"
-    t.index ["project_id"], name: "index_project_medias_on_project_id"
     t.index ["source_id"], name: "index_project_medias_on_source_id"
     t.index ["team_id", "archived", "sources_count"], name: "index_project_medias_on_team_id_and_archived_and_sources_count"
     t.index ["unmatched"], name: "index_project_medias_on_unmatched"
     t.index ["user_id"], name: "index_project_medias_on_user_id"
-  end
-
-  create_table "projects", id: :serial, force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "team_id"
-    t.integer "project_group_id"
-    t.string "title"
-    t.boolean "is_default", default: false
-    t.text "description"
-    t.string "lead_image"
-    t.string "token"
-    t.integer "assignments_count", default: 0
-    t.integer "privacy", default: 0, null: false
-    t.integer "archived", default: 0
-    t.text "settings"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["id"], name: "index_projects_on_id"
-    t.index ["is_default"], name: "index_projects_on_is_default"
-    t.index ["privacy"], name: "index_projects_on_privacy"
-    t.index ["project_group_id"], name: "index_projects_on_project_group_id"
-    t.index ["team_id"], name: "index_projects_on_team_id"
-    t.index ["token"], name: "index_projects_on_token", unique: true
   end
 
   create_table "relationships", id: :serial, force: :cascade do |t|
@@ -1016,12 +986,14 @@ ActiveRecord::Schema.define(version: 2025_05_13_075639) do
   add_foreign_key "feed_invitations", "feeds"
   add_foreign_key "feed_invitations", "users"
   add_foreign_key "feed_teams", "feeds"
+  add_foreign_key "feed_teams", "saved_searches", column: "article_saved_search_id"
   add_foreign_key "feed_teams", "teams"
+  add_foreign_key "feeds", "saved_searches", column: "article_saved_search_id"
   add_foreign_key "project_media_requests", "project_medias"
   add_foreign_key "project_media_requests", "requests"
   add_foreign_key "requests", "feeds"
 
   create_trigger :enforce_relationships, sql_definition: <<-SQL
-      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE PROCEDURE validate_relationships()
+      CREATE TRIGGER enforce_relationships BEFORE INSERT ON public.relationships FOR EACH ROW EXECUTE FUNCTION validate_relationships()
   SQL
 end

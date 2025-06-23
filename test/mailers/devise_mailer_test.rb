@@ -4,13 +4,10 @@ class DeviseMailerTest < ActionMailer::TestCase
 
   test "should send confirmation e-mail" do
     u = create_user name: 'Test User', email: 'test@mail.com'
-
     email = DeviseMailer.confirmation_instructions(u, '123456')
-
     assert_emails 1 do
       email.deliver_now
     end
-
     assert_match email.from.first, CheckConfig.get('default_mail')
     assert_equal ['test@mail.com'], email.to
     assert_match "confirmation_token=#{u.confirmation_token}", email.body.parts.first.to_s
@@ -19,7 +16,6 @@ class DeviseMailerTest < ActionMailer::TestCase
   test "should send reset password instructions" do
     u = create_user name: 'Test User', email: 'test@mail.com'
     email = DeviseMailer.reset_password_instructions(u, '12345')
-
     assert_emails 1 do
       email.deliver_now
     end
@@ -63,5 +59,4 @@ class DeviseMailerTest < ActionMailer::TestCase
     end
     assert_equal ['account@local.com'], email.to
   end
-
 end

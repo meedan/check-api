@@ -257,15 +257,6 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should have projects" do
-    p1 = create_project
-    p2 = create_project
-    u = create_user
-    u.projects << p1
-    u.projects << p2
-    assert_equal [p1, p2].sort, u.projects.sort
-  end
-
   test "should not upload an image that is not an image" do
     assert_no_difference 'User.count' do
       assert_raises MiniMagick::Invalid do
@@ -440,7 +431,7 @@ class UserTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
     user = create_user
-    perm_keys = ["read User", "update User", "destroy User", "create Source", "create TeamUser", "create Team", "create Project"].sort
+    perm_keys = ["read User", "update User", "destroy User", "create Source", "create TeamUser", "create Team"].sort
 
     # load permissions as owner
     with_current_user_and_team(u, t) { assert_equal perm_keys, JSON.parse(user.permissions).keys.sort }

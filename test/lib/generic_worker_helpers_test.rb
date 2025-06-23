@@ -21,8 +21,7 @@ class GenericWorkerHelpersTest < ActionView::TestCase
     Sidekiq::Testing.inline!
 
     team = create_team
-    project = create_project team: team
-    pm = create_project_media project: project
+    pm = create_project_media team: team
 
     project_media_id = pm.id
     tags_json = ['one', 'two', 'three'].to_json

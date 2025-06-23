@@ -1,5 +1,6 @@
 class ProjectMedia < ApplicationRecord
-  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :previous_project_id, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_claim_context, :set_fact_check, :set_tags, :set_title, :set_status, :set_original_claim
+  # add a `project_id` as accessor to handle a deprecated `project_id` field for ProjectMediaMutation and ProjectMediaType
+  attr_accessor :quote, :quote_attributions, :file, :media_type, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :skip_rules, :set_claim_description, :set_claim_context, :set_fact_check, :set_tags, :set_title, :set_status, :set_original_claim, :project_id
 
   belongs_to :media
   has_one :claim_description
@@ -19,11 +20,10 @@ class ProjectMedia < ApplicationRecord
   include ProjectMediaSourceAssociations
   include ProjectMediaGetters
 
-  validates_presence_of :media, :team, :project
+  validates_presence_of :media, :team
 
   validates :media_id, uniqueness: { scope: :team_id }, unless: proc { |pm| pm.is_being_copied  }, on: :create
   validate :source_belong_to_team, unless: proc { |pm| pm.source_id.blank? || pm.is_being_copied }
-  validate :project_is_not_archived, unless: proc { |pm| pm.is_being_copied  }
   validate :custom_channel_format, :archived_in_allowed_values
   validate :channel_in_allowed_values, on: :create
   validate :channel_not_changed, on: :update
@@ -31,12 +31,12 @@ class ProjectMedia < ApplicationRecord
   validates_inclusion_of :title_field, in: ['custom_title', 'pinned_media_id', 'claim_title', 'fact_check_title'], allow_nil: true, allow_blank: true
   validates_presence_of :custom_title, if: proc { |pm| pm.title_field == 'custom_title' }
 
-  before_validation :set_team_id, :set_channel, :set_project_id, on: :create
+  before_validation :set_team_id, :set_channel, on: :create
   after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
-  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update, :move_similar_item, :send_move_to_slack_notification
+  after_update :archive_or_restore_related_medias_if_needed, :notify_team_bots_update
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.saved_changes.keys.include?('read') }
   after_update :apply_delete_for_ever, if: proc { |pm| pm.saved_change_to_archived? && pm.archived == CheckArchivedFlags::FlagCodes::TRASHED }
   after_destroy :destroy_related_medias
@@ -55,14 +55,6 @@ class ProjectMedia < ApplicationRecord
     user_callback(value)
   end
 
-  def project_id_callback(value, mapping_ids = nil)
-    mapping_ids[value]
-  end
-
-  def project_group
-    self.project&.project_group
-  end
-
   def slack_params
     statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
     current_status = statuses.select { |st| st['id'] == self.last_status }
@@ -78,7 +70,6 @@ class ProjectMedia < ApplicationRecord
       description: Bot::Slack.to_slack(self.description, false),
       url: self.full_url,
       status: Bot::Slack.to_slack(current_status[0]['label']),
-      project: Bot::Slack.to_slack(self.project&.title),
       button: I18n.t("slack.fields.view_button", **{
         type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CheckConfig.get('app_name')
       })

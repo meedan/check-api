@@ -106,8 +106,7 @@ class TaskTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       u2 = create_user
@@ -123,7 +122,6 @@ class TaskTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     t.set_slack_notifications_enabled = 1
     t.set_slack_webhook = 'https://hooks.slack.com/services/123'
     slack_notifications = [{
@@ -133,14 +131,13 @@ class TaskTest < ActiveSupport::TestCase
     }]
     t.slack_notifications = slack_notifications.to_json
     t.save!
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       tk.label = 'changed'
       tk.description = 'changed'
       tk.save!
       assert tk.sent_to_slack
-
       tk = Task.find(tk.id)
       tg = create_tag annotated: tk
       assert_not tk.sent_to_slack
@@ -153,7 +150,6 @@ class TaskTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     t.set_slack_notifications_enabled = 1
     t.set_slack_webhook = 'https://hooks.slack.com/services/123'
     slack_notifications = [{
@@ -166,10 +162,10 @@ class TaskTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
     fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    pm = create_project_media project: p
-    pm2 = create_project_media project: p
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
     tk2 = create_task annotator: u, annotated: pm2
-    pm3 = create_project_media project: p
+    pm3 = create_project_media team: t
     tk3 = create_task annotator: u, annotated: pm3
     tk3.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
     tk3.save!
@@ -205,7 +201,6 @@ class TaskTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     t.set_slack_notifications_enabled = 1
     t.set_slack_webhook = 'https://hooks.slack.com/services/123'
     slack_notifications = [{
@@ -215,7 +210,7 @@ class TaskTest < ActiveSupport::TestCase
     }]
     t.slack_notifications = slack_notifications.to_json
     t.save!
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       assert tk.sent_to_slack
@@ -247,7 +242,6 @@ class TaskTest < ActiveSupport::TestCase
     t = create_team slug: 'test'
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
-    p = create_project team: t
     t.set_slack_notifications_enabled = 1
     t.set_slack_webhook = 'https://hooks.slack.com/services/123'
     slack_notifications = [{
@@ -257,7 +251,7 @@ class TaskTest < ActiveSupport::TestCase
     }]
     t.slack_notifications = slack_notifications.to_json
     t.save!
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     with_current_user_and_team(u, t) do
       tk = create_task annotator: u, annotated: pm
       tk = Task.find(tk.id)
@@ -275,8 +269,7 @@ class TaskTest < ActiveSupport::TestCase
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tk = create_task annotated: pm
     tk2 = create_task annotated: pm
     assert_equal 2, pm.open_tasks.count
@@ -310,8 +303,7 @@ class TaskTest < ActiveSupport::TestCase
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'editor'
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     tk = create_task annotated: pm
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
@@ -614,5 +606,26 @@ class TaskTest < ActiveSupport::TestCase
     tt = create_team_task team_id: t.id
     pm = create_project_media team: t
     assert_equal tt, Task.where(annotated_type: 'ProjectMedia', annotated_id: pm.id).last.team_task
+  end
+
+  test "should not create duplicate assignment" do
+    Sidekiq::Testing.inline! do
+      create_verification_status_stuff
+      t = create_team
+      u = create_user
+      create_team_user user: u, team: t
+      pm = create_project_media team: t
+      3.times { create_task(annotated: pm) }
+      id = pm.last_verification_status_obj.id
+      a = Assignment.new(user: u, assigned_type: 'Annotation', assigned_id: id)
+      Assignment.import([a])
+      a = YAML::dump(a)
+      Assignment.propagate_assignments(a, 0, :assign)
+      n = Assignment.count
+      Assignment.any_instance.stubs(:nil?).returns(true)
+      Assignment.propagate_assignments(a, 0, :assign)
+      Assignment.any_instance.unstub(:nil?)
+      assert_equal n, Assignment.count
+    end
   end
 end

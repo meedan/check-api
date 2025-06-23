@@ -1,12 +1,7 @@
 module ProjectMediaMutations
   MUTATION_TARGET = 'project_media'.freeze
   PARENTS = [
-    'project',
     'team',
-    'project_group',
-    { project_was: ProjectType },
-    { check_search_project: CheckSearchType },
-    { check_search_project_was: CheckSearchType },
     { check_search_team: CheckSearchType },
     { check_search_trash: CheckSearchType },
     { check_search_spam: CheckSearchType },
@@ -20,6 +15,7 @@ module ProjectMediaMutations
     included do
       argument :media_id, GraphQL::Types::Int, required: false, camelize: false
       argument :related_to_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :project_id, GraphQL::Types::Int, required: false, camelize: false, deprecation_reason: "Deprecate folder feature."
 
       field :affected_id, GraphQL::Types::ID, null: true
     end
@@ -31,7 +27,6 @@ module ProjectMediaMutations
     argument :url, GraphQL::Types::String, required: false
     argument :quote, GraphQL::Types::String, required: false
     argument :quote_attributions, GraphQL::Types::String, required: false, camelize: false
-    argument :project_id, GraphQL::Types::Int, required: false, camelize: false
     argument :media_id, GraphQL::Types::Int, required: false, camelize: false
     argument :team_id, GraphQL::Types::Int, required: false, camelize: false
     argument :channel, JsonStringType, required: false
@@ -53,8 +48,6 @@ module ProjectMediaMutations
 
     argument :refresh_media, GraphQL::Types::Int, required: false, camelize: false
     argument :archived, GraphQL::Types::Int, required: false
-    argument :previous_project_id, GraphQL::Types::Int, required: false, camelize: false
-    argument :project_id, GraphQL::Types::Int, required: false, camelize: false
     argument :source_id, GraphQL::Types::Int, required: false, camelize: false
     argument :read, GraphQL::Types::Boolean, required: false
     argument :custom_title, GraphQL::Types::String, required: false, camelize: false
@@ -91,11 +84,6 @@ module ProjectMediaMutations
   module Bulk
     PARENTS = [
       'team',
-      'project',
-      'project_group',
-      { project_was: ProjectType },
-      { check_search_project: CheckSearchType },
-      { check_search_project_was: CheckSearchType },
       { check_search_team: CheckSearchType },
       { check_search_trash: CheckSearchType },
       { check_search_spam: CheckSearchType },

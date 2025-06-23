@@ -8,13 +8,13 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
     @bot = create_alegre_bot(name: "alegre", login: "alegre")
     @bot.approve!
-    p = create_project
-    p.team.set_languages = ['en','pt','es']
-    p.team.save!
-    @bot.install_to!(p.team)
-    @team = p.team
+    team = create_team
+    team.set_languages = ['en','pt','es']
+    team.save!
+    @bot.install_to!(team)
+    @team = team
     m = create_claim_media quote: 'I like apples'
-    @pm = create_project_media project: p, media: m
+    @pm = create_project_media team: team, media: m
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!
@@ -64,10 +64,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should set user_id on relationships" do
-    p = create_project
-    pm1 = create_project_media project: p
-    pm2 = create_project_media project: p
-    pm3 = create_project_media project: p
+    t = create_team
+    pm1 = create_project_media team: t
+    pm2 = create_project_media team: t
+    pm3 = create_project_media team: t
     create_relationship source_id: pm3.id, target_id: pm2.id
     Bot::Alegre.add_relationships(pm1, {pm3.id => {score: 1, relationship_type: Relationship.confirmed_type, context: {"blah" => 1}, source_field: pm1.media.type, target_field: pm2.media.type}})
     r = Relationship.last
@@ -78,10 +78,10 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   end
 
   test "should add relationships as confirmed when parent and score are confirmed" do
-    p = create_project
-    pm1 = create_project_media project: p, is_image: true
-    pm2 = create_project_media project: p, is_image: true
-    pm3 = create_project_media project: p, is_image: true
+    t = create_team
+    pm1 = create_project_media team: t, is_image: true
+    pm2 = create_project_media team: t, is_image: true
+    pm3 = create_project_media team: t, is_image: true
     
     create_relationship source_id: pm3.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     assert_difference 'Relationship.count' do
@@ -93,8 +93,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     assert_equal r.weight, 1
     assert_equal Relationship.confirmed_type, r.relationship_type
     # should confirm/restore target if source is confirmed
-    pm4 = create_project_media project: p
-    pm5 = create_project_media project: p, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
+    pm4 = create_project_media team: t
+    pm5 = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::UNCONFIRMED
     assert_difference 'Relationship.count' do
       Bot::Alegre.add_relationships(pm5, {pm4.id => {score: 1, relationship_type: Relationship.suggested_type, context: {"blah" => 1}, source_field: pm5.media.type, target_field: pm4.media.type}})
     end
@@ -130,9 +130,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should add short text as suggestions" do
     create_verification_status_stuff
     # Relation should be suggested if all fields size <= threshold
-    p = create_project team: @team
-    pm1 = create_project_media project: p, quote: "for testing short text", team: @team
-    pm2 = create_project_media project: p, quote: "testing short text", team: @team
+    pm1 = create_project_media quote: "for testing short text", team: @team
+    pm2 = create_project_media quote: "testing short text", team: @team
     pm2.analysis = { content: 'short text' }
     Bot::Alegre.stubs(:request).returns({
       "result" => [
@@ -150,8 +149,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
     r = Relationship.last
     assert_equal Relationship.suggested_type, r.relationship_type
     # Relation should be confirmed if at least one field size > threshold
-    pm3 = create_project_media project: p, quote: 'This is also a long enough title', team: @team
-    pm4 = create_project_media project: p, quote: 'This is also a long enough title so as to allow an actual check of other titles', team: @team
+    pm3 = create_project_media quote: 'This is also a long enough title', team: @team
+    pm4 = create_project_media quote: 'This is also a long enough title so as to allow an actual check of other titles', team: @team
     Bot::Alegre.stubs(:request).returns({
       "result" => [
         {
@@ -173,9 +172,8 @@ class Bot::AlegreTest < ActiveSupport::TestCase
   test "should set similarity relationship based on date threshold" do
     RequestStore.store[:skip_cached_field_update] = false
     create_verification_status_stuff
-    p = create_project team: @team
-    pm1 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
-    pm2 = create_project_media project: p, quote: "This is also a long enough Title so as to allow an actual check of other titles 2", team: @team
+    pm1 = create_project_media quote: "This is also a long enough Title so as to allow an actual check of other titles", team: @team
+    pm2 = create_project_media quote: "This is also a long enough Title so as to allow an actual check of other titles 2", team: @team
     Bot::Alegre.stubs(:request).returns({
       "result" => [
         {

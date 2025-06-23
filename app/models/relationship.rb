@@ -21,7 +21,6 @@ class Relationship < ApplicationRecord
 
   before_create :point_targets_to_new_source
   before_create :destroy_same_suggested_item, if: proc { |r| r.is_confirmed? }
-  after_create :move_to_same_project_as_main, prepend: true
   after_update :propagate_inversion
   after_save :turn_off_unmatched_field, if: proc { |r| r.is_confirmed? || r.is_suggested? }
   after_save :move_explainers_to_source, :apply_status_to_target, if: proc { |r| r.is_confirmed? }
@@ -351,16 +350,6 @@ class Relationship < ApplicationRecord
 
   def destroy_elasticsearch_relation
     update_elasticsearch_parent('destroy')
-  end
-
-  def move_to_same_project_as_main
-    main = self.source
-    secondary = self.target
-    if (self.is_confirmed? || self.is_suggested?) && secondary && main && secondary.project_id != main.project_id
-      secondary.project_id = main.project_id
-      secondary.save!
-      CheckNotification::InfoMessages.send('moved_to_private_folder', item_title: secondary.title)
-    end
   end
 
   def move_explainers_to_source

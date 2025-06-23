@@ -23,8 +23,6 @@ class SlackNotificationWorkerTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       create_team_user team: t, user: u, role: 'admin'
       assert_equal 1, SlackNotificationWorker.jobs.size
-      p = create_project team: t
-      assert_equal 2, SlackNotificationWorker.jobs.size
       SlackNotificationWorker.drain
       assert_equal 0, SlackNotificationWorker.jobs.size
       Rails.unstub(:env)

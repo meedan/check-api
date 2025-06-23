@@ -50,8 +50,7 @@ class TestController < ApplicationController
     u2.accept_terms = true
     create_team_user team: t, user: u1, role: 'admin'
     create_team_user team: t, user: u2, role: 'collaborator'
-    pr = create_project team: t, current_user: u1
-    ret = {:team =>t, :user1 => u1, :user2 => u2, :project => pr}
+    ret = {:team =>t, :user1 => u1, :user2 => u2}
 
     render_success 'team_users', ret
   end
@@ -77,14 +76,6 @@ class TestController < ApplicationController
     params[:tags].to_s.split(',').each{ |text| TagText.create(text: text, team_id: params[:team_id]) }
     t.save
     render_success 'team', t
-  end
-
-  def new_project
-    t = Team.find(params[:team_id])
-    Team.current = t
-    p = params[:use_default_project] ? t.default_folder : create_project(params)
-    Team.current = nil
-    render_success 'project', p
   end
 
   def new_session
@@ -184,13 +175,6 @@ class TestController < ApplicationController
     render_success 'bot', b
   end
 
-  def archive_project
-    p = Project.find(params[:project_id])
-    p.archived = CheckArchivedFlags::FlagCodes::TRASHED
-    p.save!
-    render_success 'project', p
-  end
-
   def new_dynamic_annotation
     type = params[:annotation_type]
     fields = {}
@@ -286,7 +270,7 @@ class TestController < ApplicationController
       user: user,
       team: team,
       published: true,
-      saved_search: saved_search,
+      media_saved_search: saved_search,
       licenses: [1],
       last_clusterized_at: Time.now,
       data_points: [1, 2]
@@ -295,7 +279,6 @@ class TestController < ApplicationController
     pm = create_project_media(
       user: user,
       team: team,
-      project: saved_search.team.projects.first,
       quote: 'Test',
       media_type: 'Claim',
       media: Blank.create!
@@ -331,7 +314,6 @@ class TestController < ApplicationController
     user = params[:email].blank? ? nil : User.where(email: params[:email]).last
     User.current = user
     pm = ProjectMedia.new
-    pm.project_id = params[:project_id]
     pm.quote = params[:quote] if type == 'claim'
     pm.url = params[:url] if type == 'link'
     pm.media_type = type.camelize

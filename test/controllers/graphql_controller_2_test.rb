@@ -17,14 +17,13 @@ class GraphqlController2Test < ActionController::TestCase
 
   test "should read project media dynamic annotation fields" do
     t = create_team
-    p = create_project team: t
-    pm = create_project_media project: p
+    pm = create_project_media team: t
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     d = create_dynamic_annotation annotated: pm, annotation_type: 'metadata'
 
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dynamic_annotation_metadata { dbid }, dynamic_annotations_metadata { edges { node { dbid } } } } }"
+    query = "query GetById { project_media(ids: \"#{pm.id}\") { dynamic_annotation_metadata { dbid }, dynamic_annotations_metadata { edges { node { dbid } } } } }"
     post :create, params: { query: query, team: t.slug }
 
     assert_response :success
@@ -338,18 +337,17 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
-    p = create_project team: t
-    p1 = create_project_media project: p
-    p1a = create_project_media project: p
-    p1b = create_project_media project: p
+    p1 = create_project_media team: t
+    p1a = create_project_media team: t
+    p1b = create_project_media team: t
     create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
     create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
-    p2 = create_project_media project: p
-    p2a = create_project_media project: p
-    p2b = create_project_media project: p
+    p2 = create_project_media team: t
+    p2a = create_project_media team: t
+    p2b = create_project_media team: t
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
-    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { suggested_similar_items_count } }", team: t.slug }; false
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id}\") { suggested_similar_items_count } }", team: t.slug }; false
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['suggested_similar_items_count']
   end
 
@@ -358,18 +356,17 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
-    p = create_project team: t
-    p1 = create_project_media project: p
-    p1a = create_project_media project: p
-    p1b = create_project_media project: p
+    p1 = create_project_media team: t
+    p1a = create_project_media team: t
+    p1b = create_project_media team: t
     create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.confirmed_type
     create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.confirmed_type
-    p2 = create_project_media project: p
-    p2a = create_project_media project: p
-    p2b = create_project_media project: p
+    p2 = create_project_media team: t
+    p2a = create_project_media team: t
+    p2b = create_project_media team: t
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.confirmed_type
-    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { confirmed_similar_items_count } }", team: t.slug }; false
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id}\") { confirmed_similar_items_count } }", team: t.slug }; false
     assert_equal 2, JSON.parse(@response.body)['data']['project_media']['confirmed_similar_items_count']
   end
 
@@ -401,18 +398,17 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
-    p = create_project team: t
-    p1 = create_project_media project: p
-    p1a = create_project_media project: p
-    p1b = create_project_media project: p
+    p1 = create_project_media team: t
+    p1a = create_project_media team: t
+    p1b = create_project_media team: t
     create_relationship source_id: p1.id, target_id: p1a.id, relationship_type: Relationship.suggested_type
     create_relationship source_id: p1.id, target_id: p1b.id, relationship_type: Relationship.suggested_type
-    p2 = create_project_media project: p
-    p2a = create_project_media project: p
-    p2b = create_project_media project: p
+    p2 = create_project_media team: t
+    p2a = create_project_media team: t
+    p2b = create_project_media team: t
     create_relationship source_id: p2.id, target_id: p2a.id
     create_relationship source_id: p2.id, target_id: p2b.id, relationship_type: Relationship.suggested_type
-    post :create, params: { query: "query { project_media(ids: \"#{p1.id},#{p.id}\") { is_main, is_secondary, is_confirmed_similar_to_another_item, suggested_main_item { id }, suggested_main_relationship { id }, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug }
+    post :create, params: { query: "query { project_media(ids: \"#{p1.id}\") { is_main, is_secondary, is_confirmed_similar_to_another_item, suggested_main_item { id }, suggested_main_relationship { id }, confirmed_main_item { id }, default_relationships_count, default_relationships(first: 10000) { edges { node { dbid } } }, confirmed_similar_relationships(first: 10000) { edges { node { dbid } } }, suggested_similar_relationships(first: 10000) { edges { node { target { dbid } } } } } }", team: t.slug }
     assert_equal [p1a.id, p1b.id].sort, JSON.parse(@response.body)['data']['project_media']['suggested_similar_relationships']['edges'].collect{ |x| x['node']['target']['dbid'] }.sort
   end
 
@@ -462,7 +458,7 @@ class GraphqlController2Test < ActionController::TestCase
     pm = create_project_media team: t
     t1 = create_task annotated: pm, fieldset: 'tasks'
     t2 = create_task annotated: pm, fieldset: 'metadata'
-    ids = [pm.id, nil, t.id].join(',')
+    ids = [pm.id, t.id].join(',')
     authenticate_with_user(u)
 
     query = 'query { project_media(ids: "' + ids + '") { tasks(fieldset: "tasks", first: 1000) { edges { node { dbid } } } } }'

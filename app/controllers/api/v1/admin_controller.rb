@@ -1,22 +1,5 @@
 class Api::V1::AdminController < Api::V1::BaseApiController
-  before_action :authenticate_from_token!, except: [:add_publisher_to_project, :save_twitter_credentials_for_smooch_bot, :save_messenger_credentials_for_smooch_bot, :save_instagram_credentials_for_smooch_bot]
-
-  # GET /api/admin/project/add_publisher?token=:project-token
-  def add_publisher_to_project
-    project = Project.find(params[:id])
-    provider = params[:provider]
-    auth = session["check.#{provider}.authdata"]
-    if params[:token].to_s == project.token
-      setting = (project.get_social_publishing || {}).clone
-      setting[provider] = auth
-      project.set_social_publishing(setting)
-      project.skip_check_ability = true
-      project.save!
-      render plain: I18n.t(:auto_publisher_added_to_project, project: project.title, provider: provider.capitalize)
-    else
-      render plain: I18n.t(:invalid_token), status: 401
-    end
-  end
+  before_action :authenticate_from_token!, except: [:save_twitter_credentials_for_smooch_bot, :save_messenger_credentials_for_smooch_bot, :save_instagram_credentials_for_smooch_bot]
 
   # GET /api/admin/user/slack?uid=:uid
   def slack_user

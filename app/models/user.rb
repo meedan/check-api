@@ -15,7 +15,6 @@ class User < ApplicationRecord
   belongs_to :source, optional: true
   has_many :team_users, dependent: :destroy
   has_many :teams, through: :team_users
-  has_many :projects
   has_many :accounts, inverse_of: :user
   has_many :assignments, dependent: :destroy
   has_many :medias
@@ -132,7 +131,7 @@ class User < ApplicationRecord
       teams: self.user_teams,
       source_id: self.source.id
     }
-    [:name, :email, :login, :token, :current_team, :current_project, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
+    [:name, :email, :login, :token, :current_team, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
       user[field] = self.send(field)
     end
     user
@@ -161,10 +160,6 @@ class User < ApplicationRecord
     else
       Team.where(id: self.current_team_id).last
     end
-  end
-
-  def current_project
-    Project.where(id: self.current_project_id, team_id: self.current_team_id).last unless self.current_project_id.blank?
   end
 
   def user_teams
