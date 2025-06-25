@@ -1215,6 +1215,45 @@ si:
   option_not_available: "මට සමාවෙන්න, මට ඔබේ පණිවිඩය තේරුණේ නැහැ."
   timeout: "අප වෙත ළඟා වීම ගැන ඔබට ස්තුතියි! නව සංවාදයක් ආරම්භ කිරීමට ඕනෑම යතුරක් ටයිප් කරන්න."
   smooch_message_smooch_bot_disabled: "අපේ bot දැනට අක්‍රියයි."
+sw:
+  add_more_details_state_button_label: Ongeza zaidi
+  ask_if_ready_state_button_label: Ghairi
+  cancelled: Sawa!
+  confirm_preferred_language: Tafadhali thibitisha lugha unayopendelea
+  invalid_format: "Samahani, faili uliyowasilisha haihimili muundo. "
+  keep_subscription_button_label: Endeleza usajili
+  languages: Lugha
+  languages_and_privacy_title: Lugha na faragha
+  main_menu: Menyu kuu
+  main_state_button_label: Ghairi
+  navigation_button: Tumia vitufe kurambaza
+  no_results_in_language: ""
+  privacy_and_purpose: ""
+  privacy_statement: Taarifa ya faragha
+  privacy_title: Faragha
+  report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
+  search_result_is_not_relevant_button_label: 'Hapana'
+  search_result_is_relevant_button_label: 'Ndio'
+  search_state_button_label: "Wasilisha "
+  subscribe_button_label: Jiunge
+  subscribed: Kwa sasa umejiunga na jarida letu.
+  unsubscribe_button_label: Jiondoe
+  unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
+  nlu_disambiguation: ""
+  nlu_cancel: ""
+  smooch_message_smooch_bot_greetings: ''
+  submission_prompt: ''
+  add_more_details_state: ''
+  ask_if_ready_state: ''
+  search_state: ''
+  search_no_results: ''
+  search_result_state: ''
+  search_result_is_relevant: ''
+  search_submit: ''
+  newsletter_optin_optout: ''
+  option_not_available: ""
+  timeout: ''
+  smooch_message_smooch_bot_disabled: ''
 es:
   add_more_details_state_button_label: Añadir más
   ask_if_ready_state_button_label: Cancelar
