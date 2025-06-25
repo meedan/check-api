@@ -119,7 +119,7 @@ module TeamPrivate
   end
 
   def update_reports_if_languages_changed(diff)
-     self.class.delay_for(1.second).update_reports_if_languages_changed(self.id, diff)
+    self.class.delay_for(1.second).update_reports_if_languages_changed(self.id, diff)
   end
 
   def update_tipline_if_default_language_deleted(languages)
