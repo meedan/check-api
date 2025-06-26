@@ -901,14 +901,14 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should not duplicate original team bots, should install default bots when duplicating a team" do
+    # Currently both Smooch and Alegre are default bots, meaning the are installed automatically for every team
     create_bot_user(name: 'Smooch', login: 'smooch', default: true, approved: true)
-    alegre_bot = create_bot_user(name: 'Alegre', login: 'alegre', default: false, approved: true)
+    create_bot_user(name: 'Alegre', login: 'alegre', default: true, approved: true)
     team_bot = create_bot_user(name: 'Team Bot', login: 'team_bot', default: false, approved: true)
 
     original_team = create_team(name: 'original_team')
 
-    # Install Alegre and Team Bot manually, since Smooch is default it will be installed automatically
-    alegre_bot.install_to!(original_team)
+    # Install team_bot manually, since it is not a default bot
     team_bot.install_to!(original_team)
 
     # Verify bots installed on the original team
@@ -924,7 +924,7 @@ class TeamTest < ActiveSupport::TestCase
 
     # Verify bots installed on the duplicated team
     tbi = TeamBotInstallation.where(team: duplicate_team)
-    assert_equal ['smooch'], tbi.map(&:user).map(&:login)
+    assert_equal ['alegre', 'smooch'], tbi.map(&:user).map(&:login).sort
   end
 
   test "should duplicate team with non english default language" do
