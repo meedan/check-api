@@ -28,7 +28,6 @@ module TeamPrivate
   end
 
   def add_default_bots_to_team
-    return if self.is_being_copied
     BotUser.where(default: true).map do |bot_user|
       bot_user.install_to!(self) if bot_user.get_approved
     end
