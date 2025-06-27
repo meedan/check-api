@@ -527,7 +527,7 @@ class TeamTest < ActiveSupport::TestCase
     pm3 = create_project_media user: u
     assert_equal ['test'], pm1.get_annotations('tag').map(&:load).map(&:tag_text)
     assert_empty pm2.get_annotations('tag')
-    assert_empty pm3.get_annotations('tag')                      
+    assert_empty pm3.get_annotations('tag')
   end
 
   test "should set default language when creating team" do
@@ -900,20 +900,31 @@ class TeamTest < ActiveSupport::TestCase
     end
   end
 
-  test "should duplicate team with Bots" do
-    setup_smooch_bot(true)
-    alegre_bot = create_alegre_bot(name: "alegre", login: "alegre")
-    alegre_bot.approve!
-    alegre_bot.install_to!(@team)
-    tbi = TeamBotInstallation.where(team: @team)
-    assert_equal ['alegre', 'smooch'], tbi.map(&:user).map(&:login).sort
+  test "should not duplicate original team bots, should install default bots when duplicating a team" do
+    # Currently both Smooch and Alegre are default bots, meaning the are installed automatically for every team
+    create_bot_user(name: 'Smooch', login: 'smooch', default: true, approved: true)
+    create_bot_user(name: 'Alegre', login: 'alegre', default: true, approved: true)
+    team_bot = create_bot_user(name: 'Team Bot', login: 'team_bot', default: false, approved: true)
+
+    original_team = create_team(name: 'original_team')
+
+    # Install team_bot manually, since it is not a default bot
+    team_bot.install_to!(original_team)
+
+    # Verify bots installed on the original team
+    tbi = TeamBotInstallation.where(team: original_team)
+    assert_equal ['alegre', 'smooch', 'team_bot'], tbi.map(&:user).map(&:login).sort
+
+    # Duplicate the team
     duplicate_team = nil
     assert_nothing_raised do
-      duplicate_team = Team.duplicate(@team)
+      duplicate_team = Team.duplicate(original_team)
     end
     assert_not_nil duplicate_team
+
+    # Verify bots installed on the duplicated team
     tbi = TeamBotInstallation.where(team: duplicate_team)
-    assert_equal ['alegre'], tbi.map(&:user).map(&:login)
+    assert_equal ['alegre', 'smooch'], tbi.map(&:user).map(&:login).sort
   end
 
   test "should duplicate team with non english default language" do
@@ -1335,7 +1346,7 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, t.filtered_fact_checks(trashed: false, channel: "manual").count
     assert_equal 1, t.filtered_fact_checks(trashed: false, channel: "api").count
   end
-  
+
   test "should count articles by channel" do
     t = create_team
     create_explainer team: t, channel: "manual", trashed: false
