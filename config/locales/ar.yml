@@ -96,7 +96,6 @@ ar:
       invalid_project_media_archived_value: عذرا، إن القيم المؤرشفة غير مدعومة
       invalid_article_language_value: عذرا، قيمة اللغة غير مدعومة
       fact_check_empty_title_and_summary: عذرا، يجب ملء العنوان أو الملخص
-      invalid_feed_saved_search_value: يجب أن ينتمي إلى مساحة العمل و التي تشكل جزءا من هذا الموجز
       platform_allowed_values_error: '‫لا يمكن أن تكون من نوع %{type}، الأنواع المسموح بها : %{allowed_types}'
   activerecord:
     models:
@@ -404,29 +403,22 @@ ar:
       update_h: آخر تحديث
       tasks_h: المهام المكتلمة
     assignment:
-      assign_task_subject: "[%{team} - %{project}] تم تعيينك بمهمة"
-      unassign_task_subject: "[%{team} - %{project}] تم إلغاء تعيينك بمهمة"
-      assign_project_subject: "[%{team} - %{project}] تم تخصيصك بمجلد"
-      unassign_project_subject: "[%{team} - %{project}] لم تعد مكلفا بالمجلد"
-      assign_media_subject: "[%{team} - %{project}] تم تخصيص عنصر لك"
-      unassign_media_subject: "[%{team} - %{project}] تم إلغاء تخصيصك بعنصر"
-      assign_project_title: المجلد المُخصَّص
-      unassign_project_title: لا أحد مكلف بالمجلد
-      assign_project_text: "قام المؤلف %{author} بتخصيص المجلد %{project} التابع لـ %{team}."
-      unassign_project_text: "قام المؤلف %{author} بإلغاء تخصيص المجلد %{project} التابع لـ %{team}."
+      assign_task_subject: "[%{team}] تم تعيينك بمهمة"
+      unassign_task_subject: "[%{team}] تم إلغاء تعيينك بمهمة"
+      assign_media_subject: "[%{team}] تم تخصيص عنصر لك"
+      unassign_media_subject: "[%{team}] تم إلغاء تخصيصك بعنصر"
       assign_task_title: تخصيص مهمة
       unassign_task_title: مهمة غير مُخصَّصة
-      assign_task_text: "قام المؤلف %{author} بتعيين مهمة في المجلد %{project} التابع لـ %{team}."
-      unassign_task_text: "قام المؤلف %{author} بإلغاء تعيين مهمة في المجلد %{project} التابع لـ %{team}."
+      assign_task_text: "قام(ت) %{author} بتكليف مهمة في %{team}."
+      unassign_task_text: "قام المؤلف %{author} بإلغاء تعيين مهمة في %{team}."
       assign_media_title: العنصر المُخصَّص
       unassign_media_title: تمّ إلغاء تخصيص العنصر
-      assign_media_text: "قام المؤلف %{author} بتخصيص عنصر في مجلد %{project} التابع لـ %{team}."
-      unassign_media_text: "قام المؤلف %{author} بإلغاء تخصيص عنصر في المجلد %{project} التابع لـ %{team}."
+      assign_media_text: "قام المؤلف %{author} بتخصيص عنصر في %{team}."
+      unassign_media_text: "قام المؤلف %{author} بإلغاء تخصيص عنصر في %{team}."
       assign_log: "قام المؤلف %{author} بتخصيص %{model} لـ %{username}"
       unassign_log: "قام المؤلف %{author} بإلغاء تخصيص %{model} عن %{username}"
       assign_by: عُيِّن من طرف
       unassign_by: لقد أُلغِي التخصيص من طرف
-      project_button: العودة إلى صفحة المجلد
     request_to_join:
       subject: طلب انضمام إلى مساحة العمل %{team}
       team_page: صفحة مساحة العمل
@@ -459,15 +451,12 @@ ar:
       footer: ستنتهي صلاحية رابط التنزيل بتاريخ %{date}.
   mail_security:
     device_subject: 'تنبيه: تسجيل دخول جديد على %{app_name} عبر %{browser} على %{platform}'
-    ip_subject: 'تنبيه: هناك تسجيل دخول جديد أو غير اعتيادي على %{app_name}'
     failed_subject: 'تنبيه: محاولات فاشلة لتسجيل الدخول على %{app_name}'
-    ip: لقد قمت بتسجيل الدخول من %{location}
     device: لقد قمت بتسجيل الدخول من %{browser} على %{platform}
     devise_name: "%{browser} على %{platform}"
     failed: تم اكتشاف محاولات فاشلة لتسجيل الدخول
     password_text: 'يرجى إعادة تعيين كلمة السّر الخاصة بكم فوراً '
     device_text: يبدو أنك سجلت الدخول مؤخرًا إلى حسابك على %{app_name} من جهاز جديد. إن لم يكن كذلك، مِن اﻷفضل %{change_password}
-    ip_text: يبدو أنك سجلت الدخول مؤخرًا إلى حسابك على %{app_name} من موقع جديد. إن لم يكن كذلك، مِن اﻷفضل  %{change_password}
     failed_text: يبدو أنّكم أجريتم محاولات متعددة لتسجيل الدخول إلى %{app_name}. إذا كنت أنت ، تجاهلي الرسالة. لست أنت؟ ننصحكم بتغيير كلمة السِّر. %{change_password}
     time_h: الوقت
     device_h: الجهاز

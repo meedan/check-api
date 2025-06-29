@@ -96,7 +96,6 @@ pt:
       invalid_project_media_archived_value: Desculpe, não há suporte para o valor arquivado
       invalid_article_language_value: Desculpe, não há suporte para o valor do idioma
       fact_check_empty_title_and_summary: Desculpe, você deve preencher o título ou o resumo
-      invalid_feed_saved_search_value: deve pertencer a um espaço de trabalho que faz parte deste feed
       platform_allowed_values_error: 'não pode ser do tipo %{type}, os tipos permitidos são: %{allowed_types}'
   activerecord:
     models:
@@ -393,29 +392,22 @@ pt:
       update_h: Última Atualização
       tasks_h: Tarefas Concluídas
     assignment:
-      assign_task_subject: "[%{team} - %{project}] Uma tarefa foi atribuída a você"
-      unassign_task_subject: "[%{team} - %{project}] A atribuição de uma tarefa a você foi removida"
-      assign_project_subject: "[%{team} - %{project}] Uma pasta foi atribuída a você"
-      unassign_project_subject: "[%{team} - %{project}] A atribuição de uma pasta foi removida de você"
-      assign_media_subject: "[%{team} - %{project}] Um item foi atribuído a você"
-      unassign_media_subject: "[%{team} - %{project}] A atribuição de um item a você foi removida"
-      assign_project_title: Pasta atribuída
-      unassign_project_title: A atribuição da pasta foi removida
-      assign_project_text: "%{author} atribuiu a pasta %{project} em %{team}."
-      unassign_project_text: "%{author} removeu a atribuição da pasta %{project} em %{team}."
+      assign_task_subject: "[%{team}] Uma tarefa foi atribuída a você"
+      unassign_task_subject: "[%{team}] A atribuição de uma tarefa a você foi removida"
+      assign_media_subject: "[%{team}] Um item foi atribuído a você"
+      unassign_media_subject: "[%{team}] A atribuição de um item a você foi removida"
       assign_task_title: Tarefa atribuída
       unassign_task_title: A atribuição da tarefa foi removida
-      assign_task_text: "%{author} atribuiu uma tarefa na pasta %{project} em %{team}."
-      unassign_task_text: "%{author} removeu a atribuição de uma tarefa na pasta %{project} em %{team}."
+      assign_task_text: "%{author} atribuiu uma tarefa em %{team}."
+      unassign_task_text: "%{author} removeu a atribuição de uma tarefa em %{team}."
       assign_media_title: Item atribuído
       unassign_media_title: A atribuição do item foi removida
-      assign_media_text: "%{author} atribuiu um item na pasta %{project} em %{team}."
-      unassign_media_text: "%{author} removeu a atribuição de um item na pasta %{project} em %{team}."
+      assign_media_text: "%{author} atribuiu um item em %{team}."
+      unassign_media_text: "%{author} removeu a atribuição de um item em %{team}."
       assign_log: " %{author} atribuiu um(a) %{model} a %{username}"
       unassign_log: " %{author} removeu a atribuição de %{model} de %{username}"
       assign_by: Atribuídos por
       unassign_by: A atribuição foi removida por
-      project_button: Ir para a página da pasta
     request_to_join:
       subject: Solicitação para participar do espaço de trabalho %{team}
       team_page: página do espaço de trabalho
@@ -448,15 +440,12 @@ pt:
       footer: Este link de download expirará em %{date}.
   mail_security:
     device_subject: 'Alerta de segurança: Novo login no %{app_name} pelo %{browser} em %{platform}'
-    ip_subject: 'Alerta de segurança: Login novo ou incomum no %{app_name}'
     failed_subject: 'Alerta de segurança: Tentativas malsucedidas de login no %{app_name} '
-    ip: Você se conectou de %{location}
     device: Você se conectou pelo %{browser} em %{platform}
     devise_name: "%{browser} em %{platform}"
     failed: 'Foram detectadas tentativas malsucedidas de login '
     password_text: redefina sua senha imediatamente.
     device_text: Parece que você recentemente entrou em sua conta no %{app_name} a partir de um novo dispositivo. Se não for o caso, você deveria %{change_password}
-    ip_text: Parece que você recentemente entrou na sua conta no %{app_name} a partir de uma nova localização. Se não for o caso, você deveria %{change_password}
     failed_text: Parece que foram feitas múltiplas tentativas de login em sua conta no %{app_name}. Se tiver sido você, você pode, sem problemas de segurança, desconsiderar este e-mail. Caso contrário, você deveria %{change_password}
     time_h: Horário
     device_h: Aparelho
