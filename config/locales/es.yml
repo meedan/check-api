@@ -96,7 +96,6 @@ es:
       invalid_project_media_archived_value: Lo sentimos, el valor archivado no es compatible
       invalid_article_language_value: Lo sentimos, valor de idioma no admitido
       fact_check_empty_title_and_summary: Lo sentimos, debes llenar el título o resumen
-      invalid_feed_saved_search_value: debe pertenecer a un área de trabajo que sea parte de este feed
       platform_allowed_values_error: 'no puede ser del tipo %{type}, tipos permitidos: %{allowed_types}'
   activerecord:
     models:
@@ -392,29 +391,22 @@ es:
       update_h: Última actualización
       tasks_h: Tarea finalizada
     assignment:
-      assign_task_subject: "[%{team} - %{project}] Se te ha asignado una tarea"
-      unassign_task_subject: "[%{team} - %{project}] Se te ha desasignado una tarea"
-      assign_project_subject: "[%{team} - %{project}] Se te asignó una carpeta"
-      unassign_project_subject: "[%{team} - %{project}] Se te desasignó una carpeta"
-      assign_media_subject: "[%{team} - %{project}] Se te ha asignado un ítem"
-      unassign_media_subject: "[%{team} - %{project}] Se te ha desasignado un ítem"
-      assign_project_title: Carpeta Asignada
-      unassign_project_title: Carpeta Desasignada
-      assign_project_text: "%{author} asignó la carpeta %{project} en %{team}."
-      unassign_project_text: "%{author} desasignó la carpeta %{project} en %{team}."
+      assign_task_subject: "[%{team}] Se te ha asignado una tarea"
+      unassign_task_subject: "[%{team}] Se te ha desasignado una tarea"
+      assign_media_subject: "[%{team}] Se te asignó un ítem"
+      unassign_media_subject: "[%{team}] Se te ha desasignado un ítem"
       assign_task_title: 'Tarea asignada '
       unassign_task_title: Tarea sin asignar
-      assign_task_text: "%{author} asignó una tarea en la carpeta %{project} en %{team}."
-      unassign_task_text: "%{author} desasignó una tarea en la carpeta %{project} en %{team}."
+      assign_task_text: "%{author} asignó una tarea en %{team}."
+      unassign_task_text: "%{author} desasignó una tarea en %{team}."
       assign_media_title: Ítem Asignado
       unassign_media_title: Ítem Desasignado
-      assign_media_text: "%{author} asignó un ítem en la carpeta %{project} en %{team}."
-      unassign_media_text: "%{author} desasignó un ítem en la carpeta %{project} en %{team}."
+      assign_media_text: "%{author} asignó un ítem en %{team}."
+      unassign_media_text: "%{author} desasignó un ítem en %{team}."
       assign_log: "%{author} asignó %{model} a %{username}"
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
-      project_button: Ir a la pagina de carpeta
     request_to_join:
       subject: Solicitar unirse a área de trabajo %{team}
       team_page: página del área de trabajo
@@ -447,15 +439,12 @@ es:
       footer: Este enlace de descarga expirará en %{date}.
   mail_security:
     device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}'
-    ip_subject: 'Alerta de seguridad: Nuevo o inusual inicio de sesión en %{app_name} '
     failed_subject: 'Alerta de seguridad: Intento fallido de inicio de sesión en  %{app_name}'
-    ip: Has iniciado sesión desde %{location}
     device: Has iniciado sesión desde %{browser} en %{platform}
     devise_name: "%{browser} en %{platform}"
     failed: 'Se han detectado Intentos fallidos de inicio de sesión '
     password_text: 'restablece tu contraseña inmediatamente '
     device_text: Al parecer, recientemente has iniciado sesión en tu cuenta de %{app_name} desde un nuevo dispositivo. Si no has sido tú, te recomendamos %{change_password}
-    ip_text: Al parecer,  recientemente has iniciado sesión en tu cuenta de %{app_name} desde una nueva locación. Si no has sido tú,  te recomendamos %{change_password}
     failed_text: Al parecer, han habido múltiples intentos fallidos de inicio de sesión en tu cuenta de %{app_name}. Si has sido tú has caso omiso de este mensaje, si no has sido tú te recomendamos %{change_password}
     time_h: Tiempo
     device_h: Dispositivo

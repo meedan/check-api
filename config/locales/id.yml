@@ -96,7 +96,6 @@ id:
       invalid_project_media_archived_value: Maaf, nilai yang diarsipkan tidak didukung
       invalid_article_language_value: Maaf, bahasa tidak didukung
       fact_check_empty_title_and_summary: Maaf, Anda harus mengisi judul atau ringkasan
-      invalid_feed_saved_search_value: harus menjadi milik ruang kerja yang merupakan bagian dari umpan ini
       platform_allowed_values_error: 'tidak dapat memiliki tipe format %{type}, tipe-tipe yang diijinkan: %{allowed_types}'
   activerecord:
     models:
@@ -385,29 +384,22 @@ id:
       update_h: Pembaruan Terakhir
       tasks_h: Tugas Selesai
     assignment:
-      assign_task_subject: "[%{team} - %{project}] Sebuah tugas telah diberikan kepada Anda"
-      unassign_task_subject: "[%{team} - %{project}] Sebuah tugas telah dibatalkan dari Anda"
-      assign_project_subject: "[%{team} - %{project}] Sebuah folder telah ditugaskan kepada Anda"
-      unassign_project_subject: "[%{team} - %{project}] Sebuah folder telah dibatalkan dari Anda"
-      assign_media_subject: "[%{team} - %{project}] Sebuah perihal telah ditugaskan kepada Anda"
-      unassign_media_subject: "[%{team} - %{project}] Sebuah perihal telah dibatalkan dari Anda"
-      assign_project_title: Folder yang Ditugaskan
-      unassign_project_title: Folder yang Dibatalkan
-      assign_project_text: "%{author} menugaskan folder %{project} pada %{team}."
-      unassign_project_text: "%{author} membatalkan folder %{project} pada %{team}."
+      assign_task_subject: "[%{team}] Sebuah tugas telah diberikan kepada Anda"
+      unassign_task_subject: "[%{team}] Sebuah tugas telah dibatalkan dari Anda"
+      assign_media_subject: "[%{team}] Sebuah perihal telah ditugaskan kepada Anda"
+      unassign_media_subject: "[%{team}] Sebuah perihal telah dibatalkan dari Anda"
       assign_task_title: Tugas yang Diberikan
       unassign_task_title: Tugas yang Dibatalkan
-      assign_task_text: "%{author} memberikan tugas di dalam folder %{project} pada%{team}."
-      unassign_task_text: "%{author} membatalkan sebuah tugas dalam folder %{project} pada %{team}."
+      assign_task_text: "%{author} memberikan tugas dalam %{team}."
+      unassign_task_text: "%{author} membatalkan sebuah tugas pada %{team}."
       assign_media_title: Perihal yang Ditugaskan
       unassign_media_title: Perihal yang Dibatalkan
-      assign_media_text: "%{author} menugaskan sebuah perihal dalam folder %{project} pada %{team}."
-      unassign_media_text: "%{author} membatalkan sebuah perihal dalam folder %{project} pada %{team}."
+      assign_media_text: "%{author} menugaskan sebuah perihal dalam %{team}."
+      unassign_media_text: "%{author} membatalkan sebuah perihal dalam %{team}."
       assign_log: "%{author} menugaskan %{model} pada %{username}"
       unassign_log: "%{author} membatalkan %{model} dari %{username}"
       assign_by: Ditugaskan oleh
       unassign_by: Dibatalkan oleh
-      project_button: Pergi ke halaman folder
     request_to_join:
       subject: Permintaan untuk bergabung ke ruang kerja %{team}
       team_page: halaman ruang kerja
@@ -440,15 +432,12 @@ id:
       footer: Tautan unduhan ini akan kedaluwarsa pada %{date}.
   mail_security:
     device_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} dari %{browser} pada %{platform}'
-    ip_subject: 'Peringatan keamanan: Percobaan masuk baru atau tidak biasa dari %{app_name}'
     failed_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} gagal'
-    ip: Anda telah masuk dari %{location}
     device: Anda telah masuk melalui %{browser} pada %{platform}
     devise_name: "%{browser} pada %{platform}"
     failed: Percobaan masuk gagal telah terdeteksi
     password_text: segera atur ulang kata sandi.
     device_text: Sepertinya akun Anda baru saja masuk ke %{app_name} dari perangkat baru. Jika ini bukan Anda, Anda harus %{change_password}
-    ip_text: Sepertinya akun Anda baru saja masuk ke %{app_name} Anda dari lokasi baru. Jika ini bukan Anda, Anda harus %{change_password}
     failed_text: Beberapa kali percobaan telah dilakukan untuk masuk ke akun %{app_name} Anda. Jika ini memang Anda, Anda dapat secara aman mengabaikan pesan ini. Jika bukan, maka Anda harus %{change_password}
     time_h: Waktu
     device_h: Perangkat
