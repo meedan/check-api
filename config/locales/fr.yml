@@ -96,7 +96,8 @@ fr:
       invalid_project_media_archived_value: Désolé, la valeur archivée n’est pas prise en charge
       invalid_article_language_value: Désolé, la valeur de langue n’est pas prise en charge#
       fact_check_empty_title_and_summary: Désolé, vous devez saisir le titre ou le résumé
-      invalid_feed_saved_search_value: doit appartenir à un espace de travail qui fait partie de ce fil
+      invalid_feed_saved_search_value: Doit appartenir à un espace de travail qui fait partie de ce fil.
+      invalid_feed_saved_search_list_type: Le type de la liste des recherches enregistrées est invalide.
       platform_allowed_values_error: 'ne peut pas être de type %{type}, les types autorisés sont :%{allowed_types}'
   activerecord:
     models:
@@ -159,6 +160,7 @@ fr:
           one: est trop court (au moins 1 caractère)
           many: est trop court (au moins %{count} caractères)
           other: est trop court (au moins %{count} caractères)
+  error_team_bot_event_is_not_valid: L’évènement du robot est invalide
   slack_webhook_format_wrong: Le point d’ancrage Web Slack est invalide. Le format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX` est attendu
   slug_is_reserved: est réservé
   invalid_media_item: L’élément est invalide
@@ -391,29 +393,24 @@ fr:
       update_h: Dernière mise à jour
       tasks_h: Les tâches sont remplies
     assignment:
-      assign_task_subject: "[%{team} – %{project}] Une tâche vous a été attribuée"
-      unassign_task_subject: "[%{team} – %{project}] L’attribution d’une tâche vous a été retirée"
-      assign_project_subject: "[%{team} – %{project}] Un dossier vous a été attribué"
-      unassign_project_subject: "[%{team} – %{project}] L’attribution d’un dossier vous a été retirée"
-      assign_media_subject: "[%{team} – %{project}] Un élément vous a été attribué"
-      unassign_media_subject: "[%{team} – %{project}] L’attribution d’un élément vous a été retirée"
-      assign_project_title: Le dossier a été attribué
-      unassign_project_title: L’attribution du dossier a été retirée
-      assign_project_text: "%{author} a attribué le dossier %{project} de %{team}."
-      unassign_project_text: "%{author} a retiré l’attribution du dossier %{project} de %{team}."
+      assign_task_subject: "[%{team}] Une tâche vous a été attribuée"
+      unassign_task_subject: "[%{team}] Une tâche vous a été retirée"
+      assign_project_subject: "[%{team}] Un dossier vous a été attribué"
+      unassign_project_subject: "[%{team}] Un dossier vous a été retiré"
+      assign_media_subject: "[%{team}] Un élément vous a été attribué"
+      unassign_media_subject: "[%{team}] Un élément vous a été retiré"
       assign_task_title: Une tâche a été attribuée
       unassign_task_title: L’attribution d’une tâche a été retirée
-      assign_task_text: "%{author} a attribué une tâche du dossier %{project} de %{team}."
-      unassign_task_text: "%{author} a retiré l’attribution d’une tâche du dossier %{project} de %{team}."
+      assign_task_text: "%{author} a attribué une tâche dans %{team}."
+      unassign_task_text: "%{author} a retiré une tâche dans %{team}."
       assign_media_title: Un élément a été attribué
       unassign_media_title: L’attribution d’un élément a été retirée
-      assign_media_text: "%{author} a attribué un élément du dossier %{project} de %{team}."
-      unassign_media_text: "%{author} a retiré l’attribution d’un élément du dossier %{project} de %{team}."
+      assign_media_text: "%{author} a attribué un élément dans %{team}."
+      unassign_media_text: "%{author} a retiré un élément dans %{team}."
       assign_log: "%{author} a attribué %{model} à %{username}"
       unassign_log: "%{author} a retirer l’attribution de %{model} de %{username}"
       assign_by: Attribués par
       unassign_by: Attribution retirée par
-      project_button: Accéder à la page du dossier
     request_to_join:
       subject: Demande de se joindre à l’espace de travail %{team}
       team_page: page de l’espace de travail
@@ -446,15 +443,15 @@ fr:
       footer: Ce lien de téléchargement expirera le %{date}.
   mail_security:
     device_subject: 'Alerte de sécurité : Nouvelle connexion à %{app_name} de %{browser} sur %{platform}'
-    ip_subject: 'Alerte de sécurité : Connexion à %{app_name} nouvelle ou inhabituelle'
+    ip_subject: 'Alerte de sécurité : nouvelle connexion à %{app_name}'
     failed_subject: 'Alerte de sécurité : Tentatives de connexion infructueuses à %{app_name} '
-    ip: Vous vous êtes connecté de %{location}
+    ip: Une nouvelle connexion à votre compte a été détectée
     device: Vous vous êtes connecté de %{browser} sur %{platform}
     devise_name: "%{browser} sur %{platform}"
     failed: Des tentatives de connexion infructueuses ont été détectées
     password_text: réinitialiser votre mot de passe immédiatement.
-    device_text: Il semble que vous vous êtes connecté récemment à votre compte %{app_name} à partir d’un nouvel appareil. Si ce n’était pas vous, vous devriez %{change_password}
-    ip_text: Il semble que vous vous êtes connecté récemment à votre compte %{app_name} à partir d’un nouveau lieu. Si ce n’était pas vous, vous devriez %{change_password}
+    device_text: Il semble que vous avez établi une connexion à votre compte %{app_name} à partir d’un nouvel appareil. Si ce n’était pas vous, vous devriez %{change_password}
+    ip_text: Il semble que vous avez établi une connexion à votre compte %{app_name}. Si vous ne reconnaissez pas cette activité, vous devez %{change_password}
     failed_text: Il semble que plusieurs tentatives de connexion à votre compte %{app_name} aient été effectuées. Si c’était vous, vous pouvez sans problème ignorer ce courriel. Si ce n’était pas vous, vous devriez alors %{change_password}
     time_h: Date et heure
     device_h: Appareil

@@ -95,7 +95,6 @@ mk:
       invalid_project_media_archived_value: За жал, вредноста за архивирање не е поддржана
       invalid_article_language_value: За жал, вредноста за јазик не е поддржана
       fact_check_empty_title_and_summary: Извинете, треба да го внесете насловот или резимето
-      invalid_feed_saved_search_value: треба да припаѓа на работен простор што е дел од ова резиме на содржини
   activerecord:
     models:
       link: Врска
@@ -385,29 +384,22 @@ mk:
       update_h: Последно ажурирање
       tasks_h: Завршени задачи
     assignment:
-      assign_task_subject: "[%{team} - %{project}] Ви беше доделена задача"
-      unassign_task_subject: "[%{team} - %{project}] Доделувањето на Вашата задача беше поништено"
-      assign_project_subject: "[%{team} - %{project}] Ви беше доделена папка"
-      unassign_project_subject: "[%{team} - %{project}] Доделувањето на Вашата папка беше поништено"
-      assign_media_subject: "[%{team} - %{project}] Ви беше доделена статија"
-      unassign_media_subject: "[%{team} - %{project}] Доделувањето на Вашата статија беше поништено"
-      assign_project_title: Папката е доделена
-      unassign_project_title: Доделувањето на папката беше поништено
-      assign_project_text: "%{author} ја додели папката  %{project} во %{team}."
-      unassign_project_text: "%{author} го поништи доделувањето на папката %{project} во %{team}."
+      assign_task_subject: "[%{team}] Ви беше доделена задача"
+      unassign_task_subject: "[%{team}] Доделувањето на Вашата задача беше поништено"
+      assign_media_subject: "[%{team}] Ви беше доделена статија"
+      unassign_media_subject: "[%{team}] Доделувањето на Вашата статија беше поништено"
       assign_task_title: Задачата е доделена
       unassign_task_title: Доделувањето на задачата беше поништено
-      assign_task_text: "%{author} додели задача во папката %{project} во %{team}."
-      unassign_task_text: "%{author} го поништи доделувањето на задачата во папката %{project} во %{team}."
+      assign_task_text: "%{author} додели задача во %{team}."
+      unassign_task_text: "%{author} го поништи доделувањето на задачата во %{team}."
       assign_media_title: Статијата е доделена
       unassign_media_title: Доделувањето на статијата беше поништено
-      assign_media_text: "%{author} додели статија во папката %{project} во %{team}."
-      unassign_media_text: "%{author} го поништи доделувањето на статијата во папката %{project} во %{team}."
+      assign_media_text: "%{author} додели статија во %{team}."
+      unassign_media_text: "%{author} го поништи доделувањето на статијата во %{team}."
       assign_log: "%{author} додели %{model} на %{username}"
       unassign_log: "%{author} го поништи доделувањето на %{model} на %{username}"
       assign_by: Доделено од страна на
       unassign_by: Доделувањето беше поништено од страна на
-      project_button: Одете на страницата со папки
     request_to_join:
       subject: Поднесете барање да се приклучите на работниот простор %{team}
       team_page: страница од работниот простор
@@ -429,15 +421,12 @@ mk:
       hello: Здраво %{name}
   mail_security:
     device_subject: 'Предупредување за безбедност: Нова најава на %{app_name} од %{browser} на %{platform}'
-    ip_subject: 'Предупредување за безбедност: Нова или несекојдневна %{app_name} најава'
     failed_subject: 'Предупредување за безбедност: Неуспешни обиди за најава на %{app_name}'
-    ip: Најавени сте од %{location}
     device: Најавени сте од %{browser} на %{platform}
     devise_name: "%{browser} на %{platform}"
     failed: Забележани се неуспешни обиди за најава
     password_text: веднаш ресетирајте ја Вашата лозинка.
     device_text: Се чини дека неодамна сте се најавиле на Вашата %{app_name} сметка од нов уред. Ако не сте биле Вие, %{change_password}
-    ip_text: Се чини дека неодамна сте се најавиле на Вашата %{app_name} сметка од нов уред. Ако не сте биле Вие, %{change_password}
     failed_text: Се чини дека биле направени повеќе обиди за најава на Вашата %{app_name} сметка. Ако сте биле Вие, игнорирајте ја оваа е-порака. Ако не сте биле Вие, %{change_password}
     time_h: Време
     device_h: Уред
