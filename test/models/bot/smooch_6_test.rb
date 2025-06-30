@@ -225,7 +225,15 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     publish_report(pm, {}, nil, { language: 'en', use_visual_card: false })
     CheckSearch.any_instance.stubs(:medias).returns([pm])
     Sidekiq::Testing.inline! do
+      # Verify no results when smooch_skip_search options enabled
+      @installation.set_smooch_skip_search = true
+      @installation.save!
       send_message 'hello', '1', '1', 'Foo bar', '1'
+      assert_state 'main'
+      # Verify results when smooch_skip_search options disabled
+      @installation.set_smooch_skip_search = false
+      @installation.save!
+      send_message '2', 'hello #2', '1', '1', 'Foo bar #2', '1'
       assert_state 'search_result'
       assert_difference 'TiplineRequest.count + ProjectMedia.count', 2 do
         send_message '1'

@@ -13,19 +13,22 @@ module SmoochSearch
         sm = CheckStateMachine.new(uid)
         self.get_installation(self.installation_setting_id_keys, app_id) if self.config.blank?
         RequestStore.store[:smooch_bot_provider] = provider unless provider.blank?
-        query = self.get_search_query(uid, message)
-        results = self.get_search_results(uid, query, team_id, language, limit).collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
-        reports = results.select{ |pm| pm.report_status == 'published' }.collect{ |pm| pm.get_dynamic_annotation('report_design') }.reject{ |r| r.nil? }.collect{ |r| r.report_design_to_tipline_search_result }.select{ |r| r.should_send_in_language?(language) }
+        reports = []
+        unless self.get_setting_value_or_default('smooch_skip_search', {})
+          query = self.get_search_query(uid, message)
+          results = self.get_search_results(uid, query, team_id, language, limit).collect{ |pm| Relationship.confirmed_parent(pm) }.uniq
+          reports = results.select{ |pm| pm.report_status == 'published' }.collect{ |pm| pm.get_dynamic_annotation('report_design') }.reject{ |r| r.nil? }.collect{ |r| r.report_design_to_tipline_search_result }.select{ |r| r.should_send_in_language?(language) }
 
-        # Extract explainers from matched media if they don't have published fact-checks but they have explainers
-        reports = results.collect{ |pm| pm.explainers.to_a }.flatten.uniq.first(limit).map(&:as_tipline_search_result) if !results.empty? && reports.empty?
+          # Extract explainers from matched media if they don't have published fact-checks but they have explainers
+          reports = results.collect{ |pm| pm.explainers.to_a }.flatten.uniq.first(limit).map(&:as_tipline_search_result) if !results.empty? && reports.empty?
 
-        # Search for explainers if fact-checks were not found
-        if reports.empty? && query['type'] == 'text'
-          explainers = self.search_for_explainers(uid, query['text'], team_id, limit, language).select{ |explainer| explainer.as_tipline_search_result.should_send_in_language?(language) }
-          Rails.logger.info "[Smooch Bot] Text similarity search got #{explainers.count} explainers while looking for '#{query['text']}' for team #{team_id}"
-          results = explainers.collect{ |explainer| explainer.project_medias.to_a }.flatten.uniq.reject{ |pm| pm.blank? }.first(limit)
-          reports = explainers.map(&:as_tipline_search_result)
+          # Search for explainers if fact-checks were not found
+          if reports.empty? && query['type'] == 'text'
+            explainers = self.search_for_explainers(uid, query['text'], team_id, limit, language).select{ |explainer| explainer.as_tipline_search_result.should_send_in_language?(language) }
+            Rails.logger.info "[Smooch Bot] Text similarity search got #{explainers.count} explainers while looking for '#{query['text']}' for team #{team_id}"
+            results = explainers.collect{ |explainer| explainer.project_medias.to_a }.flatten.uniq.reject{ |pm| pm.blank? }.first(limit)
+            reports = explainers.map(&:as_tipline_search_result)
+          end
         end
 
         if reports.empty?
@@ -137,6 +140,10 @@ module SmoochSearch
       value == 0.0 ? 0.85 : value
     end
 
+    def get_smooch_skip_search
+      self.config.to_h['smooch_skip_search']
+    end
+
     def get_search_query(uid, last_message)
       list = self.list_of_bundled_messages_from_user(uid)
       self.bundle_list_of_messages(list, last_message, true)
@@ -183,6 +190,8 @@ module SmoochSearch
         self.max_number_of_words_for_keyword_search
       when :should_restrict_by_language
         self.should_restrict_by_language?(team_ids)
+      when :smooch_skip_search
+        self.get_smooch_skip_search
       else
         nil
       end
