@@ -20,6 +20,7 @@ module CheckBasicAbilities
 
   def authenticated_perms
     can :create, Team
+    can [:create, :update], TeamBotInstallation
 
     # Permissions for registration and login
     can :read, Source, team_id: @context_team.id
