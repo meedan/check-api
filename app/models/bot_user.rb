@@ -141,9 +141,7 @@ class BotUser < User
   end
 
   def install_to!(team)
-    team_bot_installation = TeamBotInstallation.new team_id: team.id, user_id: self.id
-    team_bot_installation.skip_check_ability = true
-    team_bot_installation.save!
+    TeamBotInstallation.create! team_id: team.id, user_id: self.id
   end
 
   def uninstall_from!(team)
