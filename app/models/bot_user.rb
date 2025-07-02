@@ -141,9 +141,7 @@ class BotUser < User
   end
 
   def install_to!(team)
-    tbi = TeamBotInstallation.new team_id: team.id, user_id: self.id
-    tbi.skip_check_ability = true if team.is_being_copied
-    tbi.save!
+    TeamBotInstallation.create! team_id: team.id, user_id: self.id, skip_check_ability: team.is_being_copied
   end
 
   def uninstall_from!(team)
