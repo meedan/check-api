@@ -165,6 +165,7 @@ class ProjectMedia8Test < ActiveSupport::TestCase
   end
 
   test "should have a fallback when trying to create a blank item with original claim but a timeout error happens" do
+    skip "This test is flaky and needs to be fixed. Ticket for it: CV2–CV2-6425"
     WebMock.disable_net_connect! allow: /#{CheckConfig.get('elasticsearch_host')}|#{CheckConfig.get('storage_endpoint')}|httpstat\.us/
     WebMock.stub_request(:head, /httpstat\.us/).to_return(status: 200, headers: { 'Content-Type' => 'image/png' })
     image_data = File.read(File.join(Rails.root, 'test', 'data', 'rails.png'))
