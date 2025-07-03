@@ -907,6 +907,8 @@ class TeamTest < ActiveSupport::TestCase
     team_bot = create_bot_user(name: 'Team Bot', login: 'team_bot', default: false, approved: true)
 
     original_team = create_team(name: 'original_team')
+    team_user = create_team_user team: original_team, role: 'admin'
+    User.current = team_user.user
 
     # Install team_bot manually, since it is not a default bot
     team_bot.install_to!(original_team)
