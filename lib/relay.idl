@@ -12304,7 +12304,6 @@ type Source implements Node {
   name: String!
   overridden: JsonStringType
   permissions: String
-  pusher_channel: String
   tasks(
     """
     Returns the elements in the list that come after the specified cursor.
