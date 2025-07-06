@@ -30,6 +30,7 @@ module SmoochNewsletter
       if json.dig('destination', 'type') == 'whatsapp' && json.dig('error', 'underlyingError', 'errors', 0, 'code') == 131050
         uid = json['appUser']['_id']
         language = self.get_user_language(uid)
+        Rails.logger.info("[Smooch newsletter] Unsubscribing user #{uid} from newsletter because WhatsApp error code 131050 was received")
         self.unsubscribe_from_all_language(uid, language, self.config['team_id'].to_i, self.get_workflow(language))
       end
     end
