@@ -8849,7 +8849,6 @@ type Media implements Node {
   metadata: JsonStringType
   permissions: String
   picture: String
-  pusher_channel: String
   quote: String
   thumbnail_path: String
   type: String

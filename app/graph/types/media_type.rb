@@ -8,7 +8,6 @@ class MediaType < DefaultObject
   field :account_id, GraphQL::Types::Int, null: true
   field :dbid, GraphQL::Types::Int, null: true
   field :domain, GraphQL::Types::String, null: true
-  field :pusher_channel, GraphQL::Types::String, null: true
   field :embed_path, GraphQL::Types::String, null: true
   field :thumbnail_path, GraphQL::Types::String, null: true
   field :picture, GraphQL::Types::String, null: true
