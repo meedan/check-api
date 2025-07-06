@@ -14,11 +14,6 @@ class TagText < ApplicationRecord
 
   belongs_to :team, optional: true
 
-  notifies_pusher on: [:save, :destroy],
-                  event: 'tagtext_updated',
-                  targets: proc { |t| [t.team] },
-                  data: proc { |t| t.to_json }
-
   def tags
     TagText.tags(self.id, self.team_id)
   end
