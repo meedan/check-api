@@ -1227,16 +1227,6 @@ sw:
   main_menu: Menyu kuu
   main_state_button_label: Ghairi
   navigation_button: Tumia vitufe kurambaza
-  privacy_statement: Taarifa ya faragha
-  privacy_title: Faragha
-  report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
-  search_result_is_not_relevant_button_label: 'Hapana'
-  search_result_is_relevant_button_label: 'Ndio'
-  search_state_button_label: "Wasilisha "
-  subscribe_button_label: Jiunge
-  subscribed: Kwa sasa umejiunga na jarida letu.
-  unsubscribe_button_label: Jiondoe
-  unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
   privacy_and_purpose: |-
     Faragha na Kusudi
 
@@ -1251,6 +1241,16 @@ sw:
     Tafadhali kumbuka kuwa tovuti tunazounganisha zitakuwa na sera zao za faragha.
 
     Ikiwa hutaki mawasilisho yako yatumike katika kazi hii, tafadhali usichangie kwenye mfumo wetu.
+  privacy_statement: Taarifa ya faragha
+  privacy_title: Faragha
+  report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
+  search_result_is_not_relevant_button_label: 'Hapana'
+  search_result_is_relevant_button_label: 'Ndio'
+  search_state_button_label: "Wasilisha "
+  subscribe_button_label: Jiunge
+  subscribed: Kwa sasa umejiunga na jarida letu.
+  unsubscribe_button_label: Jiondoe
+  unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
 es:
   add_more_details_state_button_label: Añadir más
   ask_if_ready_state_button_label: Cancelar
