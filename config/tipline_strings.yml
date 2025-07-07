@@ -1237,6 +1237,20 @@ sw:
   subscribed: Kwa sasa umejiunga na jarida letu.
   unsubscribe_button_label: Jiondoe
   unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
+  privacy_and_purpose: |-
+    Faragha na Kusudi
+
+    Karibu kwenye kidokezo cha %{team} %{channel}.
+
+    Unaweza kutumia nambari hii kuwasilisha hoja lako kwa uthibitishaji.
+
+    Data yako iko salama. Tunachukua kwa umakini jukumu letu la kulinda taarifa zako za kibinafsi na kuweka %{channel} ya faragha na salama; kamwe haitashiriki, kuuza, au kutumia taarifa zako zinazoweza kukutambulisha kibinafsi (PII) isipokuwa kutoa na kuboresha huduma hii.
+
+    Ili kugundua taarifa potofu za virusi mapema iwezekanavyo katika siku zijazo, tunaweza kushiriki maudhui yasiyo ya PII kutoka kwa kidokezo hiki na watafiti waliohakikiwa na washirika wa kukagua ukweli.
+
+    Tafadhali kumbuka kuwa tovuti tunazounganisha zitakuwa na sera zao za faragha.
+
+    Ikiwa hutaki mawasilisho yako yatumike katika kazi hii, tafadhali usichangie kwenye mfumo wetu.
 es:
   add_more_details_state_button_label: Añadir más
   ask_if_ready_state_button_label: Cancelar
