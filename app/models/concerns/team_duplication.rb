@@ -23,7 +23,6 @@ module TeamDuplication
           @clones << { original: original, clone: copy }
           self.alter_copy_by_type(original, copy)
         }
-        self.process_team_bot_installations(t, team)
         team = self.modify_settings(t, team)
         team = self.update_team_rules(team)
         self.adjust_team_tasks(team)
@@ -114,17 +113,6 @@ module TeamDuplication
         end
       end
       new_team
-    end
-
-    def self.process_team_bot_installations(t, team)
-      t.team_bot_installations.each do |tbi|
-        new_tbi = TeamBotInstallation.where(team: team, user: tbi.user).first || tbi.deep_dup
-        next if new_tbi.user.name == 'Smooch'
-        new_tbi.team = team
-        new_tbi.skip_check_ability = true
-        new_tbi.save(validate: false)
-        @bot_ids << new_tbi.user_id
-      end
     end
 
     def self.store_clones
