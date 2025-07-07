@@ -1215,6 +1215,42 @@ si:
   option_not_available: "මට සමාවෙන්න, මට ඔබේ පණිවිඩය තේරුණේ නැහැ."
   timeout: "අප වෙත ළඟා වීම ගැන ඔබට ස්තුතියි! නව සංවාදයක් ආරම්භ කිරීමට ඕනෑම යතුරක් ටයිප් කරන්න."
   smooch_message_smooch_bot_disabled: "අපේ bot දැනට අක්‍රියයි."
+sw:
+  add_more_details_state_button_label: Ongeza zaidi
+  ask_if_ready_state_button_label: Ghairi
+  cancelled: Sawa!
+  confirm_preferred_language: Tafadhali thibitisha lugha unayopendelea
+  invalid_format: "Samahani, faili uliyowasilisha haihimili muundo. "
+  keep_subscription_button_label: Endeleza usajili
+  languages: Lugha
+  languages_and_privacy_title: Lugha na faragha
+  main_menu: Menyu kuu
+  main_state_button_label: Ghairi
+  navigation_button: Tumia vitufe kurambaza
+  privacy_and_purpose: |-
+    Faragha na Kusudi
+
+    Karibu kwenye kidokezo cha %{team} %{channel}.
+
+    Unaweza kutumia nambari hii kuwasilisha hoja lako kwa uthibitishaji.
+
+    Data yako iko salama. Tunachukua kwa umakini jukumu letu la kulinda taarifa zako za kibinafsi na kuweka %{channel} ya faragha na salama; kamwe haitashiriki, kuuza, au kutumia taarifa zako zinazoweza kukutambulisha kibinafsi (PII) isipokuwa kutoa na kuboresha huduma hii.
+
+    Ili kugundua taarifa potofu za virusi mapema iwezekanavyo katika siku zijazo, tunaweza kushiriki maudhui yasiyo ya PII kutoka kwa kidokezo hiki na watafiti waliohakikiwa na washirika wa kukagua ukweli.
+
+    Tafadhali kumbuka kuwa tovuti tunazounganisha zitakuwa na sera zao za faragha.
+
+    Ikiwa hutaki mawasilisho yako yatumike katika kazi hii, tafadhali usichangie kwenye mfumo wetu.
+  privacy_statement: Taarifa ya faragha
+  privacy_title: Faragha
+  report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
+  search_result_is_not_relevant_button_label: 'Hapana'
+  search_result_is_relevant_button_label: 'Ndio'
+  search_state_button_label: "Wasilisha "
+  subscribe_button_label: Jiunge
+  subscribed: Kwa sasa umejiunga na jarida letu.
+  unsubscribe_button_label: Jiondoe
+  unsubscribed: Kwa sasa umejiondoa kutoka jarida letu.
 es:
   add_more_details_state_button_label: Añadir más
   ask_if_ready_state_button_label: Cancelar
