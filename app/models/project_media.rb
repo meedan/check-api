@@ -19,6 +19,7 @@ class ProjectMedia < ApplicationRecord
   include ProjectMediaBulk
   include ProjectMediaSourceAssociations
   include ProjectMediaGetters
+  include CheckPusher
 
   validates_presence_of :media, :team
 
