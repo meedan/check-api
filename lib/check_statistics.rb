@@ -66,41 +66,43 @@ module CheckStatistics
 
           # Only available for tiplines using WhatsApp Cloud API
           unless tbi&.get_capi_whatsapp_business_account_id.blank?
-            uri = URI(URI.join('https://graph.facebook.com/v17.0/', tbi.get_capi_whatsapp_business_account_id.to_s))
+            # Based on CV2-6430, we should stop retrieving WhatsApp conversation data, so I stopped calling the API and instead return '-'
+            # So I'll comment the code for calling API and just use `-`
+            # uri = URI(URI.join('https://graph.facebook.com/v17.0/', tbi.get_capi_whatsapp_business_account_id.to_s))
             # Account for changes in WhatsApp pricing model
             # Until May 2023: User-initiated conversations and business-initiated conversations are defined by the dimension CONVERSATION_DIRECTION, values BUSINESS_INITIATED or USER_INITIATED
             # Starting June 2023: The dimension is CONVERSATION_CATEGORY, where SERVICE is user-initiated and business-initiated is defined by UTILITY, MARKETING or AUTHENTICATION
             # https://developers.facebook.com/docs/whatsapp/business-management-api/analytics/#conversation-analytics-parameters
-            dimension_field = ''
-            unless type == 'all'
-              dimension = ''
-              if to < Time.parse('2023-06-01').beginning_of_day.to_i
-                dimension = 'CONVERSATION_DIRECTION'
-              else
-                dimension = 'CONVERSATION_CATEGORY'
-              end
-              dimension_field = ".dimensions(#{dimension})"
-            end
-            params = {
-              fields: "conversation_analytics.start(#{from}).end(#{to}).granularity(DAILY)#{dimension_field}.phone_numbers(#{tbi.get_capi_phone_number})",
-              access_token: tbi.get_capi_permanent_token
-            }
-            uri.query = Rack::Utils.build_query(params)
-            http = Net::HTTP.new(uri.host, uri.port)
-            http.use_ssl = true
-            request = Net::HTTP::Get.new(uri.request_uri, 'Content-Type' => 'application/json')
-            response = http.request(request)
-            raise 'Unexpected response' if response.code.to_i >= 300
-            data = JSON.parse(response.body)
-            all = 0
-            user = 0
-            business = 0
-            data['conversation_analytics']['data'][0]['data_points'].each do |data_point|
-              count = data_point['conversation']
-              all += count
-              user += count if data_point['conversation_direction'] == 'USER_INITIATED' || data_point['conversation_category'] == 'SERVICE'
-              business += count if data_point['conversation_direction'] == 'BUSINESS_INITIATED' || ['UTILITY', 'MARKETING', 'AUTHENTICATION'].include?(data_point['conversation_category'])
-            end
+            # dimension_field = ''
+            # unless type == 'all'
+            #   dimension = ''
+            #   if to < Time.parse('2023-06-01').beginning_of_day.to_i
+            #     dimension = 'CONVERSATION_DIRECTION'
+            #   else
+            #     dimension = 'CONVERSATION_CATEGORY'
+            #   end
+            #   dimension_field = ".dimensions(#{dimension})"
+            # end
+            # params = {
+            #   fields: "conversation_analytics.start(#{from}).end(#{to}).granularity(DAILY)#{dimension_field}.phone_numbers(#{tbi.get_capi_phone_number})",
+            #   access_token: tbi.get_capi_permanent_token
+            # }
+            # uri.query = Rack::Utils.build_query(params)
+            # http = Net::HTTP.new(uri.host, uri.port)
+            # http.use_ssl = true
+            # request = Net::HTTP::Get.new(uri.request_uri, 'Content-Type' => 'application/json')
+            # response = http.request(request)
+            # raise 'Unexpected response' if response.code.to_i >= 300
+            # data = JSON.parse(response.body)
+            all = '-'
+            user = '-'
+            business = '-'
+            # data['conversation_analytics']['data'][0]['data_points'].each do |data_point|
+            #   count = data_point['conversation']
+            #   all += count
+            #   user += count if data_point['conversation_direction'] == 'USER_INITIATED' || data_point['conversation_category'] == 'SERVICE'
+            #   business += count if data_point['conversation_direction'] == 'BUSINESS_INITIATED' || ['UTILITY', 'MARKETING', 'AUTHENTICATION'].include?(data_point['conversation_category'])
+            # end
             {
               all: all,
               user: user,
