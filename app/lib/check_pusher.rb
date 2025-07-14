@@ -17,12 +17,6 @@ module CheckPusher
     end
   end
 
-  module InstanceMethods
-    def actor_session_id
-      self.class.actor_session_id
-    end
-  end
-
   class Worker
     include ::Sidekiq::Worker
     include CheckPusher::ClassMethods
