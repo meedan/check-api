@@ -1227,6 +1227,20 @@ sw:
   main_menu: Menyu kuu
   main_state_button_label: Ghairi
   navigation_button: Tumia vitufe kurambaza
+  privacy_and_purpose: |-
+    Faragha na Kusudi
+
+    Karibu kwenye kidokezo cha %{team} %{channel}.
+
+    Unaweza kutumia nambari hii kuwasilisha hoja lako kwa uthibitishaji.
+
+    Data yako iko salama. Tunachukua kwa umakini jukumu letu la kulinda taarifa zako za kibinafsi na kuweka %{channel} ya faragha na salama; kamwe haitashiriki, kuuza, au kutumia taarifa zako zinazoweza kukutambulisha kibinafsi (PII) isipokuwa kutoa na kuboresha huduma hii.
+
+    Ili kugundua taarifa potofu za virusi mapema iwezekanavyo katika siku zijazo, tunaweza kushiriki maudhui yasiyo ya PII kutoka kwa kidokezo hiki na watafiti waliohakikiwa na washirika wa kukagua ukweli.
+
+    Tafadhali kumbuka kuwa tovuti tunazounganisha zitakuwa na sera zao za faragha.
+
+    Ikiwa hutaki mawasilisho yako yatumike katika kazi hii, tafadhali usichangie kwenye mfumo wetu.
   privacy_statement: Taarifa ya faragha
   privacy_title: Faragha
   report_updated: 'Ukaguzi wa ukweli ufuatao *umesasishwa* na taarifa mpya:'
