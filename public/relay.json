@@ -3478,20 +3478,6 @@
               "deprecationReason": null
             },
             {
-              "name": "pusher_channel",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "team",
               "description": null,
               "args": [
@@ -59535,20 +59521,6 @@
               "deprecationReason": null
             },
             {
-              "name": "pusher_channel",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "slug",
               "description": null,
               "args": [
@@ -67158,20 +67130,6 @@
             },
             {
               "name": "public_team_id",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "pusher_channel",
               "description": null,
               "args": [
 
