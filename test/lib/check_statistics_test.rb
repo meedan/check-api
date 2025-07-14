@@ -62,12 +62,12 @@ class CheckStatisticsTest < ActiveSupport::TestCase
       },
       id: '123456'
     }.to_json)
-    assert_equal 2300, CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'all')
+    assert_equal '-', CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'all')
   end
 
   test 'should not calculate number of WhatsApp conversations if WhatsApp Insights API returns an error' do
     WebMock.stub_request(:get, @url).to_return(status: 400, body: { error: 'Error' }.to_json)
-    assert_nil CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to)
+    assert_equal '-', CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to)
   end
 
   test 'should not calculate number of WhatsApp conversations if there is no tipline' do
@@ -110,7 +110,7 @@ class CheckStatisticsTest < ActiveSupport::TestCase
       },
       id: '123456'
     }.to_json)
-    assert_equal 40, CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'user')
-    assert_equal 10, CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'business')
+    assert_equal '-', CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'user')
+    assert_equal '-', CheckStatistics.number_of_whatsapp_conversations(@team.id, @from, @to, 'business')
   end
 end
