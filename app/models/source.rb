@@ -3,7 +3,6 @@ class Source < ApplicationRecord
 
   include HasImage
   include CheckElasticSearch
-  include CheckPusher
   include ValidationsHelper
   include CustomLock
   include ProjectMediaSourceAssociations
@@ -28,8 +27,6 @@ class Source < ApplicationRecord
   after_save :cache_source_overridden, :add_to_project_media, :create_related_accounts
 
   has_annotations
-
-  notifies_pusher on: :update, event: 'source_updated', data: proc { |s| s.to_json }, targets: proc { |s| [s] }
 
   custom_optimistic_locking include_attributes: [:name, :image, :description]
 

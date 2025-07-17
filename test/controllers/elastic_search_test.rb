@@ -186,12 +186,6 @@ class ElasticSearchTest < ActionController::TestCase
     assert_not_nil CheckSearch.new('{}', nil, create_team.id).id
   end
 
-  test "should get Pusher channel" do
-    t = create_team
-    cs = CheckSearch.new({ 'parent' => { 'type' => 'team', 'slug' => t.slug } }.to_json, nil, t.id)
-    assert_equal t.pusher_channel, cs.pusher_channel
-  end
-
   test "should search by numeric range for tasks" do
     number = create_field_type field_type: 'number', label: 'Number'
     at = create_annotation_type annotation_type: 'task_response_number', label: 'Task Response Number'

@@ -66,12 +66,6 @@ module AnnotationBase
     attr_accessor :disable_es_callbacks, :is_being_copied, :force_version, :skip_trashed_validation
     self.table_name = 'annotations'
 
-    notifies_pusher on: :save,
-                    if: proc { |a| ['ProjectMedia', 'Source'].include?(a.annotated_type) && !['slack_message', 'smooch_response'].include?(a.annotation_type) && !a.skip_notifications },
-                    event: proc { |a| a.annotated_type == 'ProjectMedia' ? 'media_updated' : 'source_updated'},
-                    targets: proc { |a| a.annotated_type == 'ProjectMedia' ? [a.annotated&.media] : [a.annotated] },
-                    data: proc { |a| a = Annotation.where(id: a.id).last; a.nil? ? a.to_json : a.load.to_json }
-
     before_validation :remove_null_bytes, :set_type_and_event, :set_annotator
     after_initialize :start_serialized_fields
     after_create :notify_team_bots_create
