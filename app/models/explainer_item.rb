@@ -1,5 +1,7 @@
 # Join model
 class ExplainerItem < ApplicationRecord
+  include CheckPusher
+
   has_paper_trail on: [:create, :destroy], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
   belongs_to :explainer

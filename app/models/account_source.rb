@@ -17,8 +17,6 @@ class AccountSource < ApplicationRecord
 
   after_create :update_source_overridden_cache
 
-  notifies_pusher targets: proc { |as| [as.source] }, data: proc { |as| { id: as.id }.to_json }, on: :save, event: 'source_updated'
-
   private
 
   def set_account

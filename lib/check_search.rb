@@ -75,14 +75,6 @@ class CheckSearch
     end
   end
 
-  def pusher_channel
-    obj = nil
-    if @options['parent'] && @options['parent']['type'] == 'team'
-      obj = Team.where(slug: @options['parent']['slug']).last
-    end
-    obj.nil? ? nil : obj.pusher_channel
-  end
-
   def team
     team_id = feed_query? && Team.current ? Team.current.id : @options['team_id'].first
     Team.find_by_id(team_id)

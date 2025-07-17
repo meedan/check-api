@@ -713,7 +713,6 @@ type CheckSearch implements Node {
   ): ProjectMediaConnection
   number_of_results: Int
   permissions: String
-  pusher_channel: String
   team: Team
   updated_at: String
 }
@@ -8849,7 +8848,6 @@ type Media implements Node {
   metadata: JsonStringType
   permissions: String
   picture: String
-  pusher_channel: String
   quote: String
   thumbnail_path: String
   type: String
@@ -11443,7 +11441,6 @@ type PublicTeam implements Node {
   name: String!
   permissions: String
   private: Boolean
-  pusher_channel: String
   slug: String!
   spam_count: Int
   team_graphql_id: String
@@ -12304,7 +12301,6 @@ type Source implements Node {
   name: String!
   overridden: JsonStringType
   permissions: String
-  pusher_channel: String
   tasks(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -12864,7 +12860,6 @@ type Team implements Node {
   private: Boolean
   public_team: PublicTeam
   public_team_id: String
-  pusher_channel: String
   rules_json_schema: String
   rules_search_fields_json_schema: JsonStringType
   saved_searches(

@@ -311,34 +311,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Pusher when project media is created" do
-    pm = create_project_media
-    assert pm.sent_to_pusher
-    t = create_team
-    m = create_claim_media team: t
-    pm = create_project_media team: t, media: m
-    assert pm.sent_to_pusher
-  end
-
-  test "should notify Pusher when project media is destroyed" do
-    pm = create_project_media
-    pm.sent_to_pusher = false
-    pm.destroy!
-    assert pm.sent_to_pusher
-  end
-
-  test "should notify Pusher in background" do
-    Rails.stubs(:env).returns(:production)
-    t = create_team
-    CheckPusher::Worker.drain
-    assert_equal 0, CheckPusher::Worker.jobs.size
-    create_project_media team: t
-    assert_equal 2, CheckPusher::Worker.jobs.size
-    CheckPusher::Worker.drain
-    assert_equal 0, CheckPusher::Worker.jobs.size
-    Rails.unstub(:env)
-  end
-
   test "should update project media embed data" do
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     url = 'http://test.com'

@@ -42,10 +42,12 @@ class GraphqlController4Test < ActionController::TestCase
   end
 
   test "should bulk-send project medias to trash" do
-    @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
+    @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::NONE ; pm.save! }
+    Sidekiq::Worker.drain_all
+    sleep 1
+    @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-    assert_equal 0, CheckPusher::Worker.jobs.size
     
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
@@ -54,7 +56,6 @@ class GraphqlController4Test < ActionController::TestCase
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
-    assert_equal 1, CheckPusher::Worker.jobs.size
   end
 
   test "should not bulk-restore project medias from trash if not allowed" do
@@ -86,7 +87,6 @@ class GraphqlController4Test < ActionController::TestCase
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
-    assert_equal 0, CheckPusher::Worker.jobs.size
     
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
@@ -95,27 +95,6 @@ class GraphqlController4Test < ActionController::TestCase
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
     assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
     assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-    assert_equal 1, CheckPusher::Worker.jobs.size
-  end
-
-  test "should bulk-restore project medias from trash and assign to list" do
-    RequestStore.store[:skip_delete_for_ever] = true
-    @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
-    Sidekiq::Worker.drain_all
-    sleep 1
-    @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-    assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-    assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::NONE })
-    assert_equal 0, CheckPusher::Worker.jobs.size
-
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived\": 0}" }) { ids, team { dbid } } }'
-    post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-
-    @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
-    assert_search_finds_all({ archived: CheckArchivedFlags::FlagCodes::NONE })
-    assert_search_finds_none({ archived: CheckArchivedFlags::FlagCodes::TRASHED })
-    assert_equal 1, CheckPusher::Worker.jobs.size
   end
 
   test "should not bulk-create tags if not allowed" do

@@ -646,7 +646,6 @@ class GraphqlController8Test < ActionController::TestCase
     query = %{query CheckSearch {
       search(query: "{}") {
         id
-        pusher_channel
         number_of_results
         team {
           id
@@ -654,7 +653,6 @@ class GraphqlController8Test < ActionController::TestCase
           name
           slug
           verification_statuses
-          pusher_channel
           dynamic_search_fields_json_schema
           rules_search_fields_json_schema
           medias_count
