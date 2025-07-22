@@ -773,4 +773,26 @@ class FactCheckTest < ActiveSupport::TestCase
 
     assert_equal "imported", fc.reload.channel
   end
+
+  test "should create ClaimDescription if not exists" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      cd = create_claim_description project_media: pm
+      fc = create_fact_check claim_description: cd
+      assert_equal cd.id, fc.reload.claim_description_id
+      fc = create_fact_check claim_description: nil, claim_description_text: 'cd_text'
+      cd = fc.reload.claim_description
+      assert_not_nil cd
+      assert_nil cd.project_media
+      assert_equal t, cd.team
+      assert_equal 'cd_text', cd.description
+      fc = create_fact_check claim_description: nil
+      cd = fc.reload.claim_description
+      assert_not_nil cd
+      assert_equal '-', cd.description
+    end
+  end
 end
