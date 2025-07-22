@@ -14421,7 +14421,7 @@
               "deprecationReason": null
             },
             {
-              "name": "set_claim_description",
+              "name": "claim_description_text",
               "description": null,
               "type": {
                 "kind": "SCALAR",
