@@ -49180,8 +49180,8 @@
                 "name": "CreateProjectMediaPayload",
                 "ofType": null
               },
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use `createFactCheck` instead."
             },
             {
               "name": "createProjectMediaUser",

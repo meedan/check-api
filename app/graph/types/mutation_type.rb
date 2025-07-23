@@ -25,7 +25,7 @@ class MutationType < BaseObject
   field :createAccountSource, mutation: AccountSourceMutations::Create
   field :destroyAccountSource, mutation: AccountSourceMutations::Destroy
 
-  field :createProjectMedia, mutation: ProjectMediaMutations::Create
+  field :createProjectMedia, mutation: ProjectMediaMutations::Create, deprecation_reason: "Use `createFactCheck` instead."
   field :updateProjectMedia, mutation: ProjectMediaMutations::Update
   field :updateProjectMedias, mutation: ProjectMediaMutations::Bulk::Update
   field :replaceProjectMedia, mutation: ProjectMediaMutations::Replace
