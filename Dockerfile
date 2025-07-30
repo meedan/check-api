@@ -1,16 +1,16 @@
 FROM ruby:3.0-slim
-MAINTAINER Meedan <sysops@meedan.com>
+LABEL maintainer="sysops@meedan.com"
 
 # the Rails stage can be overridden from the caller
-ENV RAILS_ENV development
+ENV RAILS_ENV=development
 
 # https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
-ENV MALLOC_ARENA_MAX 2
+ENV MALLOC_ARENA_MAX=2
 
 # Set a UTF-8 capabable locale
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
-ENV LANGUAGE C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C.UTF-8
 
 # Setup a user account
 ENV DEPLOYUSER=checkdeploy
