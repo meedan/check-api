@@ -9,6 +9,7 @@ module ClaimDescriptionMutations
       argument :description, GraphQL::Types::String, required: false
       argument :context, GraphQL::Types::String, required: false, as: :claim_context
       argument :project_media_id, GraphQL::Types::Int, required: false, camelize: false
+      argument :enable_create_blank_media, GraphQL::Types::Boolean, required: false, camelize: false
     end
   end
 
