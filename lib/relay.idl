@@ -9237,7 +9237,7 @@ type MutationType {
     Parameters for CreateProjectMedia
     """
     input: CreateProjectMediaInput!
-  ): CreateProjectMediaPayload
+  ): CreateProjectMediaPayload @deprecated(reason: "If you're creating an item of type 'blank' with an attached fact-check, please use the createFactCheck mutation instead. This mutation will not support that case in the near future.")
   createProjectMediaUser(
     """
     Parameters for CreateProjectMediaUser
