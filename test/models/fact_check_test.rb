@@ -8,7 +8,7 @@ class FactCheckTest < ActiveSupport::TestCase
 
   test "should create fact check" do
     assert_difference 'FactCheck.count' do
-      create_fact_check
+      create_fact_check claim_description: create_claim_description
     end
   end
 
@@ -32,7 +32,7 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should create fact check without optional fields" do
     Bot::Alegre.stubs(:send_field_to_similarity_index).returns({"success": true})
     assert_difference 'FactCheck.count' do
-      create_fact_check url: nil, title: random_string, summary: nil
+      create_fact_check url: nil, title: random_string, summary: nil, claim_description: create_claim_description
     end
     Bot::Alegre.unstub(:send_field_to_similarity_index)
   end
@@ -40,7 +40,7 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should not create fact check without user" do
     assert_no_difference 'FactCheck.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_fact_check user: nil
+        create_fact_check user: nil, claim_description: create_claim_description
       end
     end
   end
@@ -55,7 +55,7 @@ class FactCheckTest < ActiveSupport::TestCase
 
   test "should belong to user" do
     u = create_user
-    fc = create_fact_check user: u
+    fc = create_fact_check user: u, claim_description: create_claim_description
     assert_equal u, fc.user
     assert_equal [fc], u.fact_checks
   end
@@ -81,14 +81,14 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should provide a valid URL" do
     assert_no_difference 'FactCheck.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_fact_check url: random_string
+        create_fact_check url: random_string, claim_description: create_claim_description
       end
     end
   end
 
   test "should set default language" do
     setup_elasticsearch
-    fc = create_fact_check
+    fc = create_fact_check claim_description: create_claim_description
     assert_equal 'en', fc.language
     t = create_team
     t.set_language = 'fr'
@@ -269,7 +269,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should validate title or summary exist" do
-    fc = create_fact_check
+    fc = create_fact_check claim_description: create_claim_description
     assert_nothing_raised do
       fc.title = ''
       fc.save!
@@ -297,11 +297,11 @@ class FactCheckTest < ActiveSupport::TestCase
   test "should validate rating" do
     assert_no_difference 'FactCheck.count' do
       assert_raises ActiveRecord::RecordInvalid do
-        create_fact_check rating: 'invalid_status'
+        create_fact_check rating: 'invalid_status', claim_description: create_claim_description
       end
     end
     assert_difference 'FactCheck.count' do
-      create_fact_check rating: 'verified'
+      create_fact_check rating: 'verified', claim_description: create_claim_description
     end
     # Validate custom status
     t = create_team
@@ -331,15 +331,15 @@ class FactCheckTest < ActiveSupport::TestCase
 
   test "should create many fact-checks without signature" do
     assert_difference 'FactCheck.count', 2 do
-      create_fact_check signature: nil
-      create_fact_check signature: nil
+      create_fact_check signature: nil, claim_description: create_claim_description
+      create_fact_check signature: nil, claim_description: create_claim_description
     end
   end
 
   test "should not create fact-checks with the same signature" do
-    create_fact_check signature: 'test'
+    create_fact_check signature: 'test', claim_description: create_claim_description
     assert_raises ActiveRecord::RecordNotUnique do
-      create_fact_check signature: 'test'
+      create_fact_check signature: 'test', claim_description: create_claim_description
     end
   end
 
@@ -474,8 +474,8 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should set fact-check as imported" do
-    assert !create_fact_check(user: create_user).imported
-    assert create_fact_check(user: create_bot_user).imported
+    assert !create_fact_check(user: create_user, claim_description: create_claim_description).imported
+    assert create_fact_check(user: create_bot_user, claim_description: create_claim_description).imported
   end
 
   test "should set initial rating" do
@@ -545,7 +545,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should have team" do
-    fc = create_fact_check
+    fc = create_fact_check claim_description: create_claim_description
     assert_not_nil fc.team
   end
 
@@ -730,47 +730,69 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should be formatted as tipline search result" do
-    fc = create_fact_check
+    fc = create_fact_check claim_description: create_claim_description
     assert_kind_of TiplineSearchResult, fc.as_tipline_search_result
   end
 
   test "should set author" do
     u = create_user is_admin: true
     User.current = u
-    fc = create_fact_check
+    fc = create_fact_check claim_description: create_claim_description
     User.current = nil
     assert_equal u, fc.author
   end
 
   test "should assign default channel 'manual' for a regular user" do
-    fc = create_fact_check
+    fc = create_fact_check claim_description: create_claim_description
     assert_equal 'manual', fc.channel
   end
 
   test "should assign default channel 'api' for a BotUser #2" do
     bot = create_bot_user(default: true, approved: true)
-    fc = create_fact_check(user: bot, channel: nil)
+    fc = create_fact_check(user: bot, channel: nil, claim_description: create_claim_description)
 
     assert_equal 'api', fc.channel
   end
 
   test "should allow explicit override of channel" do
-    fc = create_fact_check(channel: 'imported')
+    fc = create_fact_check(channel: 'imported', claim_description: create_claim_description)
 
     assert_equal 'imported', fc.channel
   end
 
   test "should not allow an invalid channel value" do
     assert_raises(ArgumentError) do
-      create_fact_check(channel: 'invalid')
+      create_fact_check(channel: 'invalid', claim_description: create_claim_description)
     end
   end
 
   test "should not change channel on update if already set" do
-    fc = create_fact_check(channel: 'imported')
+    fc = create_fact_check channel: 'imported', claim_description: create_claim_description
     fc.title = 'Updated Title'
     fc.save!
 
     assert_equal "imported", fc.reload.channel
+  end
+
+  test "should create ClaimDescription if not exists" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      cd = create_claim_description project_media: pm
+      fc = create_fact_check claim_description: cd
+      assert_equal cd.id, fc.reload.claim_description_id
+      fc = create_fact_check claim_description: nil, claim_description_text: 'cd_text'
+      cd = fc.reload.claim_description
+      assert_not_nil cd
+      assert_nil cd.project_media
+      assert_equal t, cd.team
+      assert_equal 'cd_text', cd.description
+      fc = create_fact_check claim_description: nil
+      cd = fc.reload.claim_description
+      assert_not_nil cd
+      assert_equal '-', cd.description
+    end
   end
 end
