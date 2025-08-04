@@ -6,7 +6,7 @@ class FactCheck < ApplicationRecord
 
   enum report_status: { unpublished: 0, published: 1, paused: 2 }
 
-  attr_accessor :skip_report_update, :publish_report, :claim_description_text
+  attr_accessor :skip_report_update, :publish_report, :claim_description_text, :set_original_claim
 
   belongs_to :claim_description
 
@@ -23,6 +23,7 @@ class FactCheck < ApplicationRecord
   before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
+  after_create :set_project_media, if: proc { |fc| fc.claim_description.present? && !fc.set_original_claim.blank? }
   after_update :detach_claim_if_trashed
 
   def text_fields
@@ -187,6 +188,19 @@ class FactCheck < ApplicationRecord
       cd = self.claim_description
       cd.project_media = nil
       cd.save!
+    end
+  end
+
+  def set_project_media
+    begin
+      pm = ProjectMedia.new
+      pm.set_original_claim = self.set_original_claim
+      pm.claim_description = self.claim_description
+      pm.skip_check_ability = true
+      pm.save!
+    rescue StandardError => e
+      Rails.logger.info "[FactCheck] Exception when creating ProjectMedia from FactCheck[#{self.id}]: #{e.message}"
+      CheckSentry.notify(e, fact_check: self.id, claim_description: self.claim_description.id)
     end
   end
 end

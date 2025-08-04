@@ -2437,6 +2437,7 @@ input CreateFactCheckInput {
   imported: Boolean
   language: String
   rating: String
+  set_original_claim: String
   summary: String!
   tags: [String]
   title: String!

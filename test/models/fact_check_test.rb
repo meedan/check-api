@@ -795,4 +795,31 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_equal '-', cd.description
     end
   end
+
+  test "should create ProjectMedia if set_original_claim set" do
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      fc = create_fact_check claim_description_text: 'cd_text', set_original_claim: 'fc_media'
+      cd = fc.reload.claim_description
+      pm = cd.project_media
+      assert_not_nil cd
+      assert_not_nil pm
+      assert_equal 'cd_text', cd.description
+      assert_equal 'fc_media', pm.media.quote
+      assert_no_difference 'ProjectMedia.count' do
+        create_fact_check claim_description_text: random_string
+      end
+      assert_difference 'ProjectMedia.count' do
+        create_fact_check claim_description_text: random_string, set_original_claim: random_string
+      end
+      ProjectMedia.any_instance.stubs(:save!).raises(StandardError)
+      assert_no_difference 'ProjectMedia.count' do
+        create_fact_check claim_description_text: random_string, set_original_claim: random_string
+      end
+      ProjectMedia.any_instance.unstub(:save!)
+    end
+  end
 end
