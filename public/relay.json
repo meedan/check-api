@@ -3478,20 +3478,6 @@
               "deprecationReason": null
             },
             {
-              "name": "pusher_channel",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "team",
               "description": null,
               "args": [
@@ -14438,13 +14424,33 @@
               "name": "claim_description_id",
               "description": null,
               "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "claim_description_text",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "imported",
+              "description": null,
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
               },
               "defaultValue": null,
               "isDeprecated": false,
@@ -47376,20 +47382,6 @@
               "deprecationReason": null
             },
             {
-              "name": "pusher_channel",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "quote",
               "description": null,
               "args": [
@@ -49208,8 +49200,8 @@
                 "name": "CreateProjectMediaPayload",
                 "ofType": null
               },
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "If you're creating an item of type 'blank' with an attached fact-check, please use the createFactCheck mutation instead. This mutation will not support that case in the near future."
             },
             {
               "name": "createProjectMediaUser",
@@ -59549,20 +59541,6 @@
               "deprecationReason": null
             },
             {
-              "name": "pusher_channel",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "slug",
               "description": null,
               "args": [
@@ -63726,20 +63704,6 @@
               "deprecationReason": null
             },
             {
-              "name": "pusher_channel",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "tasks",
               "description": null,
               "args": [
@@ -67186,20 +67150,6 @@
             },
             {
               "name": "public_team_id",
-              "description": null,
-              "args": [
-
-              ],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "pusher_channel",
               "description": null,
               "args": [
 

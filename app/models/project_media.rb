@@ -19,6 +19,7 @@ class ProjectMedia < ApplicationRecord
   include ProjectMediaBulk
   include ProjectMediaSourceAssociations
   include ProjectMediaGetters
+  include CheckPusher
 
   validates_presence_of :media, :team
 
@@ -40,12 +41,6 @@ class ProjectMedia < ApplicationRecord
   after_update :apply_rules_and_actions_on_update, if: proc { |pm| pm.saved_changes.keys.include?('read') }
   after_update :apply_delete_for_ever, if: proc { |pm| pm.saved_change_to_archived? && pm.archived == CheckArchivedFlags::FlagCodes::TRASHED }
   after_destroy :destroy_related_medias
-
-  notifies_pusher on: [:save, :destroy],
-                  event: 'media_updated',
-                  targets: proc { |pm| [pm.media, pm.team, pm.project] },
-                  if: proc { |pm| !pm.skip_notifications },
-                  data: proc { |pm| pm.media.as_json.merge(class_name: pm.report_type).to_json }
 
   def related_to_team?(team)
     self.team == team

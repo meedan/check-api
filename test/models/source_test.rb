@@ -227,15 +227,6 @@ class SourceTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Pusher when source is updated" do
-    s = create_source
-    s = Source.find(s.id)
-    assert !s.sent_to_pusher
-    s.updated_at = Time.now
-    s.save!
-    assert s.sent_to_pusher
-  end
-
   test "should update from Pender data" do
     s = create_source name: 'Untitled-123'
     s.update_from_pender_data({ 'author_name' => 'Test' })

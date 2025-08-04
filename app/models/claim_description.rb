@@ -2,6 +2,7 @@ class ClaimDescription < ApplicationRecord
   attr_accessor :disable_replace_media, :enable_create_blank_media
 
   include Article
+  include CheckPusher
 
   has_paper_trail on: [:create, :update], ignore: [:updated_at, :created_at], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 

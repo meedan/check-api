@@ -16,7 +16,6 @@ class TeamType < DefaultObject
   field :get_embed_whitelist, GraphQL::Types::String, null: true
   field :get_report_design_image_template, GraphQL::Types::String, null: true
   field :get_status_target_turnaround, GraphQL::Types::String, null: true
-  field :pusher_channel, GraphQL::Types::String, null: true
   field :search_id, GraphQL::Types::String, null: true
   field :search, CheckSearchType, null: true
   field :check_search_trash, CheckSearchType, null: true

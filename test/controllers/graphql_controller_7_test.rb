@@ -311,7 +311,7 @@ class GraphqlController7Test < ActionController::TestCase
   test "should have a different id for public team" do
     authenticate_with_user
     t = create_team slug: 'team', name: 'Team'
-    post :create, params: { query: 'query PublicTeam { public_team { id, trash_count, pusher_channel } }', team: 'team' }
+    post :create, params: { query: 'query PublicTeam { public_team { id, trash_count } }', team: 'team' }
     assert_response :success
     assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
   end

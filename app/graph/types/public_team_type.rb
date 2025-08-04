@@ -11,12 +11,6 @@ class PublicTeamType < DefaultObject
   field :private, GraphQL::Types::Boolean, null: true
   field :team_graphql_id, GraphQL::Types::String, null: true
 
-  field :pusher_channel, GraphQL::Types::String, null: true
-
-  def pusher_channel
-    Team.find(object.id).pusher_channel
-  end
-
   field :medias_count, GraphQL::Types::Int, null: true
 
   def medias_count
