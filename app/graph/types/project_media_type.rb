@@ -45,6 +45,7 @@ class ProjectMediaType < DefaultObject
   field :suggestions_count, GraphQL::Types::Int, null: true
   field :imported_from_feed_id, GraphQL::Types::Int, null: true
   field :imported_from_project_media_id, GraphQL::Types::Int, null: true
+  field :pusher_channel, GraphQL::Types::String, null: true
   field :imported_from_feed, FeedType, null: true
 
   def imported_from_feed
@@ -115,15 +116,6 @@ class ProjectMediaType < DefaultObject
       .for(Media)
       .load(object.media_id)
       .then { |media| media.respond_to?(:domain) ? media.domain : "" }
-  end
-
-  field :pusher_channel, GraphQL::Types::String, null: true
-
-  def pusher_channel
-    RecordLoader
-      .for(Media)
-      .load(object.media_id)
-      .then { |media| media.pusher_channel }
   end
 
   field :account, AccountType, null: true

@@ -34,9 +34,6 @@ module ProjectMediaBulk
         ids.each{ |pm_id| ProjectMediaTrashWorker.perform_in(interval.days, pm_id, YAML.dump(options)) }
       end
 
-      # Pusher
-      team.notify_pusher_channel
-
       # ElasticSearch
       source = "ctx._source.archived = params.archived"
       params = { archived: archived.to_i }

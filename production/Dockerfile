@@ -1,6 +1,6 @@
 # check-api
 FROM ruby:3.0-slim
-MAINTAINER sysops@meedan.com
+LABEL maintainer="sysops@meedan.com"
 
 ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app/current \
@@ -18,9 +18,9 @@ ENV DEPLOYUSER=checkdeploy \
     # MIN_INSTANCES and MAX_POOL_SIZE control the pool size of passenger
 
 # Set a UTF-8 capable locale
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
-ENV LANGUAGE C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C.UTF-8
 
 #
 # USER CONFIG

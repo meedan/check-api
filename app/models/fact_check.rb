@@ -6,13 +6,14 @@ class FactCheck < ApplicationRecord
 
   enum report_status: { unpublished: 0, published: 1, paused: 2 }
 
-  attr_accessor :skip_report_update, :publish_report
+  attr_accessor :skip_report_update, :publish_report, :claim_description_text
 
   belongs_to :claim_description
 
   before_validation :set_initial_rating, on: :create, if: proc { |fc| fc.rating.blank? && fc.claim_description.present? }
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
   before_validation :set_imported, on: :create
+  before_validation :set_claim_description, on: :create, unless: proc { |fc| fc.claim_description.present? }
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
@@ -94,6 +95,13 @@ class FactCheck < ApplicationRecord
 
   def set_imported
     self.imported = true if self.user&.type == 'BotUser' # We consider "imported" the fact-checks that are not created by humans inside Check
+  end
+
+  def set_claim_description
+    # Create ClaimDescription and use `-` in case the value is nil
+    claim_description_text = self.claim_description_text || '-'
+    cd = ClaimDescription.create!(description: claim_description_text, skip_check_ability: true)
+    self.claim_description_id = cd.id
   end
 
   def language_in_allowed_values

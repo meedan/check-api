@@ -11,7 +11,6 @@ class SourceType < DefaultObject
   field :dbid, GraphQL::Types::Int, null: true
   field :user_id, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
-  field :pusher_channel, GraphQL::Types::String, null: true
   field :lock_version, GraphQL::Types::Int, null: true
   field :medias_count, GraphQL::Types::Int, null: true
   field :accounts_count, GraphQL::Types::Int, null: true

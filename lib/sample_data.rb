@@ -849,7 +849,7 @@ module SampleData
       url: random_url,
       title: random_string,
       user: options[:user] || create_user,
-      claim_description: options[:claim_description] || create_claim_description
+      claim_description: options[:claim_description]
     }.merge(options))
   end
 
