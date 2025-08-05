@@ -196,6 +196,7 @@ class FactCheck < ApplicationRecord
       pm = ProjectMedia.new
       pm.set_original_claim = self.set_original_claim
       pm.claim_description = self.claim_description
+      pm.set_status = self.rating
       pm.skip_check_ability = true
       pm.save!
     rescue StandardError => e

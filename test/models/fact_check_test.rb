@@ -797,6 +797,7 @@ class FactCheckTest < ActiveSupport::TestCase
   end
 
   test "should create ProjectMedia if set_original_claim set" do
+    create_verification_status_stuff
     u = create_user
     t = create_team
     pm = create_project_media team: t
@@ -820,6 +821,16 @@ class FactCheckTest < ActiveSupport::TestCase
         create_fact_check claim_description_text: random_string, set_original_claim: random_string
       end
       ProjectMedia.any_instance.unstub(:save!)
+      assert_no_difference 'FactCheck.count' do
+        assert_no_difference 'ClaimDescription.count' do
+          assert_raises ActiveRecord::RecordInvalid do
+            create_fact_check claim_description: cd, set_original_claim: random_string, rating: 'in_progress'
+          end
+        end
+      end
+      fc = create_fact_check claim_description_text: random_string, set_original_claim: random_string, rating: 'in_progress'
+      pm = fc.claim_description.project_media
+      assert_equal 'in_progress', pm.status
     end
   end
 end
