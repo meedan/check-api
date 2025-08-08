@@ -26,7 +26,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     git \
     graphicsmagick \
     libidn11-dev \
-    inotify-tools \
     libpq-dev \
     libtag1-dev \
     lsof
