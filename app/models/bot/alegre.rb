@@ -109,7 +109,7 @@ class Bot::Alegre < BotUser
 
     def self.get_language_from_extracted_text(id)
       annotation = Dynamic.find_by_id(id)
-      ::Bot::Alegre.get_language_from_text(annotation.annotated, annotation.get_field_value('text'))
+      ::Bot::Alegre.get_language_from_text(annotation.annotated, annotation.get_field_value('text')) unless annotation.nil?
     end
 
     private
