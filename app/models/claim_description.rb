@@ -1,6 +1,4 @@
 class ClaimDescription < ApplicationRecord
-  attr_accessor :disable_replace_media, :enable_create_blank_media
-
   include Article
   include CheckPusher
 
@@ -20,7 +18,6 @@ class ClaimDescription < ApplicationRecord
   after_commit :update_fact_check, on: [:update]
   after_update :update_report
   after_update :reset_item_rating_if_removed
-  after_update :replace_media, unless: proc { |cd| cd.disable_replace_media }
   after_update :migrate_claim_and_fact_check_logs, :log_relevant_article_results, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
 
   # To avoid GraphQL conflict with name `context`
@@ -101,15 +98,6 @@ class ClaimDescription < ApplicationRecord
     end
   end
 
-  # Replace item if fact-check is from a blank media
-  def replace_media
-    if !self.project_media_id_before_last_save.nil? && ProjectMedia.find_by_id(self.project_media_id_before_last_save)&.type_of_media == 'Blank'
-      old_pm = ProjectMedia.find(self.project_media_id_before_last_save)
-      new_pm = self.project_media
-      old_pm.replace_by(new_pm)
-    end
-  end
-
   def migrate_claim_and_fact_check_logs
     # Migrate ClaimDescription logs
     cd_versions = Version.from_partition(self.team_id).where(item_type: 'ClaimDescription', item_id: self.id)
@@ -147,12 +135,6 @@ class ClaimDescription < ApplicationRecord
         status.status = default_status
         status.save
       end
-    end
-  end
-
-  def create_blank_media_if_needed
-    if self.enable_create_blank_media && self.project_media_id.blank?
-      self.project_media = ProjectMedia.create!(media: Blank.create!, team: self.team)
     end
   end
 end

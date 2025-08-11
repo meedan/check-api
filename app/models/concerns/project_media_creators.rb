@@ -173,8 +173,6 @@ module ProjectMediaCreators
         [media_type, self.quote, { quote_attributions: self.quote_attributions }]
       when 'Link'
         [media_type, self.url, { team: self.team }]
-      when 'Blank'
-        [media_type]
       end
     end
   end

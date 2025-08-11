@@ -96,7 +96,7 @@ module ProjectMediaCachedFields
     end
 
     cached_field :linked_items_count,
-      start_as: proc { |pm| pm.media.type == 'Blank' ? 0 : 1 },
+      start_as: 1,
       update_es: true,
       recalculate: :recalculate_linked_items_count,
       update_on: [SIMILARITY_EVENT]
@@ -525,9 +525,7 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_media_cluster_origin_timestamp
 
     def recalculate_linked_items_count
-      count = Relationship.send('confirmed').where(source_id: self.id).count
-      count += 1 unless self.media.type == 'Blank'
-      count
+      Relationship.send('confirmed').where(source_id: self.id).count + 1
     end
 
     def recalculate_suggestions_count
