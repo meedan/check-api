@@ -798,6 +798,7 @@ class FactCheckTest < ActiveSupport::TestCase
 
   test "should create ProjectMedia if set_original_claim set" do
     create_verification_status_stuff
+    create_report_design_annotation_type
     u = create_user
     t = create_team
     pm = create_project_media team: t
@@ -818,7 +819,11 @@ class FactCheckTest < ActiveSupport::TestCase
       end
       ProjectMedia.any_instance.stubs(:save!).raises(StandardError)
       assert_no_difference 'ProjectMedia.count' do
-        create_fact_check claim_description_text: random_string, set_original_claim: random_string
+        assert_difference 'FactCheck.count' do
+          assert_difference 'ClaimDescription.count' do
+            create_fact_check claim_description_text: random_string, set_original_claim: random_string
+          end
+        end
       end
       ProjectMedia.any_instance.unstub(:save!)
       assert_no_difference 'FactCheck.count' do
@@ -828,9 +833,14 @@ class FactCheckTest < ActiveSupport::TestCase
           end
         end
       end
-      fc = create_fact_check claim_description_text: random_string, set_original_claim: random_string, rating: 'in_progress'
-      pm = fc.claim_description.project_media
-      assert_equal 'in_progress', pm.status
+      Sidekiq::Testing.inline! do
+        fc = create_fact_check claim_description_text: random_string, set_original_claim: random_string, rating: 'verified', tags: ["taga", "tagb"], publish_report: true
+        pm = fc.claim_description.project_media
+        assert_equal 2, pm.annotations('tag').count
+        assert_equal 'verified', pm.last_status
+        r = pm.get_dynamic_annotation('report_design')
+        assert_equal 'published', r.get_field_value('state')
+      end
     end
   end
 end

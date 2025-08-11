@@ -197,9 +197,17 @@ class FactCheck < ApplicationRecord
       pm.set_original_claim = self.set_original_claim
       pm.claim_description = self.claim_description
       pm.set_status = self.rating
+      pm.set_tags = self.tags
       pm.skip_check_ability = true
       pm.save!
+      # Set report status
+      if self.publish_report
+        self.update_column(:report_status, 'published')
+        self.update_report
+      end
     rescue StandardError => e
+      # Skip report update as ProjectMedia creation failed and log the failure
+      self.skip_report_update = true
       Rails.logger.info "[FactCheck] Exception when creating ProjectMedia from FactCheck[#{self.id}]: #{e.message}"
       CheckSentry.notify(e, fact_check: self.id, claim_description: self.claim_description.id)
     end
