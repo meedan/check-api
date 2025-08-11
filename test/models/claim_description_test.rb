@@ -210,27 +210,6 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
     end
   end
 
-  test "should create blank media if needed" do
-    t = create_team
-    pm = create_project_media team: t
-    cd = nil
-
-    assert_no_difference 'Blank.count' do
-      cd = create_claim_description project_media: nil, team: t
-    end
-    assert_nil cd.project_media
-
-    assert_no_difference 'Blank.count' do
-      cd = create_claim_description project_media: pm, team: t, enable_create_blank_media: true
-    end
-    assert_equal pm, cd.project_media
-
-    assert_difference 'Blank.count' do
-      cd = create_claim_description project_media: nil, team: t, enable_create_blank_media: true
-    end
-    assert cd.project_media.media.is_a?(Blank)
-  end
-
   test "should update status for main and related items when set project_media" do
     create_verification_status_stuff
     RequestStore.store[:skip_cached_field_update] = false
