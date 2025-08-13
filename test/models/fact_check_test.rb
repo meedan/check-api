@@ -817,7 +817,7 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_difference 'ProjectMedia.count' do
         create_fact_check claim_description_text: random_string, set_original_claim: random_string
       end
-      ProjectMedia.any_instance.stubs(:save!).raises(StandardError)
+      ProjectMedia.any_instance.stubs(:save!).raises(RuntimeError)
       assert_no_difference 'ProjectMedia.count' do
         assert_difference 'FactCheck.count' do
           assert_difference 'ClaimDescription.count' do
@@ -841,6 +841,29 @@ class FactCheckTest < ActiveSupport::TestCase
         r = pm.get_dynamic_annotation('report_design')
         assert_equal 'published', r.get_field_value('state')
       end
+      # Verify FactCheck with multiple language and same original_claim
+      t.set_languages = ['en', 'fr']
+      t.save!
+      original_claim = random_string
+      assert_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count' do
+          assert_difference 'ClaimDescription.count' do
+            create_fact_check set_original_claim: original_claim, language: 'en', publish_report: true
+          end
+        end
+      end
+      fc = nil
+      assert_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count' do
+          assert_difference 'ClaimDescription.count' do
+            fc = create_fact_check set_original_claim: original_claim, language: 'fr', publish_report: true
+          end
+        end
+      end
+      cd = fc.reload.claim_description
+      pm = cd.project_media
+      assert_equal 'Blank', pm.media.type
+      fc = create_fact_check set_original_claim: original_claim, language: 'fr', publish_report: true
     end
   end
 end
