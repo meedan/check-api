@@ -72,7 +72,10 @@ class Bot::Keep < BotUser
   def self.webhook(request)
     payload = JSON.parse(request.raw_post)
     if payload['url']
-      link = Link.where(url: payload['url']).last
+      media_link = Link.find_by(url: payload['url'])
+      account_link = Account.find_by(url: payload['url'])
+      link = media_link.presence || account_link.presence
+
       raise ObjectNotReadyError.new('Link') unless link
 
       if payload['type'] == 'metrics'
