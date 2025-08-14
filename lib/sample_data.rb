@@ -753,10 +753,6 @@ module SampleData
     la.reload
   end
 
-  def create_blank_media
-    Blank.create!
-  end
-
   def create_tipline_resource(options = {})
     tr = TiplineResource.new
     tr.title = random_string

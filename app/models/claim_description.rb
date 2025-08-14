@@ -14,7 +14,6 @@ class ClaimDescription < ApplicationRecord
   validates_presence_of :team
   validates_uniqueness_of :project_media_id, allow_nil: true
   validate :cant_apply_article_to_item_if_article_is_in_the_trash
-  before_create :create_blank_media_if_needed
   after_commit :update_fact_check, on: [:update]
   after_update :update_report
   after_update :reset_item_rating_if_removed

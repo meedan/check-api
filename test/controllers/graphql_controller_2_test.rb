@@ -556,27 +556,6 @@ class GraphqlController2Test < ActionController::TestCase
     end
   end
 
-  test "should replace blank project media by another" do
-    Sidekiq::Testing.inline! do
-      u = create_user
-      t = create_team
-      create_team_user team: t, user: u, role: 'admin'
-      old = create_project_media team: t, media: Blank.create!
-      r = publish_report(old)
-      new = create_project_media team: t
-      authenticate_with_user(u)
-
-      query = 'mutation { replaceProjectMedia(input: { clientMutationId: "1", project_media_to_be_replaced_id: "' + old.graphql_id + '", new_project_media_id: "' + new.graphql_id + '" }) { old_project_media_deleted_id, new_project_media { dbid } } }'
-      post :create, params: { query: query, team: t.slug }
-      assert_response :success
-      data = JSON.parse(@response.body)['data']['replaceProjectMedia']
-      assert_equal old.graphql_id, data['old_project_media_deleted_id']
-      assert_equal new.id, data['new_project_media']['dbid']
-      assert_nil ProjectMedia.find_by_id(old.id)
-      assert_equal r, new.get_dynamic_annotation('report_design')
-    end
-  end
-
   test "should set and get Slack settings for team" do
     u = create_user
     t = create_team
