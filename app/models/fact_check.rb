@@ -221,7 +221,7 @@ class FactCheck < ApplicationRecord
     pm.set_tags = self.tags
     pm.skip_check_ability = true
     pm.save!
-    # set signture
+    # set signature
     fc_attr = self.dup.attributes.compact.except("user_id", "claim_description_id", "author_id", "trashed", "report_status")
     update_columns = { signature: Digest::MD5.hexdigest([fc_attr.to_json, self.team_id].join(':')) }
     # Set report status
