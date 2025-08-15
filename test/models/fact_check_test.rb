@@ -795,4 +795,75 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_equal '-', cd.description
     end
   end
+
+  test "should create ProjectMedia if set_original_claim set" do
+    create_verification_status_stuff
+    create_report_design_annotation_type
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      fc = create_fact_check claim_description_text: 'cd_text', set_original_claim: 'fc_media'
+      cd = fc.reload.claim_description
+      pm = cd.project_media
+      assert_not_nil cd
+      assert_not_nil pm
+      assert_equal 'cd_text', cd.description
+      assert_equal 'fc_media', pm.media.quote
+      assert_no_difference 'ProjectMedia.count' do
+        create_fact_check claim_description_text: random_string
+      end
+      assert_difference 'ProjectMedia.count' do
+        create_fact_check claim_description_text: random_string, set_original_claim: random_string
+      end
+      ProjectMedia.any_instance.stubs(:save!).raises(RuntimeError)
+      assert_no_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count' do
+          assert_difference 'ClaimDescription.count' do
+            create_fact_check claim_description_text: random_string, set_original_claim: random_string
+          end
+        end
+      end
+      ProjectMedia.any_instance.unstub(:save!)
+      assert_no_difference 'FactCheck.count' do
+        assert_no_difference 'ClaimDescription.count' do
+          assert_raises ActiveRecord::RecordInvalid do
+            create_fact_check claim_description: cd, set_original_claim: random_string, rating: 'in_progress'
+          end
+        end
+      end
+      Sidekiq::Testing.inline! do
+        fc = create_fact_check claim_description_text: random_string, set_original_claim: random_string, rating: 'verified', tags: ["taga", "tagb"], publish_report: true
+        pm = fc.claim_description.project_media
+        assert_equal 2, pm.annotations('tag').count
+        assert_equal 'verified', pm.last_status
+        r = pm.get_dynamic_annotation('report_design')
+        assert_equal 'published', r.get_field_value('state')
+      end
+      # Verify FactCheck with multiple language and same original_claim
+      t.set_languages = ['en', 'fr']
+      t.save!
+      original_claim = random_string
+      assert_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count' do
+          assert_difference 'ClaimDescription.count' do
+            create_fact_check set_original_claim: original_claim, language: 'en', publish_report: true
+          end
+        end
+      end
+      fc = nil
+      assert_difference 'ProjectMedia.count' do
+        assert_difference 'FactCheck.count' do
+          assert_difference 'ClaimDescription.count' do
+            fc = create_fact_check set_original_claim: original_claim, language: 'fr', publish_report: true
+          end
+        end
+      end
+      cd = fc.reload.claim_description
+      pm = cd.project_media
+      assert_equal 'Blank', pm.media.type
+      fc = create_fact_check set_original_claim: original_claim, language: 'fr', publish_report: true
+    end
+  end
 end

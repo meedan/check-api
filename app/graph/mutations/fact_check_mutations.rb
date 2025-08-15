@@ -21,7 +21,9 @@ module FactCheckMutations
     argument :summary, GraphQL::Types::String, required: true
     argument :claim_description_id, GraphQL::Types::Int, required: false, camelize: false
     argument :claim_description_text, GraphQL::Types::String, required: false, camelize: false
+    argument :set_original_claim, GraphQL::Types::String, required: false, camelize: false
     argument :imported, GraphQL::Types::Boolean, required: false
+    argument :publish_report, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   class Update < Mutations::UpdateMutation
