@@ -753,10 +753,6 @@ module SampleData
     la.reload
   end
 
-  def create_blank_media
-    Blank.create!
-  end
-
   def create_tipline_resource(options = {})
     tr = TiplineResource.new
     tr.title = random_string
@@ -838,8 +834,7 @@ module SampleData
       description: random_string,
       context: random_string,
       user: options[:user] || create_user,
-      project_media: options.has_key?(:project_media) ? options[:project_media] : create_project_media,
-      enable_create_blank_media: options[:enable_create_blank_media]
+      project_media: options.has_key?(:project_media) ? options[:project_media] : create_project_media
     }.merge(options))
   end
 

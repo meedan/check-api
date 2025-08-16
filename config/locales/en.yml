@@ -771,9 +771,6 @@ en:
   fieldset_not_defined_by_team: Fieldset should be supported by the workspace
   cant_change_field_type_or_options_when_answered: The field type cannot be changed
     because answers have already been filled
-  replace_by_media_in_the_same_team: Sorry, you can only replace this item by another
-    item from the same workspace
-  replace_blank_media_only: Sorry, but for now you can only replace blank items
   cant_preview_rss_feed: Sorry, you don't have permission to preview an RSS feed.
   list_column_demand: Requests
   list_column_share_count: FB Shares

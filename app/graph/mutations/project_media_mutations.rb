@@ -54,33 +54,6 @@ module ProjectMediaMutations
     argument :title_field, GraphQL::Types::String, required: false, camelize: false
   end
 
-  class Replace < Mutations::BaseMutation
-    graphql_name "ReplaceProjectMedia"
-
-    argument :project_media_to_be_replaced_id, GraphQL::Types::ID, required: true, camelize: false
-    argument :new_project_media_id, GraphQL::Types::ID, required: true, camelize: false
-    argument :skip_send_report, GraphQL::Types::Boolean, required: false, camelize: false
-
-    field :old_project_media_deleted_id, GraphQL::Types::ID, null: true, camelize: false
-    field :new_project_media, ProjectMediaType, null: true, camelize: false
-
-    def resolve(project_media_to_be_replaced_id:, new_project_media_id:, skip_send_report: false)
-      old_object = GraphqlCrudOperations.object_from_id_if_can(
-        project_media_to_be_replaced_id,
-        context[:ability]
-      )
-      new_object = GraphqlCrudOperations.object_from_id_if_can(
-        new_project_media_id,
-        context[:ability]
-      )
-      old_object.replace_by(new_object, skip_send_report)
-      {
-        old_project_media_deleted_id: old_object.graphql_id,
-        new_project_media: new_object
-      }
-    end
-  end
-
   module Bulk
     PARENTS = [
       'team',

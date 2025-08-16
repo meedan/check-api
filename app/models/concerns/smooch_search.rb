@@ -285,7 +285,7 @@ module SmoochSearch
     end
 
     def search_by_keywords_for_similar_published_fact_checks(words, after, team_ids, limit, feed_id = nil, language = nil, published_only = true, settings = nil)
-      types = CheckSearch::MEDIA_TYPES.clone.push('blank')
+      types = CheckSearch::MEDIA_TYPES.clone
       search_fields = %w(title description fact_check_title fact_check_summary extracted_text url claim_description_content)
       filters = { keyword: words.join('+'), keyword_fields: { fields: search_fields }, sort: 'recent_activity', eslimit: limit, show: types }
       filters.merge!({ fc_language: [language] }) if !language.blank? && self.get_setting_value_or_default(:should_restrict_by_language, settings, team_ids)
