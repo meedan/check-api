@@ -216,6 +216,7 @@ class FactCheck < ApplicationRecord
     else
       pm.set_original_claim = self.set_original_claim
     end
+    pm.team_id = self.team_id
     pm.claim_description = self.claim_description
     pm.set_status = self.rating
     pm.set_tags = self.tags
