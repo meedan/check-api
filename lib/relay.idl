@@ -2435,7 +2435,9 @@ input CreateFactCheckInput {
   clientMutationId: String
   imported: Boolean
   language: String
+  publish_report: Boolean
   rating: String
+  set_original_claim: String
   summary: String!
   tags: [String]
   title: String!
