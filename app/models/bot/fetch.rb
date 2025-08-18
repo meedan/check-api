@@ -216,6 +216,7 @@ class Bot::Fetch < BotUser
     end
 
     def self.create_project_media(team, user)
+      # TODO: find another way to create a media instead of Blank
       ProjectMedia.create!(
         media: Blank.create!,
         team: team,

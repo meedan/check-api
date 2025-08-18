@@ -313,8 +313,9 @@ class ProjectMedia < ApplicationRecord
       return existing_pm
     elsif existing_pm.fact_check.present?
       if existing_pm.fact_check.language != new_pm.set_fact_check['language']
-        new_pm.replace_with_blank_media
-        return new_pm
+        # TODO: fix a replacement with blank media
+        # new_pm.replace_with_blank_media
+        # return new_pm
       end
     end
     new_pm.save!
@@ -326,12 +327,12 @@ class ProjectMedia < ApplicationRecord
     self.create_claim_description_and_fact_check
   end
 
-  def replace_with_blank_media
-    m = Blank.create!
-    self.set_original_claim = nil
-    self.media_id = m.id
-    self.save!
-  end
+  # def replace_with_blank_media
+  #   m = Blank.create!
+  #   self.set_original_claim = nil
+  #   self.media_id = m.id
+  #   self.save!
+  # end
 
   def get_similar_articles
     # Get search query based on Media type
