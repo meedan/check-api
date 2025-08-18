@@ -72,33 +72,20 @@ class Bot::Keep < BotUser
   def self.webhook(request)
     payload = JSON.parse(request.raw_post)
     if payload['url']
-      media_link = Link.find_by(url: payload['url'])
-      account_link = Account.find_by(url: payload['url'])
-      link = media_link.presence || account_link.presence
+      link = Link.find_by(url: payload['url'])
+      account = Account.find_by(url: payload['url'])
 
-      raise ObjectNotReadyError.new('Link') unless link
+      raise ObjectNotReadyError.new('Link') unless link.present? || account.present?
 
       if payload['type'] == 'metrics'
         Bot::Keep.update_metrics(link, payload['metrics'])
       else
         type = Bot::Keep.archiver_to_annotation_type(payload['type'])
         response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
-        Bot::Keep.save_archive_information(link, response, payload)
 
-        project_media = ProjectMedia.where(media_id: link.id)
-        raise ObjectNotReadyError.new('ProjectMedia') unless project_media.count > 0
-
-        project_media.find_each do |pm|
-          annotation = pm.annotations.where(annotation_type: 'archiver').last
-          raise ObjectNotReadyError.new('Archiver annotation for ProjectMedia') if annotation.nil?
-
-          unless !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
-            annotation = annotation.load
-            annotation.skip_check_ability = true
-            annotation.disable_es_callbacks = Rails.env.to_s == 'test'
-            annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
-            annotation.save!
-          end
+        if link.present?
+          Bot::Keep.save_archive_information(link, response, payload)
+          Bot::Keep.update_archive_annotations(type, link, response)
         end
       end
     end
@@ -111,6 +98,24 @@ class Bot::Keep < BotUser
 
   def self.set_pender_archive_response_based_on_pender_data(data)
     (!data.nil? && data['screenshot_taken'].to_i == 1) ? { screenshot_taken: 1, screenshot_url: data['screenshot'] || data['screenshot_url'] } : {}
+  end
+
+  def self.update_archive_annotations(type, link, response)
+    project_media = ProjectMedia.where(media_id: link.id)
+    raise ObjectNotReadyError.new('ProjectMedia') unless project_media.count > 0
+
+    project_media.find_each do |pm|
+      annotation = pm.annotations.where(annotation_type: 'archiver').last
+      raise ObjectNotReadyError.new('Archiver annotation for ProjectMedia') if annotation.nil?
+
+      unless !DynamicAnnotation::Field.where(field_name: "#{type}_response", annotation_id: annotation.id).exists?
+        annotation = annotation.load
+        annotation.skip_check_ability = true
+        annotation.disable_es_callbacks = Rails.env.to_s == 'test'
+        annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
+        annotation.save!
+      end
+    end
   end
 
   def self.update_metrics(link, metrics)
