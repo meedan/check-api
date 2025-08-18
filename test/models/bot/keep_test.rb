@@ -222,4 +222,17 @@ class IsolatedBotKeepTest < ActiveSupport::TestCase
       Bot::Keep.webhook(fake_request(url))
     end
   end
+
+  test ".webhook archiving doesn't raise exception when parsing an Account url" do
+    url = 'https://example.com/foo'
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    pender_response = '{"type":"media","data":{"url":"' + url + '","type":"profile"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: pender_response)
+
+    create_account(url: url)
+
+    assert_nothing_raised do
+      Bot::Keep.webhook(fake_request(url))
+    end
+  end
 end
