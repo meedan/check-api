@@ -790,6 +790,104 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     PenderClient::Request.unstub(:get_medias)
   end
 
+  test "should not replace one project media by another if not from the same team" do
+    old = create_project_media team: create_team, media: Blank.create!
+    new = create_project_media team: create_team
+    assert_raises RuntimeError do
+      old.replace_by(new)
+    end
+  end
+
+  test "should not replace one project media by another if media is not blank" do
+    t = create_team
+    old = create_project_media team: t
+    new = create_project_media team: t
+    assert_raises RuntimeError do
+      old.replace_by(new)
+    end
+  end
+
+  test "should save history version even if the original project media does not exist anymore" do
+    t = create_team
+    old_pm_id = 123456 # something that does not exist anymore
+    new = create_project_media team: t
+    ProjectMedia.apply_replace_by(old_pm_id, new.id, "{\"author_id\":1234,\"assignments_ids\":[],\"skip_send_report\":true}")
+
+    history = new.versions.first.object_changes
+    assert_equal history, { pm_id: [123456,new.id]}.to_json
+  end
+
+  test "should replace a blank project media by another project media" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user
+    u2 = create_user
+    u3 = create_user
+    create_team_user team: t, user: u2
+    create_team_user team: t, user: u3
+    at = create_annotation_type annotation_type: 'task_response_single_choice', label: 'Task'
+    ft1 = create_field_type field_type: 'single_choice', label: 'Single Choice'
+    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
+    tag_a = create_tag_text team_id: t.id
+    tag_b = create_tag_text team_id: t.id
+    tag_c = create_tag_text team_id: t.id
+    tt = create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Foo'}, { label: 'Faa' }]
+    tt2 = create_team_task team_id: t.id, task_type: 'single_choice', options: [{ label: 'Optiona a'}, { label: 'Option b' }]
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      RequestStore.store[:skip_clear_cache] = true
+      old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false 
+      cd = create_claim_description project_media: old
+      fc = create_fact_check claim_description: cd
+      old_r = publish_report(old)
+      old_s = old.last_status_obj
+      # assign to
+      s_old = Dynamic.find(old_s.id)
+      s_old.assigned_to_ids =[u.id, u2.id].join(',')
+      s_old.save!
+      new = create_project_media team: t, media: create_uploaded_video, disable_es_callbacks: false
+      new_r = publish_report(new)
+      new_s = new.last_status_obj
+      old_tag_a = create_tag tag: tag_a.id, annotated: old
+      old_tag_b = create_tag tag: tag_b.id, annotated: old
+      new_tag_a = create_tag tag: tag_a.id, annotated: new
+      new_tag_c = create_tag tag: tag_c.id, annotated: new
+      # add task response
+      new_tt = new.annotations('task').select{|t| t.team_task_id == tt.id}.last
+      new_tt.response = { annotation_type: 'task_response_single_choice', set_fields: { response_task: 'Foo' }.to_json }.to_json
+      new_tt.save!
+      new_tt2 = new.annotations('task').select{|t| t.team_task_id == tt2.id}.last
+      # assign to
+      s = new.last_verification_status_obj
+      s = Dynamic.find(s.id)
+      s.assigned_to_ids = [u2.id, u3.id].join(',')
+      s.save!
+      old.replace_by(new)
+      assert_nil ProjectMedia.find_by_id(old.id)
+      assert_nil Annotation.find_by_id(new_s.id)
+      assert_nil Annotation.find_by_id(new_r.id)
+      assert_equal old_r, new.get_dynamic_annotation('report_design')
+      assert_equal old_s, new.get_dynamic_annotation('verification_status')
+      new = new.reload
+      assert_equal 'Import', new.creator_name
+      data = { "main" => CheckChannels::ChannelCodes::FETCH }
+      assert_equal data, new.channel
+      assert_equal 3, new.annotations('tag').count
+      # Verify replace log entry
+      replace_v = Version.from_partition(new.team_id).where(event_type: 'replace_projectmedia', associated_id: new.id, associated_type: 'ProjectMedia')
+      assert_not_empty replace_v
+      # Verifiy assignment
+      s = new.last_verification_status_obj
+      assert_equal [u.id, u2.id, u3.id], s.assignments.map(&:user_id).sort
+      # Verify ES
+      result = $repository.find(get_es_id(new))
+      assert_equal [CheckChannels::ChannelCodes::FETCH], result['channel']
+      assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
+      assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
+      assert_equal [u.id, u2.id, u3.id], result['assigned_user_ids'].sort
+    end
+  end
+
   test "should create metrics annotation after create a project media" do
     create_annotation_type_and_fields('Metrics', { 'Data' => ['JSON', false] })
     url = 'https://twitter.com/meedan/status/1321600654750613505'
