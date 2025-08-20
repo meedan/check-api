@@ -219,7 +219,7 @@ class TestController < ApplicationController
     url = params[:url]
     language = params[:language] || 'en'
 
-    # project_media = ProjectMedia.create!(media: Blank.create!, team: team, user: user)
+    project_media = ProjectMedia.create!(media: Claim.create!(quote: random_string), team: team, user: user)
 
     # Create ClaimDescription
     claim_description = ClaimDescription.create!(
@@ -227,7 +227,7 @@ class TestController < ApplicationController
       context: context,
       user: user,
       team: team,
-      # project_media: project_media
+      project_media: project_media
     )
 
     # Set up FactCheck

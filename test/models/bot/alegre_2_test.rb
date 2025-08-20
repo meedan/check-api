@@ -765,7 +765,8 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
 
   test "should match imported report" do
     pm = create_project_media team: @team
-    pm2 = create_project_media team: @team, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }
+    m = create_claim_media
+    pm2 = create_project_media team: @team, media: m, channel: { main: CheckChannels::ChannelCodes::FETCH }, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     Bot::Alegre.stubs(:get_items_with_similar_description).returns({ pm2.id => {:score=>0.9, :context=>{"team_id"=>@team.id, "field"=>"original_description", "project_media_id"=>pm2.id, "has_custom_id"=>true}, :model=>"elasticsearch"}})
     assert_equal [pm2.id], Bot::Alegre.get_similar_items(pm).keys
     assert_no_difference 'ProjectMedia.count' do

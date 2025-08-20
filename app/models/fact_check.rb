@@ -212,7 +212,8 @@ class FactCheck < ApplicationRecord
   def create_project_media_for_fact_check(is_duplicate = false)
     pm = ProjectMedia.new
     if is_duplicate
-      pm.media = Blank.create!
+      pm.set_original_claim = self.title
+      pm.archived = CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     else
       pm.set_original_claim = self.set_original_claim
     end
