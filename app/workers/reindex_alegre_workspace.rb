@@ -60,7 +60,7 @@ class ReindexAlegreWorkspace
     # run a request for all of the configured similarity index types, delete the index and return results to rebuild
     Bot::Alegre::ALL_TEXT_SIMILARITY_FIELDS.each do |field|
       field_value = pm.send(field)
-      if !field_value.to_s.empty?
+      if field_value.to_s.length>5
         request_doc = get_request_doc(pm, field, field_value)
         yield request_doc
       end
@@ -73,7 +73,7 @@ class ReindexAlegreWorkspace
       log(event_id, 'Writing to Alegre...')
       running_bucket.each do |item|
         # FIXME we need to go back to bulk uploads eventually
-        Bot::Alegre.query_async_with_params(item[:doc], item[:type])
+        Bot::Alegre.query_async_with_params(item[:doc], "text")
       end
       log(event_id, 'Wrote to Alegre.')
       # track state in case job needs to restart
@@ -88,7 +88,7 @@ class ReindexAlegreWorkspace
     # chunk into batches and add to queue
     # manage state by tracking last id processed in case job needs to resume
     log(event_id, "Processing reindex subquery for team #{team_id}")
-    query.where(team_id: team_id).where("id > ?", get_last_id(event_id, team_id)).order(:id).find_in_batches(:batch_size => 2500) do |pms|
+    query.where(team_id: team_id).where("project_medias.id > ?", get_last_id(event_id, team_id)).order(:id).find_in_batches(:batch_size => 2500) do |pms|
       pms.each do |pm|
         get_request_docs_for_project_media(pm) do |request_doc|
           running_bucket << request_doc
