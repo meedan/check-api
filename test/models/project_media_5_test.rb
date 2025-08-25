@@ -186,9 +186,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   test "checks truthfulness of is_blank?" do
     u = create_user
     t = create_team
-    pm = create_project_media team: t
-    pm.media.type = "Blank"
-    pm.media.save!
+    pm = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     assert pm.is_blank?
   end
 

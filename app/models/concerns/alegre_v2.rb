@@ -1,7 +1,7 @@
 require 'active_support/concern'
 class AlegreTimeoutError < StandardError; end
 class TemporaryProjectMedia
-  attr_accessor :team_id, :id, :url, :text, :type, :field
+  attr_accessor :team_id, :id, :url, :text, :type, :field, :archived
   def media
     media_type_map = {
       "claim" => "Claim",
