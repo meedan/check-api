@@ -1,4 +1,6 @@
 class ClaimDescription < ApplicationRecord
+  attr_accessor :disable_replace_media
+
   include Article
   include CheckPusher
 
@@ -17,6 +19,7 @@ class ClaimDescription < ApplicationRecord
   after_commit :update_fact_check, on: [:update]
   after_update :update_report
   after_update :reset_item_rating_if_removed
+  after_update :replace_media, unless: proc { |cd| cd.disable_replace_media }
   after_update :migrate_claim_and_fact_check_logs, :log_relevant_article_results, if: proc { |cd| cd.saved_change_to_project_media_id? && !cd.project_media_id.nil? }
 
   # To avoid GraphQL conflict with name `context`
@@ -94,6 +97,15 @@ class ClaimDescription < ApplicationRecord
       # clear fact-check values
       data.merge!({ 'fact_check_title' => nil, 'fact_check_summary' => nil, 'fact_check_url' => nil, 'fact_check_languages' => [] }) unless self.fact_check.nil?
       self.index_in_elasticsearch(pm.id, data)
+    end
+  end
+
+  # Replace item if fact-check is from a blank media
+  def replace_media
+    if !self.project_media_id_before_last_save.nil? && ProjectMedia.find_by_id(self.project_media_id_before_last_save)&.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+      old_pm = ProjectMedia.find(self.project_media_id_before_last_save)
+      new_pm = self.project_media
+      old_pm.replace_by(new_pm)
     end
   end
 

@@ -23,7 +23,7 @@ class Bot::Smooch5Test < ActiveSupport::TestCase
     t1 = create_team
     pm1a = create_project_media quote: 'Bar Test', team: t1 # Should be in search results
     pm1b = create_project_media quote: 'Test 1A', team: t1 # Should not be in search results because doesn't match this team's filters
-    pm1c = create_project_media media: Blank.create!, team: t1 # Should not be in search results because doesn't match the feed filters
+    pm1c = create_project_media media: create_claim_media, team: t1 # Should not be in search results because doesn't match the feed filters
     pm1d = create_project_media quote: 'Foo Bar', team: t1 # Should not be in keyword search results because doesn't match the query filter but should be in similarity search results because it's returned from Alegre
     pm1e = create_project_media quote: 'Bar Test 2', team: t1 # Should not be in search results because it's not published
     pm1f = create_project_media quote: 'Bar Test 3', team: t1 # Should not be in similarity search results because it's not returned by Alegre but should be in keyword search results

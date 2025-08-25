@@ -14,7 +14,8 @@ class TemporaryProjectMedia
   end
 
   def is_blank?
-    self.type == "blank"
+    # self.type == "blank"
+    self.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
   end
 
   def is_link?

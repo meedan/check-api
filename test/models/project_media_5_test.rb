@@ -791,7 +791,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should not replace one project media by another if not from the same team" do
-    old = create_project_media team: create_team, media: Blank.create!
+    old = create_project_media team: create_team, media: create_claim_media
     new = create_project_media team: create_team
     assert_raises RuntimeError do
       old.replace_by(new)
@@ -836,7 +836,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
-      old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false 
+      old = create_project_media team: t, media: create_claim_media, channel: { main: CheckChannels::ChannelCodes::FETCH }, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT, disable_es_callbacks: false
       cd = create_claim_description project_media: old
       fc = create_fact_check claim_description: cd
       old_r = publish_report(old)
@@ -885,6 +885,8 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
       assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
       assert_equal [u.id, u2.id, u3.id], result['assigned_user_ids'].sort
+      # Verify archived value
+      assert_equal new.archived, CheckArchivedFlags::FlagCodes::NONE
     end
   end
 

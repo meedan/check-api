@@ -862,8 +862,7 @@ class FactCheckTest < ActiveSupport::TestCase
       end
       cd = fc.reload.claim_description
       pm = cd.project_media
-      assert_equal 'Blank', pm.media.type
-      fc = create_fact_check set_original_claim: original_claim, language: 'fr', publish_report: true
+      assert_equal 'Claim', pm.media.type
     end
   end
 end

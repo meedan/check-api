@@ -785,7 +785,7 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal response_pm['dbid'], pm.id
   end
 
-  test "should create a FactCheck with a Blank ProjectMedia, if ProjectMedia already exists and has a FactCheck in a different language" do
+  test "should create a FactCheck with a Claim ProjectMedia, if ProjectMedia already exists and has a FactCheck in a different language" do
     Sidekiq::Testing.fake!
     url = 'http://example.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -835,8 +835,10 @@ class GraphqlController12Test < ActionController::TestCase
 
     assert_difference 'ProjectMedia.count' do
       assert_difference 'FactCheck.count' do
-        post :create, params: { query: query, team: t.slug }
-        assert_response :success
+        assert_difference 'Claim.count' do
+          post :create, params: { query: query, team: t.slug }
+          assert_response :success
+        end
       end
     end
 

@@ -10,14 +10,6 @@ class GenericWorkerTest < ActiveSupport::TestCase
   def teardown
   end
 
-  test "should run a job, without raising an error, for a method that takes no parameters" do
-    Sidekiq::Testing.inline!
-
-    assert_difference 'Blank.count' do
-      GenericWorker.perform_async('Blank', 'create!')
-    end
-  end
-
   test "should run a job, without raising an error, for a method that takes a hash as a parameter" do
     Sidekiq::Testing.inline!
 
