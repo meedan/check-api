@@ -90,8 +90,6 @@ class Media < ApplicationRecord
         Rails.logger.warn("[Link Media Creation] Timeout error while trying to create a Link Media from #{media_content}. A Claim Media will be created instead.")
         find_or_create_claim_media(media_content, additional_args)
       end
-    when 'Blank'
-      Blank.create!
     end
   end
 

@@ -83,13 +83,6 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     Bot::Alegre.unstub.stubs(:request)
   end
 
-  test "should not try to store package for blank item" do
-    pm = create_project_media media: Blank.create!
-    assert_nothing_raised do
-      Bot::Alegre.store_package(pm, 'title')
-    end
-  end
-
   test "Should return similarity models separated by |" do
     # I simulated a genuine response from QA using CloudWatch with a workspace
     # that includes the paraphrase-multilingual-mpnet-base-v2 and Elasticsearch models.

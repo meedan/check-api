@@ -12,7 +12,8 @@ module ProjectMediaGetters
   end
 
   def is_blank?
-    self.media.type == "Blank"
+    # self.media.type == "Blank"
+    self.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
   end
 
   def is_video?
