@@ -5,7 +5,6 @@ LABEL maintainer="sysops@meedan.com"
 ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app/current \
     RAILS_ENV=production \
-    PRODUCT=check \
     APP=check-api \
     TERM=xterm \
     PERSIST_DIRS="uploads project_export memebuster team_dump" \
