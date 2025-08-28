@@ -96,7 +96,7 @@ module ProjectMediaCachedFields
     end
 
     cached_field :linked_items_count,
-      start_as: 1,
+      start_as: proc { |pm| pm.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT ? 0 : 1 },
       update_es: true,
       recalculate: :recalculate_linked_items_count,
       update_on: [SIMILARITY_EVENT]
@@ -525,7 +525,9 @@ module ProjectMediaCachedFields
       recalculate: :recalculate_media_cluster_origin_timestamp
 
     def recalculate_linked_items_count
-      Relationship.send('confirmed').where(source_id: self.id).count + 1
+      count = Relationship.send('confirmed').where(source_id: self.id).count
+      count += 1 unless self.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+      count
     end
 
     def recalculate_suggestions_count
