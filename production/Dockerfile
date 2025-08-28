@@ -6,7 +6,6 @@ ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app/current \
     RAILS_ENV=production \
     APP=check-api \
-    TERM=xterm \
     MALLOC_ARENA_MAX=2
     # MALLOC_ARENA MAX is needed because of https://www.mikeperham.com/2018/04/25/taming-rails-memory-bloat/
 
