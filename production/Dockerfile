@@ -5,7 +5,6 @@ LABEL maintainer="sysops@meedan.com"
 ENV DEPLOYUSER=checkdeploy \
     DEPLOYDIR=/app/current \
     RAILS_ENV=production \
-    GITREPO=git@github.com:meedan/check-api.git \
     PRODUCT=check \
     APP=check-api \
     TERM=xterm \
