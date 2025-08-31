@@ -865,4 +865,21 @@ class FactCheckTest < ActiveSupport::TestCase
       assert_equal 'Claim', pm.media.type
     end
   end
+
+  test "should create publish report even set_original_claim not set" do
+    create_report_design_annotation_type
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      fc = create_fact_check claim_description_text: random_string, publish_report: true
+      pm = fc.claim_description.project_media
+      r = pm.get_dynamic_annotation('report_design')
+      assert_equal 'published', r.get_field_value('state')
+      fc = create_fact_check claim_description_text: random_string
+      cd = fc.claim_description
+      assert_nil cd.project_media_id
+    end
+  end
 end

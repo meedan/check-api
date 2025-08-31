@@ -14,6 +14,7 @@ class FactCheck < ApplicationRecord
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
   before_validation :set_imported, on: :create
   before_validation :set_claim_description, on: :create, unless: proc { |fc| fc.claim_description.present? }
+  before_validation :set_original_claim_for_published_articles, on: :create, if: proc { |fc| fc.publish_report && fc.set_original_claim.blank? }
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
@@ -103,6 +104,10 @@ class FactCheck < ApplicationRecord
     claim_description_text = self.claim_description_text || '-'
     cd = ClaimDescription.create!(description: claim_description_text, skip_check_ability: true)
     self.claim_description_id = cd.id
+  end
+
+  def set_original_claim_for_published_articles
+    self.set_original_claim = self.title
   end
 
   def language_in_allowed_values
