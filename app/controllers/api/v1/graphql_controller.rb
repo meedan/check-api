@@ -149,7 +149,7 @@ module Api
       private
 
       def authenticate_graphql_user
-        params[:query].to_s.match(/^((query )|(mutation[^\{#]*{\s*(resetPassword|changePassword|resendConfirmation|userDisconnectLoginAccount)\())/).nil? ? authenticate_user! : authenticate_user
+        !!(params[:query].to_s.match(/^(query\s+Me\s*\{|(mutation[^{#]*{\s*(resetPassword|changePassword|resendConfirmation|userDisconnectLoginAccount)\())/)) ? authenticate_user : authenticate_user!
       end
 
       def load_ability
