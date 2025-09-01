@@ -96,6 +96,8 @@ es:
       invalid_project_media_archived_value: Lo sentimos, el valor archivado no es compatible
       invalid_article_language_value: Lo sentimos, valor de idioma no admitido
       fact_check_empty_title_and_summary: Lo sentimos, debes llenar el título o resumen
+      invalid_feed_saved_search_value: Debe pertenecer a un área de trabajo que sea parte de este feed.
+      invalid_feed_saved_search_list_type: El tipo de lista de búsqueda guardado es inválido.
       platform_allowed_values_error: 'no puede ser del tipo %{type}, tipos permitidos: %{allowed_types}'
   activerecord:
     models:
@@ -158,6 +160,7 @@ es:
           one: es demasiado corta (es mínimo 1 caracter)
           many: es demasiado corta (son mínimo %{count} caracteres)
           other: es demasiado corta (son mínimo %{count} caracteres)
+  error_team_bot_event_is_not_valid: Este evento del bot es inválido.
   slack_webhook_format_wrong: Webhook de Slack no válido. Se espera el formato `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: Está reservado
   invalid_media_item: El ítem no es válido
@@ -391,10 +394,12 @@ es:
       update_h: Última actualización
       tasks_h: Tarea finalizada
     assignment:
-      assign_task_subject: "[%{team}] Se te ha asignado una tarea"
-      unassign_task_subject: "[%{team}] Se te ha desasignado una tarea"
+      assign_task_subject: "[%{team}] Se te asignó una tarea"
+      unassign_task_subject: "[%{team}] Se te desasignó una tarea"
+      assign_project_subject: "[%{team}] Se te asignó una carpeta"
+      unassign_project_subject: "[%{team}] Se te desasignó una carpeta"
       assign_media_subject: "[%{team}] Se te asignó un ítem"
-      unassign_media_subject: "[%{team}] Se te ha desasignado un ítem"
+      unassign_media_subject: "[%{team}] Se te desasignó un ítem"
       assign_task_title: 'Tarea asignada '
       unassign_task_title: Tarea sin asignar
       assign_task_text: "%{author} asignó una tarea en %{team}."
@@ -439,12 +444,15 @@ es:
       footer: Este enlace de descarga expirará en %{date}.
   mail_security:
     device_subject: 'Alerta de seguridad: Nuevo inicio de sesión de %{app_name} dede %{browser} en %{platform}'
+    ip_subject: 'Alerta de seguridad: Nuevo inicio de sesión en %{app_name}'
     failed_subject: 'Alerta de seguridad: Intento fallido de inicio de sesión en  %{app_name}'
+    ip: Nuevo inicio de sesión en tu cuenta detectado
     device: Has iniciado sesión desde %{browser} en %{platform}
     devise_name: "%{browser} en %{platform}"
     failed: 'Se han detectado Intentos fallidos de inicio de sesión '
     password_text: 'restablece tu contraseña inmediatamente '
     device_text: Al parecer, recientemente has iniciado sesión en tu cuenta de %{app_name} desde un nuevo dispositivo. Si no has sido tú, te recomendamos %{change_password}
+    ip_text: Parece que recientemente iniciaste sesión en tu cuenta de %{app_name}. Si no reconoces esta actividad, por favor %{change_password}.
     failed_text: Al parecer, han habido múltiples intentos fallidos de inicio de sesión en tu cuenta de %{app_name}. Si has sido tú has caso omiso de este mensaje, si no has sido tú te recomendamos %{change_password}
     time_h: Tiempo
     device_h: Dispositivo

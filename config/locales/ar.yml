@@ -96,6 +96,8 @@ ar:
       invalid_project_media_archived_value: عذرا، إن القيم المؤرشفة غير مدعومة
       invalid_article_language_value: عذرا، قيمة اللغة غير مدعومة
       fact_check_empty_title_and_summary: عذرا، يجب ملء العنوان أو الملخص
+      invalid_feed_saved_search_value: يجب أن ينتمي إلى مساحة عمل تشكل جزءا من هذا الموجز
+      invalid_feed_saved_search_list_type: نوع قائمة البحث المحفوظة غير صالح.
       platform_allowed_values_error: '‫لا يمكن أن تكون من نوع %{type}، الأنواع المسموح بها : %{allowed_types}'
   activerecord:
     models:
@@ -161,6 +163,7 @@ ar:
           few: قصير جداً (الحد الأدنى %{count} حروف)
           many: قصير جداً (الحد الأدنى %{count} حروف)
           other: قصير جداً (الحد الأدنى %{count} حروف)
+  error_team_bot_event_is_not_valid: حدث البوت هذا غير صالح.
   slack_webhook_format_wrong: صيغة ‫مِشبَك Slack‬ غير صالحة. الصيغة المتوقعة هي « https://hooks.slack.com/services/XXXXX/XXXXXXXXXX »
   slug_is_reserved: مأخوذ
   invalid_media_item: العنصر غير صالح
@@ -405,11 +408,13 @@ ar:
     assignment:
       assign_task_subject: "[%{team}] تم تعيينك بمهمة"
       unassign_task_subject: "[%{team}] تم إلغاء تعيينك بمهمة"
+      assign_project_subject: "[%{team}]  تم تخصيص مجلد لك"
+      unassign_project_subject: "[%{team}]  تم إلغاء تخصيص مجلد لك"
       assign_media_subject: "[%{team}] تم تخصيص عنصر لك"
-      unassign_media_subject: "[%{team}] تم إلغاء تخصيصك بعنصر"
+      unassign_media_subject: "[%{team}] تم إلغاء تخصيص عنصر لك"
       assign_task_title: تخصيص مهمة
       unassign_task_title: مهمة غير مُخصَّصة
-      assign_task_text: "قام(ت) %{author} بتكليف مهمة في %{team}."
+      assign_task_text: "قام المؤلف %{author} بتعيين مهمة في %{team}."
       unassign_task_text: "قام المؤلف %{author} بإلغاء تعيين مهمة في %{team}."
       assign_media_title: العنصر المُخصَّص
       unassign_media_title: تمّ إلغاء تخصيص العنصر
@@ -451,12 +456,15 @@ ar:
       footer: ستنتهي صلاحية رابط التنزيل بتاريخ %{date}.
   mail_security:
     device_subject: 'تنبيه: تسجيل دخول جديد على %{app_name} عبر %{browser} على %{platform}'
+    ip_subject: 'تنبيه أمني: هناك تسجيل دخول جديد على %{app_name}'
     failed_subject: 'تنبيه: محاولات فاشلة لتسجيل الدخول على %{app_name}'
+    ip: ' تم اكتشاف تسجيل دخول جديد على حسابك'
     device: لقد قمت بتسجيل الدخول من %{browser} على %{platform}
     devise_name: "%{browser} على %{platform}"
     failed: تم اكتشاف محاولات فاشلة لتسجيل الدخول
     password_text: 'يرجى إعادة تعيين كلمة السّر الخاصة بكم فوراً '
     device_text: يبدو أنك سجلت الدخول مؤخرًا إلى حسابك على %{app_name} من جهاز جديد. إن لم يكن كذلك، مِن اﻷفضل %{change_password}
+    ip_text: يبدو أنك سجلت الدخول إلى حسابك حديثا على %{app_name}. إن لم تتعرف على هذا النشاط، من فضلك %{change_password}
     failed_text: يبدو أنّكم أجريتم محاولات متعددة لتسجيل الدخول إلى %{app_name}. إذا كنت أنت ، تجاهلي الرسالة. لست أنت؟ ننصحكم بتغيير كلمة السِّر. %{change_password}
     time_h: الوقت
     device_h: الجهاز
