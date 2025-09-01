@@ -208,7 +208,7 @@ class GraphqlController8Test < ActionController::TestCase
     media_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'media'
     article_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
     f = create_feed media_saved_search: media_saved_search, article_saved_search:article_saved_search, team: t
-
+    authenticate_with_user(u)
     query = <<~GRAPHQL
       query {
         team(slug: "#{t.slug}") {
@@ -815,14 +815,14 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal 'Custom Status 3', r2.reload.report_design_field_value('status_label')
   end
 
-  test "should access GraphQL query if not authenticated" do
+  test "should not access GraphQL query if not authenticated" do
     post :create, params: { query: 'query Query { about { name, version } }' }
-    assert_response 200
+    assert_response 401
   end
 
-  test "should access About if not authenticated" do
+  test "should not access About if not authenticated" do
     post :create, params: { query: 'query About { about { name, version } }' }
-    assert_response :success
+    assert_response 401
   end
 
   test "should access GraphQL if authenticated" do

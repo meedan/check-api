@@ -14,6 +14,7 @@ class ElasticSearch7Test < ActionController::TestCase
     tt = create_team_task team_id: t.id, type: 'single_choice', options: ['ans_a', 'ans_b', 'ans_c']
     tt2 = create_team_task team_id: t.id, type: 'multiple_choice', options: ['ans_a', 'ans_b', 'ans_c']
     tt3 = create_team_task team_id: t.id, type: 'free_text'
+    authenticate_with_user(u)
     with_current_user_and_team(u ,t) do
       pm = create_project_media team: t, disable_es_callbacks: false
       pm2 = create_project_media team: t, disable_es_callbacks: false
