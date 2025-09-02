@@ -306,12 +306,14 @@ class Dynamic < ApplicationRecord
   end
 
   def apply_rules_and_actions
-    team = self.annotated.team
-    # Evaluate only the rules that contain a condition that matches this report, language, flag or task answer
-    annotated = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
-    if annotated.class.name == 'ProjectMedia'
-      rule_ids = get_rule_ids
-      team.apply_rules_and_actions(annotated, rule_ids || [])
+    team = self.annotated&.team
+    unless team.nil?
+      # Evaluate only the rules that contain a condition that matches this report, language, flag or task answer
+      annotated = self.annotated_type == 'ProjectMedia' ? self.annotated : self.annotated.annotated
+      if annotated.class.name == 'ProjectMedia'
+        rule_ids = get_rule_ids
+        team.apply_rules_and_actions(annotated, rule_ids || [])
+      end
     end
   end
 
