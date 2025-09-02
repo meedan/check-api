@@ -183,11 +183,11 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     assert pm.is_text?
   end
 
-  test "checks truthfulness of is_blank?" do
+  test "checks truthfulness of is_fact_check_imported?" do
     u = create_user
     t = create_team
     pm = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
-    assert pm.is_blank?
+    assert pm.is_fact_check_imported?
   end
 
   test "checks falsity of is_text?" do

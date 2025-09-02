@@ -11,8 +11,7 @@ module ProjectMediaGetters
     self.media.type == "Link"
   end
 
-  def is_blank?
-    # self.media.type == "Blank"
+  def is_fact_check_imported?
     self.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
   end
 
