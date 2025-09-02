@@ -153,16 +153,18 @@ module Api
         query_string = params[:query]
         if query_string.present?
           # Parse query
-          document = GraphQL.parse(query_string)
-          operation_def = document.definitions.find{|d| d.is_a?(GraphQL::Language::Nodes::OperationDefinition)}
-          if operation_def
-            operation_type  = operation_def.operation_type.to_s    # "query" or "mutation"
-            root_field_name = operation_def.selections.first.name  # first field, e.g. "me" or "resetPassword"
-            if operation_type == 'mutation'
-              safe_mutations = %w(resetPassword changePassword resendConfirmation userDisconnectLoginAccount)
-              require_authentication = !(safe_mutations.include?(root_field_name))
-            elsif operation_type == 'query'
-              require_authentication = !(root_field_name == 'me')
+          document = begin GraphQL.parse(query_string) rescue nil end
+          unless document.nil?
+            operation_def = document.definitions.find{|d| d.is_a?(GraphQL::Language::Nodes::OperationDefinition)}
+            if operation_def
+              operation_type  = operation_def.operation_type.to_s    # "query" or "mutation"
+              root_field_name = operation_def.selections.first.name  # first field, e.g. "me" or "resetPassword"
+              if operation_type == 'mutation'
+                safe_mutations = %w(resetPassword changePassword resendConfirmation userDisconnectLoginAccount)
+                require_authentication = !(safe_mutations.include?(root_field_name))
+              elsif operation_type == 'query'
+                require_authentication = !(root_field_name == 'me')
+              end
             end
           end
         end
