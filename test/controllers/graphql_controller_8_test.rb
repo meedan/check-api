@@ -240,7 +240,7 @@ class GraphqlController8Test < ActionController::TestCase
     article_saved_search = create_saved_search team: t, filters: { foo: 'bar' }, list_type: 'article'
     f = create_feed
     create_feed_team media_saved_search: media_saved_search, article_saved_search:article_saved_search, team_id: t.id, feed: f
-
+    authenticate_with_user(u)
     query = <<~GRAPHQL
       query {
         team(slug: "#{t.slug}") {

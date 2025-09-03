@@ -149,26 +149,28 @@ module Api
       private
 
       def authenticate_graphql_user
-        require_authentication = true
-        query_string = params[:query]
-        if query_string.present?
-          # Parse query
-          document = begin GraphQL.parse(query_string) rescue nil end
-          unless document.nil?
-            operation_def = document.definitions.find{|d| d.is_a?(GraphQL::Language::Nodes::OperationDefinition)}
-            if operation_def
-              operation_type  = operation_def.operation_type.to_s    # "query" or "mutation"
-              root_field_name = operation_def.selections.first.name  # first field, e.g. "me" or "resetPassword"
-              if operation_type == 'mutation'
-                safe_mutations = %w(resetPassword changePassword resendConfirmation userDisconnectLoginAccount)
-                require_authentication = !(safe_mutations.include?(root_field_name))
-              elsif operation_type == 'query'
-                require_authentication = !(root_field_name == 'me')
-              end
-            end
-          end
+        operation_def = get_operation_def(params[:query])
+        safe_operation?(operation_def) ? authenticate_user : authenticate_user!
+      end
+
+      def get_operation_def(query_string)
+        document = begin GraphQL.parse(query_string) rescue nil end
+        document.definitions.find{|d| d.is_a?(GraphQL::Language::Nodes::OperationDefinition)} unless document.nil?
+      end
+
+      def safe_operation?(operation_def)
+        return false if operation_def.nil?
+        operation_type  = operation_def.operation_type.to_s    # "query" or "mutation"
+        root_field_name = operation_def.selections.first.name  # first field, e.g. "me" or "resetPassword"
+        case operation_type
+        when 'mutation'
+          safe_mutations = %w(resetPassword changePassword resendConfirmation userDisconnectLoginAccount)
+          safe_mutations.include?(root_field_name)
+        when 'query'
+          root_field_name == 'me'
+        else
+          false
         end
-        require_authentication ? authenticate_user! : authenticate_user
       end
 
       def load_ability
