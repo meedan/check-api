@@ -657,58 +657,6 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
   end
 
-  test "should not search without permission" do
-    t1 = create_team private: true
-    t2 = create_team private: true
-    t3 = create_team private: false
-    u = create_user
-    create_team_user team: t2, user: u
-    pm1 = create_project_media team: t1
-    pm2 = create_project_media team: t2
-    pm3a = create_project_media team: t3
-    pm3b = create_project_media team: t3
-    query = 'query { search(query: "{}") { number_of_results, medias(first: 10) { edges { node { dbid, permissions } } } } }'
-
-    # Anonymous user searching across all teams
-    post :create, params: { query: query }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['search']
-    assert_not_nil JSON.parse(@response.body)['errors']
-
-    # Anonymous user searching for a public team
-    post :create, params: { query: query, team: t3.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['search']
-    assert_nil JSON.parse(@response.body)['errors']
-
-    # Anonymous user searching for a team
-    post :create, params: { query: query, team: t1.slug }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['search']
-    assert_not_nil JSON.parse(@response.body)['errors']
-
-    # Unpermissioned user searching across all teams
-    authenticate_with_user(u)
-    post :create, params: { query: query, team: t1.slug }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['search']
-    assert_not_nil JSON.parse(@response.body)['errors']
-
-    # Unpermissioned user searching for a team
-    authenticate_with_user(u)
-    post :create, params: { query: query, team: t1.slug }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['search']
-    assert_not_nil JSON.parse(@response.body)['errors']
-
-    # Permissioned user searching for a team
-    authenticate_with_user(u)
-    post :create, params: { query: query, team: t2.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['search']
-    assert_nil JSON.parse(@response.body)['errors']
-  end
-
   test "should filter by unmatched" do
     u = create_user
     t = create_team

@@ -5,15 +5,6 @@ class PermissionsLoader < GraphQL::Batch::Loader
     @ability = ability
   end
 
-  def load_permissions_for_anonymous_user(objs)
-    first = objs.first
-    first.cached_permissions = first.permissions
-    objs.each do |obj|
-      obj.cached_permissions ||= first.cached_permissions
-      fulfill(obj.id, obj)
-    end
-  end
-
   def load_permissions_for_single_item(objs)
     only = objs.first
     only.cached_permissions = only.permissions
@@ -40,11 +31,6 @@ class PermissionsLoader < GraphQL::Batch::Loader
 
     if objs.size == 1
       load_permissions_for_single_item(objs)
-      return
-    end
-
-    if User.current&.id.nil?
-      load_permissions_for_anonymous_user(objs)
       return
     end
 

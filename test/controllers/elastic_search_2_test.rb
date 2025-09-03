@@ -164,18 +164,17 @@ class ElasticSearch2Test < ActionController::TestCase
   test "should adjust ES window size" do
     t = create_team
     u = create_user
+    create_team_user team: t, user: u, role: 'admin'
     pm = create_project_media quote: 'claim a', disable_es_callbacks: false
     sleep 2
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u ,t) do
-      assert_nothing_raised do
-        query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":20000,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'
-        post :create, params: { query: query }
-        assert_response :success
-        query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":10000,\"esoffset\":20}") {medias(first:20){edges{node{dbid}}}}}'
-        post :create, params: { query: query }
-        assert_response :success
-      end
+    authenticate_with_user(u)
+    assert_nothing_raised do
+      query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":20000,\"esoffset\":0}") {medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      query = 'query Search { search(query: "{\"keyword\":\"claim\",\"eslimit\":10000,\"esoffset\":20}") {medias(first:20){edges{node{dbid}}}}}'
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
     end
   end
 
