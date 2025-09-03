@@ -1,0 +1,17 @@
+[main]
+host = https://app.transifex.com
+
+[o:meedan:p:check-2:r:api]
+file_filter   = config/locales/<lang>.yml
+source_file   = config/locales/en.yml
+type          = YML
+minimum_perc  = 0
+resource_name = API
+
+[o:meedan:p:check-tiplines:r:hardcoded-bot-strings]
+file_filter   = config/tipline_strings-<lang>.yml
+source_file   = config/tipline_strings-en.yml
+type          = YAML_GENERIC
+minimum_perc  = 0
+resource_name = Hardcoded Bot Strings
+
