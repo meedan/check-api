@@ -96,6 +96,8 @@ id:
       invalid_project_media_archived_value: Maaf, nilai yang diarsipkan tidak didukung
       invalid_article_language_value: Maaf, bahasa tidak didukung
       fact_check_empty_title_and_summary: Maaf, Anda harus mengisi judul atau ringkasan
+      invalid_feed_saved_search_value: Harus menjadi milik ruang kerja yang merupakan bagian dari umpan ini
+      invalid_feed_saved_search_list_type: Tipe daftar pencarian yang tersimpan tidak valid.
       platform_allowed_values_error: 'tidak dapat memiliki tipe format %{type}, tipe-tipe yang diijinkan: %{allowed_types}'
   activerecord:
     models:
@@ -156,6 +158,7 @@ id:
         improbable_phone: salah nomor
         too_short:
           other: terlalu pendek (minimal %{count} karakter)
+  error_team_bot_event_is_not_valid: Agenda bot ini tidak valid.
   slack_webhook_format_wrong: Webhook Slack salah. Menunggu format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: telah disimpan
   invalid_media_item: Perihal ini salah
@@ -386,16 +389,18 @@ id:
     assignment:
       assign_task_subject: "[%{team}] Sebuah tugas telah diberikan kepada Anda"
       unassign_task_subject: "[%{team}] Sebuah tugas telah dibatalkan dari Anda"
+      assign_project_subject: "[%{team}] Sebuah folder telah ditugaskan kepada Anda"
+      unassign_project_subject: "[%{team}] Sebuah folder telah dibatalkan penugasannya dari Anda"
       assign_media_subject: "[%{team}] Sebuah perihal telah ditugaskan kepada Anda"
-      unassign_media_subject: "[%{team}] Sebuah perihal telah dibatalkan dari Anda"
+      unassign_media_subject: "[%{team}] Sebuah perihal telah dibatalkan penugasannya dari Anda"
       assign_task_title: Tugas yang Diberikan
       unassign_task_title: Tugas yang Dibatalkan
-      assign_task_text: "%{author} memberikan tugas dalam %{team}."
+      assign_task_text: "%{author} memberikan sebuah tugas pada %{team}."
       unassign_task_text: "%{author} membatalkan sebuah tugas pada %{team}."
       assign_media_title: Perihal yang Ditugaskan
       unassign_media_title: Perihal yang Dibatalkan
-      assign_media_text: "%{author} menugaskan sebuah perihal dalam %{team}."
-      unassign_media_text: "%{author} membatalkan sebuah perihal dalam %{team}."
+      assign_media_text: "%{author} menugaskan sebuah perihal pada %{team}."
+      unassign_media_text: "%{author} membatalkan penugasan sebuah perihal pada %{team}."
       assign_log: "%{author} menugaskan %{model} pada %{username}"
       unassign_log: "%{author} membatalkan %{model} dari %{username}"
       assign_by: Ditugaskan oleh
@@ -432,15 +437,18 @@ id:
       footer: Tautan unduhan ini akan kedaluwarsa pada %{date}.
   mail_security:
     device_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} dari %{browser} pada %{platform}'
+    ip_subject: 'Peringatan keamanan: Upaya masuk %{app_name} baru'
     failed_subject: 'Peringatan keamanan: Percobaan masuk ke %{app_name} gagal'
+    ip: Upaya masuk baru ke akun Anda telah terdeteksi
     device: Anda telah masuk melalui %{browser} pada %{platform}
     devise_name: "%{browser} pada %{platform}"
     failed: Percobaan masuk gagal telah terdeteksi
     password_text: segera atur ulang kata sandi.
-    device_text: Sepertinya akun Anda baru saja masuk ke %{app_name} dari perangkat baru. Jika ini bukan Anda, Anda harus %{change_password}
+    device_text: Sepertinya akun Anda baru saja masuk ke %{app_name} dari peranti baru. Jika ini bukan Anda, Anda harus %{change_password}
+    ip_text: Sepertinya akun Anda baru saja masuk ke %{app_name}. Jika Anda tidak mengenali aktivitas ini, silakan%{change_password}
     failed_text: Beberapa kali percobaan telah dilakukan untuk masuk ke akun %{app_name} Anda. Jika ini memang Anda, Anda dapat secara aman mengabaikan pesan ini. Jika bukan, maka Anda harus %{change_password}
     time_h: Waktu
-    device_h: Perangkat
+    device_h: Peranti
     location_h: Lokasi
     location_disclaimer: "* Lokasi diperkirakan berdasarkan alamat IP asal."
     ip_h: Alamat IP

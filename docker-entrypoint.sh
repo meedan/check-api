@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -f /app/.transifexrc ]; then
+  echo "[entrypoint] Copying .transifexrc to /root"
+  cp /app/.transifexrc /root/.transifexrc
+fi
+
 # Wait for Elasticsearch
 until curl --silent -XGET --fail http://elasticsearch:9200; do printf '.'; sleep 1; done
 

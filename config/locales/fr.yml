@@ -594,17 +594,17 @@ fr:
       Votre ligne info Tipline est désormais connectée à Twitter.
       Tout message direct reçu par ce profil Twitter sera traité par le service Tipline.
       Rechargez la page des paramètres du service Tipline pour voir les nouveaux changements.
-  must_select_exactly_one_facebook_page: Sélectionnez la page précise et unique de Facebook que vous voulez intégrer au service Tipline.
+  must_select_exactly_one_facebook_page: Choisissez la page précise et unique de Facebook que vous voulez intégrer au service Tipline.
   invalid_facebook_authdata: Il n’a pas été possible d’authentifier votre compte Facebook. Prenez contact avec notre équipe d’assistance.
   invalid_task_answer: Le format de réponse de la tâche est invalide
   team_rule_name: Un nom unique qui décrit ce que cette règle fait
   team_rule_project_ids: Appliquer au dossier
-  team_rule_destination: Sélectionnez le dossier de destination
+  team_rule_destination: Choisissez le dossier de destination
   team_rule_names_invalid: Les noms de règle ne peuvent pas être vides et doivent être uniques
   team_rules: Règles
   team_rule_conditions: Si
   team_rule_condition: Si
-  team_rule_condition_definition: Sélectionnez une condition
+  team_rule_condition_definition: Choisissez une condition
   team_rule_has_less_than_x_words: Le texte de la demande comporte moins de (ou exactement) le nombre de mots suivant
   team_rule_title_matches_regexp: Le titre de l’élément correspond à cette expression rationnelle
   team_rule_request_matches_regexp: La demande correspond à cette expression rationnelle
@@ -616,19 +616,19 @@ fr:
   team_rule_contains_keyword: La demande comprend l’un ou plusieurs des mots-clés suivants
   team_rule_title_contains_keyword: Le contenu comprend l’un ou plusieurs des mots-clés suivants
   team_rule_extracted_text_contains_keyword: Le texte extrait comprend le mot-clé
-  team_rule_select_type: Sélectionnez un type
-  team_rule_select_language: Sélectionnez la langue
-  team_rule_select_user: Sélectionnez un collaborateur
+  team_rule_select_type: Choisissez un type
+  team_rule_select_language: Choisissez la langue
+  team_rule_select_user: Choisissez un collaborateur
   team_rule_tagged_as: L’élément est étiqueté
-  team_rule_select_tag: Sélectionnez une étiquette
-  team_rule_select_status: Sélectionnez l’état
+  team_rule_select_tag: Choisissez une étiquette
+  team_rule_select_status: Choisissez l’état
   team_rule_status_is: Le état de l’élément est
   team_rule_type_regexp: Saisissez une expression rationnelle
   team_rule_type_number: Saisissez le nombre de mots
   team_rule_value: 'Saisissez une liste de mots-clés séparés par des virgules '
   team_rule_actions: alors
   team_rule_action: alors
-  team_rule_action_definition: Sélectionnez une action
+  team_rule_action_definition: Choisissez une action
   team_rule_send_to_trash: Déplacer vers la corbeille
   team_rule_move_to_project: Déplacer l’élément vers un dossier
   team_rule_copy_to_project: Ajouter l’élément au dossier
@@ -642,7 +642,7 @@ fr:
   team_rule_type_title_threshold: Distance entre les titres des éléments
   team_rule_type_image_threshold: Distance entre les images
   team_rule_type_flag_threshold: Avec une probabilité d’au moins
-  team_rule_select_flag: Sélectionnez un drapeau
+  team_rule_select_flag: Choisissez un drapeau
   team_rule_flagged_as: L’élément a été détecté comme contenu
   team_rule_report_is_published: Le rapport est publié
   team_rule_report_is_paused: Le rapport est interrompu
@@ -658,10 +658,10 @@ fr:
   team_rule_field_from_fieldset_metadata_value_is: L’annotation a une valeur précise
   team_rule_field_from_fieldset_tasks_value_contains_keyword: La réponse de la tâche comprend le mot-clé
   team_rule_field_from_fieldset_metadata_value_contains_keyword: La valeur d’annotation comprend un mot-clé
-  team_rule_select_field_metadata: Sélectionnez une annotation
-  team_rule_select_field_value_metadata: Sélectionnez la valeur
-  team_rule_select_field_tasks: Sélectionnez la tâche
-  team_rule_select_field_value_tasks: Sélectionnez la réponse
+  team_rule_select_field_metadata: Choisissez une annotation
+  team_rule_select_field_value_metadata: Choisissez la valeur
+  team_rule_select_field_tasks: Choisissez la tâche
+  team_rule_select_field_value_tasks: Choisissez la réponse
   team_rule_item_is_assigned_to_user: L’élément est attribué à
   team_rule_add_tag: Ajouter une étiquette
   team_rule_add_warning_cover: Ajouter une couverture d’avertissement sur le contenu
@@ -749,7 +749,7 @@ fr:
   cant_apply_article_to_item_if_article_is_in_the_trash: Cet article se trouve dans la corbeille et ne peut donc pas être ajouté à ce groupe de médias. Restaurez-le d’abord de la corbeille.
   shared_feed_imported_media_already_exist: |-
       Aucun média ne peut être importé dans votre espace de travail.
-      Les médias sélectionnés pour l’importation existent déjà dans votre espace de travail dans les éléments suivants :
+      Les médias choisis pour l’importation existent déjà dans votre espace de travail dans les éléments suivants :
       %{urls}
   info:
     messages:
