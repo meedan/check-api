@@ -322,6 +322,7 @@ ActiveRecord::Schema.define(version: 2025_06_30_065844) do
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "fetch_unique_id", unique: true, where: "(((field_name)::text = 'external_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "index_status", where: "((field_name)::text = 'verification_status_status'::text)"
+    t.index ["value"], name: "smooch_request_message_id_unique_id", unique: true, where: "(((field_name)::text = 'smooch_message_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "smooch_user_unique_id", unique: true, where: "(((field_name)::text = 'smooch_user_id'::text) AND (value <> ''::text) AND (value <> '\"\"'::text))"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"
     t.index ["value_json"], name: "index_dynamic_annotation_fields_on_value_json", using: :gin

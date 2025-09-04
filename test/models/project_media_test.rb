@@ -465,4 +465,17 @@ class ProjectMediaTest < ActiveSupport::TestCase
       create_project_media media: nil, set_original_claim: video_url
     end
   end
+
+  test "should include feed_name in version_metadata when imported_from_feed_id changes" do
+    feed = create_feed name: "Feed test"
+    pm = create_project_media imported_from_feed_id: feed.id
+
+    changes = { 'imported_from_feed_id' => [nil, feed.id] }.to_json
+    meta = JSON.parse(pm.version_metadata(changes))
+    puts meta
+
+    assert_equal "Feed test", meta["feed_name"]
+    assert_nil meta["source_name"]
+  end
+
 end
