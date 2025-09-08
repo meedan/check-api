@@ -168,6 +168,8 @@ module Api
           safe_mutations.include?(root_field_name)
         when 'query'
           root_field_name == 'me'
+        else
+          false
         end
       end
 

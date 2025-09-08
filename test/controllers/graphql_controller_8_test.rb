@@ -818,6 +818,8 @@ class GraphqlController8Test < ActionController::TestCase
   test "should not access GraphQL query if not authenticated" do
     post :create, params: { query: 'query Query { about { name, version } }' }
     assert_response 401
+    post :create, params: { query: 'subscription Other { others { name, version } }' }
+    assert_response 401
   end
 
   test "should not access About if not authenticated" do
