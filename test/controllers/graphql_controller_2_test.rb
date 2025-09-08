@@ -390,7 +390,7 @@ class GraphqlController2Test < ActionController::TestCase
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
     post :create, params: { query: query, team: t.slug }
-    assert_match /Sorry/, @response.body
+    assert_response 401
   end
 
   test "should return similar items" do
