@@ -37,3 +37,4 @@ public/team_dump
 .idea
 .vscode/launch.json
 public/newsletter
+.transifexrc
