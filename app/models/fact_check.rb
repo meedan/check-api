@@ -24,7 +24,7 @@ class FactCheck < ApplicationRecord
   before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
-  after_create :set_project_media, if: proc { |fc| fc.claim_description.present? && !fc.set_original_claim.blank? }
+  after_create :set_signature_and_project_media, if: proc { |fc| fc.claim_description.present? && !fc.set_original_claim.blank? }
   after_update :detach_claim_if_trashed
 
   def text_fields
@@ -196,7 +196,10 @@ class FactCheck < ApplicationRecord
     end
   end
 
-  def set_project_media
+  def set_signature_and_project_media
+    # set signature
+    fc_attr = self.dup.attributes.compact.except("user_id", "claim_description_id", "author_id", "trashed", "report_status")
+    self.update_column(:signature, Digest::MD5.hexdigest([fc_attr.to_json, self.team_id].join(':')))
     begin
       self.create_project_media_for_fact_check
     rescue RuntimeError => e
@@ -228,14 +231,10 @@ class FactCheck < ApplicationRecord
     pm.set_tags = self.tags
     pm.skip_check_ability = true
     pm.save!
-    # set signature
-    fc_attr = self.dup.attributes.compact.except("user_id", "claim_description_id", "author_id", "trashed", "report_status")
-    update_columns = { signature: Digest::MD5.hexdigest([fc_attr.to_json, self.team_id].join(':')) }
     # Set report status
     if self.publish_report
-      update_columns[:report_status] = 'published'
       self.update_report
+      self.update_column(:report_status, 'published')
     end
-    self.update_columns(update_columns)
   end
 end
