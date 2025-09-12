@@ -725,7 +725,9 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
 
   original = {
     'fallback_template' => 'report',
-    'summary' => 'This is the summary of the fake report',
+    'language' => 'en',
+    'project_media_id' => 1,
+    'message' => msgid,
   }.to_json
 
   message = {
