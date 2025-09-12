@@ -718,4 +718,39 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.resend_message_after_window(message)
   end
+
+  test "should resend Facebook Messenger message after window" do
+  uid = random_string
+  msgid = random_string
+
+  original = {
+    'fallback_template' => 'report',
+    'summary' => 'This is the summary of the fake report',
+  }.to_json
+
+  message = {
+    'app' => { '_id' => @app_id },
+    'appUser' => { '_id' => uid },
+    'message' => { '_id' => msgid },
+    'destination' => { 'type' => 'messenger' }
+  }
+  output = nil
+
+  Bot::Smooch.stubs(:get_report_data_to_be_resent).returns(
+    {
+      language: 'en',
+      query_date: 2.days.ago,
+      introduction: "Intro text",
+      text: "Summary text",
+      image: "http://example.com/image.jpg"
+    }
+  )
+
+  assert_nothing_raised do
+   output =  Bot::Smooch.resend_facebook_messenger_message_after_window(message, original)
+  end
+  puts output
+end
+
+
 end
