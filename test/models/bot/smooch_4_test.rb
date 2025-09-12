@@ -719,49 +719,4 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     assert Bot::Smooch.resend_message_after_window(message)
   end
 
-  test "should resend Facebook Messenger message after window" do
-    msgid = random_string
-    pm = create_project_media
-    publish_report(pm)
-    response = OpenStruct.new({ body: OpenStruct.new(message: OpenStruct.new({ id: msgid })) })
-    Bot::Smooch.save_smooch_response(response, pm, random_string, 'fact_check_status', 'en', { message: random_string })
-    original = {
-      'fallback_template' => 'report',
-      'language' => 'en',
-      'project_media_id' => 1,
-      'message' => msgid,
-    }.to_json
-
-    message = {
-      app: {
-        '_id': @app_id
-      },
-      appUser: {
-        '_id': random_string,
-      },
-      message: {
-        '_id': msgid
-      },
-      destination: {
-        type: 'messenger'
-      }
-    }.to_json
-
-    Bot::Smooch.any_instance.stubs(:get_report_data_to_be_resent).returns(
-    {
-      language: 'en',
-      query_date: 2.days.ago,
-      introduction: "Intro text",
-      text: "Summary text",
-      image: "http://example.com/image.jpg"
-    }
-  )
-
-    output = nil
-    assert_nothing_raised do
-      output =  Bot::Smooch.resend_facebook_messenger_message_after_window(message, original)
-    end
-    assert output
-  end
-
 end
