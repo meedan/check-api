@@ -718,5 +718,4 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
     }.to_json
     assert Bot::Smooch.resend_message_after_window(message)
   end
-
 end
