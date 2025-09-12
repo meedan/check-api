@@ -5,43 +5,33 @@ namespace :check do
     last_team_id = Rails.cache.read('check:migrate:add_feed_id:team_id') || 0
     Team.where('id > ?', last_team_id).find_each do |team|
       versions = []
-      team.project_medias.where.not("imported_from_feed_id is NULL").find_in_batches(:batch_size => 2500) do |pms|
+      team.project_medias
+        .where.not(imported_from_feed_id: nil)
+        .select("project_medias.id, project_medias.imported_from_feed_id, f.name AS feed_name")
+        .joins("INNER JOIN feeds f ON f.id = project_medias.imported_from_feed_id")
+        .find_in_batches(batch_size: 2500) do |pms|
         pms.each do |pm|
-          feed = Feed.find_by_id(pm.imported_from_feed_id)
-          source = pm.source
-
           object_after = {
-            source_id: pm.source_id,
             imported_from_feed_id: pm.imported_from_feed_id
           }.to_json
 
           object_changes = {
-            source_id: [nil, pm.source_id],
             imported_from_feed_id: [nil, pm.imported_from_feed_id]
           }.to_json
 
-          meta = {
-            feed_name: feed&.name,
-            source_name: source&.name
-          }.to_json
+          meta = { feed_name: pm.feed_name }.to_json
 
-          versions << {
-              item_type: 'ProjectMedia',
-              item_id: pm.id,
-              event: 'create',
-              whodunnit: pm.user.id,
-              object: nil,
-              object_changes: object_changes,
-              created_at: pm.created_at,
-              meta: meta,
-              event_type: 'create_projectmedia',
-              object_after: object_after,
-              associated_id: pm.id,
-              associated_type: 'ProjectMedia',
-            }
+          versions = []
+          Versions = Version.from_partition(team.id)
+          .where(item_type: 'ProjectMedia', item_id: pms.map(&:id), event: 'create')
+          .each do |v|
+            v.object_changes = object_changes
+            v.object = object_after
+            v.meta = meta
+            versions << v
           end
       end
-      Version.insert_all(versions)
+      Version.upsert_all(versions)
       puts "Created #{versions.size} version logs for Team ID #{team.id}."
       Rails.cache.write('check:migrate:add_feed_id:team_id', team.id)
     end
