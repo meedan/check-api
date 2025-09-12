@@ -211,7 +211,11 @@ module SmoochResend
         last_smooch_response = nil
         last_smooch_response = self.send_message_to_user(uid, introduction, self.message_tags_payload(introduction)) if introduction
         last_smooch_response = self.send_message_to_user(uid, 'Visual Card', self.message_tags_payload(nil, image)) if image
-        last_smooch_response = self.send_message_to_user(uid, text, self.message_tags_payload(text)) if text
+        last_smooch_response = self.send_message_to_user(
+          uid,
+          [title, text, url].compact.join("\n\n"),
+          self.message_tags_payload([title, text, url].compact.join("\n\n"))
+        ) if text
         self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         return true
       end
