@@ -747,6 +747,16 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       }
     }.to_json
 
+    Bot::Smooch.any_instance.stubs(:get_report_data_to_be_resent).returns(
+    {
+      language: 'en',
+      query_date: 2.days.ago,
+      introduction: "Intro text",
+      text: "Summary text",
+      image: "http://example.com/image.jpg"
+    }
+  )
+
     output = nil
     assert_nothing_raised do
       output =  Bot::Smooch.resend_facebook_messenger_message_after_window(message, original)
