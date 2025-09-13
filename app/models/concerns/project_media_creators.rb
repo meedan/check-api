@@ -28,7 +28,8 @@ module ProjectMediaCreators
         rating: self.set_status,
         tags: self.set_tags.to_a.map(&:strip),
         channel: fact_check['channel'],
-        skip_check_ability: true
+        skip_check_ability: true,
+        skip_create_project_media: true,
       })
     end
     fc

@@ -143,7 +143,7 @@ module ProjectAssociation
     protected
 
     def set_media
-      unless self.url.blank? && self.quote.blank? && self.file.blank? && self.set_original_claim.blank?
+      unless self.url.blank? && self.quote.blank? && self.file.blank? && self.media_type != 'Blank' && self.set_original_claim.blank?
         self.create_media!
         self.media_id unless self.media_id.nil?
       end
