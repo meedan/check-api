@@ -83,7 +83,7 @@ namespace :check do
             pm.update_column(:media_id, claim.id)
           end
           # Destroy Blank items
-          Media.where(id: media_ids).destroy_all
+          Media.where(id: media_ids).delete_all
         end
         Rails.cache.write('check:migrate:remove_published_blank_media_items:claim_description_id', ids.max)
       end
