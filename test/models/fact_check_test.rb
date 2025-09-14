@@ -382,7 +382,7 @@ class FactCheckTest < ActiveSupport::TestCase
 
       pm = create_project_media
       cd = create_claim_description project_media: pm
-      fc = create_fact_check claim_description: cd, publish_report: true
+      fc = create_fact_check claim_description: cd, publish_report: true, skip_create_project_media: true
       assert_equal 'published', pm.reload.report_status
 
       fc = FactCheck.find(fc.id)

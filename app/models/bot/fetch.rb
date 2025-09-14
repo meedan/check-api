@@ -256,6 +256,7 @@ class Bot::Fetch < BotUser
       end
       fc = FactCheck.new
       fc.skip_check_ability = true
+      fc.skip_create_project_media = true
       fc.claim_description = cd
       fc.title = self.get_title(claim_review).to_s
       fc.url = claim_review['url'].to_s
