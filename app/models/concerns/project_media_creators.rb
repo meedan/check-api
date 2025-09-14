@@ -12,9 +12,10 @@ module ProjectMediaCreators
   end
 
   def create_claim_description_and_fact_check
-    cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
     fc = nil
     unless self.set_fact_check.blank?
+      self.set_claim_description ||= '-'
+      cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true)
       fact_check = self.set_fact_check.with_indifferent_access
       fc = FactCheck.create!({
         title: fact_check['title'],
