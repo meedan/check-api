@@ -28,11 +28,12 @@ namespace :check do
         team.project_medias.select("project_medias.id, project_medias.imported_from_feed_id, f.name AS feed_name")
         .joins("INNER JOIN feeds f ON f.id = project_medias.imported_from_feed_id")
         .find_in_batches(batch_size: 2500) do |pms|
+          # Define a hash to hold feed id and name for each item
           pm_feed = {}
           pms.each{ |pm| pm_feed[pm.id] = { id: pm.imported_from_feed_id, name: pm.feed_name } }
           v_updates = []
           Version.from_partition(team.id).where(item_type: 'ProjectMedia', event: 'create', item_id: pms.map(&:id)).find_each do |v|
-            puts "\nVersion with ID[#{v.id}]....."
+            # Append feed info for existing values.
             object_after = begin JSON.parse(v.object_after) rescue {} end
             object_after.merge!({ imported_from_feed_id: pm_feed[v.item_id.to_i][:id] })
             object_changes = begin JSON.parse(v.object_changes) rescue {} end
