@@ -28,11 +28,13 @@ namespace :check do
         team.project_medias.select("project_medias.id, project_medias.imported_from_feed_id, f.name AS feed_name")
         .joins("INNER JOIN feeds f ON f.id = project_medias.imported_from_feed_id")
         .find_in_batches(batch_size: 2500) do |pms|
+          print '.'
           # Define a hash to hold feed id and name for each item
           pm_feed = {}
           pms.each{ |pm| pm_feed[pm.id] = { id: pm.imported_from_feed_id, name: pm.feed_name } }
           v_updates = []
           Version.from_partition(team.id).where(item_type: 'ProjectMedia', event: 'create', item_id: pms.map(&:id)).find_each do |v|
+            print '.'
             # Append feed info for existing values.
             object_after = begin JSON.parse(v.object_after) rescue {} end
             object_after.merge!({ imported_from_feed_id: pm_feed[v.item_id.to_i][:id] })
@@ -49,10 +51,10 @@ namespace :check do
           end
           bulk_update_versions(team.id, v_updates) unless v_updates.blank?
         end
-        puts "Created #{versions.size} version logs for Team ID #{team.id}."
+        puts "\nCreated #{versions.size} version logs for Team ID #{team.id}."
         Rails.cache.write('check:migrate:add_feed_id:team_id', team.id)
       end
-      puts "Finished creating version logs."
+      puts "\nFinished creating version logs."
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
