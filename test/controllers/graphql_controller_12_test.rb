@@ -1075,4 +1075,15 @@ class GraphqlController12Test < ActionController::TestCase
     assert_instance_of BotUser, explainer.user
     assert_equal "api", result["channel"]
   end
+
+  test "should require authentication to run search query" do
+    t = create_team
+    query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response 401
+    authenticate_with_user(@u)
+    query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+  end
 end
