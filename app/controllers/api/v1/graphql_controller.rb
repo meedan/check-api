@@ -149,7 +149,28 @@ module Api
       private
 
       def authenticate_graphql_user
-        params[:query].to_s.match(/^((query )|(mutation[^\{#]*{\s*(resetPassword|changePassword|resendConfirmation|userDisconnectLoginAccount)\())/).nil? ? authenticate_user! : authenticate_user
+        operation_def = get_operation_def(params[:query])
+        safe_operation?(operation_def) ? authenticate_user : authenticate_user!
+      end
+
+      def get_operation_def(query_string)
+        document = begin GraphQL.parse(query_string) rescue nil end
+        document.definitions.find{|d| d.is_a?(GraphQL::Language::Nodes::OperationDefinition)} unless document.nil?
+      end
+
+      def safe_operation?(operation_def)
+        return false if operation_def.nil?
+        operation_type  = operation_def.operation_type.to_s    # "query" or "mutation"
+        root_field_name = operation_def.selections.first.name  # first field, e.g. "me" or "resetPassword"
+        case operation_type
+        when 'mutation'
+          safe_mutations = %w(resetPassword changePassword resendConfirmation userDisconnectLoginAccount)
+          safe_mutations.include?(root_field_name)
+        when 'query'
+          root_field_name == 'me'
+        else
+          false
+        end
       end
 
       def load_ability

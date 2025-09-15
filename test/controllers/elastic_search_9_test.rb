@@ -197,6 +197,7 @@ class ElasticSearch9Test < ActionController::TestCase
     pm2 = create_project_media team: t, quote: 'claim b', disable_es_callbacks: false
     sleep 2
     create_team_user team: t, user: u, role: 'admin'
+    authenticate_with_user(u)
     with_current_user_and_team(u ,t) do
       # Hit ES with option id
       # A) id is array (should ignore)
