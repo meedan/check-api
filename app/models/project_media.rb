@@ -7,7 +7,7 @@ class ProjectMedia < ApplicationRecord
 
   accepts_nested_attributes_for :media, :claim_description
 
-  has_paper_trail on: [:create, :update, :destroy], only: [:source_id, :archived], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+  has_paper_trail on: [:create, :update, :destroy], only: [:source_id, :archived, :imported_from_feed_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -403,6 +403,10 @@ class ProjectMedia < ApplicationRecord
   def version_metadata(changes)
     changes = begin JSON.parse(changes) rescue {} end
     meta = changes.keys.include?('source_id') ? { source_name: self.source&.name } : {}
+    if changes.keys.include?('imported_from_feed_id')
+      feed = Feed.find_by(id: self.imported_from_feed_id)
+      meta[:feed_name] = feed&.name
+    end
     meta.to_json
   end
 
