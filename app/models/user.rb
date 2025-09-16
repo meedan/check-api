@@ -129,7 +129,7 @@ class User < ApplicationRecord
       id: Base64.encode64("User/#{self.id}"),
       dbid: self.id,
       teams: self.user_teams,
-      source_id: self.source.id
+      source_id: self.source&.id
     }
     [:name, :email, :login, :token, :current_team, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
       user[field] = self.send(field)
