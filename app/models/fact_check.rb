@@ -6,13 +6,14 @@ class FactCheck < ApplicationRecord
 
   enum report_status: { unpublished: 0, published: 1, paused: 2 }
 
-  attr_accessor :skip_report_update, :publish_report
+  attr_accessor :skip_report_update, :publish_report, :claim_description_text, :set_original_claim
 
   belongs_to :claim_description
 
   before_validation :set_initial_rating, on: :create, if: proc { |fc| fc.rating.blank? && fc.claim_description.present? }
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
   before_validation :set_imported, on: :create
+  before_validation :set_claim_description, on: :create, unless: proc { |fc| fc.claim_description.present? }
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
@@ -22,6 +23,7 @@ class FactCheck < ApplicationRecord
   before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
+  after_create :set_project_media, if: proc { |fc| fc.claim_description.present? && !fc.set_original_claim.blank? }
   after_update :detach_claim_if_trashed
 
   def text_fields
@@ -94,6 +96,13 @@ class FactCheck < ApplicationRecord
 
   def set_imported
     self.imported = true if self.user&.type == 'BotUser' # We consider "imported" the fact-checks that are not created by humans inside Check
+  end
+
+  def set_claim_description
+    # Create ClaimDescription and use `-` in case the value is nil
+    claim_description_text = self.claim_description_text || '-'
+    cd = ClaimDescription.create!(description: claim_description_text, skip_check_ability: true)
+    self.claim_description_id = cd.id
   end
 
   def language_in_allowed_values
@@ -180,5 +189,47 @@ class FactCheck < ApplicationRecord
       cd.project_media = nil
       cd.save!
     end
+  end
+
+  def set_project_media
+    begin
+      self.create_project_media_for_fact_check
+    rescue RuntimeError => e
+      if e.message.include?("\"code\":#{LapisConstants::ErrorCodes::const_get('DUPLICATED')}") && self.publish_report
+        existing_pm = ProjectMedia.find(JSON.parse(e.message)['data']['id'])
+        if existing_pm.fact_check.language != self.language
+          self.create_project_media_for_fact_check(true)
+        end
+      else
+        # Skip report update as ProjectMedia creation failed and log the failure
+        self.skip_report_update = true
+        Rails.logger.info "[FactCheck] Exception when creating ProjectMedia from FactCheck[#{self.id}]: #{e.message}"
+        CheckSentry.notify(e, fact_check: self.id, claim_description: self.claim_description.id)
+      end
+    end
+  end
+
+  def create_project_media_for_fact_check(is_duplicate = false)
+    pm = ProjectMedia.new
+    if is_duplicate
+      pm.media = Blank.create!
+    else
+      pm.set_original_claim = self.set_original_claim
+    end
+    pm.team_id = self.team_id
+    pm.claim_description = self.claim_description
+    pm.set_status = self.rating
+    pm.set_tags = self.tags
+    pm.skip_check_ability = true
+    pm.save!
+    # set signature
+    fc_attr = self.dup.attributes.compact.except("user_id", "claim_description_id", "author_id", "trashed", "report_status")
+    update_columns = { signature: Digest::MD5.hexdigest([fc_attr.to_json, self.team_id].join(':')) }
+    # Set report status
+    if self.publish_report
+      update_columns[:report_status] = 'published'
+      self.update_report
+    end
+    self.update_columns(update_columns)
   end
 end

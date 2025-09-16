@@ -1014,6 +1014,37 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal "zapier", result["channel"]
   end
 
+  test "should create fact_check with claim_description_text via GraphQL mutation" do
+    authenticate_with_user(@u)
+    query = <<-GRAPHQL
+      mutation {
+        createFactCheck(input: {
+          title: "GraphQL FactCheck Explicit",
+          summary: "Test summary",
+          language: "en",
+          url: "http://test.com",
+          channel: "zapier",
+          claim_description_text: "cd_text"
+        }) {
+          fact_check {
+            dbid
+            claim_description {
+              dbid
+              description
+            }
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success, @response.body
+    result = JSON.parse(@response.body)['data']['createFactCheck']['fact_check']
+    assert_equal 'cd_text', result['claim_description']['description']
+    cd = ClaimDescription.find(result['claim_description']['dbid'])
+    assert_nil cd.project_media
+    assert_equal @t.id, cd.team_id
+  end
+
   test "should create explainer with api channel when created by Bot" do
     t = create_team
     a = ApiKey.create!
@@ -1043,5 +1074,16 @@ class GraphqlController12Test < ActionController::TestCase
 
     assert_instance_of BotUser, explainer.user
     assert_equal "api", result["channel"]
+  end
+
+  test "should require authentication to run search query" do
+    t = create_team
+    query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response 401
+    authenticate_with_user(@u)
+    query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
   end
 end
