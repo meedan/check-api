@@ -645,7 +645,7 @@ module ProjectMediaCachedFields
 
     def recalculate_tags_as_sentence
       tag_text_ids = Tag.where(annotation_type: 'tag', annotated_type: 'ProjectMedia', annotated_id: self.id).collect{|t| t.data['tag']}
-      TagText.where(id: tag_text_ids).map(&:text).join(', ')
+      TagText.where(id: tag_text_ids).pluck(:text).join(', ')
     end
 
     def recalculate_sources_as_sentence
