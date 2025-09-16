@@ -414,6 +414,17 @@ class User < ApplicationRecord
     ProjectMedia.where(user_id: self.id).count > 0
   end
 
+  def intercom_user_jwt
+    require 'jwt'
+    payload = {
+      user_id: self.id,
+      email: self.email,
+      name: self.name,
+      check_workspace: self.current_team&.slug,
+      exp: Time.now.to_i + 3600,
+    }
+    JWT.encode(payload, CheckConfig.get('intercom_api_secret'), 'HS256')
+  end
 
   # private
   #
