@@ -5,12 +5,6 @@ require 'uri'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def create_metrics_annotation
-    unless self.media.url.blank? || self.media.metadata.dig('metrics').nil?
-      Bot::Keep.update_metrics(self.media, self.media.metadata['metrics'])
-    end
-  end
-
   def create_claim_description_and_fact_check
     cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
     fc = nil
