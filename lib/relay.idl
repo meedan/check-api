@@ -8767,6 +8767,7 @@ type Me implements Node {
   get_send_failed_login_notifications: Boolean
   get_send_successful_login_notifications: Boolean
   id: ID!
+  intercom_user_jwt: String
   is_active: Boolean
   is_admin: Boolean
   is_bot: Boolean

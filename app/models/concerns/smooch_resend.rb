@@ -206,12 +206,13 @@ module SmoochResend
       pm = ProjectMedia.where(id: original['project_media_id']).last
       report = self.get_report_data_to_be_resent(message, original)
       unless report.nil?
-        language, query_date, introduction, text, image = report.values_at(:language, :query_date, :introduction, :text, :image)
+        language, query_date, introduction, text, image, url, title = report.values_at(:language, :query_date, :introduction, :text, :image, :url, :title)
         uid = message['appUser']['_id']
+        full_text = [title, text, url].compact.join("\n\n")
         last_smooch_response = nil
         last_smooch_response = self.send_message_to_user(uid, introduction, self.message_tags_payload(introduction)) if introduction
         last_smooch_response = self.send_message_to_user(uid, 'Visual Card', self.message_tags_payload(nil, image)) if image
-        last_smooch_response = self.send_message_to_user(uid, text, self.message_tags_payload(text)) if text
+        last_smooch_response = self.send_message_to_user(uid, full_text, self.message_tags_payload(full_text)) if text
         self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         return true
       end
@@ -305,6 +306,7 @@ module SmoochResend
         data[:text] = report.body
         data[:image] = report.image_url
         data[:title] = report.title
+        data[:url] = report.url
       end
       data
     end

@@ -20,27 +20,17 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
         }
       ]
       if !duplicate_user.nil? && duplicate_user.invited_to_sign_up?
-        duplicate_user.accept_invitation_or_confirm
-        duplicate_user.password = resource.password
-        duplicate_user.encrypted_password = resource.encrypted_password
         duplicate_user.last_accepted_terms_at = Time.now
         duplicate_user.save!
-        user = duplicate_user
       else
         resource.last_accepted_terms_at = Time.now
         resource.save!
       end
 
-      User.current = user
-      sign_up(resource_name, user)
       render_success user, 'user', 401, error
     rescue ActiveRecord::RecordInvalid => e
       # Check if the error is specifically related to the email being taken
       if resource.errors.details[:email].any? { |email_error| email_error[:error] == :taken } && resource.errors.details.except(:email).empty?
-        # Treat as successful sign-up if only the email is taken
-        duplicate_user = User.get_duplicate_user(resource.email, [])[:user]
-        User.current = duplicate_user if duplicate_user
-        sign_up(resource_name, duplicate_user)
         render_success nil, 'user', 401, error
       else
         # For other errors, show the error message in the form
