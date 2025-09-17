@@ -27,14 +27,10 @@ class Api::V1::RegistrationsController < Devise::RegistrationsController
         resource.save!
       end
 
-      User.current = user
-      sign_up(resource_name, user)
       render_success user, 'user', 401, error
     rescue ActiveRecord::RecordInvalid => e
       # Check if the error is specifically related to the email being taken
       if resource.errors.details[:email].any? { |email_error| email_error[:error] == :taken } && resource.errors.details.except(:email).empty?
-        User.current = user
-        sign_up(resource_name, user)
         render_success nil, 'user', 401, error
       else
         # For other errors, show the error message in the form

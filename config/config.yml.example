@@ -298,6 +298,13 @@ development: &default
   #
   google_api_key: '<GOOGLE API KEY>'
 
+  # Intercom API secret
+  #
+  # OPTIONAL
+  # But required for Intercom integration on the frontend side
+  #
+  intercom_api_secret: '<INTERCOM API SECRET>'
+
 test:
   <<: *default
   checkdesk_base_url_private: http://api:3000
