@@ -247,8 +247,7 @@ class ProjectMedia < ApplicationRecord
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
     elsif self.archived != CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
-      # TODO: replace error msg
-      raise I18n.t(:replace_blank_media_only)
+      raise I18n.t(:replace_factcheck_import_media_only)
     else
       assignments_ids = []
       ProjectMedia.transaction do

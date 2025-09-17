@@ -38,6 +38,14 @@ class ProjectMedia6Test < ActiveSupport::TestCase
     end
   end
 
+  test "should create blank item" do
+    assert_difference 'ProjectMedia.count' do
+      assert_difference 'Blank.count' do
+        create_project_media media: Blank.create!
+      end
+    end
+  end
+
   test "should convert old hash" do
     t = create_team
     pm = create_project_media team: t

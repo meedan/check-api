@@ -208,7 +208,7 @@ class FactCheck < ApplicationRecord
         if existing_pm.fact_check.language != self.language
           self.create_project_media_for_fact_check(true)
         else
-          raise raise I18n.t(:factcheck_exists_with_same_language)
+          raise I18n.t(:factcheck_exists_with_same_language)
         end
       else
         # Skip report update as ProjectMedia creation failed and log the failure

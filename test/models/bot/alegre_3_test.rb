@@ -362,20 +362,19 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 
-  # TODO: fix by Sawy
-  # test "should not return matches for blank cases" do
-  #   t = create_team
-  #   pm1 = create_project_media team: t, quote: "Blah", team: @team
-  #   pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
-  #   pm1.save!
-  #   pm2 = create_project_media team: t, quote: "Blah2", team: @team
-  #   pm2.save!
-  #   pm3 = create_project_media team: t, media: Blank.new
-  #   pm3.save!
-  #   Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}, pm2.id => {score: 0.99, context: {"blah" => 1}}})
-  #   assert_equal Bot::Alegre.get_similar_items(pm3), {}
-  #   Bot::Alegre.unstub(:get_merged_items_with_similar_text)
-  # end
+  test "should not return matches for blank cases" do
+    t = create_team
+    pm1 = create_project_media team: t, quote: "Blah", team: @team
+    pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
+    pm1.save!
+    pm2 = create_project_media team: t, quote: "Blah2", team: @team
+    pm2.save!
+    pm3 = create_project_media team: t, media: create_claim_media, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+    pm3.save!
+    Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}, pm2.id => {score: 0.99, context: {"blah" => 1}}})
+    assert_equal Bot::Alegre.get_similar_items(pm3), {}
+    Bot::Alegre.unstub(:get_merged_items_with_similar_text)
+  end
 
   test "should add relationships" do
     t = create_team

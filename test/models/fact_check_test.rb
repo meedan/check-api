@@ -852,6 +852,9 @@ class FactCheckTest < ActiveSupport::TestCase
           end
         end
       end
+      assert_raises RuntimeError do
+        create_fact_check set_original_claim: original_claim, language: 'en', publish_report: true
+      end
       fc = nil
       assert_difference 'ProjectMedia.count' do
         assert_difference 'FactCheck.count' do
