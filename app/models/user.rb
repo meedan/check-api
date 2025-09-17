@@ -129,7 +129,7 @@ class User < ApplicationRecord
       id: Base64.encode64("User/#{self.id}"),
       dbid: self.id,
       teams: self.user_teams,
-      source_id: self.source.id
+      source_id: self.source&.id
     }
     [:name, :email, :login, :token, :current_team, :team_ids, :permissions, :profile_image, :settings, :is_admin, :accepted_terms, :last_accepted_terms_at].each do |field|
       user[field] = self.send(field)
@@ -414,6 +414,17 @@ class User < ApplicationRecord
     ProjectMedia.where(user_id: self.id).count > 0
   end
 
+  def intercom_user_jwt
+    require 'jwt'
+    payload = {
+      user_id: self.id,
+      email: self.email,
+      name: self.name,
+      check_workspace: self.current_team&.slug,
+      exp: Time.now.to_i + 3600,
+    }
+    JWT.encode(payload, CheckConfig.get('intercom_api_secret'), 'HS256')
+  end
 
   # private
   #
