@@ -46731,6 +46731,20 @@
               "deprecationReason": null
             },
             {
+              "name": "intercom_user_jwt",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "is_active",
               "description": null,
               "args": [

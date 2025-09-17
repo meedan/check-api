@@ -170,4 +170,6 @@ class MeType < DefaultObject
     return FeedInvitation.none if object.email.blank? || User.current != object
     FeedInvitation.where(email: object.email)
   end
+
+  field :intercom_user_jwt, GraphQL::Types::String, null: true
 end
