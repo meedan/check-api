@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_30_065844) do
+ActiveRecord::Schema.define(version: 2025_09_17_182614) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -473,6 +473,7 @@ ActiveRecord::Schema.define(version: 2025_06_30_065844) do
     t.integer "uuid", default: 0, null: false
     t.text "original_claim"
     t.string "original_claim_hash"
+    t.index "lower((quote)::text)", name: "index_medias_on_lower_quote", where: "((type)::text = 'Claim'::text)"
     t.index ["original_claim_hash"], name: "index_medias_on_original_claim_hash", unique: true
     t.index ["url"], name: "index_medias_on_url", unique: true
   end
