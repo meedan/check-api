@@ -37,7 +37,7 @@ class Bot::AlegreTest < ActiveSupport::TestCase
       tpm = TemporaryProjectMedia.new
       tpm.type = k
       assert_equal tpm.media.type, v
-      [:is_blank?, :is_link?, :is_text?, :is_image?, :is_video?, :is_audio?, :is_uploaded_media?].each do |meth|
+      [:is_fact_check_imported?, :is_link?, :is_text?, :is_image?, :is_video?, :is_audio?, :is_uploaded_media?].each do |meth|
         assert_equal [true, false].include?(tpm.send(meth)), true
       end
     end

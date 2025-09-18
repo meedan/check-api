@@ -192,7 +192,7 @@ class Bot::Fetch < BotUser
         unless self.already_imported?(claim_review, team)
           Rails.cache.write(self.semaphore_key(team_id, claim_review['identifier']), Time.now)
           ApplicationRecord.transaction do
-            pm = self.create_project_media(team, user)
+            pm = self.create_project_media(team, user, claim_review)
             self.set_status(claim_review, pm, status_fallback, status_mapping)
             self.set_analysis(claim_review, pm)
             self.set_claim_and_fact_check(claim_review, pm, user, team)
@@ -215,12 +215,13 @@ class Bot::Fetch < BotUser
       Rails.cache.read(self.semaphore_key(team.id, id)) || DynamicAnnotation::Field.joins(joins).where('project_medias.team_id' => team.id, 'field_name' => 'external_id', 'annotations.annotation_type' => 'verification_status').where('dynamic_annotation_fields_value(field_name, value) = ?', id.to_json).last.present?
     end
 
-    def self.create_project_media(team, user)
+    def self.create_project_media(team, user, claim_review)
       ProjectMedia.create!(
-        media: Blank.create!,
+        media: Claim.create!(quote: self.get_title(claim_review)),
         team: team,
         user: user,
-        channel: { main: CheckChannels::ChannelCodes::FETCH }
+        channel: { main: CheckChannels::ChannelCodes::FETCH },
+        archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
       )
     end
 
@@ -255,6 +256,7 @@ class Bot::Fetch < BotUser
       end
       fc = FactCheck.new
       fc.skip_check_ability = true
+      fc.skip_create_project_media = true
       fc.claim_description = cd
       fc.title = self.get_title(claim_review).to_s
       fc.url = claim_review['url'].to_s

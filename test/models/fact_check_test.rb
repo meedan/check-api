@@ -382,7 +382,7 @@ class FactCheckTest < ActiveSupport::TestCase
 
       pm = create_project_media
       cd = create_claim_description project_media: pm
-      fc = create_fact_check claim_description: cd, publish_report: true
+      fc = create_fact_check claim_description: cd, publish_report: true, skip_create_project_media: true
       assert_equal 'published', pm.reload.report_status
 
       fc = FactCheck.find(fc.id)
@@ -852,6 +852,9 @@ class FactCheckTest < ActiveSupport::TestCase
           end
         end
       end
+      assert_raises RuntimeError do
+        create_fact_check set_original_claim: original_claim, language: 'en', publish_report: true
+      end
       fc = nil
       assert_difference 'ProjectMedia.count' do
         assert_difference 'FactCheck.count' do
@@ -862,8 +865,24 @@ class FactCheckTest < ActiveSupport::TestCase
       end
       cd = fc.reload.claim_description
       pm = cd.project_media
-      assert_equal 'Blank', pm.media.type
-      fc = create_fact_check set_original_claim: original_claim, language: 'fr', publish_report: true
+      assert_equal 'Claim', pm.media.type
+    end
+  end
+
+  test "should create publish report even set_original_claim not set" do
+    create_report_design_annotation_type
+    u = create_user
+    t = create_team
+    pm = create_project_media team: t
+    create_team_user team: t, user: u, role: 'admin'
+    with_current_user_and_team(u, t) do
+      fc = create_fact_check claim_description_text: random_string, publish_report: true
+      pm = fc.claim_description.project_media
+      r = pm.get_dynamic_annotation('report_design')
+      assert_equal 'published', r.get_field_value('state')
+      fc = create_fact_check claim_description_text: random_string
+      cd = fc.claim_description
+      assert_nil cd.project_media_id
     end
   end
 end

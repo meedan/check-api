@@ -6,7 +6,7 @@ class FactCheck < ApplicationRecord
 
   enum report_status: { unpublished: 0, published: 1, paused: 2 }
 
-  attr_accessor :skip_report_update, :publish_report, :claim_description_text, :set_original_claim
+  attr_accessor :skip_report_update, :publish_report, :claim_description_text, :set_original_claim, :skip_create_project_media
 
   belongs_to :claim_description
 
@@ -14,6 +14,7 @@ class FactCheck < ApplicationRecord
   before_validation :set_language, on: :create, if: proc { |fc| fc.language.blank? }
   before_validation :set_imported, on: :create
   before_validation :set_claim_description, on: :create, unless: proc { |fc| fc.claim_description.present? }
+  before_validation :set_original_claim_for_published_articles, on: :create, if: proc { |fc| fc.publish_report && fc.set_original_claim.blank? }
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
@@ -23,7 +24,7 @@ class FactCheck < ApplicationRecord
   before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
   after_save :update_item_status, if: proc { |fc| fc.saved_change_to_rating? }
-  after_create :set_project_media, if: proc { |fc| fc.claim_description.present? && !fc.set_original_claim.blank? }
+  after_create :set_signature_and_project_media, if: proc { |fc| !fc.skip_create_project_media && fc.claim_description.present? && !fc.set_original_claim.blank? }
   after_update :detach_claim_if_trashed
 
   def text_fields
@@ -103,6 +104,10 @@ class FactCheck < ApplicationRecord
     claim_description_text = self.claim_description_text || '-'
     cd = ClaimDescription.create!(description: claim_description_text, skip_check_ability: true)
     self.claim_description_id = cd.id
+  end
+
+  def set_original_claim_for_published_articles
+    self.set_original_claim = self.title
   end
 
   def language_in_allowed_values
@@ -191,7 +196,10 @@ class FactCheck < ApplicationRecord
     end
   end
 
-  def set_project_media
+  def set_signature_and_project_media
+    # set signature
+    fc_attr = self.dup.attributes.compact.except("user_id", "claim_description_id", "author_id", "trashed", "report_status")
+    self.update_column(:signature, Digest::MD5.hexdigest([fc_attr.to_json, self.team_id].join(':')))
     begin
       self.create_project_media_for_fact_check
     rescue RuntimeError => e
@@ -199,6 +207,8 @@ class FactCheck < ApplicationRecord
         existing_pm = ProjectMedia.find(JSON.parse(e.message)['data']['id'])
         if existing_pm.fact_check.language != self.language
           self.create_project_media_for_fact_check(true)
+        else
+          raise I18n.t(:factcheck_exists_with_same_language)
         end
       else
         # Skip report update as ProjectMedia creation failed and log the failure
@@ -212,7 +222,8 @@ class FactCheck < ApplicationRecord
   def create_project_media_for_fact_check(is_duplicate = false)
     pm = ProjectMedia.new
     if is_duplicate
-      pm.media = Blank.create!
+      pm.set_original_claim = self.title
+      pm.archived = CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     else
       pm.set_original_claim = self.set_original_claim
     end
@@ -222,14 +233,10 @@ class FactCheck < ApplicationRecord
     pm.set_tags = self.tags
     pm.skip_check_ability = true
     pm.save!
-    # set signature
-    fc_attr = self.dup.attributes.compact.except("user_id", "claim_description_id", "author_id", "trashed", "report_status")
-    update_columns = { signature: Digest::MD5.hexdigest([fc_attr.to_json, self.team_id].join(':')) }
     # Set report status
     if self.publish_report
-      update_columns[:report_status] = 'published'
       self.update_report
+      self.update_column(:report_status, 'published')
     end
-    self.update_columns(update_columns)
   end
 end

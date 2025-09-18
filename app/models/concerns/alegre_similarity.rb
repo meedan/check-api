@@ -90,7 +90,7 @@ module AlegreSimilarity
     end
 
     def relate_project_media_to_similar_items(pm)
-      self.add_relationships(pm, self.get_similar_items(pm)) unless pm.is_blank?
+      self.add_relationships(pm, self.get_similar_items(pm)) unless pm.is_fact_check_imported?
     end
 
     def send_field_to_similarity_index(pm, field)

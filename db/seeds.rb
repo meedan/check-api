@@ -43,7 +43,13 @@ LINK_PARAMS = -> {[
   end
 }
 
-BLANK_PARAMS = Array.new(8, { type: 'Blank' })
+BLANK_PARAMS = (Array.new(8) do
+  {
+    type: 'Claim',
+    quote: Faker::Lorem.paragraph(sentence_count: 8),
+    archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+  }
+end)
 
 STANDALONE_CLAIMS_FACT_CHECKS_PARAMS = (Array.new(8) do
   {
@@ -262,13 +268,13 @@ class PopulatedWorkspaces
     project_media_params.each do |params|
       medias_params.map.with_index do |media_params, index|
         params.merge!({
-          channel: channel(media_params[:type]),
-          media_attributes: media_params,
+          channel: channel(media_params[:archived]),
+          media_attributes: media_params.reject { |k, _| k == :archived },
           claim_description_attributes: {
             description: claim_title(media_params),
             context: Faker::Lorem.sentence,
-            user: media_params[:type] == "Blank" ? bot : params[:user],
-            fact_check_attributes: imported_fact_check_params(media_params[:type]) || fact_check_params_for_half_the_claims(index, params[:user]),
+            user: media_params[:archived] == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT ? bot : params[:user],
+            fact_check_attributes: imported_fact_check_params(media_params[:archived]) || fact_check_params_for_half_the_claims(index, params[:user]),
           }
         })
         ProjectMedia.create!(params)
@@ -675,7 +681,7 @@ class PopulatedWorkspaces
   end
 
   def imported_fact_check_params(media_type)
-    if media_type == 'Blank'
+    if media_type == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
       {
         summary: Faker::Company.catch_phrase,
         title: Faker::Company.name,
@@ -695,7 +701,7 @@ class PopulatedWorkspaces
   end
 
   def channel(media_type)
-    media_type == "Blank" ? { main: CheckChannels::ChannelCodes::FETCH } : { main: CheckChannels::ChannelCodes::MANUAL }
+    media_type == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT ? { main: CheckChannels::ChannelCodes::FETCH } : { main: CheckChannels::ChannelCodes::MANUAL }
   end
 
   def standalone_claims_and_fact_checks(user)

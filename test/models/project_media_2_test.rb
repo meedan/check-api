@@ -99,7 +99,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
       create_team_user team: t, user: u, role: 'admin'
       with_current_user_and_team(u, t) do
         pm = ProjectMedia.create!(
-          media: Blank.create!,
+          media: create_claim_media,
           team: t,
           user: u,
           channel: { main: CheckChannels::ChannelCodes::FETCH }

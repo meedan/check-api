@@ -41,7 +41,7 @@ class ProjectMedia6Test < ActiveSupport::TestCase
   test "should create blank item" do
     assert_difference 'ProjectMedia.count' do
       assert_difference 'Blank.count' do
-        ProjectMedia.create! media_type: 'Blank', team: create_team
+        create_project_media media: Blank.create!
       end
     end
   end

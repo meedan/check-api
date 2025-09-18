@@ -561,7 +561,7 @@ class GraphqlController2Test < ActionController::TestCase
       u = create_user
       t = create_team
       create_team_user team: t, user: u, role: 'admin'
-      old = create_project_media team: t, media: Blank.create!
+      old = create_project_media team: t, media: create_claim_media, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
       r = publish_report(old)
       new = create_project_media team: t
       authenticate_with_user(u)
