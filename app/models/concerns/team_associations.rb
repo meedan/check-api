@@ -6,6 +6,7 @@ module TeamAssociations
   included do
     has_many :accounts # No "dependent: :destroy" because they will be anonymized
     has_many :team_users, dependent: :destroy
+    has_many :team_bot_installations, class_name: "TeamBotInstallation"
     has_many :users, through: :team_users
     has_many :sources # No "dependent: :destroy" because they will be anonymized
     has_many :tag_texts, dependent: :destroy

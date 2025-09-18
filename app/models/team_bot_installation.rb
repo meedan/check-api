@@ -1,6 +1,8 @@
 class TeamBotInstallation < TeamUser
   include CustomLock
 
+  belongs_to :bot_user, class_name: "BotUser", foreign_key: :user_id
+
   has_paper_trail on: [:create, :update, :destroy], save_changes: true, ignore: [:updated_at, :created_at], versions: { class_name: 'Version' }, if: proc { |_x| User.current.present? }
 
   mount_uploaders :file, ImageUploader
