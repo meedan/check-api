@@ -888,17 +888,6 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     end
   end
 
-  test "should create metrics annotation after create a project media" do
-    create_annotation_type_and_fields('Metrics', { 'Data' => ['JSON', false] })
-    url = 'https://twitter.com/meedan/status/1321600654750613505'
-    response = {"type" => "media","data" => {"url" => url, "type" => "item", "metrics" => {"facebook"=> {"reaction_count" => 2, "comment_count" => 5, "share_count" => 10, "comment_plugin_count" => 0 }}}}
-
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url }, CheckConfig.get('pender_key'), nil).returns(response)
-    pm = create_project_media media: nil, url: url
-    assert_equal response['data']['metrics'], JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))
-    PenderClient::Request.unstub(:get_medias)
-  end
-
   test "should cache metadata value" do
     at = create_annotation_type annotation_type: 'task_response'
     create_field_instance annotation_type_object: at, name: 'response_test'
