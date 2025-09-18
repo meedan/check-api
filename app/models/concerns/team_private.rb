@@ -121,6 +121,17 @@ module TeamPrivate
     self.class.delay_for(1.second).update_reports_if_languages_changed(self.id, diff)
   end
 
+  def update_tipline_if_languages_changed(diff)
+    removed_language = diff.first
+    tbi = self.team_bot_installations.find_by(user: BotUser.smooch_user)
+    return if tbi.nil?
+
+    settings = tbi.settings.deep_dup
+    current_workflows = settings['smooch_workflows']
+    updated_workflows = current_workflows.reject { |wf| wf['smooch_workflow_language'] == removed_language }
+    tbi.update(settings: settings.merge('smooch_workflows' => updated_workflows))
+  end
+
   def update_tipline_if_default_language_deleted(languages)
     tbi = self.team_bot_installations.where(user: BotUser.smooch_user).last
     unless tbi.nil?
