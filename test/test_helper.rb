@@ -840,7 +840,7 @@ class ActiveSupport::TestCase
     create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
   end
 
-  def setup_smooch_bot(menu = false, extra_settings = {})
+  def setup_smooch_bot(menu = false, extra_settings = {}, team = nil)
     DynamicAnnotation::AnnotationType.delete_all
     DynamicAnnotation::FieldInstance.delete_all
     DynamicAnnotation::FieldType.delete_all
@@ -854,7 +854,7 @@ class ActiveSupport::TestCase
     @msg_id = random_string
     messages = (1..20).to_a.collect{ |_i| OpenStruct.new({ message: OpenStruct.new({ id: random_string }) }) }
     SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(*messages)
-    @team = create_team
+    @team = team.presence || create_team
     @bid = random_string
     ApiKey.delete_all
     BotUser.delete_all
