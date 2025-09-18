@@ -1069,6 +1069,27 @@ class TeamTest < ActiveSupport::TestCase
     w = tbi.get_smooch_workflows[0]
     assert_equal 'fr', w['smooch_workflow_language']
   end
+require 'byebug'
+  test "should delete tipline language if language is deleted from supported languages" do
+    team = create_team
+    team.set_languages = ['en', 'pt']
+    team.save!
+    # setup_smooch_bot by default:
+      # adds two language workflows
+      # one language
+      # which I think is misleading
+      # as a workaround for now I'm creating the team with both languages first
+    setup_smooch_bot(true, {}, team)
+    tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
+    workflows = tbi.get_smooch_workflows
+    assert_equal 2, workflows.count
+
+    @team.set_languages = ['en']
+    @team.save!
+    tbi = tbi.reload
+    workflows = tbi.get_smooch_workflows
+    assert_equal 1, workflows.count
+  end
 
   test "should add trash link to duplicated team" do
     m = create_valid_media
