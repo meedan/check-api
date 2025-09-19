@@ -1066,7 +1066,7 @@ class TeamTest < ActiveSupport::TestCase
     @team.set_language = 'fr'
     @team.save!
     tbi = tbi.reload
-    w = tbi.get_smooch_workflows[0]
+    w = tbi.get_smooch_workflows[1]
     assert_equal 'fr', w['smooch_workflow_language']
   end
 require 'byebug'
