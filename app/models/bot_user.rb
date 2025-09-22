@@ -340,8 +340,10 @@ class BotUser < User
   def self.notify_bots(event, team_id, object_class, object_id, target_bot, request_actor_session_id = nil)
     RequestStore[:actor_session_id] = request_actor_session_id unless request_actor_session_id.nil?
     object = object_class.constantize.where(id: object_id).first
-    team = Team.where(id: team_id).last
-    return if object.nil? || team.nil?
+    return if object.nil? # return to avoid query Team in case object is nil
+    # Use includes to avoid N+1 query when calling team_bot_installation.bot_user
+    team = Team.includes(team_bot_installations: :bot_user).find_by_id(team_id)
+    return if team.nil?
     team.team_bot_installations.each do |team_bot_installation|
       bot = team_bot_installation.bot_user
       begin
