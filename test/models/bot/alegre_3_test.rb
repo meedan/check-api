@@ -362,7 +362,7 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 
-  test "should not return matches for blank cases" do
+  test "should not return matches for blank(FACTCHECK_IMPORT) cases" do
     t = create_team
     pm1 = create_project_media team: t, quote: "Blah", team: @team
     pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }

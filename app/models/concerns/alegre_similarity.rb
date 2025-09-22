@@ -47,7 +47,9 @@ module AlegreSimilarity
 
     def get_pm_type(pm)
       type = nil
-      if pm.is_text?
+      if pm.is_fact_check_imported?
+        type = nil
+      elsif pm.is_text?
         type = 'text'
       elsif pm.is_image?
         type = 'image'
