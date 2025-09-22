@@ -39,11 +39,15 @@ class ProjectMedia6Test < ActiveSupport::TestCase
   end
 
   test "should create blank item" do
+    pm = nil
     assert_difference 'ProjectMedia.count' do
       assert_difference 'Blank.count' do
-        create_project_media media: Blank.create!
+        pm = create_project_media media: Blank.create!
       end
     end
+    m = pm.media
+    assert_equal 'blank', m.media_type
+    assert_equal 'Blank', m.class_name
   end
 
   test "should convert old hash" do
