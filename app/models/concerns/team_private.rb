@@ -108,58 +108,54 @@ module TeamPrivate
   def update_report_and_tipline_based_on_languages_changed
     languages = self.settings.to_h.with_indifferent_access[:languages]
     languages_were = self.settings_before_last_save.to_h.with_indifferent_access[:languages]
-    if languages && languages_were
-      diff = languages_were - languages
+    diff = languages_were - languages if languages && languages_were
 
-      update_reports_if_languages_changed(diff)
-      update_tipline_workflow_languages(languages, diff)
-    end
+    update_reports_if_languages_changed(diff) if diff.present?
+    update_tipline_workflow_languages(diff)
   end
 
   def update_reports_if_languages_changed(diff)
-    return if diff.blank?
     self.class.delay_for(1.second).update_reports_if_languages_changed(self.id, diff)
   end
 
-  def update_tipline_workflow_languages(languages, diff)
-    # the default supported language should be a tipline language workflow, irregardles if the prior default language was deleted or not
-    # a deleted supported language should not be a tipline language workflow
-    # we should not have a duplicate tipline language workflow for the same language
+  def update_tipline_workflow_languages(diff)
     tbi = self.team_bot_installations.find_by(user: BotUser.smooch_user)
     return if tbi.blank?
 
-    settings = tbi.settings
-
-    update_tipline_if_default_language_changed(tbi, languages, settings)
-    update_tipline_if_language_deleted(tbi, diff, settings)
+    # the default supported language should be a tipline language workflow,
+    # irregardles if the prior default language was deleted or not
+    update_tipline_if_default_language_changed(tbi) if changed_default_language?
+    # a deleted supported language should not be a tipline language workflow
+    diff.each { |removed_language| update_tipline_if_language_deleted(tbi, removed_language) } if diff.present?
   end
 
-  def update_tipline_if_language_deleted(tbi, diff, settings)
-    return if diff.blank?
-    removed_language = diff.first
-    return if tbi.nil?
-
-    workflows = settings['smooch_workflows']
-    updated_workflows = workflows.reject { |workflow| workflow['smooch_workflow_language'] == removed_language }
-    updated_settings = settings.merge('smooch_workflows' => updated_workflows)
-
-    tbi.update(settings: updated_settings)
+  def update_tipline_if_language_deleted(tbi, removed_language)
+    workflows = tbi.get_smooch_workflows
+    workflows.reject! { |workflow| workflow['smooch_workflow_language'] == removed_language }
+    tbi.set_smooch_workflows = workflows
+    tbi.save!
   end
 
-  def update_tipline_if_default_language_changed(tbi, languages, settings)
+  def update_tipline_if_default_language_changed(tbi)
     default_language = self.get_language
-    workflows = settings['smooch_workflows']
+    workflows = tbi.get_smooch_workflows
 
     # Return if the default language is already present in the tipline
     return if workflows.any? { |workflow| workflow['smooch_workflow_language'] == default_language }
 
     # Add new language workflow if not
-    new_workflow = Bot::Smooch.default_settings.first
-    new_workflow['smooch_workflow_language'] = default_language
-    workflows << new_workflow
-    updated_settings = settings.merge('smooch_workflows' => workflows)
+    default_workflow = Bot::Smooch.default_settings.deep_dup.first
+    default_workflow['smooch_workflow_language'] = default_language
+    workflows << default_workflow
 
-    tbi.update(settings: updated_settings)
+    tbi.set_smooch_workflows = workflows
+    tbi.save!
+  end
+
+  def changed_default_language?
+    default_language  = self.settings.to_h.with_indifferent_access[:language]
+    default_language_was = self.settings_before_last_save.to_h.with_indifferent_access[:language]
+    default_language != default_language_was
   end
 
   def empty_data_structure
