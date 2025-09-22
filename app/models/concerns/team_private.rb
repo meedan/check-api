@@ -122,23 +122,27 @@ module TeamPrivate
     tbi = self.team_bot_installations.find_by(user: BotUser.smooch_user)
     return if tbi.blank?
 
+    original_workflows = tbi.get_smooch_workflows.deep_dup
+    workflows = original_workflows
+
     # the default supported language should be a tipline language workflow,
     # irregardles if the prior default language was deleted or not
-    update_tipline_if_default_language_changed(tbi) if changed_default_language?
+    workflows = ensure_default_language_presence(workflows) if changed_default_language?
     # a deleted supported language should not be a tipline language workflow
-    diff.each { |removed_language| update_tipline_if_language_deleted(tbi, removed_language) } if diff.present?
+    workflows = remove_deleted_languages(workflows, diff) if diff.present?
+
+    if workflows != original_workflows
+      tbi.set_smooch_workflows = workflows
+      tbi.save!
+    end
   end
 
-  def update_tipline_if_language_deleted(tbi, removed_language)
-    workflows = tbi.get_smooch_workflows
-    workflows.reject! { |workflow| workflow['smooch_workflow_language'] == removed_language }
-    tbi.set_smooch_workflows = workflows
-    tbi.save!
+  def remove_deleted_languages(workflows, removed_languages)
+    workflows.reject { |wf| removed_languages.include?(wf['smooch_workflow_language']) }
   end
 
-  def update_tipline_if_default_language_changed(tbi)
+  def ensure_default_language_presence(workflows)
     default_language = self.get_language
-    workflows = tbi.get_smooch_workflows
 
     # Return if the default language is already present in the tipline
     return if workflows.any? { |workflow| workflow['smooch_workflow_language'] == default_language }
@@ -146,10 +150,7 @@ module TeamPrivate
     # Add new language workflow if not
     default_workflow = Bot::Smooch.default_settings.deep_dup.first
     default_workflow['smooch_workflow_language'] = default_language
-    workflows << default_workflow
-
-    tbi.set_smooch_workflows = workflows
-    tbi.save!
+    workflows + [default_workflow]
   end
 
   def changed_default_language?
