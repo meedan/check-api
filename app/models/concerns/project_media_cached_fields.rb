@@ -255,7 +255,6 @@ module ProjectMediaCachedFields
           }
         }
       ]
-    end
 
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
