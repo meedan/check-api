@@ -464,7 +464,7 @@ module SmoochBotTestHelper
     }
 
     def self.initial
-      INITIAL_SETTINGS
+      INITIAL_SETTINGS.deep_dup
     end
 
     def self.basic(app_id, team_id)
@@ -475,7 +475,7 @@ module SmoochBotTestHelper
         'smooch_secret_key_secret' => random_string,
         'smooch_template_namespace' => random_string,
         'team_id' => team_id,
-        'smooch_workflows' => [ DEFAULT_SMOOCH_WORKFLOW_LANGUAGE ]
+        'smooch_workflows' => [ DEFAULT_SMOOCH_WORKFLOW_LANGUAGE.deep_dup ]
       }
     end
   end
@@ -575,7 +575,7 @@ module SmoochBotTestHelper
     end
 
     def add_second_language(settings)
-      settings['smooch_workflows'] << Settings::SECOND_SMOOCH_WORKFLOW_LANGUAGE.merge(self.smooch_custom_settings)
+      settings['smooch_workflows'] << self.smooch_custom_settings.merge!(Settings::SECOND_SMOOCH_WORKFLOW_LANGUAGE.deep_dup)
     end
   end
 end

@@ -431,12 +431,12 @@ class ActiveSupport::TestCase
 
     @bot = create_smooch_bot
     @settings = SmoochBotTestHelper::Settings.basic(@app_id, @team.id)
+    @pm_for_menu_option = create_project_media(team: @team)
 
     if menu
       @team.set_languages = ['en', 'pt']
       @team.save!
 
-      @pm_for_menu_option = create_project_media(team: @team)
       smooch_menu = SmoochBotTestHelper::Menu.new(@pm_for_menu_option.id, @resource_uuid)
       smooch_menu.add_default_language(@settings)
       smooch_menu.add_second_language(@settings)
