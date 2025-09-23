@@ -405,7 +405,7 @@ class ActiveSupport::TestCase
   end
 
   def create_smooch_bot
-    settings = SmoochBotTestHelper::SETTINGS
+    settings = SmoochBotTestHelper::Settings.initial
     create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
   end
 
@@ -430,16 +430,16 @@ class ActiveSupport::TestCase
     @resource_uuid = random_string
 
     @bot = create_smooch_bot
-    @settings = SmoochBotTestHelper.smooch_basic_settings(@app_id, @team.id)
+    @settings = SmoochBotTestHelper::Settings.basic(@app_id, @team.id)
 
     if menu
       @team.set_languages = ['en', 'pt']
       @team.save!
 
       @pm_for_menu_option = create_project_media(team: @team)
-      smooch_menu = SmoochBotTestHelper.smooch_menu_custom_settings(@pm_for_menu_option.id, @resource_uuid)
-      SmoochBotTestHelper.smooch_menu_default_language(smooch_menu, @settings)
-      SmoochBotTestHelper.smooch_menu_second_language(@settings)
+      smooch_menu = SmoochBotTestHelper::Menu.new(@pm_for_menu_option.id, @resource_uuid)
+      smooch_menu.add_default_language(@settings)
+      smooch_menu.add_second_language(@settings)
     end
     @installation = create_team_bot_installation user_id: @bot.id, settings: @settings.merge(extra_settings), team_id: @team.id
     @installation.set_smooch_version = 'v1' ; @installation.save!
