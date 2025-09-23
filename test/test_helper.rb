@@ -840,7 +840,7 @@ class ActiveSupport::TestCase
     create_team_bot name: 'Smooch', login: 'smooch', set_approved: true, set_settings: settings, set_events: [], set_request_url: "#{CheckConfig.get('checkdesk_base_url_private')}/api/bots/smooch"
   end
 
-  def setup_smooch_bot(menu = false, extra_settings = {}, team = nil)
+  def setup_smooch_bot(menu = false, extra_settings = {})
     DynamicAnnotation::AnnotationType.delete_all
     DynamicAnnotation::FieldInstance.delete_all
     DynamicAnnotation::FieldType.delete_all
@@ -854,7 +854,7 @@ class ActiveSupport::TestCase
     @msg_id = random_string
     messages = (1..20).to_a.collect{ |_i| OpenStruct.new({ message: OpenStruct.new({ id: random_string }) }) }
     SmoochApi::ConversationApi.any_instance.stubs(:post_message).returns(*messages)
-    @team = team.presence || create_team
+    @team = create_team
     @bid = random_string
     ApiKey.delete_all
     BotUser.delete_all
@@ -882,6 +882,9 @@ class ActiveSupport::TestCase
       ]
     }
     if menu
+      @team.set_languages = ['en', 'pt']
+      @team.save!
+
       @settings['smooch_workflows'][0].merge!({
         'smooch_state_main' => {
           'smooch_menu_message' => 'Hello, welcome! Press 1 to go to secondary menu.',

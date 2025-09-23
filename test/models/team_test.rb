@@ -1054,32 +1054,26 @@ class TeamTest < ActiveSupport::TestCase
   test "should update tipline language if default language changed" do
     setup_smooch_bot(true)
     tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
-    w = tbi.get_smooch_workflows[0]
+    w = tbi.get_smooch_workflows.first
     assert_equal 'en', w['smooch_workflow_language']
+
     @team.set_languages = ['en', 'fr']
     @team.set_language = 'fr'
     @team.save!
     tbi = tbi.reload
-    w = tbi.get_smooch_workflows[0]
+    w = tbi.get_smooch_workflows.first
     assert_equal 'en', w['smooch_workflow_language']
+
     @team.set_languages = ['fr']
     @team.set_language = 'fr'
     @team.save!
     tbi = tbi.reload
-    w = tbi.get_smooch_workflows[1]
+    w = tbi.get_smooch_workflows.first
     assert_equal 'fr', w['smooch_workflow_language']
   end
-require 'byebug'
+
   test "should delete tipline language if language is deleted from supported languages" do
-    team = create_team
-    team.set_languages = ['en', 'pt']
-    team.save!
-    # setup_smooch_bot by default:
-      # adds two language workflows
-      # one language
-      # which I think is misleading
-      # as a workaround for now I'm creating the team with both languages first
-    setup_smooch_bot(true, {}, team)
+    setup_smooch_bot(true)
     tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
     workflows = tbi.get_smooch_workflows
     assert_equal 2, workflows.count
@@ -1093,13 +1087,8 @@ require 'byebug'
 
   test "should not add duplicate tipline language" do
   # this happened when the tipline for a non-default language was already published,
-  # and then that language was made default
-  # in this case we should only keep the default workflow
-    team = create_team
-    team.set_languages = ['en', 'pt']
-    team.save!
-
-    setup_smooch_bot(true, {}, team)
+  # when that language was made default, it created a duplicated workflow
+    setup_smooch_bot(true)
     tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
     workflows = tbi.get_smooch_workflows
     assert_equal 2, workflows.count
