@@ -145,7 +145,7 @@ module TeamPrivate
     default_language = self.get_language
 
     # Return if the default language is already present in the tipline
-    return if workflows.any? { |workflow| workflow['smooch_workflow_language'] == default_language }
+    return workflows if workflows.any? { |workflow| workflow['smooch_workflow_language'] == default_language }
 
     # Add new language workflow if not
     default_workflow = Bot::Smooch.default_settings.deep_dup.first
