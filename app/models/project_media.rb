@@ -600,8 +600,8 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:language] = self.get_dynamic_annotation('language')&.get_field_value('language')
     # set fields with integer value including cached fields
     fields_i = [
-      'archived', 'sources_count', 'linked_items_count', 'share_count','last_seen', 'demand', 'user_id',
-      'read', 'suggestions_count','related_count', 'reaction_count', 'media_published_at',
+      'archived', 'sources_count', 'linked_items_count', 'last_seen', 'demand', 'user_id',
+      'read', 'suggestions_count','related_count', 'media_published_at',
       'unmatched', 'fact_check_published_on'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }

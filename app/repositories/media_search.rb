@@ -55,8 +55,6 @@ class MediaSearch
 
     indexes :last_seen, { type: 'long' }
 
-    indexes :share_count, { type: 'long' }
-
     indexes :demand, { type: 'long' }
 
     indexes :assigned_user_ids, { type: 'long' }
@@ -72,8 +70,6 @@ class MediaSearch
     indexes :published_by, { type: 'long' }
 
     indexes :annotated_by, { type: 'long' }
-
-    indexes :reaction_count, { type: 'long' }
 
     indexes :related_count, { type: 'long' }
 

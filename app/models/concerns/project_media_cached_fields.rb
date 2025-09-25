@@ -256,23 +256,6 @@ module ProjectMediaCachedFields
         }
       ]
 
-    [:share, :reaction].each do |metric|
-      cached_field "#{metric}_count".to_sym,
-        start_as: 0,
-        update_es: true,
-        recalculate: :"recalculate_#{metric}",
-        update_on: [
-          {
-            model: DynamicAnnotation::Field,
-            if: proc { |f| f.field_name == 'metrics_data' },
-            affected_ids: proc { |f| [f.annotation&.annotated_id.to_i] },
-            events: {
-              save: :recalculate
-            }
-          }
-        ]
-    end
-
     cached_field :report_status,
       start_as: proc { |_pm| 'unpublished' },
       update_es: :cached_field_report_status_es,
@@ -625,18 +608,6 @@ module ProjectMediaCachedFields
 
     def recalculate_status
       self.last_verification_status
-    end
-
-    def recalculate_share
-      recalculate_metric_fields(:share)
-    end
-
-    def recalculate_reaction
-      recalculate_metric_fields(:reaction)
-    end
-
-    def recalculate_metric_fields(metric)
-      begin JSON.parse(self.get_annotations('metrics').last.load.get_field_value('metrics_data'))['facebook']["#{metric}_count"] rescue 0 end
     end
 
     def recalculate_report_status
