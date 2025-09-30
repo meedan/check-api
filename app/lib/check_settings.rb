@@ -28,7 +28,7 @@ module CheckSettings
       self.add_check_settings_field(field)
 
       define_method field do
-        self[field.to_sym] || {}
+        (self[field.to_sym] || {}).with_indifferent_access
       end
 
       define_method field.to_s.singularize do |key|
@@ -54,13 +54,17 @@ module CheckSettings
   end
 
   def get_set_or_reset_setting_value(match, field, value, args)
-    if match[1] === 'set'
-      value[match[3].to_sym] = args.first
+    action = match[1]
+    key = match[3]
+
+    case action
+    when 'set'
+      value[key] = args.first
       self.send("#{field}=", value)
-    elsif match[1] === 'get'
-      value[match[3].to_sym].nil? ? value[match[3].to_s] : value[match[3].to_sym]
-    elsif match[1] === 'reset'
-      value.delete(match[3].to_sym) unless value.blank?
+    when 'get'
+      value[key]
+    when 'reset'
+      value.delete(key) unless value.blank?
       self.send("#{field}=", value)
     end
   end
