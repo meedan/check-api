@@ -7,7 +7,7 @@ class ProjectMedia < ApplicationRecord
 
   accepts_nested_attributes_for :media, :claim_description
 
-  has_paper_trail on: [:create, :update, :destroy], only: [:source_id, :archived], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
+  has_paper_trail on: [:create, :update, :destroy], only: [:source_id, :archived, :imported_from_feed_id], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
 
   include ProjectAssociation
   include ProjectMediaAssociations
@@ -33,7 +33,7 @@ class ProjectMedia < ApplicationRecord
   validates_presence_of :custom_title, if: proc { |pm| pm.title_field == 'custom_title' }
 
   before_validation :set_team_id, :set_channel, on: :create
-  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
+  after_create :create_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
@@ -403,6 +403,10 @@ class ProjectMedia < ApplicationRecord
   def version_metadata(changes)
     changes = begin JSON.parse(changes) rescue {} end
     meta = changes.keys.include?('source_id') ? { source_name: self.source&.name } : {}
+    if changes.keys.include?('imported_from_feed_id')
+      feed = Feed.find_by(id: self.imported_from_feed_id)
+      meta[:feed_name] = feed&.name
+    end
     meta.to_json
   end
 
@@ -596,8 +600,8 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:language] = self.get_dynamic_annotation('language')&.get_field_value('language')
     # set fields with integer value including cached fields
     fields_i = [
-      'archived', 'sources_count', 'linked_items_count', 'share_count','last_seen', 'demand', 'user_id',
-      'read', 'suggestions_count','related_count', 'reaction_count', 'media_published_at',
+      'archived', 'sources_count', 'linked_items_count', 'last_seen', 'demand', 'user_id',
+      'read', 'suggestions_count','related_count', 'media_published_at',
       'unmatched', 'fact_check_published_on'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }

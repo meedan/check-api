@@ -26,7 +26,6 @@ class ProjectMediaType < DefaultObject
   field :linked_items_count, GraphQL::Types::Int, null: true
   field :last_seen, GraphQL::Types::String, null: true
   field :status, GraphQL::Types::String, null: true
-  field :share_count, GraphQL::Types::Int, null: true
   field :feed_columns_values, JsonStringType, null: true
   field :report_status, GraphQL::Types::String, null: true
   field :confirmed_as_similar_by_name, GraphQL::Types::String, null: true

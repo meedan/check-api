@@ -146,7 +146,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
 
   test "should index sortable fields" do
     RequestStore.store[:skip_cached_field_update] = false
-    # sortable fields are [linked_items_count, last_seen and share_count]
+    # sortable fields are [linked_items_count, and last_seen]
     setup_elasticsearch
     Rails.stubs(:env).returns('development'.inquiry)
     team = create_team
@@ -160,7 +160,7 @@ class ProjectMedia2Test < ActiveSupport::TestCase
     assert_equal t, result['last_seen']
     assert_equal pm.reload.last_seen, pm.read_attribute(:last_seen)
 
-    pm2 = create_project_media team: team, team: team, disable_es_callbacks: false
+    pm2 = create_project_media team: team, disable_es_callbacks: false
     r = create_relationship source_id: pm.id, target_id: pm2.id, relationship_type: Relationship.confirmed_type
     t = pm2.created_at.to_i
     result = $repository.find(get_es_id(pm))

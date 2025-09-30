@@ -77,16 +77,12 @@ class Bot::Keep < BotUser
 
       raise ObjectNotReadyError.new('Link') unless link.present? || account.present?
 
-      if payload['type'] == 'metrics'
-        Bot::Keep.update_metrics(link, payload['metrics'])
-      else
-        type = Bot::Keep.archiver_to_annotation_type(payload['type'])
-        response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
+      type = Bot::Keep.archiver_to_annotation_type(payload['type'])
+      response = Bot::Keep.set_response_based_on_pender_data(type, payload) || { error: true }
 
-        if link.present?
-          Bot::Keep.save_archive_information(link, response, payload)
-          Bot::Keep.update_archive_annotations(type, link, response)
-        end
+      if link.present?
+        Bot::Keep.save_archive_information(link, response, payload)
+        Bot::Keep.update_archive_annotations(type, link, response)
       end
     end
   end
@@ -115,24 +111,6 @@ class Bot::Keep < BotUser
         annotation.set_fields = { "#{type}_response" => response.to_json }.to_json
         annotation.save!
       end
-    end
-  end
-
-  def self.update_metrics(link, metrics)
-    ProjectMedia.where(media_id: link.id).find_each do |pm|
-      a = Dynamic.where(annotation_type: 'metrics', annotated_type: 'ProjectMedia', annotated_id: pm.id).last
-      if a.nil?
-        a = Dynamic.new
-        a.skip_check_ability = true
-        a.skip_notifications = true
-        a.disable_es_callbacks = Rails.env.to_s == 'test'
-        a.annotation_type = 'metrics'
-        a.annotated = pm
-      end
-      current = begin JSON.parse(a.get_field_value('metrics_data')) rescue {} end
-      a.set_fields = { metrics_data: current.merge(metrics).to_json }.to_json
-      a.skip_trashed_validation = true
-      a.save!
     end
   end
 

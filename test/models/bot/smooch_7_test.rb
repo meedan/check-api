@@ -29,8 +29,6 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
 
   test "should go through menus" do
     setup_smooch_bot(true)
-    @team.set_languages ['en', 'pt']
-    @team.save!
     uid = random_string
     sm = CheckStateMachine.new(uid)
     rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
@@ -80,8 +78,6 @@ class Bot::Smooch7Test < ActiveSupport::TestCase
     end
     Rails.cache.unstub(:read)
     assert_equal 'waiting_for_message', sm.state.value
-    @team.set_languages ['en']
-    @team.save!
   end
 
   test "should transition from query state to query state" do

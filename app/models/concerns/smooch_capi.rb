@@ -171,7 +171,7 @@ module SmoochCapi
         }.with_indifferent_access
 
       # User didn't receive message (for example, because 24 hours have passed since the last message from the user)
-      elsif json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status') == 'failed'
+      elsif ['failed', 'unknown'].include?(json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0, 'status'))
         status = json.dig('entry', 0, 'changes', 0, 'value', 'statuses', 0)
         error_code = status.dig('errors', 0, 'code')
         error_message = status.dig('errors', 0, 'message')
