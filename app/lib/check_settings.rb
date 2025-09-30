@@ -60,7 +60,7 @@ module CheckSettings
 
   def get_set_or_reset_setting_value(match, field, value, args)
     action = match[:action]
-    key = match[:key]
+    key = match[:key].to_s
 
     case action
     when 'set'
