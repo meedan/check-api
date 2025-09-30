@@ -33,7 +33,7 @@ module CheckSettings
 
       define_method field.to_s.singularize do |key|
         self.send("#{field}=", {}) if self.send(field).blank?
-        value = self.send(field)[key.to_s] || self.send(field)[key.to_sym]
+        value = self.send(field)[key]
         unless value.nil?
           value.is_a?(Numeric) ? value.to_s : value
         end
