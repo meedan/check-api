@@ -636,7 +636,7 @@ GEM
     pusher-signature (0.1.8)
     raabro (1.4.0)
     racc (1.8.0)
-    rack (2.2.14)
+    rack (2.2.18)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (1.0.6)
@@ -726,7 +726,7 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     retriable (3.1.2)
-    rexml (3.3.9)
+    rexml (3.4.2)
     rotp (6.3.0)
     rqrcode (2.1.1)
       chunky_png (~> 1.0)
@@ -984,7 +984,7 @@ DEPENDENCIES
   phony_rails
   puma
   pusher
-  rack (= 2.2.14)
+  rack (= 2.2.18)
   rack-attack
   rack-cors (= 1.0.6)
   rack-protection (= 2.2.0)

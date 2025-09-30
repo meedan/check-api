@@ -241,7 +241,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
       payload[:messages] = [message]
       Bot::Smooch.run(payload.to_json)
       sleep 1
-      pm_id = ProjectMedia.last.id
       assert_difference 'ProjectMedia.count', 2 do
         assert_difference 'Claim.count' do
           assert_difference 'Link.count' do
@@ -332,7 +331,6 @@ class Bot::Smooch3Test < ActiveSupport::TestCase
     # 1). media with long text( > min_number_of_words_for_tipline_long_text)
     # 2). media with short text (< min_number_of_words_for_tipline_long_text)
     # Result: created three items and one relationship (one claim for caption and two items of type image)
-    last_id = ProjectMedia.last.id
     Sidekiq::Testing.fake! do
       uid = random_string
       messages = [
