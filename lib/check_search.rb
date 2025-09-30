@@ -162,7 +162,7 @@ class CheckSearch
   end
 
   def media_types_filter
-    [MEDIA_TYPES, 'blank'].flatten & @options['show']
+    [MEDIA_TYPES].flatten & @options['show']
   end
 
   def get_pg_results
@@ -245,7 +245,6 @@ class CheckSearch
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
     relation = relation.distinct('project_medias.id').includes(:media).where(core_conditions)
-    relation = relation.joins(:media).where('medias.type != ?', 'Blank') if query_all_types?
     relation
   end
 
@@ -667,7 +666,6 @@ class CheckSearch
         'images' => 'UploadedImage',
         'videos' => 'UploadedVideo',
         'audios' => 'UploadedAudio',
-        'blank' => 'Blank',
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten.uniq.compact
       doc_c << { terms: { 'associated_type': types } }

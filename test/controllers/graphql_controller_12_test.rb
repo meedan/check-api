@@ -629,6 +629,7 @@ class GraphqlController12Test < ActionController::TestCase
                 set_tags: ["science"],
                 set_status: "verified",
                 set_claim_description: "Claim #1.",
+                set_original_claim: "Testing with Original #1"
                 set_fact_check: {
                   title: "Title #1",
                   language: "en",
@@ -659,6 +660,7 @@ class GraphqlController12Test < ActionController::TestCase
         set_tags: ["science "],
         set_status: "verified",
         set_claim_description: "Claim #2.",
+        set_original_claim: "Testing with Original #2"
         set_fact_check: {
           title: "Title #2",
           language: "en",
@@ -682,7 +684,7 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
   end
 
-  test "should not create duplicate tags for the ProjectMedia and FactCheck" do
+  test "should not create blank media using createProjectMedia mutation" do
     Sidekiq::Testing.inline!
     t = create_team
     a = ApiKey.create!
@@ -722,14 +724,7 @@ class GraphqlController12Test < ActionController::TestCase
             } '
 
     post :create, params: { query: query1, team: t.slug }
-    assert_response :success
-
-    pm = JSON.parse(@response.body)['data']['createProjectMedia']['project_media']
-    pm_tags = pm['tags']['edges']
-    fc_tags = pm['claim_description']['fact_check']['tags']
-
-    assert_equal 1, pm_tags.count
-    assert_equal 1, fc_tags.count
+    assert_response 400
   end
 
   test "should append FactCheck to ProjectMedia, if ProjectMedia already exists and does not have a FactCheck" do
@@ -790,7 +785,7 @@ class GraphqlController12Test < ActionController::TestCase
     assert_equal response_pm['dbid'], pm.id
   end
 
-  test "should create a FactCheck with a Blank ProjectMedia, if ProjectMedia already exists and has a FactCheck in a different language" do
+  test "should create a FactCheck with a Claim ProjectMedia, if ProjectMedia already exists and has a FactCheck in a different language" do
     Sidekiq::Testing.fake!
     url = 'http://example.com'
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
@@ -840,8 +835,10 @@ class GraphqlController12Test < ActionController::TestCase
 
     assert_difference 'ProjectMedia.count' do
       assert_difference 'FactCheck.count' do
-        post :create, params: { query: query, team: t.slug }
-        assert_response :success
+        assert_difference 'Claim.count' do
+          post :create, params: { query: query, team: t.slug }
+          assert_response :success
+        end
       end
     end
 
