@@ -11258,7 +11258,6 @@ type ProjectMedia implements Node {
     last: Int
   ): TiplineRequestConnection
   requests_count: Int
-  share_count: Int
   show_warning_cover: Boolean
   similar_items(
     """
