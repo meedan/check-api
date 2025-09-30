@@ -42,20 +42,25 @@ module CheckSettings
   end
 
   def method_missing(method, *args, &block)
-    regexp = "(#{self.class.check_settings_fields.collect{ |f| "_#{f}_" }.join('|')}|_)"
-    match = /^(reset|set|get)#{regexp}([^=]+)=?$/.match(method)
+    # We generate the field group dynamically first, so we can use named captures in the regex
+    field_regex = self.class.check_settings_fields.map { |f| Regexp.escape("_#{f}_") }.join('|')
+    field_group = "(?:#{field_regex}|_)"
+
+    regex = /^(?<action>reset|set|get)(?<field>#{field_group})(?<key>[^=]+)=?$/
+    match = regex.match(method)
+
     if match.nil?
       super
     else
-      field = match[2] == '_' ? 'settings' : match[2].gsub(/^_|_$/, '')
+      field = match[:field] == '_' ? 'settings' : match[:field].delete_prefix('_').delete_suffix('_')
       value = self.send(field) || {}
       self.get_set_or_reset_setting_value(match, field, value, args)
     end
   end
 
   def get_set_or_reset_setting_value(match, field, value, args)
-    action = match[1]
-    key = match[3]
+    action = match[:action]
+    key = match[:key]
 
     case action
     when 'set'
