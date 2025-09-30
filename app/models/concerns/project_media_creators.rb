@@ -6,9 +6,10 @@ module ProjectMediaCreators
   extend ActiveSupport::Concern
 
   def create_claim_description_and_fact_check
-    cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
     fc = nil
     unless self.set_fact_check.blank?
+      self.set_claim_description ||= '-'
+      cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true)
       fact_check = self.set_fact_check.with_indifferent_access
       fc = FactCheck.create!({
         title: fact_check['title'],
@@ -22,7 +23,8 @@ module ProjectMediaCreators
         rating: self.set_status,
         tags: self.set_tags.to_a.map(&:strip),
         channel: fact_check['channel'],
-        skip_check_ability: true
+        skip_check_ability: true,
+        skip_create_project_media: true,
       })
     end
     fc
@@ -167,8 +169,6 @@ module ProjectMediaCreators
         [media_type, self.quote, { quote_attributions: self.quote_attributions }]
       when 'Link'
         [media_type, self.url, { team: self.team }]
-      when 'Blank'
-        [media_type]
       end
     end
   end
