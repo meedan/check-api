@@ -28,7 +28,8 @@ module CheckSettings
       self.add_check_settings_field(field)
 
       define_method field do
-        (self[field.to_sym] || {}).with_indifferent_access
+        current_value = self[field.to_sym] || {}
+        current_value.is_a?(HashWithIndifferentAccess) ? current_value : current_value.with_indifferent_access
       end
 
       define_method field.to_s.singularize do |key|
