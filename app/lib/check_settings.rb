@@ -28,12 +28,13 @@ module CheckSettings
       self.add_check_settings_field(field)
 
       define_method field do
-        self[field.to_sym] || {}
+        current_value = self[field.to_sym] || {}
+        current_value.is_a?(HashWithIndifferentAccess) ? current_value : current_value.with_indifferent_access
       end
 
       define_method field.to_s.singularize do |key|
         self.send("#{field}=", {}) if self.send(field).blank?
-        value = self.send(field)[key.to_s] || self.send(field)[key.to_sym]
+        value = self.send(field)[key]
         unless value.nil?
           value.is_a?(Numeric) ? value.to_s : value
         end
@@ -42,25 +43,34 @@ module CheckSettings
   end
 
   def method_missing(method, *args, &block)
-    regexp = "(#{self.class.check_settings_fields.collect{ |f| "_#{f}_" }.join('|')}|_)"
-    match = /^(reset|set|get)#{regexp}([^=]+)=?$/.match(method)
+    # We generate the field group dynamically first, so we can use named captures in the regex
+    field_regex = self.class.check_settings_fields.map { |f| Regexp.escape("_#{f}_") }.join('|')
+    field_group = "(?:#{field_regex}|_)"
+
+    regex = /^(?<action>reset|set|get)(?<field>#{field_group})(?<key>[^=]+)=?$/
+    match = regex.match(method)
+
     if match.nil?
       super
     else
-      field = match[2] == '_' ? 'settings' : match[2].gsub(/^_|_$/, '')
+      field = match[:field] == '_' ? 'settings' : match[:field].delete_prefix('_').delete_suffix('_')
       value = self.send(field) || {}
       self.get_set_or_reset_setting_value(match, field, value, args)
     end
   end
 
   def get_set_or_reset_setting_value(match, field, value, args)
-    if match[1] === 'set'
-      value[match[3].to_sym] = args.first
+    action = match[:action]
+    key = match[:key].to_s
+
+    case action
+    when 'set'
+      value[key] = args.first
       self.send("#{field}=", value)
-    elsif match[1] === 'get'
-      value[match[3].to_sym].nil? ? value[match[3].to_s] : value[match[3].to_sym]
-    elsif match[1] === 'reset'
-      value.delete(match[3].to_sym) unless value.blank?
+    when 'get'
+      value[key]
+    when 'reset'
+      value.delete(key) unless value.blank?
       self.send("#{field}=", value)
     end
   end
