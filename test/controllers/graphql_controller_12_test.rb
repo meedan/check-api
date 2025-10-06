@@ -724,7 +724,7 @@ class GraphqlController12Test < ActionController::TestCase
     assert_not_nil fact_check
     # Verify that media title is same as fact-check title
     pm = ProjectMedia.find(response_pm['dbid'])
-    fc = ProjectMedia.find(fact_check)
+    fc = FactCheck.find(fact_check)
     assert_equal "Title #1", fc.title
     assert_equal pm.media.quote, fc.title
   end
