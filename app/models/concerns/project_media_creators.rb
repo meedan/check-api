@@ -115,7 +115,6 @@ module ProjectMediaCreators
 
   def set_media_type
     original_claim = self.set_original_claim&.strip
-
     if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(original_claim)
       content_type = nil
@@ -169,6 +168,11 @@ module ProjectMediaCreators
         [media_type, self.quote, { quote_attributions: self.quote_attributions }]
       when 'Link'
         [media_type, self.url, { team: self.team }]
+      when 'Blank'
+        unless self.set_fact_check.blank?
+          fact_check = self.set_fact_check.with_indifferent_access
+          ['Claim', fact_check['title'], { quote_attributions: self.quote_attributions }]
+        end
       end
     end
   end
