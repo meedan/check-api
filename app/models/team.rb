@@ -601,6 +601,12 @@ class Team < ApplicationRecord
     query.where(Arel.sql("#{tsvector} @@ #{tsquery}"))
   end
 
+  def default_filters(saved_search_id)
+    saved_search = SavedSearch.find_by(id: saved_search_id)
+    return saved_search.filters.deep_symbolize_keys if saved_search&.filters.present?
+    {}
+  end
+
   def similar_articles_search_limit(pm = nil)
     pm.nil? ? CheckConfig.get('most_relevant_team_limit', 3, :integer) : CheckConfig.get('most_relevant_item_limit', 10, :integer)
   end
