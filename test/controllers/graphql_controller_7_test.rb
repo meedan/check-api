@@ -207,6 +207,28 @@ class GraphqlController7Test < ActionController::TestCase
     assert_equal ss_article.id, data.dig(0, 'node', 'dbid')
   end
 
+  test "should filter articles using saved_search_id" do
+    team = create_team
+    user = create_user team: team
+    explainer_with_tag = create_explainer team: team, tags: ['teste', 'ruby'] 
+    explainer_without_tag = create_explainer team: team, tags: ['outra', 'tag']
+    
+    saved_search = create_saved_search(
+      team: team, 
+      filters: { tags: ['teste'], article_type: 'explainer' },
+      list_type: 'article'
+    )
+
+    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: \"#{saved_search.id}\", article_type: \"explainer\") { edges { node { ... on Explainer { dbid } } } } } }"
+
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'articles', 'edges').map { |e| e.dig('node', 'dbid') }
+    assert_equal 1, data.size
+    assert_includes data, explainer_with_tag.dbid
+    assert_not_includes data, explainer_without_tag.dbid
+  end
+
   test "should search by report fields" do
     setup_elasticsearch
     RequestStore.store[:skip_cached_field_update] = false
