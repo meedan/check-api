@@ -1080,8 +1080,8 @@ class TeamTest < ActiveSupport::TestCase
 
     @team.set_languages = ['en']
     @team.save!
-    tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
-    workflows = tbi.settings['smooch_workflows']
+    tbi = tbi.reload
+    workflows = tbi.get_smooch_workflows
     assert_equal 1, workflows.count
   end
 
