@@ -29,7 +29,17 @@ module CheckSettings
 
       define_method field do
         current_value = self[field.to_sym] || {}
-        current_value.is_a?(HashWithIndifferentAccess) ? current_value : current_value.with_indifferent_access
+        case current_value
+        when HashWithIndifferentAccess
+          current_value
+        when Hash
+          current_value.with_indifferent_access
+        when ActionController::Parameters
+          permitted = current_value.permitted? ? current_value.to_h : {}
+          permitted.with_indifferent_access
+        else
+          {}.with_indifferent_access
+        end
       end
 
       define_method field.to_s.singularize do |key|
