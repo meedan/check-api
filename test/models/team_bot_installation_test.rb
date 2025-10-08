@@ -105,7 +105,7 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
     assert_equal({}, tb.settings)
     tb.set_foo = 'bar'
     assert_equal 'bar', tb.get_foo
-    assert_equal({ 'foo' => 'bar' }, tb.settings)
+    assert_equal({ 'foo': 'bar' }, tb.settings)
     assert_kind_of String, tb.json_settings
     b = create_team_bot login: 'smooch', set_approved: true
     tb = create_team_bot_installation user_id: b.id
