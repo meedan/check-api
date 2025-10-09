@@ -44,6 +44,17 @@ class CheckSettingsTest < ActiveSupport::TestCase
     assert_equal 'pt', obj.get_settings_language
   end
 
+  test "works with unrecognized type" do
+    obj = DummySettingsModel.new("not a hash")
+
+    assert_kind_of HashWithIndifferentAccess, obj.settings
+    assert_empty obj.settings
+    obj.set_settings_language = 'es'
+    assert_equal 'es', obj.get_settings_language
+    obj.reset_settings_language
+    assert_nil obj.get_settings_language
+  end
+
   test "works with a plain hash" do
     obj = DummySettingsModel.new({ 'language' => 'en' })
 
