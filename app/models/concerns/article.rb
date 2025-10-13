@@ -66,6 +66,11 @@ module Article
     BotUser.enqueue_event(event, self.project_media.team_id, self) unless self.project_media.nil?
   end
 
+  def default_filters(saved_search_id)
+    saved_search = SavedSearch.find_by_id(saved_search_id)
+    saved_search&.filters.present? ? saved_search.filters.deep_symbolize_keys : {}
+  end
+
   protected
 
   def index_in_elasticsearch(pm_id, data)
