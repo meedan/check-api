@@ -7992,6 +7992,7 @@ type Explainer implements Node {
   channel: String!
   created_at: String
   dbid: Int
+  default_filters(saved_search_id: ID!): JsonStringType
   description: String
   id: ID!
   language: String
@@ -8148,6 +8149,7 @@ type FactCheck implements Node {
   claim_description: ClaimDescription
   created_at: String
   dbid: Int
+  default_filters(saved_search_id: ID!): JsonStringType
   id: ID!
   imported: Boolean
   language: String
@@ -12750,6 +12752,7 @@ type Team implements Node {
     publisher_ids: [Int]
     rating: [String]
     report_status: [String]
+    saved_search_id: Int
     sort: String = "title"
     sort_type: String = "ASC"
     standalone: Boolean

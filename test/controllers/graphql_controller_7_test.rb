@@ -219,14 +219,15 @@ class GraphqlController7Test < ActionController::TestCase
       list_type: 'article'
     )
 
-    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: \"#{saved_search.id}\", article_type: \"explainer\") { edges { node { ... on Explainer { dbid } } } } } }"
+    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: #{saved_search.id}, article_type: \"explainer\") { edges { node { ... on Explainer { dbid default_filters(saved_search_id: #{saved_search.id})} } } } } }"
 
     post :create, params: { query: query }
     assert_response :success
-    data = JSON.parse(@response.body).dig('data', 'team', 'articles', 'edges').map { |e| e.dig('node', 'dbid') }
+    data = JSON.parse(@response.body).dig('data', 'team', 'articles', 'edges')
     assert_equal 1, data.size
-    assert_includes data, explainer_with_tag.dbid
-    assert_not_includes data, explainer_without_tag.dbid
+    assert_equal explainer_with_tag.dbid, data[0]['node']['dbid']
+    assert_not_equal explainer_without_tag.dbid, data[0]['node']['dbid']
+    assert_equal saved_search.filters, data[0]['node']['default_filters']
   end
 
   test "should search by report fields" do

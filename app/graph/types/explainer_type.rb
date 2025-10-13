@@ -18,7 +18,7 @@ class ExplainerType < DefaultObject
   field :channel, GraphQL::Types::String, null: false
 
   field :default_filters, JsonStringType, null: true do
-    argument :saved_search_id, ID, required: true
+    argument :saved_search_id, ID, required: true, camelize: false
   end
 
   def default_filters(saved_search_id:)
