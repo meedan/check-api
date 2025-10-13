@@ -239,7 +239,7 @@ class Bot::Alegre < BotUser
   def self.restrict_to_same_modality(pm, matches)
     other_pms = Hash[ProjectMedia.where(id: matches.keys).includes(:media).all.collect{ |item| [item.id, item] }]
     if pm.is_text?
-      selected_matches = matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? || !other_pms[k.to_i]&.transcription.blank? || other_pms[k.to_i]&.is_blank? }
+      selected_matches = matches.select{ |k, _v| other_pms[k.to_i]&.is_text? || !other_pms[k.to_i]&.extracted_text.blank? || !other_pms[k.to_i]&.transcription.blank? || other_pms[k.to_i]&.is_fact_check_imported? }
     else
       selected_matches = matches.select{ |k, _v| (self.valid_match_types(other_pms[k.to_i]&.media&.type) & self.valid_match_types(pm.media.type)).length > 0 }
     end
@@ -630,7 +630,7 @@ class Bot::Alegre < BotUser
     parent = ProjectMedia.find_by_id(parent_id)
     original_parent = ProjectMedia.find_by_id(original_parent_id)
     return nil if parent.nil?
-    if parent.is_blank?
+    if parent.is_fact_check_imported?
       Rails.logger.info "[Alegre Bot] [ProjectMedia ##{pm.id}] [Relationships 4/6] Parent is blank, creating suggested relationship"
       self.create_relationship(parent, pm, pm_id_scores, Relationship.suggested_type, original_parent, original_relationship)
     elsif pm_id_scores[parent_id]

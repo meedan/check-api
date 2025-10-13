@@ -6,6 +6,7 @@ module TeamAssociations
   included do
     has_many :accounts # No "dependent: :destroy" because they will be anonymized
     has_many :team_users, dependent: :destroy
+    has_many :team_bot_installations, class_name: "TeamBotInstallation"
     has_many :users, through: :team_users
     has_many :sources # No "dependent: :destroy" because they will be anonymized
     has_many :tag_texts, dependent: :destroy
@@ -91,7 +92,6 @@ module TeamAssociations
     conditions['team_id'] = obj.id if obj.class.name == 'Team'
     relationship_type = Team.sanitize_sql(Relationship.confirmed_type.to_yaml)
     ProjectMedia.where(conditions)
-    .joins(:media).where('medias.type != ?', 'Blank')
     .joins("LEFT JOIN relationships r ON r.target_id = project_medias.id AND r.relationship_type = '#{relationship_type}'")
     .where('r.id IS NULL').count
   end

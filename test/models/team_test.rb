@@ -1051,23 +1051,53 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 'Custom Status 2 Changed', r.reload.data.dig('options', 'status_label')
   end
 
-  test "should update tipline languge if default language changed" do
+  test "should update tipline language if default language changed" do
     setup_smooch_bot(true)
     tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
-    w = tbi.get_smooch_workflows[0]
+    w = tbi.get_smooch_workflows.first
     assert_equal 'en', w['smooch_workflow_language']
+
     @team.set_languages = ['en', 'fr']
     @team.set_language = 'fr'
     @team.save!
     tbi = tbi.reload
-    w = tbi.get_smooch_workflows[0]
+    w = tbi.get_smooch_workflows.first
     assert_equal 'en', w['smooch_workflow_language']
+
     @team.set_languages = ['fr']
     @team.set_language = 'fr'
     @team.save!
     tbi = tbi.reload
-    w = tbi.get_smooch_workflows[0]
+    w = tbi.get_smooch_workflows.first
     assert_equal 'fr', w['smooch_workflow_language']
+  end
+
+  test "should delete tipline language if language is deleted from supported languages" do
+    setup_smooch_bot(true)
+    tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
+    workflows = tbi.get_smooch_workflows
+    assert_equal 2, workflows.count
+
+    @team.set_languages = ['en']
+    @team.save!
+    tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
+    workflows = tbi.settings['smooch_workflows']
+    assert_equal 1, workflows.count
+  end
+
+  test "should not add duplicate tipline language" do
+  # this happened when the tipline for a non-default language was already published,
+  # when that language was made default, it created a duplicated workflow
+    setup_smooch_bot(true)
+    tbi = TeamBotInstallation.where(team: @team, user: BotUser.smooch_user).last
+    workflows = tbi.get_smooch_workflows
+    assert_equal 2, workflows.count
+
+    @team.set_language = 'pt'
+    @team.save!
+    tbi = tbi.reload
+    workflows = tbi.get_smooch_workflows
+    assert_equal 2, workflows.count
   end
 
   test "should add trash link to duplicated team" do

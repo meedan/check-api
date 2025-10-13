@@ -33,7 +33,7 @@ class ProjectMedia < ApplicationRecord
   validates_presence_of :custom_title, if: proc { |pm| pm.title_field == 'custom_title' }
 
   before_validation :set_team_id, :set_channel, on: :create
-  after_create :create_annotation, :create_metrics_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
+  after_create :create_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
@@ -246,8 +246,8 @@ class ProjectMedia < ApplicationRecord
     return if new_pm.nil? || self.id == new_pm.id
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
-    elsif self.media.media_type != 'blank'
-      raise I18n.t(:replace_blank_media_only)
+    elsif self.archived != CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+      raise I18n.t(:replace_factcheck_import_media_only)
     else
       assignments_ids = []
       ProjectMedia.transaction do
@@ -427,7 +427,7 @@ class ProjectMedia < ApplicationRecord
       return existing_pm
     elsif existing_pm.fact_check.present?
       if existing_pm.fact_check.language != new_pm.set_fact_check['language']
-        new_pm.replace_with_blank_media
+        new_pm.replace_with_claim_media(new_pm.set_fact_check['title'])
         return new_pm
       end
     end
@@ -440,10 +440,9 @@ class ProjectMedia < ApplicationRecord
     self.create_claim_description_and_fact_check
   end
 
-  def replace_with_blank_media
-    m = Blank.create!
-    self.set_original_claim = nil
-    self.media_id = m.id
+  def replace_with_claim_media(title)
+    self.set_original_claim = title
+    self.archived = CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     self.save!
   end
 
@@ -600,8 +599,8 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:language] = self.get_dynamic_annotation('language')&.get_field_value('language')
     # set fields with integer value including cached fields
     fields_i = [
-      'archived', 'sources_count', 'linked_items_count', 'share_count','last_seen', 'demand', 'user_id',
-      'read', 'suggestions_count','related_count', 'reaction_count', 'media_published_at',
+      'archived', 'sources_count', 'linked_items_count', 'last_seen', 'demand', 'user_id',
+      'read', 'suggestions_count','related_count', 'media_published_at',
       'unmatched', 'fact_check_published_on'
     ]
     fields_i.each{ |f| ms.attributes[f] = self.send(f).to_i }

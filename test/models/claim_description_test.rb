@@ -161,7 +161,7 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
   test "should replace item when applying fact-check from blank media" do
     Sidekiq::Testing.inline!
     t = create_team
-    pm1 = create_project_media team: t, media: create_blank_media
+    pm1 = create_project_media team: t, media: create_claim_media, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     cd = create_claim_description project_media: pm1
     fc = create_fact_check claim_description: cd
     pm2 = create_project_media team: t
@@ -208,27 +208,6 @@ class ClaimDescriptionTest < ActiveSupport::TestCase
       cd.project_media = pm
       cd.save!
     end
-  end
-
-  test "should create blank media if needed" do
-    t = create_team
-    pm = create_project_media team: t
-    cd = nil
-
-    assert_no_difference 'Blank.count' do
-      cd = create_claim_description project_media: nil, team: t
-    end
-    assert_nil cd.project_media
-
-    assert_no_difference 'Blank.count' do
-      cd = create_claim_description project_media: pm, team: t, enable_create_blank_media: true
-    end
-    assert_equal pm, cd.project_media
-
-    assert_difference 'Blank.count' do
-      cd = create_claim_description project_media: nil, team: t, enable_create_blank_media: true
-    end
-    assert cd.project_media.media.is_a?(Blank)
   end
 
   test "should update status for main and related items when set project_media" do

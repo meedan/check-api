@@ -183,13 +183,11 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     assert pm.is_text?
   end
 
-  test "checks truthfulness of is_blank?" do
+  test "checks truthfulness of is_fact_check_imported?" do
     u = create_user
     t = create_team
-    pm = create_project_media team: t
-    pm.media.type = "Blank"
-    pm.media.save!
-    assert pm.is_blank?
+    pm = create_project_media team: t, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+    assert pm.is_fact_check_imported?
   end
 
   test "checks falsity of is_text?" do
@@ -791,7 +789,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should not replace one project media by another if not from the same team" do
-    old = create_project_media team: create_team, media: Blank.create!
+    old = create_project_media team: create_team, media: create_claim_media
     new = create_project_media team: create_team
     assert_raises RuntimeError do
       old.replace_by(new)
@@ -836,7 +834,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     create_team_user team: t, user: u, role: 'admin'
     with_current_user_and_team(u, t) do
       RequestStore.store[:skip_clear_cache] = true
-      old = create_project_media team: t, media: Blank.create!, channel: { main: CheckChannels::ChannelCodes::FETCH }, disable_es_callbacks: false 
+      old = create_project_media team: t, media: create_claim_media, channel: { main: CheckChannels::ChannelCodes::FETCH }, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT, disable_es_callbacks: false
       cd = create_claim_description project_media: old
       fc = create_fact_check claim_description: cd
       old_r = publish_report(old)
@@ -885,18 +883,9 @@ class ProjectMedia5Test < ActiveSupport::TestCase
       assert_equal [new_tag_a.id, new_tag_c.id, old_tag_b.id].sort, result['tags'].collect{ |tag| tag['id'] }.sort
       assert_equal [new_tt.id, new_tt2.id].sort, result['task_responses'].collect{ |task| task['id'] }.sort
       assert_equal [u.id, u2.id, u3.id], result['assigned_user_ids'].sort
+      # Verify archived value
+      assert_equal new.archived, CheckArchivedFlags::FlagCodes::NONE
     end
-  end
-
-  test "should create metrics annotation after create a project media" do
-    create_annotation_type_and_fields('Metrics', { 'Data' => ['JSON', false] })
-    url = 'https://twitter.com/meedan/status/1321600654750613505'
-    response = {"type" => "media","data" => {"url" => url, "type" => "item", "metrics" => {"facebook"=> {"reaction_count" => 2, "comment_count" => 5, "share_count" => 10, "comment_plugin_count" => 0 }}}}
-
-    PenderClient::Request.stubs(:get_medias).with(CheckConfig.get('pender_url_private'), { url: url }, CheckConfig.get('pender_key'), nil).returns(response)
-    pm = create_project_media media: nil, url: url
-    assert_equal response['data']['metrics'], JSON.parse(pm.get_annotations('metrics').last.load.get_field_value('metrics_data'))
-    PenderClient::Request.unstub(:get_medias)
   end
 
   test "should cache metadata value" do

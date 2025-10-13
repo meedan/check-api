@@ -5,16 +5,11 @@ require 'uri'
 module ProjectMediaCreators
   extend ActiveSupport::Concern
 
-  def create_metrics_annotation
-    unless self.media.url.blank? || self.media.metadata.dig('metrics').nil?
-      Bot::Keep.update_metrics(self.media, self.media.metadata['metrics'])
-    end
-  end
-
   def create_claim_description_and_fact_check
-    cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true) unless self.set_claim_description.blank?
     fc = nil
     unless self.set_fact_check.blank?
+      self.set_claim_description ||= '-'
+      cd = ClaimDescription.create!(description: self.set_claim_description, context: self.set_claim_context, project_media: self, skip_check_ability: true)
       fact_check = self.set_fact_check.with_indifferent_access
       fc = FactCheck.create!({
         title: fact_check['title'],
@@ -28,7 +23,8 @@ module ProjectMediaCreators
         rating: self.set_status,
         tags: self.set_tags.to_a.map(&:strip),
         channel: fact_check['channel'],
-        skip_check_ability: true
+        skip_check_ability: true,
+        skip_create_project_media: true,
       })
     end
     fc
@@ -119,7 +115,6 @@ module ProjectMediaCreators
 
   def set_media_type
     original_claim = self.set_original_claim&.strip
-
     if original_claim && original_claim.match?(/\A#{URI::DEFAULT_PARSER.make_regexp(['http', 'https'])}\z/)
       uri = URI.parse(original_claim)
       content_type = nil
@@ -174,7 +169,10 @@ module ProjectMediaCreators
       when 'Link'
         [media_type, self.url, { team: self.team }]
       when 'Blank'
-        [media_type]
+        unless self.set_fact_check.blank?
+          fact_check = self.set_fact_check.with_indifferent_access
+          ['Claim', fact_check['title'], { quote_attributions: self.quote_attributions }]
+        end
       end
     end
   end

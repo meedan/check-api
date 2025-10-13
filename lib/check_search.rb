@@ -41,9 +41,8 @@ class CheckSearch
   MEDIA_TYPES = %w[claims links twitter youtube tiktok instagram facebook telegram weblink images videos audios]
   SORT_MAPPING = {
     'recent_activity' => 'updated_at', 'recent_added' => 'created_at', 'demand' => 'demand',
-    'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'share_count' => 'share_count',
-    'report_status' => 'report_status', 'tags_as_sentence' => 'tags_as_sentence',
-    'media_published_at' => 'media_published_at', 'reaction_count' => 'reaction_count',
+    'related' => 'linked_items_count', 'last_seen' => 'last_seen', 'report_status' => 'report_status',
+    'tags_as_sentence' => 'tags_as_sentence', 'media_published_at' => 'media_published_at',
     'related_count' => 'related_count', 'suggestions_count' => 'suggestions_count', 'status_index' => 'status_index',
     'type_of_media' => 'type_of_media', 'title' => 'title_index', 'creator_name' => 'creator_name',
     'cluster_size' => 'cluster_size', 'cluster_first_item_at' => 'cluster_first_item_at',
@@ -163,7 +162,7 @@ class CheckSearch
   end
 
   def media_types_filter
-    [MEDIA_TYPES, 'blank'].flatten & @options['show']
+    [MEDIA_TYPES].flatten & @options['show']
   end
 
   def get_pg_results
@@ -246,7 +245,6 @@ class CheckSearch
       core_conditions.merge!({ 'project_medias.id' => ids })
     end
     relation = relation.distinct('project_medias.id').includes(:media).where(core_conditions)
-    relation = relation.joins(:media).where('medias.type != ?', 'Blank') if query_all_types?
     relation
   end
 
@@ -668,7 +666,6 @@ class CheckSearch
         'images' => 'UploadedImage',
         'videos' => 'UploadedVideo',
         'audios' => 'UploadedAudio',
-        'blank' => 'Blank',
       }
       types = @options['show'].collect{ |type| types_mapping[type] }.flatten.uniq.compact
       doc_c << { terms: { 'associated_type': types } }

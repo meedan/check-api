@@ -445,6 +445,7 @@ class TestControllerTest < ActionController::TestCase
   end
 
   test "should create standalone fact check and associate with the team" do
+    create_report_design_annotation_type
     # Test setup
     team = create_team
     user = create_user
