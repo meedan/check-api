@@ -209,25 +209,43 @@ class GraphqlController7Test < ActionController::TestCase
 
   test "should filter articles using saved_search_id" do
     team = create_team
+    pm = create_project_media team: team
+    pm2 = create_project_media team: team
     user = create_user team: team
-    explainer_with_tag = create_explainer team: team, tags: ['teste', 'ruby'] 
-    explainer_without_tag = create_explainer team: team, tags: ['outra', 'tag']
-    
-    saved_search = create_saved_search(
-      team: team, 
+    ex_a = create_explainer team: team, tags: ['teste', 'teste']
+    ex_b = create_explainer team: team, tags: ['outra', 'outra']
+    cd = create_claim_description project_media: pm
+    cd2 = create_claim_description project_media: pm2
+    fc_a = create_fact_check claim_description: cd, tags: ['teste', 'teste']
+    fc_b = create_fact_check claim_description: cd2, tags: ['outra', 'outra']
+    saved_search_ex = create_saved_search(
+      team: team,
       filters: { tags: ['teste'], article_type: 'explainer' },
       list_type: 'article'
     )
-
-    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: #{saved_search.id}, article_type: \"explainer\") { edges { node { ... on Explainer { dbid default_filters(saved_search_id: #{saved_search.id})} } } } } }"
-
+    saved_search_ar = create_saved_search(
+      team: team,
+      filters: { tags: ['teste'], article_type: 'fact-check' },
+      list_type: 'article'
+    )
+    # Verify explainer
+    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: #{saved_search_ex.id}, article_type: \"explainer\") { edges { node { ... on Explainer { dbid default_filters(saved_search_id: #{saved_search_ex.id})} } } } } }"
     post :create, params: { query: query }
     assert_response :success
     data = JSON.parse(@response.body).dig('data', 'team', 'articles', 'edges')
     assert_equal 1, data.size
-    assert_equal explainer_with_tag.dbid, data[0]['node']['dbid']
-    assert_not_equal explainer_without_tag.dbid, data[0]['node']['dbid']
-    assert_equal saved_search.filters, data[0]['node']['default_filters']
+    assert_equal ex_a.dbid, data[0]['node']['dbid']
+    assert_not_equal ex_b.dbid, data[0]['node']['dbid']
+    assert_equal saved_search_ex.filters, data[0]['node']['default_filters']
+    # Verify Fact-Check
+    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: #{saved_search_ar.id}, article_type: \"fact-check\") { edges { node { ... on FactCheck { dbid default_filters(saved_search_id: #{saved_search_ar.id})} } } } } }"
+    post :create, params: { query: query }
+    assert_response :success
+    data = JSON.parse(@response.body).dig('data', 'team', 'articles', 'edges')
+    assert_equal 1, data.size
+    assert_equal fc_a.dbid, data[0]['node']['dbid']
+    assert_not_equal fc_b.dbid, data[0]['node']['dbid']
+    assert_equal saved_search_ar.filters, data[0]['node']['default_filters']
   end
 
   test "should search by report fields" do
@@ -281,8 +299,8 @@ class GraphqlController7Test < ActionController::TestCase
     u = create_user
     t = create_team
     create_team_user user: u, team: t
-    pm1 = create_project_media team: t, team: t, read: true
-    pm2 = create_project_media team: t, team: t
+    pm1 = create_project_media team: t, read: true
+    pm2 = create_project_media team: t
     pm3 = create_project_media
     authenticate_with_user(u)
 
