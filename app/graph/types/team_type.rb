@@ -375,6 +375,14 @@ class TeamType < DefaultObject
     object.team_articles_count(args)
   end
 
+  field :articles_default_filters, JsonStringType, null: true do
+    argument :saved_search_id, ID, required: true, camelize: false
+  end
+
+  def articles_default_filters(saved_search_id:)
+    object.articles_default_filters(saved_search_id)
+  end
+
   field :api_key, ApiKeyType, null: true do
     argument :dbid, GraphQL::Types::Int, required: true
   end

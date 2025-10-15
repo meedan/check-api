@@ -680,6 +680,11 @@ class Team < ApplicationRecord
     TiplineRequest.joins(:project_media).where('project_medias.team_id' => self.id).distinct.pluck(:platform)
   end
 
+  def articles_default_filters(saved_search_id)
+    saved_search = self.saved_searches.where(id: saved_search_id).first
+    saved_search&.filters.present? ? saved_search.filters.deep_symbolize_keys : {}
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb

@@ -17,12 +17,4 @@ class FactCheckType < DefaultObject
   field :trashed, GraphQL::Types::Boolean, null: true
   field :author, UserType, null: true
   field :channel, GraphQL::Types::String, null: false
-
-  field :default_filters, JsonStringType, null: true do
-    argument :saved_search_id, ID, required: true, camelize: false
-  end
-
-  def default_filters(saved_search_id:)
-    object.default_filters(saved_search_id)
-  end
 end

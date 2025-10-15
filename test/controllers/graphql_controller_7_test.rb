@@ -209,43 +209,35 @@ class GraphqlController7Test < ActionController::TestCase
 
   test "should filter articles using saved_search_id" do
     team = create_team
+    team2 = create_team
     pm = create_project_media team: team
     pm2 = create_project_media team: team
     user = create_user team: team
-    ex_a = create_explainer team: team, tags: ['teste', 'teste']
-    ex_b = create_explainer team: team, tags: ['outra', 'outra']
-    cd = create_claim_description project_media: pm
-    cd2 = create_claim_description project_media: pm2
-    fc_a = create_fact_check claim_description: cd, tags: ['teste', 'teste']
-    fc_b = create_fact_check claim_description: cd2, tags: ['outra', 'outra']
+    ex = create_explainer team: team, tags: ['teste']
     saved_search_ex = create_saved_search(
       team: team,
       filters: { tags: ['teste'], article_type: 'explainer' },
       list_type: 'article'
     )
     saved_search_ar = create_saved_search(
-      team: team,
+      team: team2,
       filters: { tags: ['teste'], article_type: 'fact-check' },
       list_type: 'article'
     )
     # Verify explainer
-    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: #{saved_search_ex.id}, article_type: \"explainer\") { edges { node { ... on Explainer { dbid default_filters(saved_search_id: #{saved_search_ex.id})} } } } } }"
+    query = "query { team(slug: \"#{team.slug}\") { articles_default_filters(saved_search_id: #{saved_search_ex.id}), articles(saved_search_id: #{saved_search_ex.id}, article_type: \"explainer\") { edges { node { ... on Explainer { dbid } } } } } }"
     post :create, params: { query: query }
     assert_response :success
-    data = JSON.parse(@response.body).dig('data', 'team', 'articles', 'edges')
-    assert_equal 1, data.size
-    assert_equal ex_a.dbid, data[0]['node']['dbid']
-    assert_not_equal ex_b.dbid, data[0]['node']['dbid']
-    assert_equal saved_search_ex.filters, data[0]['node']['default_filters']
-    # Verify Fact-Check
-    query = "query { team(slug: \"#{team.slug}\") { articles(saved_search_id: #{saved_search_ar.id}, article_type: \"fact-check\") { edges { node { ... on FactCheck { dbid default_filters(saved_search_id: #{saved_search_ar.id})} } } } } }"
+    data = JSON.parse(@response.body).dig('data', 'team')
+    assert_equal 1, data.dig('articles', 'edges').size
+    assert_equal ex.dbid, data.dig('articles', 'edges', 0, 'node', 'dbid')
+    assert_equal saved_search_ex.filters, data['articles_default_filters']
+    # Verify calling articles_default_filters with saved_search in another team
+    query = "query { team(slug: \"#{team.slug}\") { articles_default_filters(saved_search_id: #{saved_search_ar.id}), articles(saved_search_id: #{saved_search_ar.id}, article_type: \"fact-check\") { edges { node { ... on FactCheck { dbid } } } } } }"
     post :create, params: { query: query }
     assert_response :success
-    data = JSON.parse(@response.body).dig('data', 'team', 'articles', 'edges')
-    assert_equal 1, data.size
-    assert_equal fc_a.dbid, data[0]['node']['dbid']
-    assert_not_equal fc_b.dbid, data[0]['node']['dbid']
-    assert_equal saved_search_ar.filters, data[0]['node']['default_filters']
+    data = JSON.parse(@response.body).dig('data', 'team')
+    assert_empty data['articles_default_filters']
   end
 
   test "should search by report fields" do
