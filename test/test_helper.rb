@@ -340,7 +340,10 @@ class ActiveSupport::TestCase
   # CRUD helpers for GraphQL types
 
   def assert_graphql_create(type, request_params = {}, response_fields = ['id'])
-    authenticate_with_user
+    # Create team require super-admin user
+    user = type == 'team' ? create_user(is_admin: true) : nil
+
+    authenticate_with_user(user)
 
     klass = type.camelize
 

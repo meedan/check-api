@@ -19,8 +19,6 @@ module CheckBasicAbilities
   end
 
   def authenticated_perms
-    can :create, Team
-
     # Permissions for registration and login
     can :read, Source, team_id: @context_team.id
     can :create, Source, :user_id => @user.id, team_id: nil
