@@ -326,12 +326,17 @@ class TeamType < DefaultObject
     argument :target_id, GraphQL::Types::Int, required: false, camelize: false # Exclude articles already applied to the `ProjectMedia` with this ID
     argument :trashed, GraphQL::Types::Boolean, required: false, camelize: false, default_value: false
     argument :channel, [GraphQL::Types::String, null: true], required: false, camelize: false
+    argument :saved_search_id, GraphQL::Types::Int, required: false, camelize: false
   end
 
   def articles(**args)
     sort = args[:sort].to_s
     order = [:title, :language, :updated_at, :id].include?(sort.downcase.to_sym) ? sort.downcase.to_sym : :title
     order_type = args[:sort_type].to_s.downcase.to_sym == :desc ? :desc : :asc
+    unless args[:saved_search_id].blank?
+      saved_search = SavedSearch.where(id: args[:saved_search_id].to_i, team_id: object.id).first
+      args.merge!(saved_search.filters.deep_symbolize_keys) unless saved_search&.filters.blank?
+    end
     if args[:article_type].blank?
       limit = context[:current_arguments][:first] || args[:limit]
       object.filtered_articles(args, limit.to_i, args[:offset].to_i, order, order_type)
@@ -368,6 +373,14 @@ class TeamType < DefaultObject
 
   def articles_count(**args)
     object.team_articles_count(args)
+  end
+
+  field :articles_default_filters, JsonStringType, null: true do
+    argument :saved_search_id, ID, required: true, camelize: false
+  end
+
+  def articles_default_filters(saved_search_id:)
+    object.articles_default_filters(saved_search_id)
   end
 
   field :api_key, ApiKeyType, null: true do
