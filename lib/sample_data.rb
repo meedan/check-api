@@ -335,6 +335,7 @@ module SampleData
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.country = options[:country]
+    team.skip_check_ability = options[:skip_check_ability] || true
     team.save!
     team.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     team.reload

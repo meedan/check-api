@@ -297,7 +297,7 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     with_current_user_and_team(u, nil) do
       ability = Ability.new
-      assert ability.can?(:create, Team)
+      assert ability.cannot?(:create, Team)
       assert ability.cannot?(:update, t)
       assert ability.cannot?(:destroy, t)
     end
@@ -309,7 +309,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu = create_team_user user: u, team: t , role: 'collaborator'
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, Team)
+      assert ability.cannot?(:create, Team)
       assert ability.cannot?(:update, t)
       assert ability.cannot?(:destroy, t)
     end
@@ -323,7 +323,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu_test = create_team_user team: t2, role: 'editor'
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, Team)
+      assert ability.cannot?(:create, Team)
       assert ability.can?(:update, t)
       assert ability.cannot?(:destroy, t)
       assert ability.cannot?(:update, t2)
@@ -339,7 +339,7 @@ class AbilityTest < ActiveSupport::TestCase
     tu_test = create_team_user team: t2, role: 'admin'
     with_current_user_and_team(u, t) do
       ability = Ability.new
-      assert ability.can?(:create, Team)
+      assert ability.cannot?(:create, Team)
       assert ability.can?(:update, t)
       assert ability.can?(:destroy, t)
       assert ability.cannot?(:update, t2)
