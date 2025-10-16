@@ -12750,6 +12750,7 @@ type Team implements Node {
     publisher_ids: [Int]
     rating: [String]
     report_status: [String]
+    saved_search_id: Int
     sort: String = "title"
     sort_type: String = "ASC"
     standalone: Boolean
@@ -12761,6 +12762,7 @@ type Team implements Node {
     user_ids: [Int]
   ): ArticleUnionConnection
   articles_count(article_type: String, channel: [String], created_at: String, imported: Boolean, language: [String], publisher_ids: [Int], rating: [String], report_status: [String], standalone: Boolean, tags: [String], target_id: Int, text: String, trashed: Boolean = false, updated_at: String, user_ids: [Int]): Int
+  articles_default_filters(saved_search_id: ID!): JsonStringType
   available_newsletter_header_types: JsonStringType
   avatar: String
   bot_query(enableLanguageDetection: Boolean, enableLinkShortening: Boolean, maxNumberOfWords: Int, searchText: String!, shouldRestrictByLanguage: Boolean, threshold: Float, utmCode: String): [TiplineSearchResult!]
