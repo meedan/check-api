@@ -27,7 +27,7 @@ namespace :check do
         Team.activate(team.id, false)
       end
     end
-    # bundle exec rails check:team:list_teams_with_number_of_members[2]
+    # bundle exec rails check:team:list_teams_with_number_of_members[x]
     desc 'List all teams with members less than or equal X'
     task list_teams_with_number_of_members: :environment do |_t, number|
       number = number.to_a.first.to_i
@@ -42,8 +42,8 @@ namespace :check do
       end
       pp output
     end
-    # bundle exec rails check:team:list_inactive_teams[2]
-    desc 'List all teams with activities less than or equal X months'
+    # bundle exec rails check:team:list_inactive_teams[x]
+    desc 'List all teams with no activities since X months ago'
     task list_inactive_teams: :environment do |_t, number|
       number = number.to_a.first.to_i
       date = Time.now - number.months
