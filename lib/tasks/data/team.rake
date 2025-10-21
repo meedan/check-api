@@ -31,15 +31,15 @@ namespace :check do
     desc 'List all teams with members less than or equal X'
     task list_teams_with_number_of_members: :environment do |_t, number|
       number = number.to_a.first.to_i
-      puts "number:: #{number}"
       output = []
-      TeamUser.select('team_id, count(team_id) as m_count')
-      .where(type: nil).group('team_id')
+      TeamUser.select('team_id, count(team_id) as m_count, teams.slug as slug')
+      .joins(:team)
+      .where(type: nil).group('team_id, slug')
       .having("count(team_id) <= ?", number).each do |tu|
         print '.'
-        t = Team.find_by_id(tu.team_id)
-        output << { team_id: tu.team_id, slug: t.slug, members: tu.m_count }
+        output << { team_id: tu.team_id, slug: tu.slug, members: tu.m_count }
       end
+      puts "\nTeams with members count \n"
       pp output
     end
     # bundle exec rails check:team:list_inactive_teams[x]
@@ -47,13 +47,13 @@ namespace :check do
     task list_inactive_teams: :environment do |_t, number|
       number = number.to_a.first.to_i
       date = Time.now - number.months
-      puts "number:: #{number}"
       output = []
       Team.find_each do |team|
         print '.'
         logs = Version.from_partition(team.id).where('created_at > ?', date).count
         output << { team_id: team.id, slug: team.slug } if logs == 0
       end
+      puts "\n Teams list \n"
       pp output
     end
   end
