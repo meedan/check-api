@@ -1,10 +1,6 @@
 # rake check:migrate:add_blank_media_to_standalone_fact_checks
 namespace :check do
   namespace :migrate do
-    def set_claim_uuid(id, quote)
-      uuid = Claim.where('lower(quote) = ?', quote.to_s.strip.downcase).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
-      uuid ||= id
-    end
     task remove_blank_media_items: :environment do
       started = Time.now.to_i
       index_alias = CheckElasticSearchModel.get_index_alias
@@ -12,8 +8,8 @@ namespace :check do
       options = {
         index: CheckElasticSearchModel.get_index_alias,
       }
-      # Remove blank iems for unpublished reports
-      puts "\nRemove blank iems for unpublished reports\n"
+      # Remove blank items for unpublished reports
+      puts "\nRemove blank items for unpublished reports\n"
       last_cd_id = Rails.cache.read('check:migrate:remove_unpublished_blank_media_items:claim_description_id') || 0
       ClaimDescription.where("claim_descriptions.id > ?", last_cd_id).joins(:fact_check).joins({project_media: :media})
       .where('medias.type = ?', 'Blank')
@@ -66,8 +62,8 @@ namespace :check do
         Rails.cache.write('check:migrate:remove_unpublished_blank_media_items:claim_description_id', ids.max)
       end
 
-      # Replace blank iems with Claim items for published reports
-      puts "\nReplace blank iems with Claim items for published reports\n"
+      # Replace blank items with Claim items for published reports
+      puts "\nReplace blank items with Claim items for published reports\n"
       last_cd_id = Rails.cache.read('check:migrate:remove_published_blank_media_items:claim_description_id') || 0
       ClaimDescription.where("claim_descriptions.id > ?", last_cd_id).joins(:fact_check).joins({project_media: :media})
       .where('medias.type = ?', 'Blank')
@@ -93,20 +89,13 @@ namespace :check do
           end
           result = Claim.insert_all(claim_values, returning: [:id, :quote])
           project_media_values = []
-          claim_uuid_values = []
           result.rows.each do |claim_raw|
             id, quote = claim_raw
-            # Set Claim uuid
-            uuid = set_claim_uuid(id, quote)
-            claim_uuid_values << { id: id, uuid: uuid}
             # Set media_id
             pm_id = pm_quote_mapping[Digest::MD5.hexdigest(quote)]
             project_media_values << { id: pm_id, media_id: id }
           end
-          # Bulk update Claim & ProjectMedia
-          claim_uuid_values.each do |r|
-            Claim.where(id: r[:id]).update_all(uuid: r[:uuid])
-          end
+          # Bulk update ProjectMedia
           project_media_values.each do |r|
             ProjectMedia.where(id: r[:id]).update_all(media_id: r[:media_id])
           end
