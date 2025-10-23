@@ -48,7 +48,7 @@ namespace :check do
           print '.'
           media_ids = pms.pluck(:media_id)
           # Use delete_all to make it faster.
-          Media.where(id: media_ids).delete_all
+          Media.where(id: media_ids, type: 'Blank').delete_all
           pm_ids = pms.map(&:id)
           # Use delete_all to make it faster but first I should delete all associated items in other tables like
           # ProjectMediaUser, ProjectMediaRequest, ClusterProjectMedia, TiplineRequest and ExplainerItem
@@ -97,10 +97,10 @@ namespace :check do
           end
           # Bulk update ProjectMedia
           project_media_values.each do |r|
-            ProjectMedia.where(id: r[:id]).update_all(media_id: r[:media_id])
+            ProjectMedia.where(id: r[:id]).joins(:media).where('medias.type = ?', 'Blank').update_all(media_id: r[:media_id])
           end
           # Destroy Blank items
-          Media.where(id: media_ids).delete_all
+          Media.where(id: media_ids, type: 'Blank').delete_all
         end
         Rails.cache.write('check:migrate:remove_published_blank_media_items:claim_description_id', ids.max)
       end
