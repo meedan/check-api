@@ -1396,4 +1396,13 @@ class TeamTest < ActiveSupport::TestCase
                 t.filtered_fact_checks(trashed: false, channel: "api").count
     assert_equal 0, total_api
   end
+
+  test "should activate/deactivate team" do
+    t = create_team
+    assert_not t.inactive
+    Team.activate(t.id, true)
+    assert t.reload.inactive
+    Team.activate(t.id, false)
+    assert_not t.reload.inactive
+  end
 end

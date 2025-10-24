@@ -685,6 +685,14 @@ class Team < ApplicationRecord
     saved_search&.filters.present? ? saved_search.filters.deep_symbolize_keys : {}
   end
 
+  def self.activate(id, value)
+    team = Team.find_by_id(id)
+    unless team.nil?
+      team.inactive = value
+      team.save!
+    end
+  end
+
   # private
   #
   # Please add private methods to app/models/concerns/team_private.rb
