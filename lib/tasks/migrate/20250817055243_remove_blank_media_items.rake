@@ -5,6 +5,7 @@ namespace :check do
       uuid = Claim.where('lower(quote) = ?', quote.to_s.strip.downcase).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
       uuid ||= id
     end
+    # bundle exec rails check:migrate:migrate_published_and_unpublished_items
     task migrate_published_and_unpublished_items: :environment do
       started = Time.now.to_i
       index_alias = CheckElasticSearchModel.get_index_alias
@@ -14,10 +15,10 @@ namespace :check do
       }
       # Remove blank items for unpublished reports
       puts "\nRemove blank items for unpublished reports\n"
-      last_cd_id = Rails.cache.read('check:migrate:remove_unpublished_blank_media_items:claim_description_id') || 0
-      ClaimDescription.where("claim_descriptions.id > ?", last_cd_id).joins(:fact_check).joins({project_media: :media})
+      last_unpublished_cd_id = Rails.cache.read('check:migrate:remove_unpublished_blank_media_items:claim_description_id') || 0
+      ClaimDescription.where("claim_descriptions.id > ?", last_unpublished_cd_id).joins(:fact_check).joins({project_media: :media})
       .where('medias.type = ?', 'Blank')
-      .where('fact_checks.report_status = ?', 0)
+      .where.not('fact_checks.report_status = ?', 1)
       .find_in_batches(batch_size: 1000) do |claims|
         print '.'
         # Update project_media_id columns and reset Claims in ES docs
@@ -52,8 +53,8 @@ namespace :check do
 
       # Replace blank items with Claim items for published reports
       puts "\nReplace blank items with Claim items for published reports\n"
-      last_cd_id = Rails.cache.read('check:migrate:remove_published_blank_media_items:claim_description_id') || 0
-      ClaimDescription.where("claim_descriptions.id > ?", last_cd_id).joins(:fact_check).joins({project_media: :media})
+      last_published_cd_id = Rails.cache.read('check:migrate:remove_published_blank_media_items:claim_description_id') || 0
+      ClaimDescription.where("claim_descriptions.id > ?", last_published_cd_id).joins(:fact_check).joins({project_media: :media})
       .where('medias.type = ?', 'Blank')
       .where('fact_checks.report_status = ?', 1)
       .find_in_batches(batch_size: 1000) do |claims|
@@ -66,35 +67,36 @@ namespace :check do
         .joins({claim_description: :fact_check})
         .find_in_batches(batch_size: 1000) do |items|
           print '.'
-          # Define mapping array for quote => pm_id
-          pm_quote_mapping = {}
-          claim_values = []
-          media_ids = items.pluck(:media_id)
           items.each do |pm|
             print '.'
-            pm_quote_mapping[Digest::MD5.hexdigest(pm.fc_title)] = pm.id
-            claim_values << { type: 'Claim', quote: pm.fc_title, user_id: pm.user_id, created_at: pm.created_at, updated_at: pm.updated_at }
-          end
-          result = Claim.insert_all(claim_values, returning: [:id, :quote])
-          project_media_values = []
-          result.rows.each do |claim_raw|
-            id, quote = claim_raw
-            # Set media_id
-            pm_id = pm_quote_mapping[Digest::MD5.hexdigest(quote)]
-            project_media_values << { id: pm_id, media_id: id }
-          end
-          # Bulk update ProjectMedia
-          project_media_values.each do |r|
-            ProjectMedia.where(id: r[:id]).joins(:media).where('medias.type = ?', 'Blank').update_all(media_id: r[:media_id])
+            claim_values = [{ type: 'Claim', quote: pm.fc_title, user_id: pm.user_id, created_at: pm.created_at, updated_at: pm.updated_at }]
+            result = Claim.insert_all(claim_values, returning: [:id])
+            mid = result.rows.first[0]
+            ProjectMedia.find(pm.id).update_column(:media_id, mid)
           end
         end
         Rails.cache.write('check:migrate:remove_published_blank_media_items:claim_description_id', ids.max)
       end
 
+      # Replace Blank items with Claims only (no fact-checks)
+      ProjectMedia.joins(:media)
+      .where('medias.type = ?', 'Blank')
+      .joins(:claim_description)
+      .joins('LEFT JOIN fact_checks fc on fc.claim_description_id = claim_descriptions.id')
+      .where('fc.id is NULL').find_each do |pm|
+        print '.'
+        claim_values = [{ type: 'Claim', quote: '-', user_id: pm.user_id, created_at: pm.created_at, updated_at: pm.updated_at }]
+        result = Claim.insert_all(claim_values, returning: [:id])
+        mid = result.rows.first[0]
+        ProjectMedia.find(pm.id).update_column(:media_id, mid)
+      end
+
+
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
     # rake task to set Claim uuid
+    # bundle exec rails check:migrate:set_claim_uuid
     task set_claim_uuid: :environment do
       started = Time.now.to_i
       last_claim_id = Rails.cache.read('check:migrate:set_claim_uuid') || 0
@@ -111,6 +113,7 @@ namespace :check do
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
     # rake task to delete blank items
+    # bundle exec rails check:migrate:remove_blank_media_items
     task remove_blank_media_items: :environment do
       started = Time.now.to_i
       last_team_id = Rails.cache.read('check:migrate:remove_blank_media_items') || 0
@@ -124,12 +127,14 @@ namespace :check do
           pm_ids = pms.map(&:id)
           # Use delete_all to make it faster but first I should delete all associated items in other tables like
           # ProjectMediaUser, ProjectMediaRequest, ClusterProjectMedia, TiplineRequest and ExplainerItem
-          ProjectMediaUser.where(project_media_id: pm_ids).delete_all
-          ProjectMediaRequest.where(project_media_id: pm_ids).delete_all
-          ClusterProjectMedia.where(project_media_id: pm_ids).delete_all
-          TiplineRequest.where(associated_type: "ProjectMedia", associated_id: pm_ids).delete_all
-          ExplainerItem.where(project_media_id: pm_ids).delete_all
-          ProjectMedia.where(id: pms.map(&:id)).delete_all
+          ApplicationRecord.transaction do
+            ProjectMediaUser.where(project_media_id: pm_ids).delete_all
+            ProjectMediaRequest.where(project_media_id: pm_ids).delete_all
+            ClusterProjectMedia.where(project_media_id: pm_ids).delete_all
+            TiplineRequest.where(associated_type: "ProjectMedia", associated_id: pm_ids).delete_all
+            ExplainerItem.where(project_media_id: pm_ids).delete_all
+            ProjectMedia.where(id: pm_ids).delete_all
+          end
         end
         Rails.cache.write('check:migrate:remove_blank_media_items', team.id)
       end
