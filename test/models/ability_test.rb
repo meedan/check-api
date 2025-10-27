@@ -317,9 +317,9 @@ class AbilityTest < ActiveSupport::TestCase
 
   test "editor permissions for team" do
     u = create_user
-    t = create_team
+    t = create_team inactive: false
     tu = create_team_user user: u, team: t , role: 'editor'
-    t2 = create_team
+    t2 = create_team inactive: false
     tu_test = create_team_user team: t2, role: 'editor'
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -329,13 +329,19 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:update, t2)
       assert ability.cannot?(:destroy, t2)
     end
+    t.inactive = true
+    t.save!
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:update, t)
+    end
   end
 
   test "admin permissions for team" do
     u = create_user
-    t = create_team
+    t = create_team inactive: false
     tu = create_team_user user: u, team: t , role: 'admin'
-    t2 = create_team
+    t2 = create_team inactive: false
     tu_test = create_team_user team: t2, role: 'admin'
     with_current_user_and_team(u, t) do
       ability = Ability.new
@@ -344,6 +350,28 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.can?(:destroy, t)
       assert ability.cannot?(:update, t2)
       assert ability.cannot?(:destroy, t2)
+    end
+    t.inactive = true
+    t.save!
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:update, t)
+    end
+  end
+
+  test "super admin should update active/inactive team" do
+    u = create_user is_admin: true
+    t = create_team inactive: false
+    tu = create_team_user user: u, team: t , role: 'admin'
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, t)
+    end
+    t.inactive = true
+    t.save!
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:update, t)
     end
   end
 
