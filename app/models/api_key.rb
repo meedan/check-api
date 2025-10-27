@@ -5,7 +5,7 @@ class ApiKey < ApplicationRecord
   belongs_to :team, optional: true
   belongs_to :user, optional: true
 
-  validates_presence_of :access_token, :expire_at
+  validates_presence_of :access_token, :expire_at, :team_id, :user_id
   validates_uniqueness_of :access_token
   validates :title, uniqueness: { scope: :team }
 

@@ -12,9 +12,6 @@ class Ability
       global_admin_perms
     else
       extra_perms_for_all_users
-      if !@api_key.nil? && !@user.id
-        global_api_key_perms
-      end
       if @user.id
         authenticated_perms
       end
@@ -45,12 +42,6 @@ class Ability
     cannot :cud, TeamUser
     can :update, User, :id => @user.id
     can :update, BotUser, :id => @user.id
-  end
-
-  def global_api_key_perms
-    can :read, :all
-    can :find_by_json_fields, DynamicAnnotation::Field
-    can :update, [Dynamic, DynamicAnnotation::Field], annotation_type: 'smooch_user'
   end
 
   def admin_perms
