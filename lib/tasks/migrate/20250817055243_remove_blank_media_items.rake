@@ -79,18 +79,15 @@ namespace :check do
       end
 
       # Replace Blank items with Claims only (no fact-checks)
+      claim_id = Claim.find_or_create_by(quote: '-')
       ProjectMedia.joins(:media)
       .where('medias.type = ?', 'Blank')
       .joins(:claim_description)
       .joins('LEFT JOIN fact_checks fc on fc.claim_description_id = claim_descriptions.id')
-      .where('fc.id is NULL').find_each do |pm|
+      .where('fc.id is NULL').in_batches(of: 500) do |items|
         print '.'
-        claim_values = [{ type: 'Claim', quote: '-', user_id: pm.user_id, created_at: pm.created_at, updated_at: pm.updated_at }]
-        result = Claim.insert_all(claim_values, returning: [:id])
-        mid = result.rows.first[0]
-        ProjectMedia.find(pm.id).update_column(:media_id, mid)
+        items.update_all(media_id: claim_id)
       end
-
 
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
