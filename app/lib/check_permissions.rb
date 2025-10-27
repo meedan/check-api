@@ -35,7 +35,10 @@ module CheckPermissions
         obj = self.find_by_id(id)
       end
       return nil if obj.nil?
-      if self.name == 'ProjectMedia'
+      is_admin = User.current && User.current.is_admin?
+      if is_admin
+        obj
+      elsif self.name == 'ProjectMedia'
         obj.team&.inactive ? nil : obj
       elsif self.name == 'Team'
         obj.inactive? ? nil : obj
@@ -55,7 +58,7 @@ module CheckPermissions
         role = User.current.role(self)
         role ||= 'authenticated'
         role = 'super_admin' if User.current.is_admin?
-        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_20251016174300"
+        cache_key = "team_permissions_#{self.private.to_i}_#{role}_role_20251027174300"
         perms = Rails.cache.read(cache_key) if Rails.cache.exist?(cache_key)
       end
       if perms.blank?

@@ -232,6 +232,7 @@ class Team < ApplicationRecord
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
+    perms["activate Team"] = ability.can?(:activate, self)
     perms["update Relationship"] = ability.can?(:update, relationship)
     perms["destroy Relationship"] = ability.can?(:destroy, relationship)
     perms["manage TagText"] = ability.can?(:manage, tag_text)
