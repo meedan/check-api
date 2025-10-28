@@ -73,7 +73,7 @@ class Ability
 
   def editor_perms
     can :destroy, :trash
-    can :update, Team, :id => @context_team.id
+    can :update, Team, :id => @context_team.id, :inactive => false, :inactive_was => false
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'collaborator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
     can :preview_rss_feed, Team, :id => @context_team.id

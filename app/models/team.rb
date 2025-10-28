@@ -232,6 +232,7 @@ class Team < ApplicationRecord
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
+    perms["activate Team"] = ability.can?(:activate, self)
     perms["update Relationship"] = ability.can?(:update, relationship)
     perms["destroy Relationship"] = ability.can?(:destroy, relationship)
     perms["manage TagText"] = ability.can?(:manage, tag_text)
@@ -683,14 +684,6 @@ class Team < ApplicationRecord
   def articles_default_filters(saved_search_id)
     saved_search = self.saved_searches.where(id: saved_search_id).first
     saved_search&.filters.present? ? saved_search.filters.deep_symbolize_keys : {}
-  end
-
-  def self.activate(id, value)
-    team = Team.find_by_id(id)
-    unless team.nil?
-      team.inactive = value
-      team.save!
-    end
   end
 
   # private

@@ -1398,11 +1398,42 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test "should activate/deactivate team" do
-    t = create_team
+    t = create_team inactive: false
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
     assert_not t.inactive
-    Team.activate(t.id, true)
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        t.skip_check_ability = false
+        t.inactive = true
+        t.save!
+      end
+      assert_not t.reload.inactive
+    end
+    t.inactive = true; t.save!
     assert t.reload.inactive
-    Team.activate(t.id, false)
-    assert_not t.reload.inactive
+    with_current_user_and_team(u, t) do
+      assert_raise RuntimeError do
+        t.skip_check_ability = false
+        t.inactive = false
+        t.save!
+      end
+      assert t.reload.inactive
+    end
+    # Verify with super-admin
+    u.is_admin = true; u.save!
+    assert t.reload.inactive
+    with_current_user_and_team(u, t) do
+      t.skip_check_ability = false
+      t.inactive = false
+      t.save!
+      assert_not t.reload.inactive
+    end
+    with_current_user_and_team(u, t) do
+      t.skip_check_ability = false
+      t.inactive = true
+      t.save!
+      assert t.reload.inactive
+    end
   end
 end

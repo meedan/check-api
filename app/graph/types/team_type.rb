@@ -5,6 +5,7 @@ class TeamType < DefaultObject
 
   field :archived, GraphQL::Types::Int, null: true
   field :private, GraphQL::Types::Boolean, null: true
+  field :inactive, GraphQL::Types::Boolean, null: true
   field :avatar, GraphQL::Types::String, null: true
   field :name, GraphQL::Types::String, null: false
   field :slug, GraphQL::Types::String, null: false

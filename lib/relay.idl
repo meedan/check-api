@@ -12836,6 +12836,7 @@ type Team implements Node {
   get_suggested_matches_filters: JsonStringType
   get_tipline_inbox_filters: JsonStringType
   id: ID!
+  inactive: Boolean
   join_requests(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -15667,6 +15668,7 @@ input UpdateTeamInput {
   description: String
   empty_trash: Int
   id: ID
+  inactive: Boolean
   language: String
   language_detection: Boolean
   languages: JsonStringType

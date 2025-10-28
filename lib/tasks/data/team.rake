@@ -17,14 +17,16 @@ namespace :check do
     task activate: :environment do |_t, params|
       slugs = params.to_a
       Team.where(slug: slugs).find_each do |team|
-        Team.activate(team.id, true)
+        team.inactive = true
+        team.save!
       end
     end
     # bundle exec rails check:team:deactivate[slug-1,slug-2,...,slug-N]
     task deactivate: :environment do |_t, params|
       slugs = params.to_a
       Team.where(slug: slugs).find_each do |team|
-        Team.activate(team.id, false)
+        team.inactive = false
+        team.save!
       end
     end
     # bundle exec rails check:team:list_teams_with_number_of_members[x]

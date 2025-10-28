@@ -32,6 +32,7 @@ module TeamMutations
     include SharedCreateAndUpdateFields
 
     argument :name, GraphQL::Types::String, required: false
+    argument :inactive, GraphQL::Types::Boolean, required: false
     argument :add_auto_task, JsonStringType, required: false, camelize: false
     argument :media_verification_statuses, JsonStringType, required: false, camelize: false
     argument :set_team_tasks, JsonStringType, required: false, camelize: false
