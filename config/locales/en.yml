@@ -314,6 +314,7 @@ en:
   account_exists: This account already exists
   media_exists: This item already exists
   source_exists: This source already exists
+  factcheck_exists_with_same_language: This item already has a FactCheck in the same language.
   email_exists: Please check your email. If an account with that email doesn’t exist, you should have received a confirmation email. If you don’t receive a confirmation e-mail, try to reset your password or get in touch with our support.
   error_password_not_strong: "Complexity requirement not met. Length should be 8-70 characters and include at least: 1 uppercase, 1 lowercase, 1 digit and 1 special character"
   banned_user: Sorry, your account has been banned from %{app_name}. Please contact
@@ -773,7 +774,7 @@ en:
     because answers have already been filled
   replace_by_media_in_the_same_team: Sorry, you can only replace this item by another
     item from the same workspace
-  replace_blank_media_only: Sorry, but for now you can only replace blank items
+  replace_factcheck_import_media_only: Sorry, but for now you can only replace imported items
   cant_preview_rss_feed: Sorry, you don't have permission to preview an RSS feed.
   list_column_demand: Requests
   list_column_share_count: FB Shares

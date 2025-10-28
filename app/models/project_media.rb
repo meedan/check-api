@@ -246,8 +246,8 @@ class ProjectMedia < ApplicationRecord
     return if new_pm.nil? || self.id == new_pm.id
     if self.team_id != new_pm.team_id
       raise I18n.t(:replace_by_media_in_the_same_team)
-    elsif self.media.media_type != 'blank'
-      raise I18n.t(:replace_blank_media_only)
+    elsif self.archived != CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+      raise I18n.t(:replace_factcheck_import_media_only)
     else
       assignments_ids = []
       ProjectMedia.transaction do
@@ -427,7 +427,7 @@ class ProjectMedia < ApplicationRecord
       return existing_pm
     elsif existing_pm.fact_check.present?
       if existing_pm.fact_check.language != new_pm.set_fact_check['language']
-        new_pm.replace_with_blank_media
+        new_pm.replace_with_claim_media(new_pm.set_fact_check['title'])
         return new_pm
       end
     end
@@ -440,10 +440,9 @@ class ProjectMedia < ApplicationRecord
     self.create_claim_description_and_fact_check
   end
 
-  def replace_with_blank_media
-    m = Blank.create!
-    self.set_original_claim = nil
-    self.media_id = m.id
+  def replace_with_claim_media(title)
+    self.set_original_claim = title
+    self.archived = CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     self.save!
   end
 

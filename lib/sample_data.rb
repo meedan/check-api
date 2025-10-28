@@ -335,6 +335,7 @@ module SampleData
     team.private = options.has_key?(:private) ? options[:private] : false
     team.description = options[:description] || random_string
     team.country = options[:country]
+    team.skip_check_ability = options[:skip_check_ability] || true
     team.save!
     team.disable_es_callbacks = options.has_key?(:disable_es_callbacks) ? options[:disable_es_callbacks] : true
     team.reload
@@ -753,10 +754,6 @@ module SampleData
     la.reload
   end
 
-  def create_blank_media
-    Blank.create!
-  end
-
   def create_tipline_resource(options = {})
     tr = TiplineResource.new
     tr.title = random_string
@@ -838,8 +835,7 @@ module SampleData
       description: random_string,
       context: random_string,
       user: options[:user] || create_user,
-      project_media: options.has_key?(:project_media) ? options[:project_media] : create_project_media,
-      enable_create_blank_media: options[:enable_create_blank_media]
+      project_media: options.has_key?(:project_media) ? options[:project_media] : create_project_media
     }.merge(options))
   end
 

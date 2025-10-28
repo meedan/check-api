@@ -57,7 +57,7 @@ class Ability
     can :destroy, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['admin']
     can [:update, :destroy], TeamUser, team_id: @context_team.id
-    can [:duplicate, :export_list], Team, :id => @context_team.id
+    can :export_list, Team, :id => @context_team.id
     can :read_feed_invitations, Feed, :team_id => @context_team.id
     can :destroy, Feed, :team_id => @context_team.id
     can [:create, :update], FeedTeam, :team_id => @context_team.id
@@ -73,7 +73,7 @@ class Ability
 
   def editor_perms
     can :destroy, :trash
-    can :update, Team, :id => @context_team.id
+    can :update, Team, :id => @context_team.id, :inactive => false, :inactive_was => false
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'collaborator']
     can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'collaborator'], role_was: ['editor', 'collaborator']
     can :preview_rss_feed, Team, :id => @context_team.id

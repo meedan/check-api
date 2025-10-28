@@ -1,5 +1,5 @@
 class ClaimDescription < ApplicationRecord
-  attr_accessor :disable_replace_media, :enable_create_blank_media
+  attr_accessor :disable_replace_media
 
   include Article
   include CheckPusher
@@ -16,7 +16,6 @@ class ClaimDescription < ApplicationRecord
   validates_presence_of :team
   validates_uniqueness_of :project_media_id, allow_nil: true
   validate :cant_apply_article_to_item_if_article_is_in_the_trash
-  before_create :create_blank_media_if_needed
   after_commit :update_fact_check, on: [:update]
   after_update :update_report
   after_update :reset_item_rating_if_removed
@@ -103,7 +102,7 @@ class ClaimDescription < ApplicationRecord
 
   # Replace item if fact-check is from a blank media
   def replace_media
-    if !self.project_media_id_before_last_save.nil? && ProjectMedia.find_by_id(self.project_media_id_before_last_save)&.type_of_media == 'Blank'
+    if !self.project_media_id_before_last_save.nil? && ProjectMedia.find_by_id(self.project_media_id_before_last_save)&.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
       old_pm = ProjectMedia.find(self.project_media_id_before_last_save)
       new_pm = self.project_media
       old_pm.replace_by(new_pm)
@@ -147,12 +146,6 @@ class ClaimDescription < ApplicationRecord
         status.status = default_status
         status.save
       end
-    end
-  end
-
-  def create_blank_media_if_needed
-    if self.enable_create_blank_media && self.project_media_id.blank?
-      self.project_media = ProjectMedia.create!(media: Blank.create!, team: self.team)
     end
   end
 end

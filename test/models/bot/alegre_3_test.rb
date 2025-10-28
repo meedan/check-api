@@ -261,11 +261,11 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     assert_equal Bot::Alegre.decode_item_doc_id("Y2hlY2stcHJvamVjdF9tZWRpYS01NTQ1NzEtdmlkZW8"), ["check", "project_media", "554571", "video" ]
   end
 
-  test "should not replace when parent is blank" do
+  test "should not replace when parent is fact-check import" do
     t = create_team
     pm1 = create_project_media team: t, is_image: true
-    pm2 = create_project_media team: t, media: Blank.new
-    pm3 = create_project_media team: t, media: Blank.new
+    pm2 = create_project_media team: t, media: Claim.new(quote: random_string), archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+    pm3 = create_project_media team: t, media: Claim.new(quote: random_string), archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 1, relationship_type: Relationship.confirmed_type}})
@@ -286,9 +286,9 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   test "should store relationship for lower-scoring match that's from a preferred model, but is latest ID" do
     t = create_team
     pm1 = create_project_media team: t, is_image: true
-    pm2 = create_project_media team: t, media: Blank.new
-    pm3 = create_project_media team: t, media: Blank.new
-    pm4 = create_project_media team: t, media: Blank.new
+    pm2 = create_project_media team: t, media: Claim.new(quote: random_string), archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+    pm3 = create_project_media team: t, media: Claim.new(quote: random_string), archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+    pm4 = create_project_media team: t, media: Claim.new(quote: random_string), archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, model: Bot::Alegre::ELASTICSEARCH_MODEL, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}, pm4.id => {score: 1, model: Bot::Alegre::INDIAN_MODEL, relationship_type: Relationship.confirmed_type}})
@@ -300,8 +300,8 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
   test "should store relationship for highest-scoring match" do
     t = create_team
     pm1 = create_project_media team: t, is_image: true
-    pm2 = create_project_media team: t, media: Blank.new
-    pm3 = create_project_media team: t, media: Blank.new
+    pm2 = create_project_media team: t, media: Claim.new(quote: random_string), archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
+    pm3 = create_project_media team: t, media: Claim.new(quote: random_string), archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     assert_no_difference 'ProjectMedia.count' do
       assert_difference 'Relationship.count' do
         Bot::Alegre.add_relationships(pm3, {pm2.id => {score: 100, relationship_type: Relationship.confirmed_type}, pm1.id => {score: 1, relationship_type: Relationship.confirmed_type}})
@@ -362,14 +362,14 @@ class Bot::Alegre3Test < ActiveSupport::TestCase
     Bot::Alegre.unstub(:get_merged_items_with_similar_text)
   end
 
-  test "should not return matches for blank cases" do
+  test "should not return matches for blank(FACTCHECK_IMPORT) cases" do
     t = create_team
     pm1 = create_project_media team: t, quote: "Blah", team: @team
     pm1.analysis = { title: 'This is a long enough Title so as to allow an actual check of other titles' }
     pm1.save!
     pm2 = create_project_media team: t, quote: "Blah2", team: @team
     pm2.save!
-    pm3 = create_project_media team: t, media: Blank.new
+    pm3 = create_project_media team: t, media: create_claim_media, archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
     pm3.save!
     Bot::Alegre.stubs(:get_merged_items_with_similar_text).with(pm3, Bot::Alegre.get_threshold_for_query('text', pm3)).returns({pm1.id => {score: 0.99, context: {"blah" => 1}}, pm2.id => {score: 0.99, context: {"blah" => 1}}})
     assert_equal Bot::Alegre.get_similar_items(pm3), {}
