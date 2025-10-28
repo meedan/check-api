@@ -653,7 +653,7 @@ class AbilityTest < ActiveSupport::TestCase
     a = create_account
     team_perms = [
       "bulk_create Tag", "bulk_update ProjectMedia", "create TagText", "read Team", "update Team", "destroy Team", "empty Trash",
-      "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members",
+      "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members", "activate Team",
       "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "create Feed",
       "manage TagText", "manage TeamTask", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
       "create FeedInvitation", "create FeedTeam", "destroy FeedInvitation", "destroy FeedTeam", "create SavedSearch"
