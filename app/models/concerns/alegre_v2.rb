@@ -1,7 +1,7 @@
 require 'active_support/concern'
 class AlegreTimeoutError < StandardError; end
 class TemporaryProjectMedia
-  attr_accessor :team_id, :id, :url, :text, :type, :field
+  attr_accessor :team_id, :id, :url, :text, :type, :field, :archived
   def media
     media_type_map = {
       "claim" => "Claim",
@@ -13,8 +13,8 @@ class TemporaryProjectMedia
     Struct.new(:type).new(media_type_map[type])
   end
 
-  def is_blank?
-    self.type == "blank"
+  def is_fact_check_imported?
+    self.archived == CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT
   end
 
   def is_link?
@@ -502,15 +502,15 @@ module AlegreV2
     end
 
     def relate_project_media(project_media, field=nil)
-      self.add_relationships(project_media, self.get_similar_items_v2(project_media, field)) unless project_media.is_blank?
+      self.add_relationships(project_media, self.get_similar_items_v2(project_media, field)) unless project_media.is_fact_check_imported?
     end
 
     def relate_project_media_async(project_media, field=nil)
-      self.get_similar_items_v2_async(project_media, field) unless project_media.is_blank?
+      self.get_similar_items_v2_async(project_media, field) unless project_media.is_fact_check_imported?
     end
 
     def relate_project_media_callback(project_media, field=nil)
-      self.add_relationships(project_media, get_similar_items_v2_callback(project_media, field)) unless project_media.is_blank?
+      self.add_relationships(project_media, get_similar_items_v2_callback(project_media, field)) unless project_media.is_fact_check_imported?
     end
 
     def is_cached_data_not_good(cached_data)

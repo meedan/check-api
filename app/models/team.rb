@@ -232,6 +232,7 @@ class Team < ApplicationRecord
     perms["bulk_update ProjectMedia"] = ability.can?(:bulk_update, ProjectMedia.new(team_id: self.id))
     perms["bulk_create Tag"] = ability.can?(:bulk_create, Tag.new(team: self))
     perms["duplicate Team"] = ability.can?(:duplicate, self)
+    perms["activate Team"] = ability.can?(:activate, self)
     perms["update Relationship"] = ability.can?(:update, relationship)
     perms["destroy Relationship"] = ability.can?(:destroy, relationship)
     perms["manage TagText"] = ability.can?(:manage, tag_text)
@@ -548,7 +549,7 @@ class Team < ApplicationRecord
     query = query.where('claim_descriptions.team_id' => self.id)
 
     # Filter by standalone
-    query = query.left_joins(claim_description: { project_media: :media }).where('claim_descriptions.project_media_id IS NULL OR medias.type = ?', 'Blank') if filters[:standalone]
+    query = query.left_joins(:claim_description).where('claim_descriptions.project_media_id IS NULL') if filters[:standalone]
 
     # Filter by language
     query = query.where('fact_checks.language' => filters[:language].to_a) unless filters[:language].blank?
@@ -678,6 +679,11 @@ class Team < ApplicationRecord
   # Platforms for which statistics are available (e.g., at least one media request)
   def statistics_platforms
     TiplineRequest.joins(:project_media).where('project_medias.team_id' => self.id).distinct.pluck(:platform)
+  end
+
+  def articles_default_filters(saved_search_id)
+    saved_search = self.saved_searches.where(id: saved_search_id).first
+    saved_search&.filters.present? ? saved_search.filters.deep_symbolize_keys : {}
   end
 
   # private

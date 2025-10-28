@@ -310,7 +310,7 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
   end
 
-  test "should duplicate when user is owner and not duplicate when not an owner" do
+  test "should not duplicate when user is not super admin" do
     u = create_user
     t = create_team
     create_team_user user: u, team: t, role: 'admin'
@@ -329,6 +329,26 @@ class GraphqlController10Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response 401
 
+    authenticate_with_user(u)
+    query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
+    post :create, params: { query: query, team: t.slug }
+    assert_response 400
+  end
+
+  test "should duplicate when user is super admin" do
+    u = create_user is_admin: true
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    value = {
+      label: 'Status',
+      active: 'id',
+      default: 'id',
+      statuses: [
+        { id: 'id', locales: { en: { label: 'Custom Status', description: 'The meaning of this status' } }, style: { color: 'red' } },
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
     authenticate_with_user(u)
     query = "mutation duplicateTeam { duplicateTeam(input: { team_id: \"#{t.graphql_id}\" }) { team { id } } }"
     post :create, params: { query: query, team: t.slug }
