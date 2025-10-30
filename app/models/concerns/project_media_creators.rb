@@ -26,6 +26,14 @@ module ProjectMediaCreators
         skip_check_ability: true,
         skip_create_project_media: true,
       })
+      # Mark the ProjectMedia as FACTCHECK_IMPORT if report is published and set_original_claim is blank
+      if fact_check['publish_report'] && self.set_original_claim.blank? && self.media_type == 'Blank'
+        self.update_column(:archived, CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT)
+        data = { archived: CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT }
+        options = { keys: data.keys, data: data, pm_id: self.id }
+        model = { klass: self.class.name, id: self.id }
+        ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+      end
     end
     fc
   end
