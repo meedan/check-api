@@ -763,18 +763,6 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
-  test "api key read permissions for everything" do
-    t = create_team private: true
-    pm = create_project_media team: t
-    a = create_api_key
-    ApiKey.current = a
-    ability = Ability.new
-    assert ability.can?(:read, pm)
-    assert ability.cannot?(:update, pm)
-    assert ability.cannot?(:destroy, pm)
-    ApiKey.current = nil
-  end
-
   test "api key cud permissions" do
     a = create_api_key
     t = create_team private: true

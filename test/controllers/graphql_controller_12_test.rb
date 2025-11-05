@@ -687,8 +687,8 @@ class GraphqlController12Test < ActionController::TestCase
   test "should not create blank media using createProjectMedia mutation" do
     Sidekiq::Testing.inline!
     t = create_team
-    a = ApiKey.create!
-    b = create_bot_user api_key_id: a.id
+    a = ApiKey.create! team: t
+    b = a.bot_user
     create_team_user team: t, user: b
     authenticate_with_token(a)
 

@@ -37,11 +37,15 @@ class Ability
   private
 
   def api_key_perms
+    can :read, :all
     cannot [:create, :destroy], Team
     cannot :cud, User
     cannot :cud, TeamUser
     can :update, User, :id => @user.id
     can :update, BotUser, :id => @user.id
+    can :update, [Dynamic, DynamicAnnotation::Field] do |obj|
+      obj.team.present? && obj.team == @context_team
+    end
   end
 
   def admin_perms
