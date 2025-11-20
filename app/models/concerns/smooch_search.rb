@@ -96,7 +96,7 @@ module SmoochSearch
 
     def is_a_valid_search_result(pm, published_only)
       published_condition = (published_only ? pm.report_status == 'published' : true)
-      (published_condition || pm.explainers.count > 0) && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED].include?(pm.archived)
+      (published_condition || pm.explainers.count > 0) && [CheckArchivedFlags::FlagCodes::NONE, CheckArchivedFlags::FlagCodes::UNCONFIRMED, CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT].include?(pm.archived)
     end
 
     def reject_temporary_results(results)
