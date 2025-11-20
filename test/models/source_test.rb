@@ -86,7 +86,7 @@ class SourceTest < ActiveSupport::TestCase
 
   test "should get medias" do
     t = create_team
-    s = create_source team: t
+    s = create_source name: 'testing', team: t
     pm = create_project_media team: t, source: s, skip_autocreate_source: false
     assert_equal [pm], s.medias
     assert_equal 1, s.medias_count

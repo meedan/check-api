@@ -26,10 +26,6 @@ API Endpoints - Thu Mar 31 21:22:55 UTC 2022
     24	GET      /api/users/password/new
     25	GET      /api/users/sign_in
     26	GET      /api/users/sign_up
-    27	GET      /api/v2/reports
-    28	GET      /api/v2/reports/:id
-    29	GET      /api/v2/workspaces
-    30	GET      /api/v2/workspaces/:id
     31	GET      /api/version
     32	GET      /api/version
     33	GET      /rails/active_storage/blobs/:signed_id/*filename
@@ -73,7 +69,6 @@ API Endpoints - Thu Mar 31 21:22:55 UTC 2022
     71	POST     /api/users/invitation
     72	POST     /api/users/password
     73	POST     /api/users/sign_in
-    74	POST     /api/v2/reports
     75	POST     /api/webhooks/:name
     76	POST     /rails/active_storage/direct_uploads
     77	POST /api/users/auth/facebook

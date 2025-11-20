@@ -632,6 +632,7 @@ class ProjectMedia5Test < ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: url, refresh: '1' } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"item","foo":"2"}}')
     m = create_media url: url
     pm = create_project_media media: m
+    assert_equal m.url, pm.link
     t1 = pm.updated_at.to_i
     em1 = pm.media.metadata_annotation
     assert_not_nil em1
