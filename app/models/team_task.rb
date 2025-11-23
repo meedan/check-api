@@ -260,7 +260,8 @@ class TeamTask < ApplicationRecord
 
   def get_teamwide_tasks_with_answers
     ids = TeamTask.get_teamwide_tasks(self.id).pluck(:id)
-    Task.where(annotated_id: ids, annotated_type: 'Task').where('annotation_type LIKE ?', 'task_response%')
+    answer_ids = Annotation.where(annotated_id: ids, annotated_type: 'Task').where('annotation_type LIKE ?', 'task_response%').pluck(:annotated_id)
+    Task.where(id: answer_ids)
   end
 
   def self.destroy_project_media_task(t)
