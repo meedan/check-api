@@ -259,11 +259,9 @@ class TeamTask < ApplicationRecord
   end
 
   def get_teamwide_tasks_with_answers
-    TeamTask.get_teamwide_tasks(self.id)
-    .joins("INNER JOIN annotations responses ON responses.annotation_type LIKE 'task_response%'
-      AND responses.annotated_type = 'Task'
-      AND responses.annotated_id = annotations.id"
-      )
+    ids = TeamTask.get_teamwide_tasks(self.id).pluck(:id)
+    answer_ids = Annotation.where(annotated_id: ids, annotated_type: 'Task').where('annotation_type LIKE ?', 'task_response%').pluck(:annotated_id)
+    Task.where(id: answer_ids)
   end
 
   def self.destroy_project_media_task(t)
