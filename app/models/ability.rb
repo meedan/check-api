@@ -24,7 +24,7 @@ class Ability
       if @user.role?(:admin, @context_team)
         admin_perms
       end
-      unless @api_key.nil?
+      if !@api_key.nil? && @api_key.team.present?
         api_key_perms
       end
       Workflow::Workflow.workflows.each do |w|
