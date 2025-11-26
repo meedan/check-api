@@ -341,13 +341,15 @@ class ProjectMedia6Test < ActiveSupport::TestCase
   test "should create status and fact-check when creating an item" do
     u = create_user is_admin: true
     t = create_team
+    pm = nil
     assert_difference 'FactCheck.count' do
       assert_difference "Annotation.where(annotation_type: 'verification_status').count" do
         with_current_user_and_team(u, t) do
-          create_project_media set_status: 'false', set_fact_check: { title: 'Foo', summary: 'Bar', url: random_url, language: 'en' }, set_claim_description: 'Test', team: t
+          pm = create_project_media media_type: 'Blank', set_status: 'false', set_fact_check: { publish_report: true, title: 'Foo', summary: 'Bar', url: random_url, language: 'en' }, set_claim_description: 'Test', team: t
         end
       end
     end
+    assert_equal CheckArchivedFlags::FlagCodes::FACTCHECK_IMPORT, pm.reload.archived
   end
 
   test "should not create duplicated fact-check when creating an item" do

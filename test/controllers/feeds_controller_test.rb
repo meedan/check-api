@@ -164,4 +164,10 @@ class FeedsControllerTest < ActionController::TestCase
     assert_equal 'Foo, bar and test', Media.last.quote
     Bot::Alegre.unstub(:request)
   end
+
+  test "should return workspaces" do
+    authenticate_with_token create_api_key
+    get :index, params: {}
+    assert_response :success
+  end
 end

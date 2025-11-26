@@ -14,10 +14,7 @@ Rails.application.routes.draw do
       get 'ping', to: 'base_api#ping'
 
       scope :v2 do
-        jsonapi_resources :workspaces, only: [:index, :show]
-        jsonapi_resources :reports, only: [:index, :show]
         jsonapi_resources :feeds, only: [:index]
-        post :reports, to: 'reports#index' # For the case we want to upload an image
       end
     end
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do

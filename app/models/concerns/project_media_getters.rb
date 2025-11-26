@@ -55,14 +55,6 @@ module ProjectMediaGetters
     self.media&.url&.to_s
   end
 
-  def uploaded_file_url
-    self.media&.file_path
-  end
-
-  def source_name
-    self.source&.name&.to_s
-  end
-
   def text
     self.media.text
   end
@@ -97,10 +89,6 @@ module ProjectMediaGetters
 
   def analysis_published_article_url
     self.analysis.dig('published_article_url')
-  end
-
-  def analysis_published_date
-    self.analysis.dig('date_published')
   end
 
   def report_field_value(field)
