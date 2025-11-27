@@ -43,11 +43,12 @@ module SampleData
 
   def create_api_key(options = {})
     a = ApiKey.new
+    a.title = options[:title] || random_string
+    a.description = options[:description] || random_string
+    a.team = options[:team] || create_team
     options.each do |key, value|
       a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
-    a.title = options[:title] || random_string
-    a.description = options[:description] || random_string
     a.save!
     a.reload
   end
