@@ -764,10 +764,11 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "api key cud permissions" do
-    a = create_api_key
     t = create_team private: true
     t2 = create_team
-    u = create_bot_user api_key_id: a.id
+    a = create_api_key team: t
+    u = a.bot_user
+    # u = create_bot_user api_key_id: a.id
     tu = create_team_user team: t, user: u, role: 'admin'
     u = User.find(u.id)
     ApiKey.current = a
