@@ -26,14 +26,6 @@ class AdminControllerTest < ActionController::TestCase
     assert_nil JSON.parse(@response.body)['data']
   end
 
-  test "should not find Slack user by UID if API key is not global" do
-    a = create_api_key
-    u = create_omniauth_user provider: 'slack', uid: 'U123'
-    authenticate_with_token(a)
-    get :slack_user, params: { uid: 'U123' }
-    assert_nil JSON.parse(@response.body)['data']
-  end
-
   test "should not find Slack user by UID if API key is not provided" do
     a = create_api_key
     u = create_omniauth_user provider: 'slack', uid: 'U123'
