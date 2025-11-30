@@ -443,6 +443,7 @@ class BotUser < User
       api_key.title = self.name
       api_key.save!
       api_key.expire_at = api_key.expire_at.since(100.years)
+      api_key.skip_create_bot_user = true
       api_key.save!
       self.api_key_id = api_key.id
     end
