@@ -2,6 +2,8 @@ class Check::TooManyRequestsError < StandardError
 end
 
 class ApiKey < ApplicationRecord
+  attr_accessor :skip_create_bot_user
+
   belongs_to :team, optional: true
   belongs_to :user, optional: true
 
@@ -12,7 +14,7 @@ class ApiKey < ApplicationRecord
   before_validation :generate_access_token, on: :create
   before_validation :calculate_expiration_date, on: :create
   before_validation :set_user_and_team
-  after_create :create_bot_user
+  after_create :create_bot_user, unless: proc { |key| key.skip_create_bot_user }
 
   validate :validate_team_api_keys_limit, on: :create
 

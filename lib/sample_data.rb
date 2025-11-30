@@ -73,7 +73,7 @@ module SampleData
     u.password = options[:password] || random_complex_password
     u.password_confirmation = options[:password_confirmation] || u.password
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
-    u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
+    u.api_key_id = options[:api_key_id] if options.has_key?(:api_key_id)
     u.default = options.has_key?(:default) ? options[:default] : false
     u.set_approved true if options.has_key?(:approved) && options[:approved]
 

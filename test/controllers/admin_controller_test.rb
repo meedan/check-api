@@ -28,7 +28,6 @@ class AdminControllerTest < ActionController::TestCase
 
   test "should not find Slack user by UID if API key is not global" do
     a = create_api_key
-    create_bot_user api_key_id: a.id
     u = create_omniauth_user provider: 'slack', uid: 'U123'
     authenticate_with_token(a)
     get :slack_user, params: { uid: 'U123' }
