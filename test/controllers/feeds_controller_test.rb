@@ -164,7 +164,8 @@ class FeedsControllerTest < ActionController::TestCase
   end
 
   test "should return workspaces" do
-    authenticate_with_token create_api_key
+    api_key = create_api_key skip_create_bot_user: true
+    authenticate_with_token api_key
     get :index, params: {}
     assert_response :success
   end

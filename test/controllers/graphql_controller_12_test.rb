@@ -620,6 +620,7 @@ class GraphqlController12Test < ActionController::TestCase
     a = create_api_key team: t
     b = a.bot_user
     create_team_user team: t, user: b
+    assert_nil a.last_active_at
     authenticate_with_token(a)
 
     query1 = ' mutation create {
@@ -682,6 +683,7 @@ class GraphqlController12Test < ActionController::TestCase
     post :create, params: { query: query2, team: t.slug }
     assert_response :success
     assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
+    assert_not_nil a.reload.last_active_at
   end
 
   test "should not create blank media using createProjectMedia mutation" do
