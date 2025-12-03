@@ -566,6 +566,7 @@ class GraphqlController8Test < ActionController::TestCase
 
   test "should get OCR" do
     b = create_alegre_bot(name: 'alegre', login: 'alegre')
+    b.team_author_id = create_team.id
     b.approve!
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       Sidekiq::Testing.fake! do

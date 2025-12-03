@@ -514,6 +514,7 @@ module SampleData
   def create_bot(options = {})
     bot = BotUser.new
     bot.name = options[:name] || random_string
+    bot.team_author_id = options['team_author_id'] || create_team.id
     file = 'rails.png'
     if options.has_key?(:avatar)
       file = options[:avatar]
