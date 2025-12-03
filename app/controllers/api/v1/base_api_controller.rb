@@ -109,6 +109,8 @@ module Api
           User.current = user
           (!token.blank? && user) ? sign_in(user, store: false) : (authenticate_api_user! if mandatory)
         else
+          # Update last_active_at for ApiKey
+          key.update_column(:last_active_at, Time.now)
           User.current = key.bot_user
           ApiKey.current = key
         end
