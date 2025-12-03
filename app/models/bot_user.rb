@@ -439,6 +439,7 @@ class BotUser < User
   def create_api_key
     if self.api_key_id.blank?
       api_key = ApiKey.new(bot_user: self)
+      api_key.team_id = self.team_author_id
       api_key.skip_check_ability = true
       api_key.title = self.name
       api_key.save!
@@ -471,7 +472,7 @@ class BotUser < User
   end
 
   def set_default_team_author_id
-    self.team_author_id = Team.current&.id if self.team_author_id.blank?
+    self.team_author_id ||= Team.current&.id
   end
 
   def self.get_user(login)

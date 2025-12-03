@@ -76,6 +76,7 @@ module SampleData
     u.api_key_id = options[:api_key_id] if options.has_key?(:api_key_id)
     u.default = options.has_key?(:default) ? options[:default] : false
     u.set_approved true if options.has_key?(:approved) && options[:approved]
+    u.team_author_id = options['team_author_id'] || create_team.id
 
     file = nil
     if options.has_key?(:image)

@@ -7,7 +7,7 @@ class ApiKey < ApplicationRecord
   belongs_to :team, optional: true
   belongs_to :user, optional: true
 
-  validates_presence_of :access_token, :expire_at
+  validates_presence_of :access_token, :expire_at, :team
   validates_uniqueness_of :access_token
   validates :title, uniqueness: { scope: :team }
 
@@ -65,8 +65,8 @@ class ApiKey < ApplicationRecord
   end
 
   def set_user_and_team
-    self.user = User.current unless User.current.nil?
-    self.team = Team.current unless Team.current.nil?
+    self.user ||= User.current
+    self.team ||= Team.current
   end
 
   def calculate_expiration_date
