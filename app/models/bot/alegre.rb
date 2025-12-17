@@ -702,6 +702,9 @@ class Bot::Alegre < BotUser
     # Make sure that items imported from shared feed are not related automatically to anything,
     # since multiple medias can be imported at the same time, so the imported medias should form a cluster themselves
     return false if target.is_imported_from_shared_feed?
+    # Verify that target should not have a published report
+    state = target.get_annotations('report_design').first&.load&.get_field_value('state')
+    return false if state == 'published'
     return true
   end
 
