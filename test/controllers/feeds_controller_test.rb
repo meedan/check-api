@@ -10,8 +10,6 @@ class FeedsControllerTest < ActionController::TestCase
     create_verification_status_stuff
     @a = create_api_key
     @b = @a.bot_user
-    # @b.api_key = @a
-    # @b.save!
     @t1 = create_team name: 'Foo'
     @t2 = create_team name: 'Bar'
     @t3 = create_team

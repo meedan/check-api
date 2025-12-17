@@ -37,7 +37,6 @@ class Ability
   private
 
   def api_key_perms
-    can :read, :all
     cannot [:create, :destroy], Team
     cannot :cud, User
     cannot :cud, TeamUser
