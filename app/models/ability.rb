@@ -40,11 +40,14 @@ class Ability
     cannot [:create, :destroy], Team
     cannot :cud, User
     cannot :cud, TeamUser
+    can :read, [FactCheck, ClaimDescription] do |obj|
+      obj.team.present? && obj.team == @api_key.team
+    end
     can :update, User, :id => @user.id
     can :update, BotUser, :id => @user.id
     can :find_by_json_fields, DynamicAnnotation::Field
     can :update, [Dynamic, DynamicAnnotation::Field], ['annotation_type = ?', 'smooch_user'] do |obj|
-      obj.team.present? && obj.team == @context_team
+      obj.team.present? && obj.team == @api_key.team
     end
   end
 
