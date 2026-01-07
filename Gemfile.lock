@@ -146,26 +146,31 @@ GEM
       railties (>= 5.2)
       warden
     awesome_print (1.9.2)
-    aws-eventstream (1.2.0)
-    aws-partitions (1.569.0)
+    aws-eventstream (1.4.0)
+    aws-partitions (1.1196.0)
     aws-sdk-cloudwatch (1.62.0)
       aws-sdk-core (~> 3, >= 3.127.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-core (3.130.0)
-      aws-eventstream (~> 1, >= 1.0.2)
-      aws-partitions (~> 1, >= 1.525.0)
-      aws-sigv4 (~> 1.1)
-      jmespath (~> 1.0)
-    aws-sdk-kms (1.55.0)
-      aws-sdk-core (~> 3, >= 3.127.0)
-      aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.46.0)
-      aws-sdk-core (~> 3, >= 3.61.1)
+    aws-sdk-core (3.240.0)
+      aws-eventstream (~> 1, >= 1.3.0)
+      aws-partitions (~> 1, >= 1.992.0)
+      aws-sigv4 (~> 1.9)
+      base64
+      bigdecimal
+      jmespath (~> 1, >= 1.6.1)
+      logger
+    aws-sdk-kms (1.118.0)
+      aws-sdk-core (~> 3, >= 3.239.1)
+      aws-sigv4 (~> 1.5)
+    aws-sdk-s3 (1.208.0)
+      aws-sdk-core (~> 3, >= 3.234.0)
       aws-sdk-kms (~> 1)
-      aws-sigv4 (~> 1.1)
-    aws-sigv4 (1.4.0)
+      aws-sigv4 (~> 1.5)
+    aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
+    base64 (0.3.0)
     bcrypt (3.1.20)
+    bigdecimal (4.0.1)
     bitly (2.0.1)
       oauth2 (>= 0.5.0, < 2.0)
     bootsnap (1.16.0)
@@ -371,7 +376,7 @@ GEM
       mechanize
     idn-ruby (0.1.4)
     jaro_winkler (1.5.4)
-    jmespath (1.6.1)
+    jmespath (1.6.2)
     json (2.6.3)
     json-schema (2.5.0)
       addressable (~> 2.3)
@@ -386,6 +391,7 @@ GEM
     listen (3.7.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
+    logger (1.7.0)
     lograge (0.11.2)
       actionpack (>= 4)
       activesupport (>= 4)
@@ -887,7 +893,7 @@ DEPENDENCIES
   addressable
   authtrail
   awesome_print
-  aws-sdk-s3 (= 1.46.0)
+  aws-sdk-s3 (= 1.208.0)
   bitly
   bootsnap
   bumbler
