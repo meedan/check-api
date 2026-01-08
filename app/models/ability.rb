@@ -46,7 +46,7 @@ class Ability
     can :update, User, :id => @user.id
     can :update, BotUser, :id => @user.id
     can :find_by_json_fields, DynamicAnnotation::Field do |obj|
-      obj.team.present? && obj.team == @api_key.team
+      @api_key.team.present? && @api_key.team == @context_team
     end
     can :update, [Dynamic, DynamicAnnotation::Field], ['annotation_type = ?', 'smooch_user'] do |obj|
       obj.team.present? && obj.team == @api_key.team
