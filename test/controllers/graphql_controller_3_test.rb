@@ -289,31 +289,6 @@ class GraphqlController3Test < ActionController::TestCase
     end
   end
 
-  test "should return cached value for dynamic annotation" do
-    team = create_team
-    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
-    api_key = create_api_key team: team
-    authenticate_with_token(api_key)
-    assert_nil ApiKey.current
-
-    post :create, params: { query: 'query Query { dynamic_annotation_field(only_cache: true, query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }' }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
-
-    query = 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
-    post :create, params: { query:  query, team: team.slug }
-    assert_response :success
-    assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
-
-    query = { field_name: 'smooch_user_data', json: { app_name: 'foo', identifier: 'bar' } }.to_json
-    cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
-    Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: d.id, field_name: 'smooch_user_data').last&.id)
-    query = 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }'
-    post :create, params: { query: query, team: team.slug }
-    assert_response :success
-    assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
-  end
-
   test "should return updated offset from ES" do
     Sidekiq::Testing.inline! do
       RequestStore.store[:skip_cached_field_update] = false

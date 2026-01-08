@@ -159,32 +159,13 @@ class QueryType < BaseObject
     CheckSearch.new(query, context[:file], team&.id)
   end
 
-  field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true do
+  field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true, deprecation_reason: "The field is deprecated" do do
     argument :query, GraphQL::Types::String, required: true
     argument :only_cache, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   def dynamic_annotation_field(query:, only_cache: nil)
-    ability = context[:ability] || Ability.new
-    if ability.can?(:find_by_json_fields, DynamicAnnotation::Field.new)
-      cache_key =
-        "dynamic-annotation-field-" + Digest::MD5.hexdigest(query)
-      obj = nil
-      if Rails.cache.read(cache_key) || only_cache
-        obj =
-          DynamicAnnotation::Field.where(
-            id: Rails.cache.read(cache_key).to_i
-          ).last
-      else
-        query = JSON.parse(query)
-        json = query.delete("json")
-        obj = DynamicAnnotation::Field.where(query)
-        obj = obj.find_in_json(json) unless json.blank?
-        obj = obj.last
-        Rails.cache.write(cache_key, obj&.id)
-      end
-      obj
-    end
+    nil
   end
 
   field :feed_invitation, FeedInvitationType, description: 'Information about a feed invitation, given its database ID or feed database ID (and then the current user email is used)', null: true do
