@@ -159,12 +159,15 @@ class QueryType < BaseObject
     CheckSearch.new(query, context[:file], team&.id)
   end
 
-  field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true, deprecation_reason: "The field is deprecated" do do
+  field :dynamic_annotation_field, DynamicAnnotationFieldType, null: true, deprecation_reason: "The field is deprecated" do
     argument :query, GraphQL::Types::String, required: true
     argument :only_cache, GraphQL::Types::Boolean, required: false, camelize: false
   end
 
   def dynamic_annotation_field(query:, only_cache: nil)
+    # This field was previously used to query DynamicAnnotation::Field for the Check Slack Bot integration.
+    # It was not used by Check itself and required global permissions to read the field across all teams.
+    # So, I removed the global permission and updated the callback to return nil to avoid breaking the Check Slack Bot integration.
     nil
   end
 
