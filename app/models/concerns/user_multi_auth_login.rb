@@ -40,8 +40,8 @@ module UserMultiAuthLogin
     end
 
     def self.create_omniauth_user(u, auth)
-      raise I18n.t('errors.messages.restrict_registration_to_invited_users_only')
-      user = u.nil? ? User.new : u
+      raise I18n.t('errors.messages.restrict_registration_to_invited_users_only') if u.nil?
+      user = u
       user.email = user.email.presence || auth.info.email
       user.name = user.name.presence || auth.info.name
       user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
