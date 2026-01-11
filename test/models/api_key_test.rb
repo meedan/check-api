@@ -8,10 +8,11 @@ class ApiKeyTest < ActiveSupport::TestCase
   end
 
   test "should generate expiration date" do
+    team = create_team
     stub_configs({'api_default_expiry_days' => 90}) do
       t = Time.parse('2015-01-01 09:00:00')
       Time.stubs(:now).returns(t)
-      k = create_api_key
+      k = create_api_key team: team
       Time.unstub(:now)
       assert_equal Time.parse('2015-04-01 09:00:00'), k.reload.expire_at
     end
@@ -42,9 +43,7 @@ class ApiKeyTest < ActiveSupport::TestCase
 
   test "should have bot user" do
     a = create_api_key
-    assert_nil a.bot_user
-    b = create_bot_user api_key_id: a.id
-    assert_equal b, a.reload.bot_user
+    assert_not_nil a.bot_user
   end
 
   test "should create bot user automatically when team is provided" do
@@ -67,17 +66,12 @@ class ApiKeyTest < ActiveSupport::TestCase
 
   test "should delete API key even if key's user has been used to create media" do
     a = create_api_key
-    b = create_bot_user
-    b.api_key = a
-    b.save!
+    b = a.bot_user
     pm = create_project_media user: b
-
     assert_equal b, pm.user
-
     assert_difference 'ApiKey.count', -1 do
       a.destroy
     end
-
     assert_raises ActiveRecord::RecordNotFound do
       ApiKey.find(a.id)
     end

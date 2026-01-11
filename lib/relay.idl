@@ -11501,7 +11501,7 @@ type Query {
   Information about the bot_user with given id
   """
   bot_user(id: ID!): BotUser
-  dynamic_annotation_field(only_cache: Boolean, query: String!): DynamicAnnotationField
+  dynamic_annotation_field(only_cache: Boolean, query: String!): DynamicAnnotationField @deprecated(reason: "The field is deprecated")
 
   """
   Information about the explainer with given id
