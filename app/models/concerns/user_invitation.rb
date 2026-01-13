@@ -110,17 +110,20 @@ module UserInvitation
     private
 
     def create_team_user_invitation(options = {})
-      tu = TeamUser.new
-      tu.user_id = self.id
-      tu.team_id = Team.current.id
-      tu.role = self.invitation_role
-      tu.status = 'invited'
-      tu.invited_by_id = self.invited_by_id
-      tu.invited_by_id ||= User.current.id unless User.current.nil?
-      tu.invitation_token = self.invitation_token || options[:enc]
-      tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
-      tu.invitation_email = options[:email] || self.email
-      self.send_invitation_mail(tu) if tu.save!
+      team_id = Team.current&.id
+      unless team_id.nil?
+        tu = TeamUser.new
+        tu.user_id = self.id
+        tu.team_id = team_id
+        tu.role = self.invitation_role
+        tu.status = 'invited'
+        tu.invited_by_id = self.invited_by_id
+        tu.invited_by_id ||= User.current.id unless User.current.nil?
+        tu.invitation_token = self.invitation_token || options[:enc]
+        tu.raw_invitation_token = self.read_attribute(:raw_invitation_token) || self.raw_invitation_token || options[:raw]
+        tu.invitation_email = options[:email] || self.email
+        self.send_invitation_mail(tu) if tu.save!
+      end
     end
 
     def self.accept_team_user_invitation(tu, token, options)

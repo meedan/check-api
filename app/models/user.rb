@@ -173,6 +173,8 @@ class User < ApplicationRecord
   end
 
   def handle
+    # As we must invite users first then the email must exists
+    # TODO: remove get_provider_from_user_account method
     self.email.blank? ? get_provider_from_user_account : self.email
   end
 

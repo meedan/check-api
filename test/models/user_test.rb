@@ -157,8 +157,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should set login from name" do
-    info = {login: '', nickname: '', name: 'Foo Bar'}
-    u = create_omniauth_user provider: 'facebook', info: info, email: ''
+    info = {login: '', nickname: '', name: 'Foo Bar', email: 'test@local.com'}
+    u = create_omniauth_user provider: 'facebook', info: info, email: 'test@local.com'
     assert_equal 'foo-bar', u.reload.login
   end
 
@@ -461,12 +461,12 @@ class UserTest < ActiveSupport::TestCase
   test "should get handle" do
     u = create_user email: 'user@email.com'
     assert_equal 'user@email.com', u.handle
-    u = create_omniauth_user provider: 'facebook', email: '', url: 'https://facebook.com/10157109339765023'
+    u = create_omniauth_user provider: 'facebook', email: 'test@local.com', url: 'https://facebook.com/10157109339765023'
     assert_equal 'https://facebook.com/10157109339765023', u.handle
   end
 
   test "should get handle for Slack" do
-    u = create_omniauth_user provider: 'slack', email: '', info: { name: 'caiosba' }, extra: { 'raw_info' => { 'url' => 'https://meedan.slack.com' } }
+    u = create_omniauth_user provider: 'slack', email: 'test@local.com', info: { name: 'caiosba' }, extra: { 'raw_info' => { 'url' => 'https://meedan.slack.com' } }
     assert_equal 'caiosba at https://meedan.slack.com', u.handle
   end
 
@@ -574,18 +574,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal '654321', a.reload.uid
   end
 
-  test "should not update Facebook id if email not set" do
-    u1 = create_omniauth_user provider: 'facebook', uid: '123456', email: ''
-    u2 = create_omniauth_user provider: 'facebook', uid: '456789', email: ''
-    a1 = u1.get_social_accounts_for_login({provider: 'facebook', uid: '123456'}).first
-    a2 = u2.get_social_accounts_for_login({provider: 'facebook', uid: '456789'}).first
-    assert_equal '123456', a1.uid
-    assert_equal '456789', a2.uid
-    User.update_facebook_uuid(OpenStruct.new({ provider: 'facebook',url: a1.url, uid: '456789', info: OpenStruct.new({ email: '' })}))
-    assert_equal '123456', a1.reload.uid
-    assert_equal '456789', a2.reload.uid
-  end
-
   test "should save valid languages" do
     u = create_user
     value = ["en"]
@@ -658,6 +646,7 @@ class UserTest < ActiveSupport::TestCase
     auth = OpenStruct.new({ url: url, provider: 'facebook', uid: '1062518227129764', credentials: credentials, info: info})
     Account.any_instance.stubs(:save).returns(false)
     assert_difference 'User.count' do
+      invite_new_user email: 'user@fb.com', name: 'John'
       User.from_omniauth(auth)
     end
     u = User.find_by_email 'user@fb.com'
@@ -1163,17 +1152,17 @@ class UserTest < ActiveSupport::TestCase
         create_omniauth_user email: u.email
       end
     end
-    u = create_omniauth_user provider: 'twitter', email: '', uid: '123456'
+    u = create_omniauth_user provider: 'google', email: 'test2@local.com'
     u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com'
     tu = create_team_user user: u2
     pm = create_project_media user: u2
     s2_id = u2.source.id
     u2_id = u2.id
-    u3 = create_omniauth_user provider: 'twitter', uid: '123456', email: 'test@local.com'
+    u3 = create_omniauth_user provider: 'google', uid: '123456', email: 'test@local.com'
     assert_equal u.id, u3.id
     accounts = u.source.accounts
     assert_equal 2, accounts.count
-    assert_equal ['facebook', 'twitter'].sort, accounts.map(&:provider).sort
+    assert_equal ['facebook', 'google'].sort, accounts.map(&:provider).sort
     assert_equal u.id, pm.reload.user_id
     assert_equal u.id, tu.reload.user_id
     assert_raises ActiveRecord::RecordNotFound do
