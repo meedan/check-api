@@ -169,6 +169,7 @@ module SampleData
     provider = options.has_key?(:provider) ? options[:provider] : %w(google slack).sample
     auth[:uid] = options.has_key?(:uid) ? options[:uid] : random_string
     auth[:url] = url
+    options[:info][:email] = options[:email] if options.has_key?(:info) && options[:info][:email].nil?
     auth[:info] = options.has_key?(:info) ? options[:info] : {name: random_string, email: options[:email]}
     auth[:credentials] = options.has_key?(:credentials) ? options[:credentials] : {token: random_string, secret: random_string}
     auth[:extra] = options.has_key?(:extra) ? options[:extra] : {}
