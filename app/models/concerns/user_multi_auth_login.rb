@@ -44,7 +44,7 @@ module UserMultiAuthLogin
       user = u
       user.email = user.email.presence || auth.info.email
       user.name = user.name.presence || auth.info.name
-      user.login = auth.info.nickname || auth.info.name.tr(' ', '-').downcase
+      user.login = auth.info.nickname.blank? ? auth.info.name.tr(' ', '-').downcase : auth.info.nickname
       user.from_omniauth_login = true
       user.skip_confirmation!
       user.last_accepted_terms_at = Time.now if user.last_accepted_terms_at.nil?
