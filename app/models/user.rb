@@ -174,24 +174,8 @@ class User < ApplicationRecord
 
   def handle
     # As we must invite users first then the email must exists
-    # TODO: remove get_provider_from_user_account method
-    self.email.blank? ? get_provider_from_user_account : self.email
-  end
-
-  def get_provider_from_user_account
-    account = self.get_social_accounts_for_login
-    account = account.first unless account.nil?
-    return nil if account.nil?
-    provider = account.provider.capitalize
-    if !account.omniauth_info.nil?
-      if account.provider == 'slack'
-        provider = account.omniauth_info.dig('extra', 'raw_info', 'url')
-      else
-        provider = account.omniauth_info.dig('url')
-        return provider if !provider.nil?
-      end
-    end
-    "#{self.login} at #{provider}"
+    # which means the handle is email address
+    self.email
   end
 
   # Whether two users are members of any same team

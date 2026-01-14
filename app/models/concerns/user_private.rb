@@ -25,13 +25,7 @@ module UserPrivate
   end
 
   def set_login
-    if self.login.blank?
-      if self.email.blank?
-        self.login = self.name.tr(' ', '-').downcase
-      else
-        self.login = self.email.split('@')[0]
-      end
-    end
+    self.login = self.email.split('@')[0] if self.login.blank?
   end
 
   def send_welcome_email
