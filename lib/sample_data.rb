@@ -145,6 +145,7 @@ module SampleData
     user = User.invite!(email: email, name: name) do |u|
       u.skip_invitation = true
     end
+    user.update_column(:encrypted_password, nil)
     user
   end
 

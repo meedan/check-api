@@ -21,7 +21,7 @@ module UserInvitation
               user = User.invite!({:email => email, :name => email.split("@").first, :invitation_role => role, :invitation_text => text}, User.current) do |iu|
                 iu.skip_invitation = true
               end
-              user.update_column(:raw_invitation_token, user.raw_invitation_token)
+              user.update_columns(raw_invitation_token: user.raw_invitation_token, encrypted_password: nil)
             else
               u.invitation_role = role
               u.invitation_text = text

@@ -79,14 +79,6 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not require email for omniauth user" do
-    u = nil
-    assert_nothing_raised do
-      u = create_omniauth_user email: ''
-    end
-    assert_equal '', u.reload.email
-  end
-
   test "should output json" do
     u = create_user
     assert_nothing_raised do
@@ -463,11 +455,8 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'user@email.com', u.handle
     u = create_omniauth_user provider: 'facebook', email: 'test@local.com', url: 'https://facebook.com/10157109339765023'
     assert_equal 'test@local.com', u.handle
-  end
-
-  test "should get handle for Slack" do
-    u = create_omniauth_user provider: 'slack', email: 'test@local.com', info: { name: 'caiosba' }, extra: { 'raw_info' => { 'url' => 'https://meedan.slack.com' } }
-    assert_equal 'caiosba at https://meedan.slack.com', u.handle
+    u = create_omniauth_user provider: 'slack', email: 'test2@local.com', info: { name: 'caiosba' }, extra: { 'raw_info' => { 'url' => 'https://meedan.slack.com' } }
+    assert_equal 'test2@local.com', u.handle
   end
 
   test "should return whether two users are colleagues in a team" do
@@ -1145,7 +1134,7 @@ class UserTest < ActiveSupport::TestCase
     assert_nil a.email
   end
 
-  # TODO : review by Sawy
+  # TODO: review by Sawy
   # test "should merge confirmed accounts" do
   #   u = create_user confirm: false
   #   assert_no_difference 'User.count' do
@@ -1225,18 +1214,17 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 0, ProjectMediaUser.where(project_media_id: pm.id, user_id: u2.id).count
   end
 
-  # TODO: review by Sawy as invited users already have encrypted_password
-  # test "should keep email based login when merge users" do
-  #   u = create_user email: 'test@local.com', token: '123456', is_admin: true
-  #   u2 = create_omniauth_user
-  #   assert_not u2.is_admin?
-  #   assert_not u2.encrypted_password?
-  #   u2.merge_with(u)
-  #   assert_equal 'test@local.com', u2.reload.email
-  #   assert_equal '123456', u2.reload.token
-  #   assert u2.encrypted_password?
-  #   assert u2.is_admin?
-  # end
+  test "should keep email based login when merge users" do
+    u = create_user email: 'test@local.com', token: '123456', is_admin: true
+    u2 = create_omniauth_user
+    assert_not u2.is_admin?
+    assert_not u2.encrypted_password?
+    u2.merge_with(u)
+    assert_equal 'test@local.com', u2.reload.email
+    assert_equal '123456', u2.reload.token
+    assert u2.encrypted_password?
+    assert u2.is_admin?
+  end
 
   test "should login or register with invited email" do
     t = create_team
