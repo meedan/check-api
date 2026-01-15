@@ -15,8 +15,7 @@ module UserMultiAuthLogin
       duplicate_user.accept_invitation_or_confirm unless duplicate_user.nil?
       u = self.check_merge_users(u, current_user, duplicate_user)
       u ||= current_user
-      raise I18n.t('errors.messages.restrict_registration_to_invited_users_only') if u.nil?
-      user = self.update_omniauth_user(u, auth)
+      user = self.create_omniauth_user(u, auth)
       User.create_omniauth_account(auth, user) unless auth.url.blank? || auth.provider.blank?
       user.reload
     end
@@ -40,7 +39,8 @@ module UserMultiAuthLogin
       u
     end
 
-    def self.update_omniauth_user(u, auth)
+    def self.create_omniauth_user(u, auth)
+      raise I18n.t('errors.messages.restrict_registration_to_invited_users_only') if u.nil?
       user = u
       user.email = user.email.presence || auth.info.email
       user.name = user.name.presence || auth.info.name

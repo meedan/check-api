@@ -42,7 +42,7 @@ class User < ApplicationRecord
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
-  validate :user_is_member_in_current_team, :password_complexity
+  validate :user_is_member_in_current_team, :validate_duplicate_email, :password_complexity
   validate :languages_format, unless: proc { |u| u.settings.nil? }
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
   validates_presence_of :name

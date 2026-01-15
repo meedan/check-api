@@ -72,7 +72,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not require password if there is a provider" do
     assert_nothing_raised do
-      create_omniauth_user password: '', provider: 'slack'
+      create_omniauth_user password: '', provider: 'twitter'
     end
     assert_raises ActiveRecord::RecordInvalid do
       create_user password: ''
@@ -157,6 +157,48 @@ class UserTest < ActiveSupport::TestCase
   test "should set login from email" do
     u = create_user login: '', name: 'Foo Bar', email: 'foobar@test.com'
     assert_equal 'foobar', u.reload.login
+  end
+
+  test "should send welcome email when user is created" do
+    stub_configs({ 'send_welcome_email_on_registration' => true }) do
+      assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+        create_user skip_confirmation: true
+      end
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        create_omniauth_user provider: 'twitter', password: nil
+        create_omniauth_user provider: 'facebook', password: nil
+      end
+    end
+
+    stub_configs({ 'send_welcome_email_on_registration' => false }) do
+      assert_no_difference 'ActionMailer::Base.deliveries.size' do
+        create_user skip_confirmation: true
+        create_omniauth_user provider: 'twitter'
+        create_omniauth_user provider: 'facebook'
+      end
+    end
+  end
+
+  test "should send email when user email is duplicate" do
+    u = create_omniauth_user provider: 'facebook'
+    assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+    end
+  end
+
+  test "should not add duplicate mail" do
+    u = create_user
+    create_account user: u, source: u.source, provider: 'slack', email: 'test@local.com'
+    assert_no_difference 'User.count' do
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: u.email
+      end
+      assert_raises ActiveRecord::RecordInvalid do
+        create_user email: 'test@local.com'
+      end
+    end
   end
 
   test "should validate password complexity" do
@@ -331,7 +373,7 @@ class UserTest < ActiveSupport::TestCase
   test "should not crash when creating user account" do
     Account.any_instance.stubs(:save).raises(Errno::ECONNREFUSED)
     assert_nothing_raised do
-      create_omniauth_user url: 'http://slack.com/meedan', provider: 'slack'
+      create_omniauth_user url: 'http://twitter.com/meedan', provider: 'twitter'
     end
     Account.any_instance.unstub(:save)
   end
@@ -434,14 +476,14 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should require confirmation for e-mail accounts only" do
-    u = create_omniauth_user provider: 'slack'
+    u = create_omniauth_user provider: 'twitter'
     assert !u.send(:confirmation_required?)
     u = create_user confirm: false
     assert u.send(:confirmation_required?)
   end
 
   test "should require confirmation after update email" do
-    u = create_omniauth_user provider: 'slack'
+    u = create_omniauth_user provider: 'twitter'
     assert u.is_confirmed?
     u = create_user email: 'foo@bar.com', confirm: false
     assert_not u.is_confirmed?
@@ -656,11 +698,11 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should set source image when call user from omniauth" do
-    u = create_omniauth_user provider: 'slack', uid: '12345'
+    u = create_omniauth_user provider: 'twitter', uid: '12345'
     assert_match /images\/user.png/, u.source.avatar
     credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
     info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
-    auth = OpenStruct.new({ provider: 'slack', uid: '12345', credentials: credentials, info: info, url: random_url})
+    auth = OpenStruct.new({ provider: 'twitter', uid: '12345', credentials: credentials, info: info, url: random_url})
     omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
     Account.any_instance.stubs(:omniauth_info).returns(omniauth_info)
     User.from_omniauth(auth)
@@ -961,6 +1003,20 @@ class UserTest < ActiveSupport::TestCase
     assert_not_empty result.errors
   end
 
+  test "should not send welcome email for invited user" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    stub_configs({ 'send_welcome_email_on_registration' => true }) do
+      with_current_user_and_team(u, t) do
+        assert_difference 'ActionMailer::Base.deliveries.size', 1 do
+          members = [{role: 'collaborator', email: 'test1@local.com'}]
+          User.send_user_invitation(members)
+        end
+      end
+    end
+  end
+
   test "should send invitation using invitation email not primary email" do
     t = create_team
     u = create_user email: 'primary@local.com'
@@ -1011,14 +1067,14 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'User.count' do
       assert_difference 'Account.count', 1 do
-        create_omniauth_user provider: 'slack', uid: '123456', current_user: u
+        create_omniauth_user provider: 'twitter', uid: '123456', current_user: u
       end
     end
   end
 
   test "should get user through omniauth info" do
-    u = create_omniauth_user uid: '123456', provider: 'slack'
-    assert_equal u, User.find_with_omniauth('123456', 'slack')
+    u = create_omniauth_user uid: '123456', provider: 'twitter'
+    assert_equal u, User.find_with_omniauth('123456', 'twitter')
   end
 
   test "should get user through token" do
@@ -1027,7 +1083,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get social accounts for login" do
-    u = create_omniauth_user provider: 'slack'
+    u = create_omniauth_user provider: 'twitter'
     a = create_account source: u.source, user: u, provider: 'facebook'
     a2 = create_account source: u.source, user: u, uid: ''
     assert_equal 2, u.get_social_accounts_for_login.count
@@ -1037,13 +1093,14 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get user accounts and providers" do
-    u = create_omniauth_user provider: 'facebook'
+    u = create_omniauth_user provider: 'twitter'
     s = u.source
     omniauth_info = {"info"=> { "name" => "test" } }
     create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
     create_account source: s, user: u, provider: 'slack', uid: '987654', omniauth_info: omniauth_info
     assert_equal 3, u.get_social_accounts_for_login.count
-    assert_equal 1, u.get_social_accounts_for_login({provider: 'facebook'}).count
+    assert_equal 0, u.get_social_accounts_for_login({provider: 'facebook'}).count
+    assert_equal 1, u.get_social_accounts_for_login({provider: 'twitter'}).count
     assert_equal 2, u.get_social_accounts_for_login({provider: 'slack'}).count
     assert_equal 1, u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).count
     providers = u.providers
@@ -1058,8 +1115,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should disconnect social account" do
-    u = create_omniauth_user provider: 'slack', uid: '123456'
-    u.disconnect_login_account('slack', '123456')
+    u = create_omniauth_user provider: 'twitter', uid: '123456'
+    u.disconnect_login_account('twitter', '123456')
     assert_equal 0, u.get_social_accounts_for_login.count
     u2 = create_omniauth_user provider: 'slack', uid: '456789'
     a = u2.get_social_accounts_for_login({provider: 'slack', uid: '456789'}).first
@@ -1094,7 +1151,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should keep higher role when merge accounts in same team" do
     t = create_team
-    u = create_omniauth_user provider: 'slack', email: 'test@local.com'
+    u = create_omniauth_user provider: 'twitter', email: 'test@local.com'
     u2 = create_omniauth_user provider: 'facebook', email: 'test2@local.com'
     create_team_user team: t, user: u, role: 'collaborator'
     create_team_user team: t, user: u2, role: 'editor'
