@@ -113,7 +113,7 @@ en:
       invalid_feed_saved_search_value: Should belong to a workspace that is part of this feed.
       invalid_feed_saved_search_list_type: The saved search list type is invalid.
       platform_allowed_values_error: 'cannot be of type %{type}, allowed types: %{allowed_types}'
-      restrict_registration_to_invited_users_only: 'Looks like you don’t have an invitation yet. Please request one from your team.'
+      restrict_registration_to_invited_users_only: 'Looks like you don’t have an invitation yet. Please request one from your workspace.'
   activerecord:
     models:
       link: Link

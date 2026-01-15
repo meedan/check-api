@@ -34,7 +34,7 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 
   before_create :skip_confirmation_for_non_email_provider, :set_last_received_terms_email_at
-  after_create :create_source_and_account, :set_source_image, :send_welcome_email
+  after_create :create_source_and_account, :set_source_image
   before_save :set_token, :set_login
   after_update :set_blank_email_for_unconfirmed_user
   before_destroy :freeze_account_ids_and_source_id
@@ -42,7 +42,7 @@ class User < ApplicationRecord
 
   mount_uploader :image, ImageUploader
   validates :image, size: true
-  validate :user_is_member_in_current_team, :validate_duplicate_email, :password_complexity
+  validate :user_is_member_in_current_team, :password_complexity
   validate :languages_format, unless: proc { |u| u.settings.nil? }
   validates :api_key_id, absence: true, if: proc { |u| u.type.nil? }
   validates_presence_of :name
