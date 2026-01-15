@@ -42,7 +42,10 @@ module UserPrivate
     duplicate = User.get_duplicate_user(self.email, self.id)
     unless duplicate[:user].nil?
       errors.add(:email, I18n.t(:email_exists)) if duplicate[:type] == 'Account'
-      handle_duplicate_email(duplicate[:user])
+      unless duplicate[:user].is_active?
+        self.errors.clear
+        errors.add(:base, I18n.t(:banned_user, app_name: CheckConfig.get('app_name'), support_email: CheckConfig.get('support_email')))
+      end
       return false
     end
   end
@@ -50,16 +53,6 @@ module UserPrivate
   def password_complexity
     return if password.blank? || password =~ /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,70}$/
     errors.add :password, I18n.t(:error_password_not_strong)
-  end
-
-  def handle_duplicate_email(u)
-    if u.is_active?
-      provider = u.get_user_provider(self.email)
-      RegistrationMailer.delay.duplicate_email_detection(self, provider) if self.new_record?
-    else
-      self.errors.clear
-      errors.add(:base, I18n.t(:banned_user, app_name: CheckConfig.get('app_name'), support_email: CheckConfig.get('support_email')))
-    end
   end
 
   def skip_confirmation_for_non_email_provider
