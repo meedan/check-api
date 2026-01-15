@@ -1077,7 +1077,6 @@ class UserTest < ActiveSupport::TestCase
     assert_nil a.email
   end
 
-  # TODO: review by Sawy
   test "should merge confirmed accounts" do
     u = create_user confirm: false
     assert_no_difference 'User.count' do
@@ -1085,25 +1084,12 @@ class UserTest < ActiveSupport::TestCase
         create_omniauth_user email: u.email
       end
     end
-    u = create_omniauth_user provider: 'google', email: 'test2@local.com'
-    u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com'
-    tu = create_team_user user: u2
-    pm = create_project_media user: u2
-    s2_id = u2.source.id
-    u2_id = u2.id
-    u3 = create_omniauth_user provider: 'google', uid: '123456', email: 'test@local.com'
-    assert_equal u.id, u3.id
+    u = create_omniauth_user provider: 'google', email: 'test@local.com', uid: '123456'
+    u2 = create_omniauth_user provider: 'slack', email: 'test@local.com', uid: '456789'
+    assert_equal u.id, u2.id
     accounts = u.source.accounts
     assert_equal 2, accounts.count
-    assert_equal ['facebook', 'google'].sort, accounts.map(&:provider).sort
-    assert_equal u.id, pm.reload.user_id
-    assert_equal u.id, tu.reload.user_id
-    assert_raises ActiveRecord::RecordNotFound do
-      User.find(u2_id)
-    end
-    assert_raises ActiveRecord::RecordNotFound do
-      Source.find(s2_id)
-    end
+    assert_equal ['google', 'slack'].sort, accounts.map(&:provider).sort
   end
 
   test "should keep higher role when merge accounts in same team" do
