@@ -839,7 +839,7 @@ class Bot::Smooch < BotUser
         claim = self.extract_claim(text).gsub(/\s+/, ' ').strip.gsub("\u0000", "\\u0000")
         extra = { quote: claim }
         hash_value = Digest::MD5.hexdigest(claim.to_s.strip.downcase)
-        pm = ProjectMedia.joins(:media).where(quote_hash: hash_value).where('project_medias.team_id' => team.id).last
+        pm = ProjectMedia.joins(:media).where('medias.quote_hash' => hash_value).where('project_medias.team_id' => team.id).last
         # Don't create a new text media if it's an unconfirmed request with just a few words
         if pm.nil? && message['archived'] == CheckArchivedFlags::FlagCodes::UNCONFIRMED && ::Bot::Alegre.get_number_of_words(claim) < self.min_number_of_words_for_tipline_long_text
           return team
