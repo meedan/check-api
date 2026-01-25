@@ -2,7 +2,8 @@
 namespace :check do
   namespace :migrate do
     def get_claim_uuid(id, quote)
-      uuid = Claim.where('lower(quote) = ?', quote.to_s.strip.downcase).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
+      hash_value = Digest::MD5.hexdigest(quote.to_s.strip.downcase)
+      uuid = Claim.where(quote_hash: hash_value).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
       uuid ||= id
     end
     # bundle exec rails check:migrate:migrate_published_and_unpublished_items
@@ -92,19 +93,36 @@ namespace :check do
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
+    # rake task to set quote_hash for Claims
+    # bundle exec rails check:migrate:set_claim_quote_hash
+    task set_claim_quote_hash: :environment do
+      started = Time.now.to_i
+      last_claim_id = Rails.cache.read('check:migrate:set_claim_quote_hash') || 0
+      Claim.where('id > ?', last_claim_id)
+      .find_in_batches(batch_size: 2000) do |claims|
+        c_items = []
+        claims.each do |claim|
+          print '.'
+          claim.quote_hash = Digest::MD5.hexdigest(claim.quote.to_s.strip.downcase)
+          c_items << claim.attributes
+        end
+        Claim.upsert_all(c_items)
+        Rails.cache.write('check:migrate:set_claim_quote_hash', claims.pluck(:id).max)
+      end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
+    end
     # rake task to set Claim uuid
     # bundle exec rails check:migrate:set_claim_uuid
     task set_claim_uuid: :environment do
       started = Time.now.to_i
-      last_claim_id = Rails.cache.read('check:migrate:set_claim_uuid') || 0
-      Claim.where('id > ?', last_claim_id).where(uuid: 0)
+      Claim.where(uuid: 0)
       .find_in_batches(batch_size: 1000) do |claims|
         claims.each do |claim|
           print '.'
           uuid = get_claim_uuid(claim.id, claim.quote)
           claim.update_column(:uuid, uuid)
         end
-        Rails.cache.write('check:migrate:set_claim_uuid', claims.pluck(:id).max)
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
