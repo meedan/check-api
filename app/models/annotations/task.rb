@@ -212,6 +212,40 @@ class Task < ApplicationRecord
     id ? TeamTask.find_by_id(id) : nil
   end
 
+  def self.bulk_insert(klass, id, uid, task_ids, responses)
+    object = klass.constantize.find_by_id(id)
+    unless object.nil?
+      team = object.team
+      new_tasks = []
+      TeamTask.where(id: task_ids).find_each do |task|
+        data = {
+          label: task.label,
+          type: task.task_type,
+          description: task.description,
+          team_task_id: task.id,
+          json_schema: task.json_schema,
+          order: task.order,
+          fieldset: task.fieldset,
+          slug: team.slug,
+        }
+        data[:options] = task.options unless task.options.blank?
+        task_c = {
+          annotation_type: 'task',
+          annotator_id: uid,
+          annotator_type: 'User',
+          annotated_id: object.id,
+          annotated_type: object.class.name,
+          data: data
+        }.with_indifferent_access
+        new_tasks << task_c
+      end
+      unless new_tasks.blank?
+        result = Task.insert_all(new_tasks, returning: [:id])
+        object.respond_to_auto_tasks(result.rows.flatten, responses)
+      end
+    end
+  end
+
   private
 
   def task_options_is_array
