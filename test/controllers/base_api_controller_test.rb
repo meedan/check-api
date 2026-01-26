@@ -41,23 +41,23 @@ class BaseApiControllerTest < ActionController::TestCase
   end
 
   test "should get current user from session" do
-    u = create_omniauth_user info: {name: 'Test User'}
+    u = create_omniauth_user email: 'test@local.com', info: {name: 'Test User'}
     authenticate_with_user(u)
     get :me, params: {}
     assert_response :success
     response = JSON.parse(@response.body)
-    assert_equal 'Test User', response['data']['name']
+    assert_equal 'test@local.com', response['data']['email']
     assert_equal 'session', response['data']['source']
   end
 
   test "should get current user from token" do
-    u = create_omniauth_user info: {name: 'Test User'}
+    u = create_omniauth_user email: 'test@local.com', info: { name: 'Test User', email: 'test@local.com' }
     header = CheckConfig.get('authorization_header') || 'X-Token'
     @request.headers.merge!({ header => u.token })
     get :me, params: {}
     assert_response :success
     response = JSON.parse(@response.body)
-    assert_equal 'Test User', response['data']['name']
+    assert_equal 'test@local.com', response['data']['email']
     assert_equal 'token', response['data']['source']
   end
 

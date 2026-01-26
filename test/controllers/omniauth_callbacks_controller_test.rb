@@ -5,19 +5,6 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     super
     @controller = Api::V1::OmniauthCallbacksController.new
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:twitter] = OmniAuth::AuthHash.new({
-      provider: 'twitter',
-      uid: '654321',
-      info: {
-        name: 'Test',
-        image: 'http://twitter.com/test/image.png',
-        nickname: 'test'
-      },
-      credentials: {
-        token: '123456',
-        secret: 'top_secret'
-      }
-    })
     OmniAuth.config.mock_auth[:facebook] = OmniAuth::AuthHash.new({
       provider: 'facebook',
       uid: '654321',
@@ -77,8 +64,11 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
         secret: 'top_secret'
       }
     })
+    [{email: 'test@test.com', name: 'Test'}, {email: 'sawy@meedan.com', name: 'Mohamed El-Sawy'}].each do |info|
+      invite_new_user info
+    end
     request.env['devise.mapping'] = Devise.mappings[:api_user]
-    ['https://twitter.com/test', 'https://facebook.com/654321', 'https://www.googleapis.com/plus/v1/people/654321'].each do |url|
+    ['https://facebook.com/654321', 'https://www.googleapis.com/plus/v1/people/654321'].each do |url|
       WebMock.stub_request(:get, CheckConfig.get('pender_url_private') + '/api/medias').with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"type":"profile"}}')
     end
     User.current = nil
@@ -87,25 +77,6 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   def teardown
     super
     User.current = nil
-  end
-
-  test "should redirect to root after Twitter authentication" do
-    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    get :twitter, params: {}
-    assert_redirected_to '/close.html'
-  end
-
-  test "should set information in session after Twitter authentication" do
-    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    assert_nil session['checkdesk.user']
-    get :twitter, params: {}
-    assert_not_nil session['checkdesk.current_user_id']
-  end
-
-  test "should redirect to destination after Twitter authentication" do
-    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    get :twitter, params: { destination: '/close.html' }
-    assert_redirected_to '/close.html'
   end
 
   test "should set information in session after Facebook authentication" do
@@ -190,12 +161,11 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
   end
 
   test "should connect when current user set" do
-    p1 = random_complex_password
-    u = create_user login: 'test', password: p1, password_confirmation: p1, email: 'test@test.com'
+    u = User.where(email: 'test@test.com').first
     u.confirm
     authenticate_with_user(u)
-    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    get :twitter, params: {}
+    request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:facebook]
+    get :facebook, params: {}
     u = User.find(u.id)
     assert_equal 1, u.source.accounts.count
   end
@@ -217,12 +187,6 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
     get :google_oauth2, params: { destination: '/close.html' }
     assert_redirected_to '/close.html'
-  end
-
-  test "should setup Twitter authentication" do
-    request.env['omniauth.strategy'] = OmniAuth::Strategies::Twitter.new({})
-    get :setup, params: {}
-    assert_response 404
   end
 
   test "should setup Facebook authentication" do

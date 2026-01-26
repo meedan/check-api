@@ -1,7 +1,6 @@
 module Api
   module V1
     class OmniauthCallbacksController < Devise::OmniauthCallbacksController
-      include TwitterAuthentication
       include FacebookAuthentication
       include SlackAuthentication
       include GoogleAuthentication
@@ -21,7 +20,6 @@ module Api
       end
 
       def setup
-        setup_twitter if request.env['omniauth.strategy'].is_a?(OmniAuth::Strategies::Twitter)
         setup_facebook if request.env['omniauth.strategy'].is_a?(OmniAuth::Strategies::Facebook)
         render plain: 'Setup complete.', status: 404
       end
