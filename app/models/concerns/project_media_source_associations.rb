@@ -3,12 +3,12 @@ require 'active_support/concern'
 module ProjectMediaSourceAssociations
   extend ActiveSupport::Concern
 
-  def create_auto_tasks(tasks = [])
+  def create_auto_tasks(team_tasks = [])
     team = self.team
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
-    tasks = self.team.auto_tasks(self.class.name) if tasks.blank?
-    Task.bulk_insert(self.class.name, self.id, User.current&.id, tasks.pluck(:id), self.set_tasks_responses.to_h) unless tasks.empty?
+    team_tasks = self.team.auto_tasks(self.class.name) if team_tasks.blank?
+    Task.bulk_insert(self.class.name, self.id, User.current&.id, team_tasks.pluck(:id), self.set_tasks_responses.to_h) unless team_tasks.empty?
   end
 
   def ordered_tasks(fieldset, associated_type = nil)
@@ -36,10 +36,6 @@ module ProjectMediaSourceAssociations
         task.skip_check_ability = true
         task.response = { annotation_type: type, set_fields: fields.to_json }.to_json
         task.save!
-      end
-      # set auto-response
-      if self.class.name == 'ProjectMedia'
-        self.set_jsonld_response(task) unless task.mapping.blank?
       end
     end
   end

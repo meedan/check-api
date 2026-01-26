@@ -212,23 +212,24 @@ class Task < ApplicationRecord
     id ? TeamTask.find_by_id(id) : nil
   end
 
-  def self.bulk_insert(klass, id, uid, task_ids, responses)
+  def self.bulk_insert(klass, id, uid, team_task_ids, responses)
     object = klass.constantize.find_by_id(id)
     unless object.nil?
       team = object.team
       new_tasks = []
-      TeamTask.where(id: task_ids).find_each do |task|
+      team_tasks = TeamTask.where(id: team_task_ids)
+      team_tasks.each do |team_task|
         data = {
-          label: task.label,
-          type: task.task_type,
-          description: task.description,
-          team_task_id: task.id,
-          json_schema: task.json_schema,
-          order: task.order,
-          fieldset: task.fieldset,
+          label: team_task.label,
+          type: team_task.task_type,
+          description: team_task.description,
+          team_task_id: team_task.id,
+          json_schema: team_task.json_schema,
+          order: team_task.order,
+          fieldset: team_task.fieldset,
           slug: team.slug,
         }
-        data[:options] = task.options unless task.options.blank?
+        data[:options] = team_task.options unless team_task.options.blank?
         task_c = {
           annotation_type: 'task',
           annotator_id: uid,
@@ -241,8 +242,23 @@ class Task < ApplicationRecord
       end
       unless new_tasks.blank?
         result = Task.insert_all(new_tasks, returning: [:id])
-        object.respond_to_auto_tasks(result.rows.flatten, responses)
+        ids = result.rows.flatten
+        object.respond_to_auto_tasks(ids, responses)
+        if object.class.name == 'ProjectMedia'
+          # set auto-response
+          team_tasks.each do |team_task|
+            object.set_jsonld_response(team_task) unless team_task.mapping.blank?
+          end
+          self.delay.bulk_task_callbacks(ids.to_json)
+        end
       end
+    end
+  end
+
+  def self.bulk_task_callbacks(ids_json)
+    ids = JSON.parse(ids_json)
+    Task.where(id: ids).find_each do |task|
+      task.add_update_elasticsearch_task
     end
   end
 
