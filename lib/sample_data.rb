@@ -139,7 +139,20 @@ module SampleData
     u.reload
   end
 
+  def invite_new_user(options = {})
+    email = options.has_key?(:email) ? options[:email] : "#{random_string}@#{random_string}.com"
+    name = options.has_key?(:name) ? options[:name] : random_string
+    user = User.invite!(email: email, name: name) do |u|
+      u.skip_invitation = true
+    end
+    user.update_column(:encrypted_password, nil)
+    user
+  end
+
   def create_omniauth_user(options = {})
+    # Invite user first
+    options[:email] ||= "#{random_string}@#{random_string}.com"
+    invite_new_user(options)
     u_current = User.current
     url = if options.has_key?(:url)
             options[:url]
@@ -154,11 +167,11 @@ module SampleData
     end
     options[:uid] = options[:uuid] if options.has_key?(:uuid)
     auth = {}
-    provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
-    email = options.has_key?(:email) ? options[:email] : "#{random_string}@#{random_string}.com"
+    provider = options.has_key?(:provider) ? options[:provider] : %w(google slack).sample
     auth[:uid] = options.has_key?(:uid) ? options[:uid] : random_string
     auth[:url] = url
-    auth[:info] = options.has_key?(:info) ? options[:info] : {name: random_string, email: email}
+    options[:info][:email] = options[:email] if options.has_key?(:info) && options[:info][:email].nil?
+    auth[:info] = options.has_key?(:info) ? options[:info] : {name: random_string, email: options[:email]}
     auth[:credentials] = options.has_key?(:credentials) ? options[:credentials] : {token: random_string, secret: random_string}
     auth[:extra] = options.has_key?(:extra) ? options[:extra] : {}
     current_user = options.has_key?(:current_user) ? options[:current_user] : nil
