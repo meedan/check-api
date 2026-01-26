@@ -243,13 +243,16 @@ class Task < ApplicationRecord
       unless new_tasks.blank?
         result = Task.insert_all(new_tasks, returning: [:id])
         ids = result.rows.flatten
-        object.respond_to_auto_tasks(ids, responses)
+        object.respond_to_auto_tasks(ids, responses.to_h)
         if object.class.name == 'ProjectMedia'
+          self.bulk_task_callbacks(ids.to_json)
           # set auto-response
           team_tasks.each do |team_task|
-            object.set_jsonld_response(team_task) unless team_task.mapping.blank?
+            unless team_task.mapping.blank?
+              object.set_tasks_responses = responses
+              object.set_jsonld_response(team_task)
+            end
           end
-          self.delay.bulk_task_callbacks(ids.to_json)
         end
       end
     end

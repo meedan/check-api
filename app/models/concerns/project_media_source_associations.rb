@@ -8,7 +8,7 @@ module ProjectMediaSourceAssociations
     return if team.nil? || team.is_being_copied
     self.set_tasks_responses ||= {}
     team_tasks = self.team.auto_tasks(self.class.name) if team_tasks.blank?
-    Task.bulk_insert(self.class.name, self.id, User.current&.id, team_tasks.pluck(:id), self.set_tasks_responses.to_h) unless team_tasks.empty?
+    Task.bulk_insert(self.class.name, self.id, User.current&.id, team_tasks.pluck(:id), self.set_tasks_responses) unless team_tasks.empty?
   end
 
   def ordered_tasks(fieldset, associated_type = nil)
@@ -28,7 +28,6 @@ module ProjectMediaSourceAssociations
     # responses = { task_slug (string) => response (string) }
     Task.where(id: ids).find_each do |task|
       if responses.has_key?(task.slug)
-        # task = Task.find(task.id)
         type = "task_response_#{task.type}"
         fields = {
           "response_#{task.type}" => responses[task.slug]
