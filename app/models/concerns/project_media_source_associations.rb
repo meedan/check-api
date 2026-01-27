@@ -26,7 +26,7 @@ module ProjectMediaSourceAssociations
 
   def respond_to_auto_tasks(ids, responses)
     # responses = { task_slug (string) => response (string) }
-    Task.where(id: ids).find_each do |task|
+    Task.where(id: ids).each do |task|
       if responses.has_key?(task.slug)
         type = "task_response_#{task.type}"
         fields = {

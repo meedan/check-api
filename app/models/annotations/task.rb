@@ -215,7 +215,6 @@ class Task < ApplicationRecord
   def self.bulk_insert(klass, id, uid, team_task_ids, responses)
     object = klass.constantize.find_by_id(id)
     unless object.nil?
-      team = object.team
       new_tasks = []
       team_tasks = TeamTask.where(id: team_task_ids)
       team_tasks.each do |team_task|
@@ -227,7 +226,7 @@ class Task < ApplicationRecord
           json_schema: team_task.json_schema,
           order: team_task.order,
           fieldset: team_task.fieldset,
-          slug: team.slug,
+          slug: Task.slug(team_task.label)
         }
         data[:options] = team_task.options unless team_task.options.blank?
         task_c = {
@@ -243,17 +242,15 @@ class Task < ApplicationRecord
       unless new_tasks.blank?
         result = Task.insert_all(new_tasks, returning: [:id])
         ids = result.rows.flatten
-        object.respond_to_auto_tasks(ids, responses.to_h)
         if object.class.name == 'ProjectMedia'
           self.bulk_task_callbacks(ids.to_json)
           # set auto-response
+          object.set_tasks_responses = responses
           team_tasks.each do |team_task|
-            unless team_task.mapping.blank?
-              object.set_tasks_responses = responses
-              object.set_jsonld_response(team_task)
-            end
+            object.set_jsonld_response(team_task) unless team_task.mapping.blank?
           end
         end
+        object.respond_to_auto_tasks(ids, responses.to_h)
       end
     end
   end
