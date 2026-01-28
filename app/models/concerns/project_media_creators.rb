@@ -38,6 +38,14 @@ module ProjectMediaCreators
     fc
   end
 
+  def set_jsonld_response(task)
+    jsonld = self.media.metadata['raw']['json+ld'] if self.media.metadata.has_key?('raw')
+    unless jsonld.nil?
+      value = self.get_response_value(jsonld, task)
+      self.set_tasks_responses[Task.slug(task['label'])] = value unless value.blank?
+    end
+  end
+
   private
 
   def create_team_tasks
@@ -182,14 +190,6 @@ module ProjectMediaCreators
           ['Claim', fact_check['title'], { quote_attributions: self.quote_attributions }]
         end
       end
-    end
-  end
-
-  def set_jsonld_response(task)
-    jsonld = self.media.metadata['raw']['json+ld'] if self.media.metadata.has_key?('raw')
-    unless jsonld.nil?
-      value = self.get_response_value(jsonld, task)
-      self.set_tasks_responses[Task.slug(task['label'])] = value unless value.blank?
     end
   end
 

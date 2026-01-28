@@ -212,6 +212,68 @@ class Task < ApplicationRecord
     id ? TeamTask.find_by_id(id) : nil
   end
 
+  def self.bulk_insert(klass, id, uid, team_task_ids, responses)
+    object = klass.constantize.find_by_id(id)
+    unless object.nil?
+      new_tasks = []
+      team_tasks = TeamTask.where(id: team_task_ids)
+      tasks_order = metadata_order = 0
+      team_tasks.each do |team_task|
+        order = team_task.order
+        if order.nil?
+          if team_task.fieldset == 'tasks'
+            tasks_order += 1
+          else
+            metadata_order += 1
+          end
+          order = team_task.fieldset == 'tasks' ? tasks_order : metadata_order
+        end
+        data = {
+          label: team_task.label,
+          type: team_task.task_type,
+          description: team_task.description,
+          team_task_id: team_task.id,
+          json_schema: team_task.json_schema,
+          order: order,
+          fieldset: team_task.fieldset,
+          slug: Task.slug(team_task.label)
+        }
+        data[:options] = team_task.options unless team_task.options.blank?
+        task_c = {
+          annotation_type: 'task',
+          annotator_id: uid,
+          annotator_type: 'User',
+          annotated_id: object.id,
+          annotated_type: object.class.name,
+          data: data,
+          created_at: Time.now,
+          updated_at: Time.now
+        }.with_indifferent_access
+        new_tasks << task_c
+      end
+      unless new_tasks.blank?
+        result = Task.insert_all(new_tasks, returning: [:id])
+        ids = result.rows.flatten
+        if object.class.name == 'ProjectMedia' && !ids.empty?
+          self.bulk_task_callbacks(ids.to_json)
+          # set auto-response
+          object.set_tasks_responses = responses
+          team_tasks.each do |team_task|
+            object.set_jsonld_response(team_task) unless team_task.mapping.blank?
+          end
+        end
+        object.respond_to_auto_tasks(ids, responses.to_h)
+      end
+    end
+  end
+
+  def self.bulk_task_callbacks(ids_json)
+    ids = JSON.parse(ids_json)
+    Task.where(id: ids).find_each do |task|
+      task.add_update_elasticsearch_task
+    end
+  end
+
   private
 
   def task_options_is_array
