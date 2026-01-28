@@ -30,12 +30,11 @@ class User < ApplicationRecord
   has_many :api_keys
   has_many :explainers
 
-  devise :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :confirmable,
+  devise :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
 
   before_create :skip_confirmation_for_non_email_provider, :set_last_received_terms_email_at
-  after_create :create_source_and_account, :set_source_image, :send_welcome_email
+  after_create :create_source_and_account, :set_source_image
   before_save :set_token, :set_login
   after_update :set_blank_email_for_unconfirmed_user
   before_destroy :freeze_account_ids_and_source_id
@@ -174,23 +173,9 @@ class User < ApplicationRecord
   end
 
   def handle
-    self.email.blank? ? get_provider_from_user_account : self.email
-  end
-
-  def get_provider_from_user_account
-    account = self.get_social_accounts_for_login
-    account = account.first unless account.nil?
-    return nil if account.nil?
-    provider = account.provider.capitalize
-    if !account.omniauth_info.nil?
-      if account.provider == 'slack'
-        provider = account.omniauth_info.dig('extra', 'raw_info', 'url')
-      else
-        provider = account.omniauth_info.dig('url')
-        return provider if !provider.nil?
-      end
-    end
-    "#{self.login} at #{provider}"
+    # As we must invite users first then the email must exists
+    # which means the handle is email address
+    self.email
   end
 
   # Whether two users are members of any same team

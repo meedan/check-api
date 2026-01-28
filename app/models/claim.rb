@@ -12,6 +12,10 @@ class Claim < Media
     'quote'
   end
 
+  def self.generate_hash(claim)
+    Digest::MD5.hexdigest(claim.to_s.strip.downcase)
+  end
+
   private
 
   def remove_null_bytes
@@ -19,8 +23,9 @@ class Claim < Media
   end
 
   def set_uuid
-    uuid = Claim.where('lower(quote) = ?', self.quote.to_s.strip.downcase).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
+    hash_value = Claim.generate_hash(self.quote)
+    uuid = Claim.where(quote_hash: hash_value).joins("INNER JOIN project_medias pm ON pm.media_id = medias.id").first&.id
     uuid ||= self.id
-    self.update_column(:uuid, uuid)
+    self.update_columns(uuid: uuid, quote_hash: hash_value)
   end
 end
