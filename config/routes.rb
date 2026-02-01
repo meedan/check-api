@@ -37,7 +37,6 @@ Rails.application.routes.draw do
       devise_for :users, controllers: { invitations: 'api/v1/invitations', sessions: 'api/v1/sessions', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
-        get '/users/auth/twitter/setup' => 'omniauth_callbacks#setup'
         get '/users/auth/facebook/setup' => 'omniauth_callbacks#setup'
       end
     end
