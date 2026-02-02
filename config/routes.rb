@@ -29,7 +29,6 @@ Rails.application.routes.draw do
       match '/graphql' => 'graphql#create', via: [:post]
       match '/graphql/batch' => 'graphql#batch', via: [:post]
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]
-      match '/admin/smooch_bot/:id/authorize/twitter' => 'admin#save_twitter_credentials_for_smooch_bot', via: [:get]
       match '/admin/smooch_bot/:id/authorize/messenger' => 'admin#save_messenger_credentials_for_smooch_bot', via: [:get]
       match '/admin/smooch_bot/:id/authorize/instagram' => 'admin#save_instagram_credentials_for_smooch_bot', via: [:get]
       match '/project_medias/:id/oembed' => 'project_medias#oembed', via: [:get], defaults: { format: :json }
