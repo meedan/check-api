@@ -6,7 +6,6 @@ class Api::V1::AdminController < Api::V1::BaseApiController
     user = User.find_with_omniauth(params[:uid].to_s, 'slack')
     slack_account = user.accounts.where(provider: 'slack').first unless user.nil?
     user = { token: slack_account.token } unless slack_account.nil?
-    user = nil unless @key.bot_user.nil? # Allow global API keys only
     render_user user, 'slack_uid'
   end
 
