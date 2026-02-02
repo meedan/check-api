@@ -43,11 +43,12 @@ module SampleData
 
   def create_api_key(options = {})
     a = ApiKey.new
+    a.title = options[:title] || random_string
+    a.description = options[:description] || random_string
+    a.team = options[:team] || create_team
     options.each do |key, value|
       a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
-    a.title = options[:title] || random_string
-    a.description = options[:description] || random_string
     a.save!
     a.reload
   end
@@ -72,9 +73,10 @@ module SampleData
     u.password = options[:password] || random_complex_password
     u.password_confirmation = options[:password_confirmation] || u.password
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
-    u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
+    u.api_key_id = options[:api_key_id] if options.has_key?(:api_key_id)
     u.default = options.has_key?(:default) ? options[:default] : false
     u.set_approved true if options.has_key?(:approved) && options[:approved]
+    u.team_author_id = options['team_author_id'] || create_team.id
 
     file = nil
     if options.has_key?(:image)
@@ -525,6 +527,7 @@ module SampleData
   def create_bot(options = {})
     bot = BotUser.new
     bot.name = options[:name] || random_string
+    bot.team_author_id = options['team_author_id'] || create_team.id
     file = 'rails.png'
     if options.has_key?(:avatar)
       file = options[:avatar]
