@@ -29,7 +29,6 @@ Rails.application.routes.draw do
       match '/graphql' => 'graphql#create', via: [:post]
       match '/graphql/batch' => 'graphql#batch', via: [:post]
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]
-      match '/admin/smooch_bot/:id/authorize/twitter' => 'admin#save_twitter_credentials_for_smooch_bot', via: [:get]
       match '/admin/smooch_bot/:id/authorize/messenger' => 'admin#save_messenger_credentials_for_smooch_bot', via: [:get]
       match '/admin/smooch_bot/:id/authorize/instagram' => 'admin#save_instagram_credentials_for_smooch_bot', via: [:get]
       match '/project_medias/:id/oembed' => 'project_medias#oembed', via: [:get], defaults: { format: :json }
@@ -37,7 +36,6 @@ Rails.application.routes.draw do
       devise_for :users, controllers: { invitations: 'api/v1/invitations', sessions: 'api/v1/sessions', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
-        get '/users/auth/twitter/setup' => 'omniauth_callbacks#setup'
         get '/users/auth/facebook/setup' => 'omniauth_callbacks#setup'
       end
     end
