@@ -174,12 +174,5 @@ module UserMultiAuthLogin
         end
       end
     end
-
-    def get_user_provider(email)
-      account = self.get_social_accounts_for_login({email: email})
-      account = account.first unless account.nil?
-      account.nil? ? '' : account.provider
-    end
-
   end
 end
