@@ -29,7 +29,7 @@ class TestController < ApplicationController
     login = params[:bot]
     settings = begin JSON.parse(params[:settings]) rescue params[:settings].to_h end
     bot = BotUser.find_by_login(login) || BotUser.create!(team_author_id: team.id, login: login, name: login.capitalize, settings: { approved: true })
-    team_user = bot.team_users.first
+    team_user = bot.team_users.first || bot.install_to!(team)
     team_user.settings = team_user.settings.merge(settings)
     team_user.save!
     render_success 'team', team.reload
