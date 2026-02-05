@@ -12,6 +12,9 @@ class Ability
       global_admin_perms
     else
       extra_perms_for_all_users
+      if !@api_key.nil? && !@user.id
+        global_api_key_perms
+      end
       if @user.id
         authenticated_perms
       end
@@ -24,7 +27,7 @@ class Ability
       if @user.role?(:admin, @context_team)
         admin_perms
       end
-      unless @api_key.nil? || @api_key.team_id.nil?
+      unless @api_key.nil?
         api_key_perms
       end
       Workflow::Workflow.workflows.each do |w|
@@ -40,14 +43,14 @@ class Ability
     cannot [:create, :destroy], Team
     cannot :cud, User
     cannot :cud, TeamUser
-    can :read, [FactCheck, ClaimDescription] do |obj|
-      obj.team.present? && obj.team == @api_key.team
-    end
     can :update, User, :id => @user.id
     can :update, BotUser, :id => @user.id
-    can :update, [Dynamic, DynamicAnnotation::Field], ['annotation_type = ?', 'smooch_user'] do |obj|
-      obj.team.present? && obj.team == @api_key.team
-    end
+  end
+
+  def global_api_key_perms
+    can :read, :all
+    can :find_by_json_fields, DynamicAnnotation::Field
+    can :update, [Dynamic, DynamicAnnotation::Field], annotation_type: 'smooch_user'
   end
 
   def admin_perms

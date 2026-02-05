@@ -86,7 +86,7 @@ module Api
       def authenticate_from_token!
         header = CheckConfig.get('authorization_header', 'X-Token')
         token = request.headers[header]
-        @key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).first
+        @key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         (render_unauthorized and return false) if @key.nil?
       end
 
@@ -102,7 +102,7 @@ module Api
       def identify_user(mandatory)
         header = CheckConfig.get('authorization_header', 'X-Token')
         token = request.headers[header].to_s
-        key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).first
+        key = ApiKey.where(access_token: token).where('expire_at > ?', Time.now).last
         if key.nil?
           ApiKey.current = nil
           user = User.find_with_token(token)

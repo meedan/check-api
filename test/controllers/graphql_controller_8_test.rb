@@ -566,7 +566,6 @@ class GraphqlController8Test < ActionController::TestCase
 
   test "should get OCR" do
     b = create_alegre_bot(name: 'alegre', login: 'alegre')
-    b.team_author_id = create_team.id
     b.approve!
     stub_configs({ 'alegre_host' => 'http://alegre', 'alegre_token' => 'test' }) do
       Sidekiq::Testing.fake! do
@@ -985,6 +984,21 @@ class GraphqlController8Test < ActionController::TestCase
 
       Bot::Alegre.unstub(:request)
     end
+  end
+
+  test "should get dynamic annotation field" do
+    name = random_string
+    phone = random_string
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'editor'
+    pm = create_project_media team: t
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: { smooch_user_id: random_string, smooch_user_app_id: random_string, smooch_user_data: { phone: phone, app_name: name }.to_json }.to_json
+    authenticate_with_token
+    query = 'query { dynamic_annotation_field(query: "{\"field_name\": \"smooch_user_data\", \"json\": { \"phone\": \"' + phone + '\", \"app_name\": \"' + name + '\" } }") { annotation { dbid } } }'
+    post :create, params: { query: query }
+    assert_response :success
+    assert_equal d.id.to_s, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid']
   end
 
   test "should not get dynamic annotation field if does not have permission" do

@@ -195,7 +195,7 @@ ActiveRecord::Schema.define(version: 2026_01_23_042611) do
     t.string "access_token", default: "", null: false
     t.string "title"
     t.integer "user_id"
-    t.integer "team_id", null: false
+    t.integer "team_id"
     t.datetime "expire_at"
     t.jsonb "rate_limits", default: {}
     t.string "application"

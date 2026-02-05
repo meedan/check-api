@@ -9,7 +9,9 @@ class FeedsControllerTest < ActionController::TestCase
     [FeedTeam, Feed, ProjectMediaRequest, Request].each { |klass| klass.delete_all }
     create_verification_status_stuff
     @a = create_api_key
-    @b = @a.bot_user
+    @b = create_bot_user
+    @b.api_key = @a
+    @b.save!
     @t1 = create_team name: 'Foo'
     @t2 = create_team name: 'Bar'
     @t3 = create_team
@@ -38,7 +40,9 @@ class FeedsControllerTest < ActionController::TestCase
 
   test "should request team data" do
     a = create_api_key
-    b = a.bot_user
+    b = create_bot_user
+    b.api_key = a
+    b.save!
     create_team_user team: @t1, user: b
     Bot::Smooch.stubs(:search_for_similar_published_fact_checks).with('text', 'Foo', [@t1.id], 3, nil, nil, nil, false).returns([@pm1])
 
@@ -162,8 +166,7 @@ class FeedsControllerTest < ActionController::TestCase
   end
 
   test "should return workspaces" do
-    api_key = create_api_key skip_create_bot_user: true
-    authenticate_with_token api_key
+    authenticate_with_token create_api_key
     get :index, params: {}
     assert_response :success
   end

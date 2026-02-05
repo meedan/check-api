@@ -31,7 +31,7 @@ class BotUserTest < ActiveSupport::TestCase
   end
 
   test "should have a unique API key" do
-    a = create_api_key skip_create_bot_user: true
+    a = create_api_key
     assert_nothing_raised do
       b = create_bot_user api_key_id: a.id
       assert_equal a, b.api_key

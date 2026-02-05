@@ -89,10 +89,10 @@ class ElasticSearch9Test < ActionController::TestCase
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
-    team = create_team
     bot = create_alegre_bot(name: "alegre", login: "alegre")
-    bot.team_author_id = team.id
     bot.approve!
+    team = create_team
+    bot.install_to!(team)
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Rails.stubs(:env).returns('development'.inquiry)

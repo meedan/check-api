@@ -59864,8 +59864,8 @@
                 "name": "DynamicAnnotationField",
                 "ofType": null
               },
-              "isDeprecated": true,
-              "deprecationReason": "The field is deprecated"
+              "isDeprecated": false,
+              "deprecationReason": null
             },
             {
               "name": "explainer",

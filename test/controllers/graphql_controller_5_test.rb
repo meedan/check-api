@@ -150,10 +150,10 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should not create more items than what the rate limit allows" do
     t = create_team
-    a = create_api_key team: t
+    a = ApiKey.create!
     a.rate_limits = { created_items_per_minute: 1 }
     a.save!
-    b = a.bot_user
+    b = create_bot_user api_key_id: a.id
     create_team_user team: t, user: b
     authenticate_with_token(a)
 

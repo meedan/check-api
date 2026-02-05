@@ -6,12 +6,12 @@ class Bot::Alegre2Test < ActiveSupport::TestCase
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
+    b = create_alegre_bot(name: "alegre", login: "alegre")
+    b.approve!
     @team = t = create_team
     t.set_languages = ['en','pt','es']
     t.save!
-    b = create_alegre_bot(name: "alegre", login: "alegre")
-    b.team_author_id = t.id
-    b.approve!
+    b.install_to!(t)
     create_flag_annotation_type
     create_extracted_text_annotation_type
     Sidekiq::Testing.inline!

@@ -3,13 +3,13 @@ require_relative '../../test_helper'
 class Bot::TaggerTest < ActiveSupport::TestCase
   def setup
     super
-    team = create_team
     @TaggerBot = create_tagger_bot(name: "tagger", login: "tagger")
-    @TaggerBot.team_author_id = team.id
-    @TaggerBot.approve!
     @AlegreBot = create_alegre_bot(name: "alegre", login: "alegre")
-    @AlegreBot.team_author_id = team.id
+    @TaggerBot.approve!
     @AlegreBot.approve!
+    team = create_team
+    @AlegreBot.install_to!(team)
+    @TaggerBot.install_to!(team)
     @team = team
     m = create_claim_media quote: 'I like apples'
     @pm = create_project_media team: team, media: m

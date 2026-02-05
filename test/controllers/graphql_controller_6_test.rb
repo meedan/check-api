@@ -183,12 +183,10 @@ class GraphqlController6Test < ActionController::TestCase
     t = create_team
     create_team_user team: t, user: u, role: 'admin'
     set_fields = { smooch_user_data: { id: random_string }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
-    pm = create_project_media team: t
-    d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: set_fields
-    api_key = create_api_key team: t, user: u
-    authenticate_with_token(api_key)
+    d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
+    authenticate_with_token
     query = 'mutation { smoochBotAddSlackChannelUrl(input: { id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url + '\"}" }) { annotation { dbid } } }'
-    post :create, params: { query: query , team: t.slug}
+    post :create, params: { query: query }
     assert_response :success
   end
 
