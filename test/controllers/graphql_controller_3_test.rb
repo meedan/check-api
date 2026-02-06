@@ -391,4 +391,44 @@ class GraphqlController3Test < ActionController::TestCase
       assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
     end
   end
+
+  test "should query with maximum nubmer of field alias" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    pm = create_project_media team: t
+    authenticate_with_user(u)
+    stub_configs({ 'max_aliases_per_field' => 2 }) do
+      # Verify alias against field not whole query
+      query = %{
+        query {
+          project_media(ids: "#{pm.id}") {
+            a1: dbid
+            a2: dbid
+            b1: id
+            b2: id
+          }
+        }
+      }
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      data = JSON.parse(@response.body)['data']['project_media']
+      assert_equal 4, data.count
+      # Should trigger an error because the field alias exceeded the allowed value
+      query = %{
+        query {
+          project_media(ids: "#{pm.id}") {
+            a1: dbid
+            a2: dbid
+            b1: id
+            b2: id
+            aa: dbid
+          }
+        }
+      }
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal "Field 'dbid' can be queried with an alias at most 2 times (got 3).", JSON.parse(@response.body)['errors'][0]['message']
+    end
+  end
 end
