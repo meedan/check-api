@@ -1,4 +1,3 @@
-# app/graphql/analyzers/max_alias_per_field_analyzer.rb
 module Analyzers
   class MaxAliasPerFieldAnalyzer < GraphQL::Analysis::AST::Analyzer
     MAX_ALIASES_PER_FIELD = CheckConfig.get(:max_aliases_per_field, 10, :integer)
