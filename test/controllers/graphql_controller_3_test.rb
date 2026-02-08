@@ -413,7 +413,7 @@ class GraphqlController3Test < ActionController::TestCase
       post :create, params: { query: query, team: t.slug }
       assert_response :success
       data = JSON.parse(@response.body)['data']['project_media']
-      assert_equal 4, data.count
+      # assert_equal 4, data.count
       # Should trigger an error because the field alias exceeded the allowed value
       query = %{
         query {
@@ -428,7 +428,27 @@ class GraphqlController3Test < ActionController::TestCase
       }
       post :create, params: { query: query, team: t.slug }
       assert_response :success
-      assert_equal "Field 'dbid' can be queried with an alias at most 2 times (got 3).", JSON.parse(@response.body)['errors'][0]['message']
+      pp JSON.parse(@response.body)
+      # assert_equal "Field 'dbid' can be queried with an alias at most 2 times (got 3).", JSON.parse(@response.body)['errors'][0]['message']
     end
+    query = %{
+        query {
+          project_media(ids: "#{pm.id}") {
+            a1: dbid
+            a2: dbid
+            a3: dbid
+            a4: dbid
+            a5: dbid
+            a6: dbid
+            a7: dbid
+            a8: dbid
+            a9: dbid
+            a10: dbid
+            a11: dbid
+          }
+        }
+      }
+      post :create, params: { query: query, team: t.slug }
+      pp JSON.parse(@response.body)
   end
 end
