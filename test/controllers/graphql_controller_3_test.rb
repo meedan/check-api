@@ -398,39 +398,28 @@ class GraphqlController3Test < ActionController::TestCase
     create_team_user team: t, user: u, role: 'admin'
     pm = create_project_media team: t
     authenticate_with_user(u)
-    stub_configs({ 'max_aliases_per_field' => 2 }) do
-      # Verify alias against field not whole query
-      query = %{
-        query {
-          project_media(ids: "#{pm.id}") {
-            a1: dbid
-            a2: dbid
-            b1: id
-            b2: id
-          }
+    query = %{
+      query {
+        project_media(ids: "#{pm.id}") {
+          a1: dbid
+          a2: dbid
+          a3: dbid
+          a4: dbid
+          a5: dbid
+          a6: dbid
+          a7: dbid
+          a8: dbid
+          a9: dbid
+          a10: dbid
+          b1: id
+          b2: id
         }
       }
-      post :create, params: { query: query, team: t.slug }
-      assert_response :success
-      data = JSON.parse(@response.body)['data']['project_media']
-      # assert_equal 4, data.count
-      # Should trigger an error because the field alias exceeded the allowed value
-      query = %{
-        query {
-          project_media(ids: "#{pm.id}") {
-            a1: dbid
-            a2: dbid
-            b1: id
-            b2: id
-            aa: dbid
-          }
-        }
-      }
-      post :create, params: { query: query, team: t.slug }
-      assert_response :success
-      pp JSON.parse(@response.body)
-      # assert_equal "Field 'dbid' can be queried with an alias at most 2 times (got 3).", JSON.parse(@response.body)['errors'][0]['message']
-    end
+    }
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 12, data.count
     query = %{
         query {
           project_media(ids: "#{pm.id}") {
@@ -449,6 +438,7 @@ class GraphqlController3Test < ActionController::TestCase
         }
       }
       post :create, params: { query: query, team: t.slug }
-      pp JSON.parse(@response.body)
+      assert_response :success
+      assert_equal "Field 'dbid' can be queried with an alias at most 10 times (got 11).", JSON.parse(@response.body)['errors'][0]['message']
   end
 end
