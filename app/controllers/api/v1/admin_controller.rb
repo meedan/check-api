@@ -1,37 +1,12 @@
 class Api::V1::AdminController < Api::V1::BaseApiController
-  before_action :authenticate_from_token!, except: [:save_twitter_credentials_for_smooch_bot, :save_messenger_credentials_for_smooch_bot, :save_instagram_credentials_for_smooch_bot]
+  before_action :authenticate_from_token!, except: [:save_messenger_credentials_for_smooch_bot, :save_instagram_credentials_for_smooch_bot]
 
   # GET /api/admin/user/slack?uid=:uid
   def slack_user
     user = User.find_with_omniauth(params[:uid].to_s, 'slack')
     slack_account = user.accounts.where(provider: 'slack').first unless user.nil?
     user = { token: slack_account.token } unless slack_account.nil?
-    user = nil unless @key.bot_user.nil? # Allow global API keys only
     render_user user, 'slack_uid'
-  end
-
-  # GET /api/admin/smooch_bot/:bot-installation-id/authorize/twitter?token=:bot-installation-token
-  def save_twitter_credentials_for_smooch_bot
-    tbi = TeamBotInstallation.find(params[:id])
-    auth = session['check.twitter.authdata']
-    status = nil
-    if params[:token].to_s == tbi.get_smooch_authorization_token
-      params = {
-        'tier' => CheckConfig.get('smooch_twitter_tier'),
-        'envName' => CheckConfig.get('smooch_twitter_env_name'),
-        'consumerKey' => CheckConfig.get('smooch_twitter_consumer_key'),
-        'consumerSecret' => CheckConfig.get('smooch_twitter_consumer_secret'),
-        'accessTokenKey' => auth['token'],
-        'accessTokenSecret' => auth['secret']
-      }
-      tbi.smooch_add_integration('twitter', params)
-      @message = I18n.t(:smooch_twitter_success)
-      status = 200
-    else
-      @message = I18n.t(:invalid_token)
-      status = 401
-    end
-    render template: 'message', formats: :html, status: status
   end
 
   # GET /api/admin/smooch_bot/:bot-installation-id/authorize/messenger?token=:bot-installation-token

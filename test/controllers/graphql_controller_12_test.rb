@@ -617,9 +617,10 @@ class GraphqlController12Test < ActionController::TestCase
   test "should treat ' tag' and 'tag' as the same tag, and not try to create a new tag" do
     Sidekiq::Testing.inline!
     t = create_team
-    a = ApiKey.create!
-    b = create_bot_user api_key_id: a.id
+    a = create_api_key team: t
+    b = a.bot_user
     create_team_user team: t, user: b
+    assert_nil a.last_active_at
     authenticate_with_token(a)
 
     query1 = ' mutation create {
@@ -682,13 +683,14 @@ class GraphqlController12Test < ActionController::TestCase
     post :create, params: { query: query2, team: t.slug }
     assert_response :success
     assert_equal 'science', JSON.parse(@response.body)['data']['createProjectMedia']['project_media']['tags']['edges'][0]['node']['tag_text']
+    assert_not_nil a.reload.last_active_at
   end
 
   test "should not create blank media using createProjectMedia mutation" do
     Sidekiq::Testing.inline!
     t = create_team
-    a = ApiKey.create!
-    b = create_bot_user api_key_id: a.id
+    a = create_api_key team: t
+    b = a.bot_user
     create_team_user team: t, user: b
     authenticate_with_token(a)
 
@@ -741,8 +743,8 @@ class GraphqlController12Test < ActionController::TestCase
 
     assert_not_nil pm
 
-    a = ApiKey.create!
-    b = create_bot_user api_key_id: a.id
+    a = create_api_key team: t
+    b = a.bot_user
     create_team_user team: t, user: b
     authenticate_with_token(a)
 
@@ -803,8 +805,8 @@ class GraphqlController12Test < ActionController::TestCase
 
     assert_not_nil fc_1
 
-    a = ApiKey.create!
-    b = create_bot_user api_key_id: a.id
+    a = create_api_key team: t
+    b = a.bot_user
     create_team_user team: t, user: b
     authenticate_with_token(a)
 
@@ -865,8 +867,8 @@ class GraphqlController12Test < ActionController::TestCase
     cd = create_claim_description project_media: pm
     fc = create_fact_check claim_description: cd
 
-    a = ApiKey.create!
-    b = create_bot_user api_key_id: a.id
+    a = create_api_key team: t
+    b = a.bot_user
     create_team_user team: t, user: b
     authenticate_with_token(a)
 
@@ -1046,8 +1048,8 @@ class GraphqlController12Test < ActionController::TestCase
 
   test "should create explainer with api channel when created by Bot" do
     t = create_team
-    a = ApiKey.create!
-    b = create_bot_user api_key_id: a.id
+    a = create_api_key team: t
+    b = a.bot_user
     create_team_user team: t, user: b
     authenticate_with_token(a)
 

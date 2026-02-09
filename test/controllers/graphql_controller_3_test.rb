@@ -289,28 +289,6 @@ class GraphqlController3Test < ActionController::TestCase
     end
   end
 
-  test "should return cached value for dynamic annotation" do
-    d = create_dynamic_annotation annotation_type: 'smooch_user', set_fields: { smooch_user_data: { app_name: 'foo', identifier: 'bar' }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
-    authenticate_with_token
-    assert_nil ApiKey.current
-
-    post :create, params: { query: 'query Query { dynamic_annotation_field(only_cache: true, query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }' }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['dynamic_annotation_field']
-
-    post :create, params: { query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }' }
-    assert_response :success
-    assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
-
-    query = { field_name: 'smooch_user_data', json: { app_name: 'foo', identifier: 'bar' } }.to_json
-    cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
-    Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: d.id, field_name: 'smooch_user_data').last&.id)
-
-    post :create, params: { query: 'query Query { dynamic_annotation_field(query: "{\"field_name\":\"smooch_user_data\",\"json\":{\"app_name\":\"foo\",\"identifier\":\"bar\"}}") { annotation { dbid } } }' }
-    assert_response :success
-    assert_equal d.id, JSON.parse(@response.body)['data']['dynamic_annotation_field']['annotation']['dbid'].to_i
-  end
-
   test "should return updated offset from ES" do
     Sidekiq::Testing.inline! do
       RequestStore.store[:skip_cached_field_update] = false
@@ -412,5 +390,55 @@ class GraphqlController3Test < ActionController::TestCase
       assert_response :success
       assert_equal [pm1.id, pm2.id].sort, JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }.sort
     end
+  end
+
+  test "should query with maximum nubmer of field alias" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    pm = create_project_media team: t
+    authenticate_with_user(u)
+    query = %{
+      query {
+        project_media(ids: "#{pm.id}") {
+          a1: dbid
+          a2: dbid
+          a3: dbid
+          a4: dbid
+          a5: dbid
+          a6: dbid
+          a7: dbid
+          a8: dbid
+          a9: dbid
+          a10: dbid
+          b1: id
+          b2: id
+        }
+      }
+    }
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    data = JSON.parse(@response.body)['data']['project_media']
+    assert_equal 12, data.count
+    query = %{
+        query {
+          project_media(ids: "#{pm.id}") {
+            a1: dbid
+            a2: dbid
+            a3: dbid
+            a4: dbid
+            a5: dbid
+            a6: dbid
+            a7: dbid
+            a8: dbid
+            a9: dbid
+            a10: dbid
+            a11: dbid
+          }
+        }
+      }
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+      assert_equal "Field 'dbid' can be queried with an alias at most 10 times (got 11).", JSON.parse(@response.body)['errors'][0]['message']
   end
 end

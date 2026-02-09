@@ -43,11 +43,12 @@ module SampleData
 
   def create_api_key(options = {})
     a = ApiKey.new
+    a.title = options[:title] || random_string
+    a.description = options[:description] || random_string
+    a.team = options[:team] || create_team
     options.each do |key, value|
       a.send("#{key}=", value) if a.respond_to?("#{key}=")
     end
-    a.title = options[:title] || random_string
-    a.description = options[:description] || random_string
     a.save!
     a.reload
   end
@@ -72,9 +73,10 @@ module SampleData
     u.password = options[:password] || random_complex_password
     u.password_confirmation = options[:password_confirmation] || u.password
     u.is_admin = options[:is_admin] if options.has_key?(:is_admin)
-    u.api_key_id = options.has_key?(:api_key_id) ? options[:api_key_id] : create_api_key.id
+    u.api_key_id = options[:api_key_id] if options.has_key?(:api_key_id)
     u.default = options.has_key?(:default) ? options[:default] : false
     u.set_approved true if options.has_key?(:approved) && options[:approved]
+    u.team_author_id = options['team_author_id'] || create_team.id
 
     file = nil
     if options.has_key?(:image)
@@ -139,7 +141,20 @@ module SampleData
     u.reload
   end
 
+  def invite_new_user(options = {})
+    email = options.has_key?(:email) ? options[:email] : "#{random_string}@#{random_string}.com"
+    name = options.has_key?(:name) ? options[:name] : random_string
+    user = User.invite!(email: email, name: name) do |u|
+      u.skip_invitation = true
+    end
+    user.update_column(:encrypted_password, nil)
+    user
+  end
+
   def create_omniauth_user(options = {})
+    # Invite user first
+    options[:email] ||= "#{random_string}@#{random_string}.com"
+    invite_new_user(options)
     u_current = User.current
     url = if options.has_key?(:url)
             options[:url]
@@ -154,11 +169,11 @@ module SampleData
     end
     options[:uid] = options[:uuid] if options.has_key?(:uuid)
     auth = {}
-    provider = options.has_key?(:provider) ? options[:provider] : %w(twitter facebook).sample
-    email = options.has_key?(:email) ? options[:email] : "#{random_string}@#{random_string}.com"
+    provider = options.has_key?(:provider) ? options[:provider] : %w(google slack).sample
     auth[:uid] = options.has_key?(:uid) ? options[:uid] : random_string
     auth[:url] = url
-    auth[:info] = options.has_key?(:info) ? options[:info] : {name: random_string, email: email}
+    options[:info][:email] = options[:email] if options.has_key?(:info) && options[:info][:email].nil?
+    auth[:info] = options.has_key?(:info) ? options[:info] : {name: random_string, email: options[:email]}
     auth[:credentials] = options.has_key?(:credentials) ? options[:credentials] : {token: random_string, secret: random_string}
     auth[:extra] = options.has_key?(:extra) ? options[:extra] : {}
     current_user = options.has_key?(:current_user) ? options[:current_user] : nil
@@ -512,6 +527,7 @@ module SampleData
   def create_bot(options = {})
     bot = BotUser.new
     bot.name = options[:name] || random_string
+    bot.team_author_id = options['team_author_id'] || create_team.id
     file = 'rails.png'
     if options.has_key?(:avatar)
       file = options[:avatar]

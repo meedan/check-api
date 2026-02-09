@@ -14,10 +14,7 @@ Rails.application.routes.draw do
       get 'ping', to: 'base_api#ping'
 
       scope :v2 do
-        jsonapi_resources :workspaces, only: [:index, :show]
-        jsonapi_resources :reports, only: [:index, :show]
         jsonapi_resources :feeds, only: [:index]
-        post :reports, to: 'reports#index' # For the case we want to upload an image
       end
     end
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
@@ -32,15 +29,13 @@ Rails.application.routes.draw do
       match '/graphql' => 'graphql#create', via: [:post]
       match '/graphql/batch' => 'graphql#batch', via: [:post]
       match '/admin/user/slack' => 'admin#slack_user', via: [:get]
-      match '/admin/smooch_bot/:id/authorize/twitter' => 'admin#save_twitter_credentials_for_smooch_bot', via: [:get]
       match '/admin/smooch_bot/:id/authorize/messenger' => 'admin#save_messenger_credentials_for_smooch_bot', via: [:get]
       match '/admin/smooch_bot/:id/authorize/instagram' => 'admin#save_instagram_credentials_for_smooch_bot', via: [:get]
       match '/project_medias/:id/oembed' => 'project_medias#oembed', via: [:get], defaults: { format: :json }
       match '/webhooks/:name' => 'webhooks#index', via: [:post, :get], defaults: { format: :json }
-      devise_for :users, controllers: { invitations: 'api/v1/invitations', sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
+      devise_for :users, controllers: { invitations: 'api/v1/invitations', sessions: 'api/v1/sessions', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
-        get '/users/auth/twitter/setup' => 'omniauth_callbacks#setup'
         get '/users/auth/facebook/setup' => 'omniauth_callbacks#setup'
       end
     end
