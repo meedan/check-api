@@ -11,6 +11,8 @@ class RelayOnRailsSchema < GraphQL::Schema
   use GraphQL::Analysis::AST
   use GraphQL::Execution::Errors
 
+  query_analyzer Analyzers::MaxAliasPerFieldAnalyzer
+
   lazy_resolve(Concurrent::Future, :value)
 
   disable_introspection_entry_points unless Rails.env.development?

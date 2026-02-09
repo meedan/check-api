@@ -194,6 +194,7 @@ class ElasticSearch7Test < ActionController::TestCase
     create_tag tag: 'another_desc', annotated: pm3, disable_es_callbacks: false
     create_tag tag: 'newtag', annotated: pm3, disable_es_callbacks: false
     sleep 1
+    assert_equal 'override_title', pm2.analysis_title
     result = CheckSearch.new({keyword: 'search_title'}.to_json, nil, t.id)
     assert_equal [pm.id, pm3.id], result.medias.map(&:id).sort
     result = CheckSearch.new({keyword: 'search_title', keyword_fields: {fields: ['title']}}.to_json, nil, t.id)

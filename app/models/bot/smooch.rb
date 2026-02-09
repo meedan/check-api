@@ -38,10 +38,6 @@ class Bot::Smooch < BotUser
   ::ProjectMedia.class_eval do
     attr_accessor :smooch_message
 
-    def report_image
-      self.get_dynamic_annotation('report_design')&.report_design_image_url
-    end
-
     def get_deduplicated_tipline_requests
       uids = []
       tipline_requests = []

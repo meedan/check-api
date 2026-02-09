@@ -6,12 +6,12 @@ class Bot::Alegre4Test < ActiveSupport::TestCase
     ft = DynamicAnnotation::FieldType.where(field_type: 'language').last || create_field_type(field_type: 'language', label: 'Language')
     at = create_annotation_type annotation_type: 'language', label: 'Language'
     @field = create_field_instance annotation_type_object: at, name: 'language', label: 'Language', field_type_object: ft, optional: false
-    @bot = create_alegre_bot(name: "alegre", login: "alegre")
-    @bot.approve!
     team = create_team
     team.set_languages = ['en','pt','es']
     team.save!
-    @bot.install_to!(team)
+    @bot = create_alegre_bot(name: "alegre", login: "alegre")
+    @bot.team_author_id = team.id
+    @bot.approve!
     @team = team
   end
 
