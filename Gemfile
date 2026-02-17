@@ -120,7 +120,6 @@ gem 'carrierwave-video-thumbnailer'
 gem 'carrierwave_backgrounder', git: 'https://github.com/meedan/carrierwave_backgrounder'
 gem 'partitioned', git: 'https://github.com/meedan/partitioned', branch: 'rails-6'
 gem 'bumbler', require: false
-gem 'swagger-docs', '0.2.9'
 gem 'ruby-progressbar', '~> 1.10', '>= 1.10.1'
 gem 'shortener'
 gem 'taglib-ruby'

@@ -2,8 +2,6 @@ class Api::V1::SessionsController < Devise::SessionsController
   before_action :configure_sign_in_params, only: [:create]
   before_action :store_request
 
-  include SessionsDoc
-
   # POST /resource/sign_in
   def create
     otp = params.require(:api_user).permit(:otp_attempt)
