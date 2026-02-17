@@ -822,9 +822,6 @@ GEM
     ssrf_filter (1.0.7)
     streamio-ffmpeg (3.0.2)
       multi_json (~> 1.8)
-    swagger-docs (0.2.9)
-      activesupport (>= 3)
-      rails (>= 3)
     sync (0.5.0)
     taglib-ruby (1.1.0)
     term-ansicolor (1.7.1)
@@ -1029,7 +1026,6 @@ DEPENDENCIES
   smooch-api (> 5.34.1)!
   sprockets (= 3.7.2)
   streamio-ffmpeg
-  swagger-docs (= 0.2.9)
   taglib-ruby
   thin
   transifex-interface-ruby!
@@ -1042,4 +1038,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.19
+   2.5.23
