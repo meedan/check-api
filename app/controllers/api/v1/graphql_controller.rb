@@ -3,7 +3,6 @@ require 'error_codes'
 module Api
   module V1
     class GraphqlController < Api::V1::BaseApiController
-      include GraphqlDoc
 
       skip_before_action :authenticate_from_token!
 
