@@ -3,7 +3,6 @@ require 'error_codes'
 module Api
   module V1
     class BaseApiController < ApplicationController
-      include BaseDoc
 
       before_action :remove_empty_params_and_headers
       before_action :set_custom_response_headers
