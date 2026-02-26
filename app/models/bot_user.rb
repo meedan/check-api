@@ -341,11 +341,13 @@ class BotUser < User
     RequestStore[:actor_session_id] = request_actor_session_id unless request_actor_session_id.nil?
     object = object_class.constantize.where(id: object_id).first
     return if object.nil? # return to avoid query Team in case object is nil
-    # Use includes to avoid N+1 query when calling team_bot_installation.bot_user
-    team = Team.includes(team_bot_installations: :bot_user).find_by_id(team_id)
+    team = Team.find_by_id(team_id)
     return if team.nil?
-    team.team_bot_installations.each do |team_bot_installation|
-      bot = team_bot_installation.bot_user
+    team_bot_installations = team.team_bot_installations
+    # Define bots so I can get the bot manually to avoid N+1 query when get bot
+    bots = BotUser.where(id: team_bot_installations.pluck(:user_id)).to_a.index_by(&:id)
+    team_bot_installations.each do |team_bot_installation|
+      bot = bots[team_bot_installation.user_id]
       begin
         bot.notify_about_event(event, object, team, team_bot_installation) if bot.subscribed_to?(event) && (target_bot.blank? || bot.id == target_bot.id)
       rescue StandardError => e
