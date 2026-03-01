@@ -15,7 +15,6 @@ class Dynamic < ApplicationRecord
   after_create :create_fields
   after_update :update_fields
   after_commit :apply_rules_and_actions, on: [:create, :update], if: proc { |d| ['flag', 'report_design', 'language', 'task_response_single_choice', 'task_response_multiple_choice', 'task_response_free_text', 'extracted_text'].include?(d.annotation_type) }
-  after_commit :dynamic_send_slack_notification, on: [:create, :update]
   after_commit :add_elasticsearch_dynamic, on: :create
   after_commit :update_elasticsearch_dynamic, on: :update
   after_commit :destroy_elasticsearch_dynamic_annotation, on: :destroy
@@ -24,38 +23,6 @@ class Dynamic < ApplicationRecord
   validate :mandatory_fields_are_set, on: :create
   validate :attribution_contains_only_team_members
   validate :fields_against_json_schema
-
-  def slack_notification_message(_event = nil)
-    annotation_type = self.annotation_type =~ /^task_response/ ? 'task_response' : self.annotation_type
-    method = "slack_notification_message_#{annotation_type}"
-    if self.respond_to?(method)
-      self.send(method)
-    end
-  end
-
-  def slack_params_task_response
-    response = self.values(['response'], '')['response']
-    task = Task.find(self.annotated_id)
-    event = self.previous_changes.keys.include?('id') ? 'answer_create' : 'answer_edit'
-    task.slack_params.merge({
-      description: Bot::Slack.to_slack(response, false),
-      attribution: User.where('id IN (:ids)', { :ids => self.attribution.to_s.split(',') })&.collect { |u| u.name }&.to_sentence,
-      task: task,
-      event: event,
-      answer: response
-    })
-  end
-
-  def slack_notification_message_task_response
-    params = self.slack_params_task_response
-    params[:task].slack_notification_message(params)
-  end
-
-  # TODO: Sawy::remove this method and handle slack notification for sources
-  def dynamic_send_slack_notification
-    ignore_notification = self.annotated_type == 'Task' && self.annotated.present? && self.annotated.annotated_type == 'Source'
-    self.send_slack_notification unless ignore_notification
-  end
 
   def data
     fields = self.fields
