@@ -105,7 +105,7 @@ class Bot::Smooch < BotUser
           when 'reactivate'
             sm.leave_human_mode
           when 'refresh_timeout'
-            Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
+            # Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
           else
             app_id = self.get_field_value('smooch_user_app_id')
             message = self.action.to_s.match(/^send (.*)$/)
