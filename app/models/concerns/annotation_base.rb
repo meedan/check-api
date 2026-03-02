@@ -300,28 +300,6 @@ module AnnotationBase
     self.annotated.present? && self.annotated.respond_to?(:archived) && self.annotated_type.constantize.where(id: self.annotated_id, archived: CheckArchivedFlags::FlagCodes::TRASHED).last.present?
   end
 
-  def slack_params
-    object = self.project_media
-    item = object.title
-    item_type = object.media.class.name.underscore
-    annotation_type = self.class.name == 'Dynamic' ? item_type : self.class.name.underscore
-    user = User.current || self.annotator
-    team = object.team
-    {
-      user: Bot::Slack.to_slack(user.name),
-      user_image: user.profile_image,
-      role: I18n.t("role_" + user.role(team).to_s),
-      team: Bot::Slack.to_slack(team.name),
-      item: Bot::Slack.to_slack_url(object.full_url, item),
-      type: I18n.t("activerecord.models.#{annotation_type}"),
-      parent_type: I18n.t("activerecord.models.#{item_type}"),
-      url: object.full_url,
-      button: I18n.t("slack.fields.view_button", **{
-        type: I18n.t("activerecord.models.#{annotation_type}"), app: CheckConfig.get('app_name')
-      })
-    }.merge(self.slack_params_assignment)
-  end
-
   protected
 
   def load_polymorphic(name)
