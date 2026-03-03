@@ -231,28 +231,6 @@ class DynamicAnnotation::FieldTest < ActiveSupport::TestCase
     end
   end
 
-  test "should get smooch user slack channel url" do
-    create_annotation_type_and_fields('Smooch User', {
-      'Data' => ['JSON', false],
-      'Slack Channel Url' => ['Text', true],
-      'ID' => ['Text', false]
-    })
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    pm = create_project_media team: t
-    author_id = random_string
-    url = random_url
-    set_fields = { smooch_user_id: author_id, smooch_user_data: { id: author_id }.to_json, smooch_user_slack_channel_url: url }.to_json
-    d = create_dynamic_annotation annotated: t, annotation_type: 'smooch_user', set_fields: set_fields
-    with_current_user_and_team(u, t) do
-      tr = create_tipline_request team_id: t.id, associated: pm, tipline_user_uid: author_id, smooch_data: { 'authorId' => author_id }
-      assert_equal url, tr.smooch_user_slack_channel_url
-      assert 1, Rails.cache.delete_matched("SmoochUserSlackChannelUrl:Team:*")
-      assert_equal url, tr.smooch_user_slack_channel_url
-    end
-  end
-
   test "should remove leading and trailing spaces from URLs when validating URL fields" do
     url = create_field_type field_type: 'url', label: 'URL'
     create_field_instance name: 'url', field_type_object: url

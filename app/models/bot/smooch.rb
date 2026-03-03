@@ -679,12 +679,6 @@ class Bot::Smooch < BotUser
       query = { field_name: 'smooch_user_data', json: { app_name: app_name, identifier: identifier } }.to_json
       cache_key = 'dynamic-annotation-field-' + Digest::MD5.hexdigest(query)
       Rails.cache.write(cache_key, DynamicAnnotation::Field.where(annotation_id: a.id, field_name: 'smooch_user_data').last&.id)
-      # Cache SmoochUserSlackChannelUrl if smooch_user_slack_channel_url exist
-      cache_slack_key = "SmoochUserSlackChannelUrl:Team:#{a.team_id}:#{uid}"
-      if Rails.cache.read(cache_slack_key).blank?
-        slack_channel_url = a.get_field_value('smooch_user_slack_channel_url')
-        Rails.cache.write(cache_slack_key, slack_channel_url) unless slack_channel_url.blank?
-      end
     end
   end
 
