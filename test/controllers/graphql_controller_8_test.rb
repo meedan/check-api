@@ -1008,7 +1008,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team set_report: { en: { use_introduction: true, introduction: 'Test' } }
-    fields = %w(get_slack_notifications_enabled get_slack_webhook get_embed_whitelist get_report_design_image_template get_status_target_turnaround get_rules get_languages get_language get_report get_data_report_url get_outgoing_urls_utm_code get_shorten_outgoing_urls get_report)
+    fields = %w(get_embed_whitelist get_report_design_image_template get_status_target_turnaround get_rules get_languages get_language get_report get_data_report_url get_outgoing_urls_utm_code get_shorten_outgoing_urls get_report)
     post :create, params: { query: "query Team { team { join_requests(first: 10) { edges { node { id } } }, #{fields.join(', ')} } }", team: t.slug }
     assert_response :success
   end
