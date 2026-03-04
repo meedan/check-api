@@ -104,8 +104,6 @@ class Bot::Smooch < BotUser
             sm.enter_human_mode
           when 'reactivate'
             sm.leave_human_mode
-          when 'refresh_timeout'
-            # Bot::Smooch.refresh_smooch_slack_timeout(id, JSON.parse(self.action_data))
           else
             app_id = self.get_field_value('smooch_user_app_id')
             message = self.action.to_s.match(/^send (.*)$/)
@@ -1037,31 +1035,6 @@ class Bot::Smooch < BotUser
       self.get_platform_from_message(data)
       self.get_installation(self.installation_setting_id_keys, data['app_id']) if self.config.blank?
       self.send_report_to_user(tr.tipline_user_uid, data, parent, tr.language, 'fact_check_report', nil, tr)
-    end
-  end
-
-  def self.refresh_smooch_slack_timeout(uid, slack_data = {})
-    time = Time.now.to_i
-    data = Rails.cache.read("smooch:slack:last_human_message:#{uid}") || {}
-    data.merge!(slack_data.merge({ 'time' => time }))
-    Rails.cache.write("smooch:slack:last_human_message:#{uid}", data)
-    sm = CheckStateMachine.new(uid)
-    if sm.state.value != 'human_mode'
-      sm.enter_human_mode
-      text = 'The bot has been de-activated for this conversation. You can now communicate directly to the user in this channel. To reactivate the bot, type `/check bot activate`. <http://help.checkmedia.org/en/articles/3336466-one-on-one-conversation-with-users-on-check-message|Learn about more features of the Slack integration here.>'
-      Bot::Slack.delay_for(1.second, { queue: 'smooch' }).send_message_to_slack_conversation(text, slack_data['token'], slack_data['channel'])
-    end
-    self.delay_for(15.minutes, { queue: 'smooch' }).timeout_smooch_slack_human_conversation(uid, time)
-  end
-
-  def self.timeout_smooch_slack_human_conversation(uid, time)
-    data = Rails.cache.read("smooch:slack:last_human_message:#{uid}")
-    return if !data || data['time'].to_i > time
-    sm = CheckStateMachine.new(uid)
-    if sm.state.value == 'human_mode'
-      sm.leave_human_mode
-      text = 'Automated bot-message reactivated after 15 min of inactivity. <http://help.checkmedia.org/en/articles/3336466-talk-to-users-on-your-check-message-tip-line|Learn more here>.'
-      Bot::Slack.send_message_to_slack_conversation(text, data['token'], data['channel'])
     end
   end
 

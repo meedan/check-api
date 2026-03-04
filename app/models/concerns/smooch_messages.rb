@@ -8,10 +8,6 @@ module SmoochMessages
       self.get_platform_from_message(message)
       uid = message['authorId']
       sm = CheckStateMachine.new(uid)
-      if sm.state.value == 'human_mode'
-        self.refresh_smooch_slack_timeout(uid)
-        return
-      end
       self.refresh_smooch_menu_timeout(message, app_id)
       redis = Redis.new(REDIS_CONFIG)
       key = "smooch:bundle:#{uid}"
@@ -499,9 +495,6 @@ module SmoochMessages
     end
 
     def create_tipline_requests(associated, author, fields)
-      # TODO: By Sawy - Should handle User.current value
-      # In this case User.current was reset by SlackNotificationWorker worker
-      # Quick fix - assigning it again using annotated object and reset its value at the end of creation
       current_user = User.current
       User.current = author
       User.current = associated.user if User.current.nil? && associated.respond_to?(:user)

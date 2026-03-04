@@ -36,22 +36,6 @@ class Dynamic < ApplicationRecord
     end
   end
 
-  # Given field names, return a hash of the corresponding field values.
-  # Initialize the hash with the given default value.
-  # def values(fields, default)
-  #   values = Hash[fields.product([default])]
-
-  #   # Cache the fields for performance.
-  #   @fields ||= self.fields
-
-  #   @fields.each do |field|
-  #     fields.each do |f|
-  #       values[f] = field.to_s if field.field_name =~ /^#{Regexp.escape(f)}/
-  #     end
-  #   end
-  #   values
-  # end
-
   def get_field(name)
     self.get_fields.select{ |f| f.field_name == name.to_s }.first
   end

@@ -21,9 +21,6 @@ module SmoochResend
         output = self.resend_rules_message_after_window(message, original) if original['fallback_template'] == 'fact_check_status'
         return output unless output.nil?
       end
-
-      # A message sent from Slack
-      return self.resend_slack_message_after_window(message)
     end
 
     def template_exists?(name)
@@ -73,28 +70,6 @@ module SmoochResend
           last_smooch_response = self.send_message_to_user(uid, self.format_template_message("#{template}_text_only", [query_date, text], nil, text, language)) unless text.blank?
           self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         end
-        return true
-      end
-      false
-    end
-
-    def resend_slack_message_after_window(message)
-      text = self.get_original_slack_message_text_to_be_resent(message)
-      uid = message['appUser']['_id']
-      if text
-        language = self.get_user_language(uid)
-        date = Rails.cache.read("smooch:last_message_from_user:#{uid}").to_i || Time.now.to_i
-        query_date = I18n.l(Time.at(date), locale: language, format: :short)
-        params = [query_date, text]
-        template_name = 'more_information_needed_text_only'
-        if self.template_exists?('more_information_with_button')
-          template_name = 'more_information_with_button'
-          name = self.get_user_name_from_uid(uid)
-          params = [name, query_date]
-        end
-        response = self.send_message_to_user(uid, self.format_template_message(template_name, params, nil, text, language))
-        id = self.get_id_from_send_response(response)
-        Rails.cache.write("smooch:original:#{id}", "message:#{text}") # This way if "Receive message" is clicked, the message can be sent
         return true
       end
       false
@@ -194,11 +169,6 @@ module SmoochResend
         self.send_message_to_user(uid, text, self.message_tags_payload(text))
         return true
       end
-
-      # A message sent from Slack
-      text = self.get_original_slack_message_text_to_be_resent(message)
-      self.send_message_to_user(uid, text, self.message_tags_payload(text))
-      return !text.blank?
     end
 
     def resend_facebook_messenger_report_after_window(message, original)
@@ -271,15 +241,6 @@ module SmoochResend
       self.get_installation(self.installation_setting_id_keys, message['app']['_id'])
       return resend_whatsapp_message_after_window(message, original) if platform == 'whatsapp'
       return resend_facebook_messenger_message_after_window(message, original) if platform == 'messenger'
-    end
-
-    def get_original_slack_message_text_to_be_resent(message)
-      result = self.smooch_api_get_messages(message['app']['_id'], message['appUser']['_id'], { after: (message['timestamp'].to_i - 120) })
-      return nil if result.nil?
-      result.messages.each do |m|
-        return m.text if m.source&.type == 'slack' && m.id == message['message']['_id']
-      end
-      nil
     end
 
     def get_report_data_to_be_resent(message, original)
