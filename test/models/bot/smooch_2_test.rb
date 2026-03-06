@@ -431,7 +431,7 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
     Bot::Smooch.stubs(:save_user_information).returns(nil)
   end
 
-  test "should save last message and ignore if in human mode" do
+  test "should save last message" do
     Sidekiq::Testing.inline! do
       Bot::Smooch.unstub(:save_user_information)
       SmoochApi::AppApi.any_instance.stubs(:get_app).returns(OpenStruct.new(app: OpenStruct.new(name: random_string)))
@@ -439,7 +439,6 @@ class Bot::Smooch2Test < ActiveSupport::TestCase
         SmoochApi::AppUserApi.any_instance.stubs(:get_app_user).returns(OpenStruct.new(appUser: { clients: [{ displayName: random_string, platform: platform, info: { avatarUrl: url } }] }))
       end
       create_annotation_type_and_fields('Smooch User', { 'Id' => ['Text', false], 'App Id' => ['Text', false], 'Data' => ['JSON', false] })
-      WebMock.stub_request(:get, /^https:\/\/slack\.com\/api\/chat\.postMessage.*/)
       uid = random_string
       messages = [
         {
