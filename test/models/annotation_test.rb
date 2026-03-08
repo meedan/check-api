@@ -401,19 +401,6 @@ class AnnotationTest < ActiveSupport::TestCase
     end
   end
 
-  # TODO: review by Sawy
-  # test "should not notify Pusher depending on annotation type" do
-  #   create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
-  #   assert_nothing_raised do
-  #     Pusher::Client.any_instance.unstub(:trigger)
-  #     Pusher::Client.any_instance.unstub(:post)
-  #     a = create_dynamic_annotation annotation_type: 'slack_message', set_fields: { slack_message_data: { value: random_string(10001) }.to_json }.to_json
-  #     Pusher::Client.any_instance.stubs(:trigger)
-  #     Pusher::Client.any_instance.stubs(:post)
-  #     assert !a.sent_to_pusher
-  #   end
-  # end
-
   test "should save annotation with null byte" do
     assert_difference "Task.where(annotation_type: 'task').count" do
       create_task label: "*Dipa's Crush Loves him 97�\u0000, How Much Your Crush Loves You?* Check out now\nhttps://www.getlinks.info/love/c/tnxbmka"
