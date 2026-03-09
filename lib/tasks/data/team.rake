@@ -58,7 +58,7 @@ namespace :check do
       puts "\n Teams list \n"
       pp output
     end
-    # bundle exec rails check:team:list_teams_with_number_of_members[x]
+    # bundle exec rails check:team:delete_teams_with_number_of_members[x]
     desc 'Delete all teams with members less than or equal X'
     task delete_teams_with_number_of_members: :environment do |_t, number|
       number = number.to_a.first.to_i
@@ -77,7 +77,7 @@ namespace :check do
       puts "\nDeleted teams \n"
       pp output
     end
-    # bundle exec rails check:team:list_inactive_teams[x]
+    # bundle exec rails check:team:delete_teams_cached_and_es_values[x]
     # desc 'Delete cached/ES for all teams with no activities since X months ago'
     task delete_teams_cached_and_es_values: :environment do |_t, number|
       number = number.to_a.first.to_i
@@ -88,7 +88,7 @@ namespace :check do
         logs = Version.from_partition(team.id).where('created_at > ?', date).count
         if logs == 0
           output << { team_id: team.id, slug: team.slug }
-          # Delete cached and ES values
+          # Delete cache and ES docs
           # 1) Cached value for Team role permissions
           puts "\nDelete cache for team roles\n"
           %w(admin editor collaborator authenticated super_admin).each do |role|
