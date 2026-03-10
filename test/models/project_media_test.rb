@@ -70,7 +70,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should localize status" do
     I18n.locale = :pt
-    pm = create_project_media
+    pm = nil
+    Sidekiq::Testing.inline! do
+      pm = create_project_media
+    end
     assert_equal 'Não Iniciado', pm.status_i18n(nil, { locale: 'pt' })
     t = create_team slug: 'test'
     value = {
@@ -84,7 +87,9 @@ class ProjectMediaTest < ActiveSupport::TestCase
     }
     t.set_media_verification_statuses(value)
     t.save!
-    pm = create_project_media team: t
+    Sidekiq::Testing.inline! do
+      pm = create_project_media team: t
+    end
     assert_equal 'Undetermined', pm.status_i18n(nil, { locale: 'pt' })
     I18n.stubs(:exists?).with('custom_message_status_test_test').returns(true)
     I18n.stubs(:t).returns('')
@@ -124,8 +129,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     }
     t.send :set_media_verification_statuses, value
     t.save!
-    pm = create_project_media team: t
-    assert_equal 'stop', pm.last_status
+    Sidekiq::Testing.inline! do
+      pm = create_project_media team: t
+      assert_equal 'stop', pm.last_status
+    end
   end
 
   test "should change custom status of orphan item" do
@@ -474,7 +481,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       feed = create_feed name: "Feed test"
       pm = nil
       with_current_user_and_team(u, t) do
-        assert_difference 'PaperTrail::Version.count', 4 do
+        assert_difference 'PaperTrail::Version.count', 3 do
           pm = create_project_media imported_from_feed_id: feed.id
         end
       end
