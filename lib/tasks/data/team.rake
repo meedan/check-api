@@ -104,7 +104,7 @@ namespace :check do
     task activate: :environment do |_t, params|
       slugs = params.to_a
       Team.where(slug: slugs).find_each do |team|
-        team.inactive = true
+        team.inactive = false
         team.save!
       end
     end
@@ -112,7 +112,7 @@ namespace :check do
     task deactivate: :environment do |_t, params|
       slugs = params.to_a
       Team.where(slug: slugs).find_each do |team|
-        team.inactive = false
+        team.inactive = true
         team.save!
       end
     end
