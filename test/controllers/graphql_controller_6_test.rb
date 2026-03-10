@@ -177,4 +177,20 @@ class GraphqlController6Test < ActionController::TestCase
     assert_equal pm1.id, response['medias']['edges'][0]['node']['dbid']
     assert_equal 1, response['item_navigation_offset']
   end
+
+  test "should set Smooch user ID" do
+    u = create_user
+    t = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    set_fields = { smooch_user_data: { id: random_string }.to_json, smooch_user_app_id: 'fake', smooch_user_id: 'fake' }.to_json
+    pm = create_project_media team: t
+    api_key = create_api_key team: t, user: u
+    authenticate_with_token(api_key)
+    d = create_dynamic_annotation annotated: pm, annotation_type: 'smooch_user', set_fields: set_fields
+    query = 'mutation update { updateDynamic(input: { annotation_type: "smooch_user", clientMutationId: "1", id: "' + d.graphql_id + '", set_fields: "{\"smooch_user_id\":\"update_id\"}" }) { dynamic { dbid } } }'
+    post :create, params: { query: query , team: t.slug}
+    assert_response :success
+    uid = d.reload.get_field_value('smooch_user_id')
+    assert_equal 'update_id', uid
+  end
 end

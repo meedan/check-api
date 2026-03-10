@@ -161,7 +161,6 @@ fr:
           many: est trop court (au moins %{count} caractères)
           other: est trop court (au moins %{count} caractères)
   error_team_bot_event_is_not_valid: L’évènement du robot est invalide
-  slack_webhook_format_wrong: Le point d’ancrage Web Slack est invalide. Le format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX` est attendu
   slug_is_reserved: est réservé
   invalid_media_item: L’élément est invalide
   invalid_default_status_for_custom_verification_status: L’identifiant d’état par défaut est invalide
@@ -170,50 +169,6 @@ fr:
   invalid_id_for_custom_verification_status: L’identifiant d’état est obligatoire et ne doit comporter que des lettres minuscules, des chiffres, des tirets et des traits de soulignement
   invalid_statuses_format_for_custom_verification_status: 'Des états personnalisés de vérification sont invalides. Des entrées valides sont attendues pour : étiquette, identifiant, description et style.'
   mail_account_confirmation: "Confirmation de votre compte %{app_name}"
-  slack:
-    fields:
-      assigned: Attribuée à
-      unassigned: Attribution retirée de
-      project: Dossier
-      source: Source
-      status: État
-      status_previous: État précédent
-      related_to: Associé à
-      view_button: Afficher %{type} sur %{app}
-      project_source: Source
-      project_media: Élément
-      attribution: Réponse par
-    messages:
-      analysis_verification_status_status_changed: "%{user} a changé l’état en : %{value}"
-      analysis_title_changed: "%{user} a changé le titre de l’analyse en : %{value}"
-      analysis_content_changed: "%{user} a changé le contenu de l’analyse en : %{value}"
-      tasks_create: "%{user} a ajouté une tâche : %{title}"
-      tasks_edit: "%{user} a modifié la tâche %{title}"
-      tasks_answer_create: "%{user} a répondu à la tâche %{title} : %{answer}"
-      tasks_answer_edit: "%{user} a modifié la réponse de la tâche %{title} : %{answer}"
-      metadata_create: "%{user} a ajouté un champ de métadonnées : %{title}"
-      metadata_edit: "%{user} a modifié le champ de métadonnées %{title}"
-      metadata_answer_create: "%{user} a défini la valeur des métadonnées %{title} : %{answer}"
-      metadata_answer_edit: "%{user} a modifié la valeur des métadonnées %{title} : %{answer}"
-      project_media_comment: "%{user} (%{role} de %{team}) a ajouté une note à un ou une%{parent_type}"
-      project_media_create: "%{user} (%{role} de %{team}) a envoyé un nouvel élément"
-      project_media_create_related: "%{user} (%{role} de %{team}) a ajouté un ou une %{type} associé.e"
-      project_media_update: "%{user} (%{role} de %{team}) a mis un élément à jour"
-      project_media_move_to: "%{user} (%{role} de %{team}) a déplacé un élément vers %{project}"
-      project_media_added_to_list: "%{user} (%{role} de %{team}) a ajouté un élément au dossier %{list_name}"
-      project_media_status: "%{user} (%{role} de%{team}) a changé l’état %{workflow} d’un/d’une %{type}"
-      project_media_assign: "%{user} (%{role} de %{team}) a attribué un ou une %{type}"
-      project_media_unassign: "%{user} (%{role} de %{team}) a retiré l’attribution d’un ou une %{type}"
-      project_source_comment: "%{user} (%{role} de %{team}) a ajouté une note à un ou une%{parent_type}"
-      project_source_create: "%{user} (%{role} de %{team}) a ajouté un ou une %{type}"
-      project_source_update: "%{user} (%{role} de %{team}) a modifié un ou une %{type}"
-      project_create: "%{user} (%{role} de %{team}) a créé un dossier"
-      project_assign: "%{user} (%{role} de %{team}) a affecté un dossier"
-      project_unassign: "%{user} (%{role} de %{team}) a retiré l’attribution d’un dossier"
-      user_member: "%{user} s’est joint à l’espace de travail %{team}"
-      user_requested: "%{user} a demandé à se joindre à l’espace de travail %{team}"
-      user_invited: "%{user} a été invité à se joindre à l’espace de travail %{team}"
-      user_banned: "%{user} a été banni de l’espace de travail %{team}"
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Vous n’êtes qu’à une étape pour de pouvoir utiliser %{app_name}. Confirmez votre adresse courriel en cliquant le lien suivant :'
   mail_confirm_button: Confirmer mon compte
@@ -237,7 +192,6 @@ fr:
     flash:
       delete_team_scheduled: L’espace de travail %{team} est en cours de suppression
   email_not_found: L’adresse courriel est introuvable
-  slack_channel_format_wrong: Le canal Slack est invalide
   invalid_token: Le jeton est invalide
   time:
     formats:
