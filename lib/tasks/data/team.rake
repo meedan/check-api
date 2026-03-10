@@ -159,7 +159,7 @@ namespace :check do
       end
     end
     # bundle exec rails check:team:delete_teams_cache_and_es_values_by_slug[slug_a|slug_b|slug_c]
-    desc 'Delete cached/ES for all specific teams'
+    desc 'Delete cache/ES for specific teams'
     task :delete_teams_cache_and_es_values_by_slug, [:slugs] => :environment do |_t, args|
       slugs = args[:slugs].to_s.split('|')
       Team.where(slug: slugs).find_each do |team|
@@ -168,7 +168,7 @@ namespace :check do
       end
     end
     # bundle exec rails "check:team:delete_teams_cache_and_es_values[YYYY-MM-DD, slug_a|slug_b|slug_c]"
-    desc 'Delete cached/ES for all teams with no activities since X date and can exclude some teams by slug'
+    desc 'Delete cache/ES for all teams with no activities since X date and can exclude some teams by slug'
     task :delete_teams_cache_and_es_values, [:date, :exclude] => :environment do |_t, args|
       slugs = args[:exclude].to_s.split('|').map(&:strip)
       date = nil
