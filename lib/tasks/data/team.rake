@@ -111,6 +111,8 @@ namespace :check do
   end
 end
 
+private
+
 def clean_cache_and_es(team)
   # Delete cache and ES docs
   # 1) Cached value for Team role permissions
@@ -198,5 +200,3 @@ def clean_cache_and_es(team)
     end
   end
 end
-
-private :clean_cache_and_es
