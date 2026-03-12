@@ -167,7 +167,9 @@ class Dynamic < ApplicationRecord
   end
 
   def create_fields
-    self.delay.create_fields_bg(self.set_fields) if !self.set_fields.blank? && self.json_schema.blank?
+    if !self.set_fields.blank? && self.json_schema.blank?
+      Rails.env.test? ? self.create_fields_bg(self.set_fields) : self.delay.create_fields_bg(self.set_fields)
+    end
   end
 
   def create_fields_bg(set_fields)
