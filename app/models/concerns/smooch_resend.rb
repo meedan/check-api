@@ -84,10 +84,6 @@ module SmoochResend
       self.send_message_to_user(uid, report.text)
     end
 
-    def send_message_on_template_button_click(_message, uid, language, info)
-      self.send_final_messages_to_user(uid, info[1], self.get_workflow(language), language)
-    end
-
     def clicked_on_template_button?(message)
       ['report', 'message', 'newsletter', 'explainer'].include?(self.get_information_from_clicked_template_button(message).first.to_s)
     end
@@ -116,8 +112,6 @@ module SmoochResend
         self.send_report_on_template_button_click(message, uid, language, info)
       when 'explainer'
         self.send_explainer_on_template_button_click(message, uid, language, info)
-      when 'message'
-        self.send_message_on_template_button_click(message, uid, language, info)
       when 'newsletter'
         team_id = self.config['team_id'].to_i
         language = info[1] || language
