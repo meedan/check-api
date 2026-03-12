@@ -164,7 +164,6 @@ ar:
           many: قصير جداً (الحد الأدنى %{count} حروف)
           other: قصير جداً (الحد الأدنى %{count} حروف)
   error_team_bot_event_is_not_valid: حدث البوت هذا غير صالح.
-  slack_webhook_format_wrong: صيغة ‫مِشبَك Slack‬ غير صالحة. الصيغة المتوقعة هي « https://hooks.slack.com/services/XXXXX/XXXXXXXXXX »
   slug_is_reserved: مأخوذ
   invalid_media_item: العنصر غير صالح
   invalid_default_status_for_custom_verification_status: إن المُعَرِّف الافتراضي لحالة التحقق غير صالح
@@ -173,50 +172,6 @@ ar:
   invalid_id_for_custom_verification_status: مُعَرِّف حالة التحقق مطلوب و يقبل الأحرف والأرقام و'-' و '_' فقط
   invalid_statuses_format_for_custom_verification_status: 'حالات التحقق الخاصة غير صالحة. المتوقع هو صيغات صحيحة لكل من: العلامة، المُعَرِّف ، الوصف ، والأسلوب.'
   mail_account_confirmation: "تأكيد الحساب %{app_name}"
-  slack:
-    fields:
-      assigned: المُكَلَّف
-      unassigned: أُزيل التكليف عن
-      project: المجلد
-      source: المصدر
-      status: الحالة
-      status_previous: الحالة السابقة
-      related_to: 'ذي صلة مع '
-      view_button: عرض %{type} في %{app}
-      project_source: المصدر
-      project_media: العنصر
-      attribution: تمّت الإجابة بواسطة
-    messages:
-      analysis_verification_status_status_changed: "قام%{user} بتغيير الحالة إلى: %{value}"
-      analysis_title_changed: "قام %{user} بتغيير عنوان التحليل إلى: %{value}"
-      analysis_content_changed: "قام %{user} بتغيير محتوى التحليل إلى: %{value}"
-      tasks_create: "قام %{user} بإضافة مهمة: %{title}"
-      tasks_edit: "قام %{user} بتحرير مهمة %{title}"
-      tasks_answer_create: "قام %{user} بإجابة مهمة %{title}: %{answer}"
-      tasks_answer_edit: "قام %{user} بتحرير إجابة مهمة %{title}: %{answer}"
-      metadata_create: "قام %{user} بإضافة حقل للبيانات الوصفيّة: %{title}"
-      metadata_edit: "قام %{user} بتحرير حقل في البيانات الوصفيّة %{title}"
-      metadata_answer_create: "قام %{user} بضبط قيمة في البيانات الوصفيّة %{title}: %{answer}"
-      metadata_answer_edit: "قام %{user} بتحرير قيمة في البيانات الوصفيّة %{title}: %{answer}"
-      project_media_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}"
-      project_media_create: "قام %{user} (%{role} في %{team}) بإرسال عنصر جديد"
-      project_media_create_related: "قام %{user} (%{role} في %{team}) بإنشاء %{type} مرتبط"
-      project_media_update: "قام %{user} (%{role} في %{team}) بتحديث عنصر"
-      project_media_move_to: "قام %{user} (%{role} في %{team}) بنقل عنصر إلى %{project}"
-      project_media_added_to_list: "قام %{user} (%{role} في %{team}) بإضافة عنصر إلى مجلد %{list_name}"
-      project_media_status: "قام %{user} (%{role} في %{team}) بتغيير حالة %{workflow} %{type}"
-      project_media_assign: "قام المستخدم %{user} (%{role} في %{team}) بتكليف %{type}"
-      project_media_unassign: "قام المستخدم %{user} (%{role} في %{team}) بإلغاء تكليف %{type}"
-      project_source_comment: "قام %{user} (%{role} في %{team}) بإضافة ملحوظة الى %{parent_type}"
-      project_source_create: "قام %{user} (%{role} في %{team}) بإنشاء %{type}"
-      project_source_update: "قام %{user} (%{role} في %{team}) بتحرير %{type}"
-      project_create: "قام %{user} (%{role} في %{team}) بإنشاء مجلد"
-      project_assign: "قام المستخدم %{user} (%{role} في %{team}) بتعيين مجلد"
-      project_unassign: "قام المستخدم %{user} (%{role} في %{team}) بإلغاء تعيين مجلد"
-      user_member: "إنضم %{user} الى مساحة العمل %{team}"
-      user_requested: "طلب %{user} الانضمام الى مساحة العمل %{team}"
-      user_invited: "تمت دعوة %{user} الى مساحة العمل %{team}"
-      user_banned: "تم حظر %{user} من مساحة العمل %{team}"
   mail_view_welcome: مرحباً بكم في %{app_name}
   mail_view_register: 'إنك على وشك الانتهاء من تسجيل حسابك على %{app_name}! يرجى تأكيد بريدك الإلكتروني بالضّغط على الرّابط التالي:'
   mail_confirm_button: تأكيد الحساب
@@ -240,7 +195,6 @@ ar:
     flash:
       delete_team_scheduled: يتم حذف مساحة العمل %{team}
   email_not_found: هذا البريد الإلكتروني غير موجود
-  slack_channel_format_wrong: قناة Slack غير صالحة
   invalid_token: رمز الأمان غير صالح
   time:
     formats:

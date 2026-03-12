@@ -232,42 +232,6 @@ class Team2Test < ActiveSupport::TestCase
     end
   end
 
-  test "should validate Slack webhook" do
-    t = create_team
-    assert_raises ActiveRecord::RecordInvalid do
-      t.set_slack_webhook = 'http://meedan.com'
-      t.save!
-    end
-    assert_nothing_raised do
-      t.set_slack_webhook = 'https://hooks.slack.com/services/123456'
-      t.save!
-    end
-  end
-
-  test "should validate Slack channel" do
-    t = create_team
-    slack_notifications = []
-    slack_notifications << {
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "@#{random_string}"
-    }
-    assert_nothing_raised do
-      t.slack_notifications = slack_notifications.to_json
-      t.save!
-    end
-    slack_notifications << {
-      "label": random_string,
-      "event_type": "status_changed",
-      "values": ["in_progress"],
-      "slack_channel": "#{random_string}"
-    }
-    assert_raises ActiveRecord::RecordInvalid do
-      t.slack_notifications = slack_notifications.to_json
-      t.save!
-    end
-  end
-
   test "should downcase slug" do
     t = create_team slug: 'NewsLab'
     assert_equal 'newslab', t.reload.slug
@@ -415,20 +379,6 @@ class Team2Test < ActiveSupport::TestCase
     t.save!
     assert_equal output, t.get_media_verification_statuses
     assert_equal input, t.get_source_verification_statuses
-  end
-
-  test "should set slack_notifications_enabled" do
-    t = create_team
-    t.slack_notifications_enabled = true
-    t.save
-    assert t.get_slack_notifications_enabled
-  end
-
-  test "should set slack_webhook" do
-    t = create_team
-    t.slack_webhook = 'https://hooks.slack.com/services/123456'
-    t.save
-    assert_equal 'https://hooks.slack.com/services/123456', t.get_slack_webhook
   end
 
   test "should protect attributes from mass assignment" do
@@ -725,24 +675,6 @@ class Team2Test < ActiveSupport::TestCase
     copy = Team.duplicate(team)
     RequestStore.store[:disable_es_callbacks] = false
     assert_equal 'lorem-ipsumsit-amet-consectetur-adipiscing-elit-morbi-at-copy-1', copy.slug
-  end
-
-  test "should not notify slack if is being copied" do
-    create_slack_bot
-    team = create_team
-    user = create_user
-    create_team_user team: team, user: user, role: 'admin'
-    pm = create_project_media team: team
-    source = create_source user: user
-    source.team = team; source.save
-
-    assert !Bot::Slack.default.nil?
-    Bot::Slack.any_instance.stubs(:notify_slack).never
-    RequestStore.store[:disable_es_callbacks] = true
-    copy = Team.duplicate(team)
-    RequestStore.store[:disable_es_callbacks] = false
-    assert copy.valid?
-    Bot::Slack.any_instance.unstub(:notify_slack)
   end
 
   test "should duplicate team with duplicated source" do

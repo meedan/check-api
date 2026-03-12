@@ -56,7 +56,6 @@ module TeamDuplication
       copy.name = @custom_name || "Copy of #{copy.name}"
       copy.slug = @custom_slug || copy.generate_copy_slug
       copy.is_being_copied = true
-      copy.set_slack_notifications_enabled = false
     end
 
     def self.alter_saved_search_copy(copy)

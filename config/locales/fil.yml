@@ -141,7 +141,6 @@ fil:
         too_short:
           one: ay masyadong maikli (ang pinakakaunti ay 1 karakter)
           other: ay masyadong maikli (hindi bababa sa %{count} karakter)
-  slack_webhook_format_wrong: Hindi wastong Slack webhook. Ang format na inaasahan ay `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: ay nakareserba na
   invalid_media_item: Hindi wasto ang item
   invalid_default_status_for_custom_verification_status: Hindi wasto ang default na status identifier
@@ -150,44 +149,6 @@ fil:
   invalid_id_for_custom_verification_status: Kinakailangan ang status identifier at ang nilalaman lang dapat ito ay maliliit na titik, numero, gitling, at salungguhit
   invalid_statuses_format_for_custom_verification_status: 'Hindi wastong mga custom verification status. Ang inaasahan ay mga wastong entry para sa: label, identifier, pagkakalarawan, at istilo.'
   mail_account_confirmation: "Pagkumpirma ng account sa %{app_name}"
-  slack:
-    fields:
-      assigned: Itinalaga kay
-      unassigned: Inalis sa pagkakatalaga kay
-      source: Source
-      status: Status
-      status_previous: Ang nakaraang status
-      related_to: May kaugnayan sa
-      view_button: Tingnan ang %{type} sa %{app}
-      project_source: Source
-      project_media: Item
-      attribution: Sinagutan ni
-    messages:
-      analysis_verification_status_status_changed: "Binago ni %{user} ang status sa: %{value}"
-      analysis_title_changed: "Binago ni %{user} ang pamagat ng pagsusuri sa: %{value}"
-      analysis_content_changed: "Binago ni %{user} ang nilalaman ng pagsusuri sa: %{value}"
-      tasks_create: "Nagdagdag si %{user} ng gawain: %{title}"
-      tasks_edit: "In-edit ni %{user} ang gawaing %{title}"
-      tasks_answer_create: "Sinagutan ni %{user} ang gawaing %{title}: %{answer}"
-      tasks_answer_edit: "In-edit ni %{user} ang sagot sa gawaing %{title}: %{answer}"
-      metadata_create: "Nagdagdag si %{user} ng patlang pang-metadata: %{title}"
-      metadata_edit: "In-edit ni %{user} ang patlang pang-metadata na %{title}"
-      metadata_answer_create: "Itinakda ni %{user} ang value ng metadata na %{title}: %{answer}"
-      metadata_answer_edit: "In-edit ni %{user} ang value ng metadata na %{title}: %{answer}"
-      project_media_comment: "Nagdagdag si %{user} (%{role} sa %{team}) ng note sa %{parent_type}"
-      project_media_create: "Nagsumite si %{user} (%{role} sa %{team}) ng bagong item"
-      project_media_create_related: "Nagdagdag si %{user} (%{role} sa %{team}) ng kaugnay na %{type}"
-      project_media_update: "Nag-update si %{user} (%{role} sa %{team}) ng item"
-      project_media_status: "Pinalitan ni %{user} (%{role} sa %{team}) ang %{workflow} status ng isang %{type}"
-      project_media_assign: "Nagtalaga si %{user} (%{role} sa %{team}) ng %{type}"
-      project_media_unassign: "Inalis ni %{user} (%{role} sa %{team}) ang pagkakatalaga ng %{type} "
-      project_source_comment: "Nagdagdag si %{user} (%{role} sa %{team}) ng note sa %{parent_type}"
-      project_source_create: "Nagdagdag si %{user} (%{role} sa %{team}) ng %{type}"
-      project_source_update: "Nag-edit si %{user} (%{role} sa %{team}) ng %{type}"
-      user_member: "Sumali si %{user} sa workspace na %{team}"
-      user_requested: "Humiling si %{user} na sumali sa workspace na %{team}"
-      user_invited: "Inanyayahan si %{user} na sumali sa workspace na %{team}"
-      user_banned: "Ipinagbawal si %{user} sa workspace na %{team}"
   mail_view_welcome: Maligayang pagdating sa %{app_name}
   mail_view_register: 'Isang hakbang na lang at magagamit mo na ang %{app_name}! Mangyaring kumpirmahin ang iyong email address sa pag-click sa sumusunod na link:'
   mail_confirm_button: Kumpirmahin ang aking account
@@ -211,7 +172,6 @@ fil:
     flash:
       delete_team_scheduled: Kasalukuyang binubura ang workspace na %{team}
   email_not_found: Hindi matagpuan ang email
-  slack_channel_format_wrong: Hindi wastong Slack channel
   invalid_token: Hindi wastong token
   time:
     formats:

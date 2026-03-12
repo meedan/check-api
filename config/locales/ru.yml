@@ -143,7 +143,6 @@ ru:
           few: 'не подходит по длине (минимум: %{count} символов)'
           many: 'не подходит по длине (минимум: %{count} символов)'
           other: 'не подходит по длине (минимум: %{count} символов)'
-  slack_webhook_format_wrong: 'Неверный адрес webhook для Slack: адрес должен иметь формат `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`.'
   slug_is_reserved: зарезервирован
   invalid_media_item: Извините, этот формат не поддерживается
   invalid_default_status_for_custom_verification_status: Неверный идентификатор статуса по умолчанию
@@ -152,44 +151,6 @@ ru:
   invalid_id_for_custom_verification_status: Идентификатор статуса обязателен; он может содержать строчные латинские буквы, цифры, дефисы и подчеркивания
   invalid_statuses_format_for_custom_verification_status: 'Дополнительные статусы должны иметь название, идентификатор, описание и стиль.'
   mail_account_confirmation: "%{app_name}: подтверждение e-mail адреса"
-  slack:
-    fields:
-      assigned: Назначен
-      unassigned: Снят с
-      source: Источник
-      status: Статус
-      status_previous: Предыдущий статус
-      related_to: Относится к
-      view_button: '%{type} в %{app}'
-      project_source: Источник
-      project_media: Материал
-      attribution: Ответ от
-    messages:
-      analysis_verification_status_status_changed: "Изменён статус: %{value} (%{user})"
-      analysis_title_changed: "Изменён заголовок анализа: %{value} (%{user})"
-      analysis_content_changed: "Изменён контент анализа: %{value} (%{user})"
-      tasks_create: "Добавлен вопрос: %{title} (%{user})"
-      tasks_edit: "Отредактирован вопрос: %{title} (%{user})"
-      tasks_answer_create: "На вопрос «%{title}» получен ответ: %{answer} (%{user})"
-      tasks_answer_edit: "Отредактирован ответ на вопрос «%{title}»: %{answer} (%{user})"
-      metadata_create: "Добавлено поле для метаданных: %{title} (%{user})"
-      metadata_edit: "Отредактировано поле для метаданных: %{title} (%{user})"
-      metadata_answer_create: "Задано значение для метаданных «%{title}»: %{answer} (%{user})"
-      metadata_answer_edit: "Обновлено значение для метаданных «%{title}»: %{answer} (%{user})"
-      project_media_comment: "Добавлена заметка к материалу «%{parent_type}» (%{user}, %{role} группы %{team})"
-      project_media_create: "%{user} (%{role} группы %{team}) загрузил(а) новый материал"
-      project_media_create_related: "Добавлен связанный материал «%{type}» (%{user}, %{role} группы %{team})"
-      project_media_update: "%{user} (%{role} группы %{team}) обновил(а) материал"
-      project_media_status: "Изменён статус «%{workflow}» материала «%{type}» (%{user}, %{role} группы %{team})"
-      project_media_assign: "Назначен материал «%{type}» (%{user}, %{role} группы %{team})"
-      project_media_unassign: "Снято назначение материала «%{type}» (%{user}, %{role} группы %{team})"
-      project_source_comment: "Добавлена заметка к источнику «%{parent_type}» (%{user}, %{role} группы %{team})"
-      project_source_create: "Добавлен источник «%{type}» (%{user}, %{role} группы %{team})"
-      project_source_update: "Отредактирован источник «%{type}» (%{user}, %{role} группы %{team})"
-      user_member: "Новый участник проекта %{team}: %{user} "
-      user_requested: "Новый запрос на вступление в проект %{team}: %{user}"
-      user_invited: "Новое приглашение в проект %{team}: %{user}"
-      user_banned: "Новый бан в проекте %{team}: %{user}"
   mail_view_welcome: Добро пожаловать в %{app_name}
   mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}! Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
   mail_confirm_button: Подтвердить мой аккаунт
@@ -213,7 +174,6 @@ ru:
     flash:
       delete_team_scheduled: Проект %{team} удаляется
   email_not_found: Email не найден
-  slack_channel_format_wrong: Неверный канал Slack
   invalid_token: Неверный токен
   time:
     formats:

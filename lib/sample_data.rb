@@ -545,11 +545,6 @@ module SampleData
     Bot::Alegre.new(_options)
   end
 
-  def create_slack_bot(_options = {})
-    b = create_team_bot(type: 'Bot::Slack')
-    Bot::Slack.find(b.id)
-  end
-
   def create_bounce(options = {})
     b = Bounce.new
     b.email = options.has_key?(:email) ? options[:email] : random_email

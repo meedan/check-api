@@ -62,9 +62,5 @@ module Workflow
     def self.target
       ProjectMedia
     end
-
-    def self.notify_slack?
-      true
-    end
   end
 end

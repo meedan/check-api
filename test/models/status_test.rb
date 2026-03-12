@@ -144,47 +144,6 @@ class StatusTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Slack when status is updated" do
-    create_verification_status_stuff
-    create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
-    if Bot::Slack.default.nil?
-      b = Bot::Slack.new
-      b.name = 'Slack Bot'
-      b.save!
-    end
-    t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1
-    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
-    slack_notifications = [{
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "#test"
-    }]
-    t.slack_notifications = slack_notifications.to_json
-    t.save!
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    with_current_user_and_team(u, t) do
-      m = create_valid_media
-      pm = create_project_media team: t, media: m
-      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
-      s = create_status status: 'false', annotator: u, annotated: pm
-      assert_not s.sent_to_slack
-      s = Dynamic.find(s.id)
-      s.status = 'verified'; s.save!
-      assert_nil s.sent_to_slack
-      # claim report
-      m = create_claim_media team: t
-      pm = create_project_media team: t, media: m
-      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
-      s = create_status status: 'false', annotator: u, annotated: pm
-      assert_nil s.sent_to_slack
-      s = Dynamic.find(s.id)
-      s.status = 'verified'; s.save!
-      assert_nil s.sent_to_slack
-    end
-  end
-
   test "should validate status" do
     t = create_team
     pm = create_project_media
@@ -273,27 +232,6 @@ class StatusTest < ActiveSupport::TestCase
     assert_raise ActiveModel::ForbiddenAttributesError do
       Dynamic.create(params)
     end
-  end
-
-  test "should define Slack message" do
-    create_verification_status_stuff
-    u = create_user
-    t = create_team
-    create_team_user user: u, team: t, role: 'admin'
-    pm = create_project_media team: t
-    User.current = u
-    s = create_status status: 'false', annotated: pm, annotator: u
-    s = Dynamic.find(s.id)
-    s.status = 'verified'
-    s.save!
-    assert_match /verification status/, s.slack_notification_message
-    u1 = create_user
-    create_team_user user: u1, team: t
-    u2 = create_user
-    create_team_user user: u2, team: t
-    s = create_status annotated: pm, annotator: u, status: 'false'
-
-    User.current = nil
   end
 
   test "should notify by e-mail when assignment changes" do
