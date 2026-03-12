@@ -13,7 +13,6 @@ class Team < ApplicationRecord
   include TeamPrivate
   include TeamDuplication
   include TeamRules
-  include TeamSlackNotifications
   include CheckArchivedFlags
 
   attr_accessor :affected_ids, :is_being_copied, :is_being_created

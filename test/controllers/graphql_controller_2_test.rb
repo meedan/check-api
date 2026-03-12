@@ -577,17 +577,6 @@ class GraphqlController2Test < ActionController::TestCase
     end
   end
 
-  test "should set and get Slack settings for team" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    authenticate_with_user(u)
-    query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + t.graphql_id + '", slack_notifications: "[{\"label\":\"not #1\",\"event_type\":\"any_activity\",\"slack_channel\":\"#list\"}]" }) { team { get_slack_notifications } } }'
-    post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_not_nil JSON.parse(@response.body)['data']['updateTeam']['team']['get_slack_notifications']
-  end
-
   test "should set and get special list filters for team" do
     u = create_user
     t = create_team

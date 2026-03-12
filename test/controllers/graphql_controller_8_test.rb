@@ -502,19 +502,6 @@ class GraphqlController8Test < ActionController::TestCase
     assert_equal [pm.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |x| x['node']['dbid'] }
   end
 
-  test "should check permission before setting Slack channel URL" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u, role: 'admin'
-    d = create_dynamic_annotation annotated: t, annotation_type: 'smooch_user'
-    u2 = create_user
-    authenticate_with_user(u2)
-    query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s +
-  '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + random_url+ '\"}" }) { annotation { dbid } } }'
-    post :create, params: { query: query }
-    assert_response 400
-  end
-
   test "should delete tag" do
     u = create_user
     t = create_team
@@ -1021,7 +1008,7 @@ class GraphqlController8Test < ActionController::TestCase
     u = create_user is_admin: true
     authenticate_with_user(u)
     t = create_team set_report: { en: { use_introduction: true, introduction: 'Test' } }
-    fields = %w(get_slack_notifications_enabled get_slack_webhook get_embed_whitelist get_report_design_image_template get_status_target_turnaround get_rules get_languages get_language get_report get_data_report_url get_outgoing_urls_utm_code get_shorten_outgoing_urls get_report)
+    fields = %w(get_embed_whitelist get_report_design_image_template get_status_target_turnaround get_rules get_languages get_language get_report get_data_report_url get_outgoing_urls_utm_code get_shorten_outgoing_urls get_report)
     post :create, params: { query: "query Team { team { join_requests(first: 10) { edges { node { id } } }, #{fields.join(', ')} } }", team: t.slug }
     assert_response :success
   end

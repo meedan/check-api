@@ -42,9 +42,6 @@ module TeamMutations
     argument :report, JsonStringType, required: false
 
     # Settings fields
-    argument :slack_notifications_enabled, GraphQL::Types::String, required: false, camelize: false
-    argument :slack_webhook, GraphQL::Types::String, required: false, camelize: false
-    argument :slack_notifications, GraphQL::Types::String, required: false, camelize: false
     argument :language, GraphQL::Types::String, required: false
     argument :languages, JsonStringType, required: false
     argument :language_detection, GraphQL::Types::Boolean, required: false, camelize: false

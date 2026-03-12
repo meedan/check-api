@@ -11,7 +11,6 @@ module TeamValidations
     validates :slug, uniqueness: true
     validate :slug_is_not_reserved
     validates :logo, size: true
-    validate :slack_webhook_format
     validate :language_format
     validate :languages_format
     validate :fieldsets_format

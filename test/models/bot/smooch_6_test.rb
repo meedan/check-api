@@ -636,19 +636,6 @@ class Bot::Smooch6Test < ActiveSupport::TestCase
     end
   end
 
-  test "should send Slack message notification with button after 24 hours window" do
-    Sidekiq::Testing.inline! do
-      Bot::Smooch.stubs(:get_original_slack_message_text_to_be_resent).returns(random_string)
-      @installation.set_smooch_template_name_for_more_information_with_button = 'more_information_with_button'
-      @installation.save!
-
-      send_message_outside_24_hours_window('more_information')
-
-      send_message_to_smooch_bot('Receive message', @uid, { 'quotedMessage' => { 'content' => { '_id' => @msgid } } })
-      assert_nil Rails.cache.read("smooch:original:#{@msgid}")
-    end
-  end
-
   test "should get user name from id" do
     create_annotation_type_and_fields('Smooch User', { 'Data' => ['JSON', true], 'ID' => ['String', true] })
 

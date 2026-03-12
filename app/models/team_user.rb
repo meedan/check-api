@@ -12,8 +12,7 @@ class TeamUser < ApplicationRecord
   check_settings
 
   before_validation :check_existing_invitation, :set_role_default_value, on: :create
-  after_create :send_email_to_team_owners, :send_slack_notification
-  after_update :send_slack_notification
+  after_create :send_email_to_team_owners
   after_save :send_email_to_requestor, :update_user_cached_teams_after_save
   after_destroy :update_user_cached_teams_after_destroy
 
@@ -41,42 +40,6 @@ class TeamUser < ApplicationRecord
       name: self.team.name,
       role: self.role,
       status: self.status
-    }
-  end
-
-  def slack_params
-    user = self.user
-    {
-      user: Bot::Slack.to_slack(user.name),
-      user_image: user.profile_image,
-      team: Bot::Slack.to_slack(self.team.name),
-      url: "#{CheckConfig.get('checkdesk_client')}/check/user/#{user.id}",
-      description: Bot::Slack.to_slack(user.source&.description, false),
-      button: I18n.t("slack.fields.view_button", **{
-        type: I18n.t("activerecord.models.user"), app: CheckConfig.get('app_name')
-      })
-    }
-  end
-
-  def slack_notification_message(_event = nil)
-    # Ignore updates that don't involve the status. The presence of "id" indicates creation.
-    return nil if (self.saved_changes.keys & ['id', 'status']).blank?
-
-    params = self.slack_params
-    {
-      pretext: I18n.t("slack.messages.user_#{self.status}", **params),
-      title: params[:project],
-      title_link: params[:url],
-      author_name: params[:user],
-      author_icon: params[:user_image],
-      text: params[:description],
-      actions: [
-        {
-          type: "button",
-          text: params[:button],
-          url: params[:url]
-        }
-      ]
     }
   end
 

@@ -1,32 +1,4 @@
 module SmoochBotMutations
-  class AddSlackChannelUrl < Mutations::BaseMutation
-    graphql_name "SmoochBotAddSlackChannelUrl"
-
-    argument :id, GraphQL::Types::String, required: true
-    argument :set_fields, GraphQL::Types::String, required: true, camelize: false
-
-    field :success, GraphQL::Types::Boolean, null: true
-    field :annotation, AnnotationType, null: true
-
-    def resolve(id:, set_fields:)
-      annotation = Dynamic.where(
-        id: id,
-        annotation_type: "smooch_user"
-      ).last
-      if annotation.nil?
-        raise ActiveRecord::RecordNotFound
-      else
-        raise "No permission to update #{annotation.class.name}" unless annotation.ability.can?(:update, annotation)
-        SmoochAddSlackChannelUrlWorker.perform_in(
-          1.second,
-          id,
-          set_fields
-        )
-        { success: true, annotation: annotation }
-      end
-    end
-  end
-
   class AddIntegration < Mutations::BaseMutation
     graphql_name "SmoochBotAddIntegration"
 
