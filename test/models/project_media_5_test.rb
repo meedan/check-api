@@ -234,39 +234,37 @@ class ProjectMedia5Test < ActiveSupport::TestCase
   end
 
   test "should update project media embed data" do
-    Sidekiq::Testing.inline! do
-      pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
-      url = 'http://test.com'
-      response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
-      WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
-      m = create_media(account: create_valid_account, url: url)
-      t1 = create_team
-      t2 = create_team
-      pm1 = create_project_media team: t1, media: m
-      pm2 = create_project_media team: t2, media: m
-      # fetch data (without overridden)
-      data = pm1.media.metadata
-      assert_equal 'test media', data['title']
-      assert_equal 'add desc', data['description']
-      # Update media title and description for pm1
-      info = { title: 'Title A', content: 'Desc A' }
-      pm1.analysis = info
-      info = { title: 'Title AA', content: 'Desc AA' }
-      pm1.analysis = info
-      # Update media title and description for pm2
-      info = { title: 'Title B', content: 'Desc B' }
-      pm2.analysis = info
-      info = { title: 'Title BB', content: 'Desc BB' }
-      pm2.analysis = info
-      # fetch data for pm1
-      data = pm1.analysis
-      assert_equal 'Title AA', data['title']
-      assert_equal 'Desc AA', data['content']
-      # fetch data for pm2
-      data = pm2.analysis
-      assert_equal 'Title BB', data['title']
-      assert_equal 'Desc BB', data['content']
-    end
+    pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
+    url = 'http://test.com'
+    response = '{"type":"media","data":{"url":"' + url + '/normalized","type":"item", "title": "test media", "description":"add desc"}}'
+    WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
+    m = create_media(account: create_valid_account, url: url)
+    t1 = create_team
+    t2 = create_team
+    pm1 = create_project_media team: t1, media: m
+    pm2 = create_project_media team: t2, media: m
+    # fetch data (without overridden)
+    data = pm1.media.metadata
+    assert_equal 'test media', data['title']
+    assert_equal 'add desc', data['description']
+    # Update media title and description for pm1
+    info = { title: 'Title A', content: 'Desc A' }
+    pm1.analysis = info
+    info = { title: 'Title AA', content: 'Desc AA' }
+    pm1.analysis = info
+    # Update media title and description for pm2
+    info = { title: 'Title B', content: 'Desc B' }
+    pm2.analysis = info
+    info = { title: 'Title BB', content: 'Desc BB' }
+    pm2.analysis = info
+    # fetch data for pm1
+    data = pm1.analysis
+    assert_equal 'Title AA', data['title']
+    assert_equal 'Desc AA', data['content']
+    # fetch data for pm2
+    data = pm2.analysis
+    assert_equal 'Title BB', data['title']
+    assert_equal 'Desc BB', data['content']
   end
 
   test "should have annotations" do

@@ -7,6 +7,7 @@ class GraphqlControllerTest < ActionController::TestCase
     @url = 'https://www.youtube.com/user/MeedanTube'
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
+    super
     TestDynamicAnnotationTables.load!
 
     User.unstub(:current)
