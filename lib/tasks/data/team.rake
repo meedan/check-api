@@ -1,9 +1,9 @@
 namespace :check do
   namespace :team do
-    # bundle exec rails check:team:delete_tags[slug-1,slug-2,...,slug-N]
+    # bundle exec rails check:team:delete_tags['slug-1|slug-2|...|slug-N']
     desc 'Delete all team tags'
-    task delete_tags: :environment do |_t, params|
-      slugs = params.to_a
+    task :delete_tags, [:slugs] => :environment do |_t, args|
+    slugs = args[:slugs].to_s.split('|')
       Team.where(slug: slugs).find_each do |team|
         count = team.tag_texts.count
         puts "Deleting tags [#{count}] for team #{team.slug}"
@@ -13,59 +13,59 @@ namespace :check do
         end
       end
     end
-    # bundle exec rails check:team:activate[slug-1,slug-2,...,slug-N]
-    task activate: :environment do |_t, params|
-      slugs = params.to_a
-      Team.where(slug: slugs).find_each do |team|
+    # bundle exec rails check:team:activate['slug-1|slug-2|...|slug-N']
+    task :activate, [:slugs] => :environment do |_t, args|
+      slugs = args[:slugs].to_s.split('|')
+      Team.where(slug: slugs, inactive: true).find_each do |team|
+        print '.'
         team.inactive = false
         team.save!
       end
     end
-    # bundle exec rails check:team:deactivate[slug-1,slug-2,...,slug-N]
-    task deactivate: :environment do |_t, params|
-      slugs = params.to_a
-      Team.where(slug: slugs).find_each do |team|
+    # bundle exec rails check:team:deactivate['slug-1|slug-2|...|slug-N']
+    task :deactivate, [:slugs] => :environment do |_t, args|
+      slugs = args[:slugs].to_s.split('|')
+      Team.where(slug: slugs, inactive: false).find_each do |team|
+        print '.'
         team.inactive = true
         team.save!
       end
     end
     # bundle exec rails check:team:list_teams_with_number_of_members[x]
     desc 'List all teams with members less than or equal X'
-    task list_teams_with_number_of_members: :environment do |_t, number|
-      number = number.to_a.first.to_i
+    task :list_teams_with_number_of_members, [:members] => :environment do |_t, args|
+      members = args[:members].to_i
       output = []
       TeamUser.select('team_id, count(team_id) as m_count, teams.slug as slug')
       .joins(:team)
       .where(type: nil).group('team_id, slug')
-      .having("count(team_id) <= ?", number).each do |tu|
+      .having("count(team_id) <= ?", members).each do |tu|
         print '.'
         output << { team_id: tu.team_id, slug: tu.slug, members: tu.m_count }
       end
-      puts "\nTeams with members count \n"
+      puts "\nTeams with members less than or equal #{members}\n"
       pp output
     end
-    # bundle exec rails check:team:list_inactive_teams['YYYY-MM-DD']
-    desc 'List all teams with no activities since X date'
-    task :list_inactive_teams, [:date] => :environment do |_t, args|
-      date = nil
-      begin
-        date = DateTime.parse(args[:date])
-      rescue
-        raise "You must enter a valid date in the format YYYY-MM-DD."
-      end
+    # bundle exec rails "check:team:list_inactive_teams['YYYY-MM-DD', 'YYYY-MM-DD']"
+    desc 'List all teams with no activities within dates (from..to)'
+    task :list_inactive_teams, [:from, :to] => :environment do |_t, args|
+      raise "You should set at least one date either from or to" if args[:from].blank? && args[:to].blank?
+      from = begin DateTime.parse(args[:from]) rescue Team.first.created_at end
+      to = begin DateTime.parse(args[:to]) rescue Time.now end
+      puts "List teams with no activities between #{from} ... #{to}"
       output = []
       Team.find_each do |team|
         print '.'
-        logs = Version.from_partition(team.id).where('created_at >= ?', date).count
+        logs = Version.from_partition(team.id).where(created_at: from..to).count
         output << { team_id: team.id, slug: team.slug } if logs == 0
       end
       puts "\n Teams list \n"
       pp output
     end
-    # bundle exec rails check:team:delete_teams_by_slugs[slug_a,slug_b,slug_c]
+    # bundle exec rails check:team:delete_teams_by_slugs['slug-1|slug-2|...|slug-N']
     desc 'Delete teams by slugs'
     task :delete_teams_by_slugs, [:slugs] => :environment do |_t, args|
-      slugs = args[:slugs].to_s.split(',')
+      slugs = args[:slugs].to_s.split('|')
       Team.where(slug: slugs).find_each do |team|
         puts "\nDeleted team #{team.slug} ..... \n"
         team.destroy!
@@ -83,21 +83,17 @@ namespace :check do
       end
       Rails.cache.delete('check:team:delete_teams_cache_and_es_values_by_slug')
     end
-    # bundle exec rails "check:team:delete_teams_cache_and_es_values[YYYY-MM-DD, slug_a|slug_b|slug_c]"
-    desc 'Delete cache/ES for all teams with no activities since X date and can exclude some teams by slug'
-    task :delete_teams_cache_and_es_values, [:date, :exclude] => :environment do |_t, args|
+    # bundle exec rails "check:team:delete_teams_cache_and_es_values['YYYY-MM-DD', 'YYYY-MM-DD', slug_a|slug_b|slug_c]"
+    desc 'Delete cache/ES for all teams with no activities within dates (from..to) and can exclude some teams by slug'
+    task :delete_teams_cache_and_es_values, [:from, :to, :exclude] => :environment do |_t, args|
+      from = begin DateTime.parse(args[:from]) rescue Team.first.created_at end
+      to = begin DateTime.parse(args[:to]) rescue Time.now end
       slugs = args[:exclude].to_s.split('|').map(&:strip)
-      date = nil
-      begin
-        date = DateTime.parse(args[:date])
-      rescue
-        raise "You must enter a valid date in the format YYYY-MM-DD."
-      end
       output = []
       last_team_id = Rails.cache.read('check:team:delete_teams_cache_and_es_values') || 0
       Team.where('id > ?', last_team_id).where.not(slug: slugs).find_each do |team|
         puts "\nProcessing team: #{team.slug}\n"
-        logs = Version.from_partition(team.id).where('created_at >= ?', date).count
+        logs = Version.from_partition(team.id).where(created_at: from..to).count
         if logs == 0
           output << { team_id: team.id, slug: team.slug }
           clean_cache_and_es(team)
