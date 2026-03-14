@@ -6,7 +6,7 @@ namespace :check do
       last_team_id = Rails.cache.read('check:migrate:delete_slack_notification_cached_data') || 0
       Team.where('id > ?', last_team_id).find_each do |team|
         puts "Processing team #{team.id}\n"
-        puts "\nDelete cache for smooch_user\n"
+        puts "\nDelete cache for smooch_user[#{team.id}]\n"
         Annotation.where(annotated_type: 'Team', annotated_id: team.id, annotation_type: 'smooch_user')
         .find_in_batches(batch_size: 1000) do |annotations|
           a_ids = annotations.pluck(:id)
@@ -29,10 +29,9 @@ namespace :check do
           end
         end
         # Delete `slack_message` annotations
-        puts "\nDelete PG data for slack message annotations\n"
-        smooch = BotUser.smooch_user
+        puts "\nDelete PG data for slack message annotations[#{team.id}]\n"
         fields = ["slack_message_id", "slack_message_channel", "slack_message_attachments", "slack_message_token"]
-        team.project_medias.where(user_id: smooch.id).find_in_batches(batch_size: 1000) do |items|
+        team.project_medias.find_in_batches(batch_size: 1000) do |items|
           pm_ids = items.pluck(:id)
           Annotation.where(annotated_type: 'ProjectMedia', annotated_id: pm_ids, annotation_type: 'slack_message')
           .find_in_batches(batch_size: 1000) do |annotations|
