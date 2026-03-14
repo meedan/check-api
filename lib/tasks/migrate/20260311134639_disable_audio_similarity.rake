@@ -7,7 +7,8 @@ namespace :check do
          if tbi.get_audio_similarity_enabled
           print '.'
           tbi.set_audio_similarity_enabled = false
-          tbi.save!
+          settings = tbi.settings
+          tbi.update_column(:settings, settings)
          end
       end
     end
