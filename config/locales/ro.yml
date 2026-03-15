@@ -142,7 +142,6 @@ ro:
           one: este prea scurt (minimul este de 1 caracter)
           few: este prea scurt (minimul este de %{count} caractere)
           other: este prea scurt (minimul este de %{count} de caractere)
-  slack_webhook_format_wrong: Webhookul Slack nu este valid, formatul trebuie să fie `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: este rezervat
   invalid_media_item: Elementul este nevalid
   invalid_default_status_for_custom_verification_status: Identificatorul de stare implicit nu este valid
@@ -151,44 +150,6 @@ ro:
   invalid_id_for_custom_verification_status: Identificatorul de stare este obligatoriu și trebuie să conțină doar litere mici, cifre, cratime și caractere de subliniere
   invalid_statuses_format_for_custom_verification_status: 'Stări nevalide de verificare personalizată. Se așteaptă intrări valide pentru: etichetă, identificator, descriere și stil.'
   mail_account_confirmation: "Confirmarea contului %{app_name}"
-  slack:
-    fields:
-      assigned: Atribuit lui
-      unassigned: Transferat de la
-      source: Sursa
-      status: Starea
-      status_previous: Starea precedentă
-      related_to: Are legătură cu
-      view_button: Vizualizează %{type} pe %{app}
-      project_source: Sursa
-      project_media: Element
-      attribution: Răspuns dat de
-    messages:
-      analysis_verification_status_status_changed: "%{user} și-a schimbat starea în: %{value}"
-      analysis_title_changed: "%{user} a schimbat titlul analizei în: %{value}"
-      analysis_content_changed: "%{user} a modificat conținutul analizei în: %{value}"
-      tasks_create: "%{user} a adăugat o sarcină: %{title}"
-      tasks_edit: "%{user} a editat sarcina %{title}"
-      tasks_answer_create: "%{user} a răspuns la sarcina %{title}: %{answer}"
-      tasks_answer_edit: "%{user} a editat răspunsul la sarcina %{title}: %{answer}"
-      metadata_create: "%{user} a adăugat un câmp de metadate: %{title}"
-      metadata_edit: "%{user} a editat câmpul de metadate %{title}"
-      metadata_answer_create: "%{user} a setat valoarea metadatelor %{title}: %{answer}"
-      metadata_answer_edit: "%{user} a editat valoarea metadatelor %{title}: %{answer}"
-      project_media_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
-      project_media_create: "%{user} (%{role} din %{team}) a adăugat un element nou"
-      project_media_create_related: "%{user} (%{role} în %{team}) a adăugat %{type} asociat"
-      project_media_update: "%{user} (%{role} din %{team}) a actualizat un element"
-      project_media_status: "%{user} (%{role} în %{team}) a modificat starea %{workflow} pentru %{type}"
-      project_media_assign: "%{user} (%{role} în %{team}) a desemnat %{type}"
-      project_media_unassign: "%{user} (%{role} în %{team}) a transferat %{type}"
-      project_source_comment: "%{user} (%{role} în %{team}) a adăugat o notă la %{parent_type}"
-      project_source_create: "%{user} (%{role} în %{team}) a adăugat %{type}"
-      project_source_update: "%{user} (%{role} în %{team}) a redactat %{type}"
-      user_member: "%{user} s-a alăturat spațiului de lucru %{team}"
-      user_requested: "%{user} a cerut să se alăture spațiului de lucru %{team}"
-      user_invited: "%{user} a fost invitat(ă) să se alăture spațiului de lucru %{team}"
-      user_banned: "%{user} a fost interzis în spațiul de lucru %{team}"
   mail_view_welcome: Bun venit în %{app_name}
   mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa de e-mail, făcând click pe următorul link:'
   mail_confirm_button: Confirmă contul meu
@@ -212,7 +173,6 @@ ro:
     flash:
       delete_team_scheduled: Se șterge spațiul de lucru %{team}
   email_not_found: Adresă de e-mail negăsită
-  slack_channel_format_wrong: Canalul Slack nu este valid
   invalid_token: Jeton nevalid
   time:
     formats:

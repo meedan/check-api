@@ -205,33 +205,6 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify Slack when user joins team" do
-    t = create_team slug: 'test'
-    t.set_slack_notifications_enabled = 1
-    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
-    slack_notifications = [{
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "#test"
-    }]
-    t.slack_notifications = slack_notifications.to_json
-    t.save!
-    u = create_user({ is_admin: true })
-    with_current_user_and_team(u, t) do
-      tu = create_team_user team: t, user: u, status: 'member'
-      assert tu.sent_to_slack
-
-      tu = TeamUser.find(tu.id)
-      tu.role = 'editor'
-      tu.save!
-      assert_not tu.sent_to_slack
-
-      tu = TeamUser.find(tu.id)
-      tu.status = 'invited'
-      tu.save!
-      assert tu.sent_to_slack
-    end
-  end
 
   test "should take :slack_teams setting into account" do
     t1 = create_team slug: 'test1'

@@ -92,26 +92,12 @@ module ActiveRecordExtensions
     self.annotations.destroy_all if self.respond_to?(:annotations)
   end
 
-  def sent_to_slack
-    @sent_to_slack
-  end
-
-  def sent_to_slack=(bool)
-    @sent_to_slack = bool
-  end
-
   def is_archived?
     self.respond_to?(:archived) && self.archived_was > CheckArchivedFlags::FlagCodes::NONE
   end
 
   def graphql_id
     Base64.encode64("#{self.class_name}/#{self.id}")
-  end
-
-  def send_slack_notification(event = nil)
-    return if (self.respond_to?(:is_being_copied) && self.is_being_copied) || RequestStore.store[:skip_notifications]
-    bot = Bot::Slack.default
-    bot.notify_slack(self, event) unless bot.nil?
   end
 
   def destroy_es_items(es_type, type='destroy_doc_nested', pm_id)

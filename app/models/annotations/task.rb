@@ -9,7 +9,6 @@ class Task < ApplicationRecord
   before_validation :set_slug, on: :create
   before_validation :set_order, on: :create
 
-  after_save :task_send_slack_notification
   after_destroy :reorder
   after_commit :add_update_elasticsearch_task, on: :create
   after_commit :destroy_elasticsearch_task, on: :destroy
@@ -43,39 +42,8 @@ class Task < ApplicationRecord
     true
   end
 
-  # TODO: Sawy::remove this method and handle slack notification for sources
-  def task_send_slack_notification
-    self.send_slack_notification unless self.annotated_type == 'Source'
-  end
-
   def to_s
     self.label
-  end
-
-  SLACK_FIELDS_IGNORE = [ :log_count, :slug, :status ]
-
-  def slack_params
-    super.merge({
-      title: Bot::Slack.to_slack(self.label),
-      description: Bot::Slack.to_slack(self.description, false),
-      attribution: nil
-    })
-  end
-
-  def slack_notification_message(params = nil)
-    if params.nil?
-      params = self.slack_params
-      if self.saved_change_to_data? and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_before_last_save.except(*SLACK_FIELDS_IGNORE)
-        event = self.annotation_versions.count > 1 ? 'edit' : 'create'
-      else
-        return nil
-      end
-    else
-      event = params[:event]
-    end
-    pretext = I18n.t("slack.messages.#{self.fieldset}_#{event}", **params)
-    # Either render a card or add the notification to the thread
-    self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
   end
 
   def content

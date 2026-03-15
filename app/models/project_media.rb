@@ -33,7 +33,7 @@ class ProjectMedia < ApplicationRecord
   validates_presence_of :custom_title, if: proc { |pm| pm.title_field == 'custom_title' }
 
   before_validation :set_team_id, :set_channel, on: :create
-  after_create :create_annotation, :send_slack_notification, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
+  after_create :create_annotation, :create_relationship, :create_team_tasks, :create_claim_description_and_fact_check, :create_tags_in_background
   after_create :add_source_creation_log, unless: proc { |pm| pm.source_id.blank? }
   after_commit :apply_rules_and_actions_on_create, :set_quote_metadata, :notify_team_bots_create, on: [:create]
   after_commit :create_relationship, on: [:update]
@@ -48,47 +48,6 @@ class ProjectMedia < ApplicationRecord
 
   def user_id_callback(value, _mapping_ids = nil)
     user_callback(value)
-  end
-
-  def slack_params
-    statuses = Workflow::Workflow.options(self, self.default_project_media_status_type)[:statuses]
-    current_status = statuses.select { |st| st['id'] == self.last_status }
-    user = User.current || self.user
-    {
-      user: Bot::Slack.to_slack(user.name),
-      user_image: user.profile_image,
-      role: I18n.t('role_' + user.role(self.team).to_s),
-      team: Bot::Slack.to_slack(self.team.name),
-      type: I18n.t("activerecord.models.#{self.media.class.name.underscore}"),
-      title: Bot::Slack.to_slack(self.title),
-      related_to: self.related_to ? Bot::Slack.to_slack_url(self.related_to.full_url, self.related_to.title) : nil,
-      description: Bot::Slack.to_slack(self.description, false),
-      url: self.full_url,
-      status: Bot::Slack.to_slack(current_status[0]['label']),
-      button: I18n.t("slack.fields.view_button", **{
-        type: I18n.t("activerecord.models.#{self.class_name.underscore}"), app: CheckConfig.get('app_name')
-      })
-    }
-  end
-
-  def should_send_slack_notification_message_for_card?
-    # Should always render a card if there is no slack_message annotation
-    return true if Annotation.where(annotation_type: 'slack_message', annotated_type: 'ProjectMedia', annotated_id: self.id).last.nil?
-    Time.now.to_i - Rails.cache.read("slack_card_rendered_for_project_media:#{self.id}").to_i > 48.hours.to_i
-  end
-
-  def slack_notification_message_for_card(text)
-    Rails.cache.write("slack_card_rendered_for_project_media:#{self.id}", Time.now.to_i)
-    return "<#{self.full_url}|#{text}>"
-  end
-
-  def slack_notification_message(event = nil)
-    params = self.slack_params
-    event ||= 'create'
-    related = params[:related_to].blank? ? '' : '_related'
-    pretext = I18n.t("slack.messages.project_media_#{event}#{related}", **params)
-    # Either render a card or update an existing one
-    self.should_send_slack_notification_message_for_card? ? self.slack_notification_message_for_card(pretext) : nil
   end
 
   def get_annotations(type = nil)
