@@ -143,7 +143,7 @@ class TeamType < DefaultObject
     object = object.reload if items_count_for_status || published_reports_count_for_status
     statuses = object.verification_statuses("media", nil, items_count_for_status, published_reports_count_for_status)
     # Sort the statuses by the 'label' field
-    statuses["statuses"] = statuses["statuses"].sort_by { |status| status["label"] }
+    statuses["statuses"] = statuses["statuses"].sort_by { |status| status["label"].to_s }
     statuses
   end
 
