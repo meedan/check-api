@@ -168,7 +168,15 @@ class Dynamic < ApplicationRecord
 
   def create_fields
     if !self.set_fields.blank? && self.json_schema.blank?
-      Rails.env.to_s == "test" ? self.create_fields_bg(self.set_fields) : self.delay.create_fields_bg(self.set_fields)
+      @fields = []
+      data = JSON.parse(self.set_fields)
+      data.each do |field_name, value|
+        next unless DynamicAnnotation::FieldInstance.where(name: field_name).exists?
+        value ||= ""
+        f = create_field(field_name, value)
+        f.save!
+        @fields << f
+      end
     end
   end
 
