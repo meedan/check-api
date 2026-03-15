@@ -522,7 +522,7 @@ class Bot::Smooch < BotUser
       sm.reset
       resource = self.send_resource_to_user(uid, workflow, option['smooch_menu_custom_resource_id'].to_s, language)
       self.bundle_message(message)
-      reset_state = (resource.content_type != 'dynamic')
+      reset_state = (resource&.content_type != 'dynamic')
       self.delay_for(1.seconds, { queue: 'smooch', retry: false }).bundle_messages(uid, message['_id'], app_id, 'resource_requests', resource, false, nil, reset_state)
     elsif value == 'subscription_confirmation'
       self.toggle_subscription(uid, language, self.config['team_id'], self.get_platform_from_message(message), workflow)

@@ -634,7 +634,7 @@ module ProjectMediaCachedFields
     end
 
     def recalculate_type_of_media
-      self.media.type
+      self.media&.type
     end
 
     def recalculate_added_as_similar_by_name
