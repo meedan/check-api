@@ -1111,11 +1111,6 @@ class TeamTest < ActiveSupport::TestCase
     create_project_media media: m, team: t2
   end
 
-  test "should return slack notifications as JSON schema" do
-    t = create_team
-    assert_not_nil t.slack_notifications_json_schema
-  end
-
   test "should map team tasks on saved searches when duplicating team" do
     t1 = create_team
     tt1 = create_team_task team: t1

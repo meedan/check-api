@@ -155,7 +155,6 @@ mk:
         too_short:
           one: е прекратка (најмалку 1 знак)
           other: е прекратка (потребно е да содржи најмалку %{count} знаци)
-  slack_webhook_format_wrong: Неважечки веб-хук на Слек. Треба да биде во следниов формат „https://hooks.slack.com/services/XXXXX/XXXXXXXXXX"
   slug_is_reserved: е резервирана
   invalid_media_item: Статијата е неважечка
   invalid_default_status_for_custom_verification_status: Идентификаторот за стандарден статус е неважечки
@@ -164,50 +163,6 @@ mk:
   invalid_id_for_custom_verification_status: Идентификаторот за статус е задолжителен и мора да содржи само мали букви, бројки, цртички и долни црти
   invalid_statuses_format_for_custom_verification_status: 'Неважечки статуси за приспособена верификација. Треба да има важечки информации за: ознака, идентификатор, опис и стил.'
   mail_account_confirmation: "%{app_name} потврда на сметката"
-  slack:
-    fields:
-      assigned: Доделено на
-      unassigned: Доделувањето е поништено од
-      project: Папка
-      source: Извор
-      status: Статус
-      status_previous: Претходен статус
-      related_to: Поврзано со
-      view_button: Погледнете го %{type} на %{app}
-      project_source: Извор
-      project_media: Статија
-      attribution: Одговорено од страна на
-    messages:
-      analysis_verification_status_status_changed: "%{user} го промени статусот на: %{value}"
-      analysis_title_changed: "%{user} го смени насловот на анализата на: %{value}"
-      analysis_content_changed: "%{user} ја смени содржината на анализата на: %{value}"
-      tasks_create: "%{user} додаде задача: %{title}"
-      tasks_edit: "%{user} ја измени задачата %{title}"
-      tasks_answer_create: "%{user} одговори на задачата %{title}: %{answer}"
-      tasks_answer_edit: "%{user} го измени одговорот на задачата %{title}: %{answer}"
-      metadata_create: "%{user} додаде поле со метаподатоци: %{title}"
-      metadata_edit: "%{user} го измени полето со метаподатоци %{title}"
-      metadata_answer_create: "%{user} ја постави вредноста на метаподатоците %{title}: %{answer}"
-      metadata_answer_edit: "%{user} ја измени вредноста на метаподатоците %{title}: %{answer}"
-      project_media_comment: "%{user} (%{role} од %{team}) додаде коментар во%{parent_type}"
-      project_media_create: "%{user} (%{role} од %{team}) поднесе нова статија"
-      project_media_create_related: "%{user} (%{role} од %{team}) додаде поврзан %{type}"
-      project_media_update: "%{user} (%{role} од %{team}) ја ажурира статијата"
-      project_media_move_to: "%{user} (%{role} од %{team}) ја премести статијата во %{project}"
-      project_media_added_to_list: "%{user} (%{role} од %{team}) додаде статија во папката %{list_name}"
-      project_media_status: "%{user} (%{role} од %{team}) го смени %{workflow} статусот на %{type}"
-      project_media_assign: "%{user} (%{role} од %{team}) додели %{type}"
-      project_media_unassign: "%{user} (%{role} од %{team}) го поништи доделувањето на %{type}"
-      project_source_comment: "%{user} (%{role} од %{team}) додаде коментар во%{parent_type}"
-      project_source_create: "%{user} (%{role} од %{team}) додаде %{type}"
-      project_source_update: "%{user} (%{role} од %{team}) измени %{type}"
-      project_create: "%{user} (%{role} од %{team}) креира папка"
-      project_assign: "%{user} (%{role} од %{team}) додели папка"
-      project_unassign: "%{user} (%{role} од %{team}) го поништи доделувањето на папката"
-      user_member: "%{user} се приклучи на работниот простор %{team}"
-      user_requested: "%{user} побара да се приклучи на работниот простор %{team}"
-      user_invited: "%{user} доби покана да се приклучи на работниот простор %{team}"
-      user_banned: "%{user} доби забрана за работниот простор %{team}"
   mail_view_welcome: Добре дојдовте на %{app_name}
   mail_view_register: 'Ви остана уште еден чекор за да пристапите до %{app_name}! Потврдете ја вашата адреса на е-пошта со кликање на следнава врска:'
   mail_confirm_button: Потврди ја мојата сметка
@@ -231,7 +186,6 @@ mk:
     flash:
       delete_team_scheduled: Работниот простор на %{team} е избришан
   email_not_found: Е-поштата не беше пронајдена
-  slack_channel_format_wrong: Неважечки канал на Слек
   invalid_token: Неважечки токен
   time:
     formats:

@@ -175,7 +175,6 @@ en:
           one: is too short (minimum is 1 character)
           other: is too short (minimum is %{count} characters)
   error_team_bot_event_is_not_valid: This bot event is invalid.
-  slack_webhook_format_wrong: Invalid Slack webhook. Expecting the format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: is reserved
   invalid_media_item: The item is invalid
   invalid_default_status_for_custom_verification_status: The default status identifier
@@ -188,53 +187,6 @@ en:
   invalid_statuses_format_for_custom_verification_status: 'Invalid custom verification
     statuses. Expecting valid entries for: label, identifier, description and style.'
   mail_account_confirmation: "%{app_name} account confirmation"
-  slack:
-    fields:
-      assigned: Assigned to
-      unassigned: Unassigned from
-      project: Folder
-      source: Source
-      status: Status
-      status_previous: Previous status
-      related_to: Related to
-      view_button: View %{type} on %{app}
-      project_source: Source
-      project_media: Item
-      attribution: Answered by
-    messages:
-      analysis_verification_status_status_changed: "%{user} changed status to: %{value}"
-      analysis_title_changed: "%{user} changed the analysis title to: %{value}"
-      analysis_content_changed: "%{user} changed the analysis content to: %{value}"
-      tasks_create: "%{user} added a task: %{title}"
-      tasks_edit: "%{user} edited the task %{title}"
-      tasks_answer_create: "%{user} answered task %{title}: %{answer}"
-      tasks_answer_edit: "%{user} edited the answer of task %{title}: %{answer}"
-      metadata_create: "%{user} added a metadata field: %{title}"
-      metadata_edit: "%{user} edited the metadata field %{title}"
-      metadata_answer_create: "%{user} set value of metadata %{title}: %{answer}"
-      metadata_answer_edit: "%{user} edited the value of metadata %{title}: %{answer}"
-      project_media_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
-      project_media_create: "%{user} (%{role} at %{team}) submitted a new item"
-      project_media_create_related: "%{user} (%{role} at %{team}) added a related
-        %{type}"
-      project_media_update: "%{user} (%{role} at %{team}) updated an item"
-      project_media_move_to: "%{user} (%{role} at %{team}) moved an item to %{project}"
-      project_media_added_to_list: "%{user} (%{role} at %{team}) added an item to
-        folder %{list_name}"
-      project_media_status: "%{user} (%{role} at %{team}) changed the %{workflow}
-        status of a %{type}"
-      project_media_assign: "%{user} (%{role} at %{team}) assigned a %{type}"
-      project_media_unassign: "%{user} (%{role} at %{team}) unassigned a %{type}"
-      project_source_comment: "%{user} (%{role} at %{team}) added a note to a %{parent_type}"
-      project_source_create: "%{user} (%{role} at %{team}) added a %{type}"
-      project_source_update: "%{user} (%{role} at %{team}) edited a %{type}"
-      project_create: "%{user} (%{role} at %{team}) created a folder"
-      project_assign: "%{user} (%{role} at %{team}) assigned a folder"
-      project_unassign: "%{user} (%{role} at %{team}) unassigned a folder"
-      user_member: "%{user} joined workspace %{team}"
-      user_requested: "%{user} requested to join workspace %{team}"
-      user_invited: "%{user} was invited to join workspace %{team}"
-      user_banned: "%{user} was banned from workspace %{team}"
   mail_view_welcome: Welcome to %{app_name}
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm
     your email address by clicking the following link:'
@@ -261,7 +213,6 @@ en:
     flash:
       delete_team_scheduled: Workspace %{team} is being deleted
   email_not_found: Email not found
-  slack_channel_format_wrong: Invalid Slack channel
   invalid_token: Invalid token
   time:
     formats:

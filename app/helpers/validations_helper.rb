@@ -1,11 +1,4 @@
 module ValidationsHelper
-  def slack_webhook_format
-    webhook = self.get_slack_webhook
-    if !webhook.blank? && /https?:\/\/hooks\.slack\.com/.match(webhook).nil?
-      errors.add(:base, I18n.t(:slack_webhook_format_wrong))
-    end
-  end
-
   def parent_is_not_archived(parent, message)
     errors.add(:base, message) if parent && parent.archived > CheckArchivedFlags::FlagCodes::NONE
   end

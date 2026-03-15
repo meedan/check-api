@@ -20,26 +20,6 @@ module Workflow
           define_method(id) do
             self.get_field("#{id}_status").to_s if self.annotation_type == id
           end
-
-          if workflow.notify_slack?
-            define_method "slack_notification_message_#{id}" do
-              from_status = self.send("previous_#{id}")
-              to_status = self.send(id)
-              params = self.slack_params.merge({
-                from_status: Bot::Slack.to_slack(from_status),
-                to_status: Bot::Slack.to_slack(to_status),
-                workflow: I18n.t("statuses.ids.#{id}")
-              })
-              if from_status != to_status && !from_status.blank?
-                event = 'status'
-              else
-                return nil
-              end
-              pretext = I18n.t("slack.messages.project_media_#{event}", **params)
-              # Either render a card or update an existing one
-              self.annotated&.should_send_slack_notification_message_for_card? ? self.annotated&.slack_notification_message_for_card(pretext) : nil
-            end
-          end
         end
 
         private

@@ -159,7 +159,6 @@ id:
         too_short:
           other: terlalu pendek (minimal %{count} karakter)
   error_team_bot_event_is_not_valid: Agenda bot ini tidak valid.
-  slack_webhook_format_wrong: Webhook Slack salah. Menunggu format `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: telah disimpan
   invalid_media_item: Perihal ini salah
   invalid_default_status_for_custom_verification_status: Pengenal status bawaan salah
@@ -168,50 +167,6 @@ id:
   invalid_id_for_custom_verification_status: Pengenal status adalah wajib dan harus terdiri dari huruf kecil, nomor, tanda hubung dan garis bawah
   invalid_statuses_format_for_custom_verification_status: 'Status verifikasi kustom salah. Menunggu entri yang benar untuk: label, pengidentifikasi, deskripsi, dan ragam.'
   mail_account_confirmation: "%{app_name} konfirmasi akun"
-  slack:
-    fields:
-      assigned: Ditugaskan pada
-      unassigned: Dibatalkan dari
-      project: Folder
-      source: Sumber
-      status: Status
-      status_previous: Status sebelumnya
-      related_to: Terkait dengan
-      view_button: Lihat %{type} pada %{app}
-      project_source: Sumber
-      project_media: Perihal
-      attribution: Dijawab oleh
-    messages:
-      analysis_verification_status_status_changed: "%{user} mengubah status menjadi: %{value}"
-      analysis_title_changed: "%{user} mengubah judul analisa menjadi: %{value}"
-      analysis_content_changed: "%{user} mengubah konten analisa menjadi: %{value}"
-      tasks_create: "%{user} menambahkan sebuah tugas: %{title}"
-      tasks_edit: "%{user} menyunting tugas %{title}"
-      tasks_answer_create: "%{user} menjawab tugas %{title}: %{answer} "
-      tasks_answer_edit: "%{user} menyunting jawaban dari tugas %{title}: %{answer}"
-      metadata_create: "%{user} menambahkan sebuah bidang metadata: %{title}"
-      metadata_edit: "%{user} menyunting bidang metadata %{title}"
-      metadata_answer_create: "%{user} mengatur nilai dari metadata %{title}: %{answer}"
-      metadata_answer_edit: "%{user} menyunting nilai dari metadata %{title}: %{answer}"
-      project_media_comment: "%{user} (%{role} pada %{team}) menambahkan catatan pada %{parent_type}"
-      project_media_create: "%{user} (%{role} pada %{team}) menyerahkan perihal baru"
-      project_media_create_related: "%{user} (%{role} pada %{team}) menambahkan sebuah %{type} terkait"
-      project_media_update: "%{user} (%{role} pada %{team}) memperbarui sebuah perihal"
-      project_media_move_to: "%{user} (%{role} pada %{team}) memindahkan sebuah perihal ke %{project}"
-      project_media_added_to_list: "%{user} (%{role} pada %{team}) menambahkan perihal ke folder %{list_name}"
-      project_media_status: "%{user} (%{role} pada %{team}) mengubah status %{workflow} dari %{type}"
-      project_media_assign: "%{user} (%{role} pada %{team}) menugaskan sebuah %{type}"
-      project_media_unassign: "%{user} (%{role} pada %{team}) membatalkan sebuah %{type}"
-      project_source_comment: "%{user} (%{role} pada %{team}) menambahkan catatan pada %{parent_type}"
-      project_source_create: "%{user} (%{role} pada %{team}) menambahkan sebuah %{type}"
-      project_source_update: "%{user} (%{role} pada %{team}) menyunting sebuah %{type}"
-      project_create: "%{user} (%{role} pada %{team}) membuat sebuah folder"
-      project_assign: "%{user} (%{role} pada %{team}) menugaskan sebuah folder"
-      project_unassign: "%{user} (%{role} pada %{team}) membatalkan sebuah folder"
-      user_member: "%{user} bergabung ke ruang kerja %{team}"
-      user_requested: "%{user} meminta untuk bergabung ke ruang kerja %{team}"
-      user_invited: "%{user} diundang untuk bergabung ke ruang kerja %{team}"
-      user_banned: "%{user} dilarang dari ruang kerja %{team}"
   mail_view_welcome: Selamat datang di %{app_name}
   mail_view_register: 'Satu langkah lagi agar Anda dapat menggunakan %{app_name}! Mohon konfirmasi alamat surel Anda dengan mengeklik tautan berikut:'
   mail_confirm_button: Konfirmasi akun saya
@@ -235,7 +190,6 @@ id:
     flash:
       delete_team_scheduled: Ruang kerja %{team} sedang dihapus
   email_not_found: Surel tidak ditemukan
-  slack_channel_format_wrong: Saluran Slack salah
   invalid_token: Token salah
   time:
     formats:

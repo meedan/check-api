@@ -62,30 +62,6 @@ class Bot::Smooch4Test < ActiveSupport::TestCase
       pm.destroy!
       assert !Bot::Smooch.resend_message_after_window(message)
     end
-
-    test "should resend Slack message after #{platform} window" do
-      msgid = random_string
-      result = OpenStruct.new({ messages: [OpenStruct.new({ source: OpenStruct.new(type: 'slack'), id: msgid, text: random_string })]})
-      SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
-      message = {
-        app: {
-          '_id': @app_id
-        },
-        appUser: {
-          '_id': random_string,
-        },
-        message: {
-          '_id': msgid
-        },
-        destination: {
-          type: platform
-        }
-      }.to_json
-      assert Bot::Smooch.resend_message_after_window(message)
-      result = OpenStruct.new({ messages: [] })
-      SmoochApi::ConversationApi.any_instance.stubs(:get_messages).returns(result)
-      assert !Bot::Smooch.resend_message_after_window(message)
-    end
   end
 
   test "should store Smooch conversation id" do

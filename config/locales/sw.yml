@@ -143,7 +143,6 @@ sw:
         too_short:
           one: ni fupi sana (kiwango chini ya 1 wahusika)
           other: ni fupi mno (kiwango cha chini ni vibambo %{count})
-  slack_webhook_format_wrong: Kiungo batili cha Slack. Inatarajia muundo 'https://hooks.slack.com/services/XXXXX/XXXXXXXXXX'
   slug_is_reserved: Imetengewa
   invalid_media_item: Kitu ni batili
   invalid_default_status_for_custom_verification_status: Hali msingi ya kutambulisha ni batili
@@ -152,44 +151,6 @@ sw:
   invalid_id_for_custom_verification_status: Utambulisho wa hali ni lazima na unapaswa kuwa na herufi ndogo pekee, nambari, deshi, na vistari chini
   invalid_statuses_format_for_custom_verification_status: 'Kaida batili ya uthibitishaji hali. Inatarajia maingizo halali kwa: lebo, kitambulisho, maelezo na mtindo.'
   mail_account_confirmation: "Uthibitisho wa akaunti ya %{app_name}"
-  slack:
-    fields:
-      assigned: Imepangiwa
-      unassigned: Imepanguliwa kutoka kwa
-      source: Chanzo
-      status: Hali
-      status_previous: Hali iliyopita
-      related_to: Inahusiana na
-      view_button: Angalia %{type} kwa %{app}
-      project_source: Chanzo
-      project_media: Kitu
-      attribution: Imejibiwa na
-    messages:
-      analysis_verification_status_status_changed: "%{user}alibadilisha hadhi kuwa: %{value}"
-      analysis_title_changed: "%{user}alibadilisha kichwa cha uchambuzi kuwa: %{value}"
-      analysis_content_changed: "%{user} alibadilisha maudhui ya uchambuzi kuwa: %{value}"
-      tasks_create: "%{user} aliongeza kazi:%{title}"
-      tasks_edit: "%{user} alihariri kazi %{title}"
-      tasks_answer_create: "%{user} alijibu kazi %{title}: %{answer}"
-      tasks_answer_edit: "%{user} alihariri jibu la kazi %{title}: %{answer}"
-      metadata_create: "%{user} aliongeza sehemu ya metadata: %{title}"
-      metadata_edit: "%{user} alibadilisha sehemu ya metadata %{title}"
-      metadata_answer_create: "%{user} weka thamani ya metadata %{title}: %{answer}"
-      metadata_answer_edit: "%{user} alibadilisha thamani ya metadata %{title}:%{answer}"
-      project_media_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa %{parent_type}"
-      project_media_create: "%{user} (%{role} katika %{team}) iliwasilisha kipengee kipya"
-      project_media_create_related: "%{user} (%{role} kwa %{team}) ameongeza inayohusiana %{type}"
-      project_media_update: "%{user}( %{role} katika %{team} ) ilisasisha kipengee"
-      project_media_status: "%{user} (%{role} kwa %{team}) amebadilisha %{workflow} hali ya %{type}"
-      project_media_assign: "%{user} (%{role} kwa %{team}) amepangia %{type}"
-      project_media_unassign: "%{user} (%{role} kwa %{team}) amepangua %{type}"
-      project_source_comment: "%{user} (%{role} kwa %{team}) ameongeza kidokezo kwa %{parent_type}"
-      project_source_create: "%{user} (%{role} kwa %{team}) ameongeza %{type}"
-      project_source_update: "%{user} (%{role} kwa %{team}) amehariri %{type}"
-      user_member: "%{user} amejiunga na ulingo wa kazi %{team}"
-      user_requested: "%{user} ameomba kujiunga na ulingo wa kazi %{team}"
-      user_invited: "%{user} ameaalikwa kujiunga na ulingo wa kazi %{team}"
-      user_banned: "%{user} alipigwa marufuku kwenye ulingo wa kazi %{team}"
   mail_view_welcome: Welcome %{app_name}
   mail_view_register: 'Imesalia hatua moja tu uweze kutumia %{app_name}! Tafadhali thibitisha barua pepe yako kwa kubonyeza kiungo kifwatacho:'
   mail_confirm_button: Thibitisha akaunti
@@ -213,7 +174,6 @@ sw:
     flash:
       delete_team_scheduled: Ulingo wa kazi %{team} unafutwa
   email_not_found: Barua pepe haipatikani
-  slack_channel_format_wrong: Mkondo batili wa Slack
   invalid_token: Ishara batili
   time:
     formats:

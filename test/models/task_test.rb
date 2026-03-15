@@ -118,105 +118,6 @@ class TaskTest < ActiveSupport::TestCase
     end
   end
 
-  test "should notify on Slack when task is updated" do
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    t.set_slack_notifications_enabled = 1
-    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
-    slack_notifications = [{
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "#test"
-    }]
-    t.slack_notifications = slack_notifications.to_json
-    t.save!
-    pm = create_project_media team: t
-    with_current_user_and_team(u, t) do
-      tk = create_task annotator: u, annotated: pm
-      tk.label = 'changed'
-      tk.description = 'changed'
-      tk.save!
-      assert tk.sent_to_slack
-      tk = Task.find(tk.id)
-      tg = create_tag annotated: tk
-      assert_not tk.sent_to_slack
-      assert !tg.sent_to_slack
-    end
-  end
-
-  test "should notify on Slack when task is resolved" do
-    create_annotation_type_and_fields('Slack Message', { 'Data' => ['JSON', false] })
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    t.set_slack_notifications_enabled = 1
-    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
-    slack_notifications = [{
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "#test"
-    }]
-    t.slack_notifications = slack_notifications.to_json
-    t.save!
-    at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
-    ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
-    fi1 = create_field_instance annotation_type_object: at, name: 'response_task', label: 'Response', field_type_object: ft1
-    pm = create_project_media team: t
-    pm2 = create_project_media team: t
-    tk2 = create_task annotator: u, annotated: pm2
-    pm3 = create_project_media team: t
-    tk3 = create_task annotator: u, annotated: pm3
-    tk3.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-    tk3.save!
-
-    with_current_user_and_team(u, t) do
-      tk = create_task annotator: u, annotated: pm
-      assert tk.sent_to_slack
-      create_dynamic_annotation annotated: pm, annotation_type: 'slack_message'
-
-      tk.disable_es_callbacks = true
-      tk.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-      tk.save!
-      assert !tk.response.sent_to_slack
-      tk2.response = { annotation_type: 'task_response_free_text', set_fields: { response_task: 'Foo' }.to_json }.to_json
-      tk2.save!
-      assert tk2.response.sent_to_slack
-
-      d = Dynamic.find(tk.response.id)
-      d.set_fields = { response_task: 'Bar' }.to_json
-      d.disable_es_callbacks = true
-      d.save!
-      assert !d.sent_to_slack
-
-      d = Dynamic.find(tk3.response.id)
-      d.set_fields = { response_task: 'Bar' }.to_json
-      d.disable_es_callbacks = true
-      d.save!
-      assert d.sent_to_slack
-    end
-  end
-
-  test "should notify on Slack when task is created" do
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    t.set_slack_notifications_enabled = 1
-    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
-    slack_notifications = [{
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "#test"
-    }]
-    t.slack_notifications = slack_notifications.to_json
-    t.save!
-    pm = create_project_media team: t
-    with_current_user_and_team(u, t) do
-      tk = create_task annotator: u, annotated: pm
-      assert tk.sent_to_slack
-    end
-  end
-
   test "should get first response from task" do
     at = create_annotation_type annotation_type: 'task_response_free_text', label: 'Task'
     ft1 = create_field_type field_type: 'text_field', label: 'Text Field'
@@ -236,28 +137,6 @@ class TaskTest < ActiveSupport::TestCase
   test "should set slug when task is created" do
     t = create_task label: 'Where did it happen?'
     assert_equal 'where_did_it_happen', t.slug
-  end
-
-  test "should send Slack notification in background" do
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    t.set_slack_notifications_enabled = 1
-    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
-    slack_notifications = [{
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "#test"
-    }]
-    t.slack_notifications = slack_notifications.to_json
-    t.save!
-    pm = create_project_media team: t
-    with_current_user_and_team(u, t) do
-      tk = create_task annotator: u, annotated: pm
-      tk = Task.find(tk.id)
-      tk.data = { label: 'Foo', type: 'free_text', fieldset: 'tasks' }.with_indifferent_access
-      tk.save!
-    end
   end
 
   test "should load task" do
@@ -565,29 +444,6 @@ class TaskTest < ActiveSupport::TestCase
     t2.destroy!
     assert_equal [t1, t3], pm.ordered_tasks('tasks')
     [t1, t3].each_with_index { |t, i| assert_equal i + 1, t.reload.order }
-  end
-
-  test "should notify on Slack thread when task is saved" do
-    create_annotation_type_and_fields('Slack Message', { 'Id' => ['Id', false], 'Attachments' => ['JSON', false], 'Channel' => ['Text', false] })
-    t = create_team slug: 'test'
-    u = create_user
-    create_team_user team: t, user: u, role: 'admin'
-    t.set_slack_notifications_enabled = 1
-    t.set_slack_webhook = 'https://hooks.slack.com/services/123'
-    slack_notifications = [{
-      "label": random_string,
-      "event_type": "any_activity",
-      "slack_channel": "#test"
-    }]
-    t.slack_notifications = slack_notifications.to_json
-    t.save!
-    pm = create_project_media team: t
-    create_dynamic_annotation annotation_type: 'slack_message', annotated: pm, set_fields: { slack_message_id: random_string, slack_message_channel: '#test', slack_message_attachments: [], slack_message_token: random_string }.to_json
-    with_current_user_and_team(u, t) do
-      pm.updated_at = Time.now
-      pm.save!
-      create_task annotator: u, annotated: pm
-    end
   end
 
   test "should upload multiple files to task" do

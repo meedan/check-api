@@ -95,20 +95,6 @@ class MetadataTest < ActiveSupport::TestCase
     end
   end
 
-  test "should not send Slack notification for metadata that is not related to project media" do
-    l = create_link
-    em = create_metadata annotated: l
-    Dynamic.any_instance.stubs(:title_is_overridden?).returns(true)
-    Dynamic.any_instance.stubs(:overridden_data).returns([{'title' => 'Test'}])
-    User.stubs(:current).returns(create_user)
-    assert_nothing_raised do
-      em.slack_notification_message
-    end
-    Dynamic.any_instance.unstub(:title_is_overridden?)
-    Dynamic.any_instance.unstub(:overridden_data)
-    User.unstub(:current)
-  end
-
   test "should get and set fields" do
     require File.join(Rails.root, 'app', 'models', 'annotations', 'embed')
     m = create_metadata

@@ -158,7 +158,6 @@ pt:
           one: é muito curto (mínimo de 1 caractere)
           many: É muito curto (mínimo de %{count} caracteres)
           other: É muito curto (mínimo de %{count} caracteres)
-  slack_webhook_format_wrong: Webhook do Slack inválido. O formato esperado é `https://hooks.slack.com/services/XXXXX/XXXXXXXXXX`
   slug_is_reserved: é reservado
   invalid_media_item: Este item é inválido
   invalid_default_status_for_custom_verification_status: O identificador padrão de status é  inválido
@@ -167,50 +166,6 @@ pt:
   invalid_id_for_custom_verification_status: O identificador de status é obrigatório e aceita apenas letras, números, hifens e sublinhados
   invalid_statuses_format_for_custom_verification_status: 'Status de verificação personalizada inválido. Esperando entradas válidas para: etiqueta, identificador, descrição e estilo.'
   mail_account_confirmation: "Confirmação de conta no %{app_name} "
-  slack:
-    fields:
-      assigned: Atribuída a
-      unassigned: Atribuição removida de
-      project: Pasta
-      source: Fonte
-      status: Status
-      status_previous: Status anterior
-      related_to: Relacionado a
-      view_button: Ver %{type} no %{app}
-      project_source: Fonte
-      project_media: Item
-      attribution: Respondida por
-    messages:
-      analysis_verification_status_status_changed: "%{user} modificou seu status para: %{value}"
-      analysis_title_changed: "%{user} modificou o título da análise para: %{value}"
-      analysis_content_changed: "%{user} modificou o conteúdo da análise para: %{value}"
-      tasks_create: "%{user} adicionou uma tarefa: %{title}"
-      tasks_edit: "%{user} editou a tarefa %{title}"
-      tasks_answer_create: "%{user} respondeu a tarefa %{title}: %{answer}"
-      tasks_answer_edit: "%{user} editou a resposta da tarefa %{title}: %{answer}"
-      metadata_create: "%{user} adicionou um campo de metadados: %{title}"
-      metadata_edit: "%{user} editou o campo de metadados %{title}"
-      metadata_answer_create: "%{user} definiu valor de metadados %{title}: %{answer}"
-      metadata_answer_edit: "%{user} editou o valor de metadados %{title}: %{answer}"
-      project_media_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a) %{parent_type}"
-      project_media_create: "%{user} (%{role} em %{team}) enviou um novo item"
-      project_media_create_related: "%{user} (%{role} em %{team}) adicionou um(a) %{type} relacionado(a)"
-      project_media_update: "%{user} (%{role} em %{team}) atualizou um item"
-      project_media_move_to: "%{user} (%{role} de %{team}) moveu um item para %{project}"
-      project_media_added_to_list: "%{user} (%{role} em %{team}) adicionou um item à pasta %{list_name}"
-      project_media_status: "%{user} (%{role} em %{team}) modificou o status de %{workflow} de um(a) %{type}"
-      project_media_assign: "%{user} (%{role} em %{team}) atribuiu um(a) %{type}"
-      project_media_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de um(a) %{type}"
-      project_source_comment: "%{user} (%{role} em %{team}) adicionou uma nota a um(a) %{parent_type}"
-      project_source_create: "%{user} (%{role} em %{team}) adicionou um(a) %{type}"
-      project_source_update: "%{user} (%{role} em %{team}) editou um(a) %{type}"
-      project_create: "%{user} (%{role} em %{team}) criou uma pasta"
-      project_assign: "%{user} (%{role} em %{team}) atribuiu uma pasta"
-      project_unassign: "%{user} (%{role} em %{team}) removeu a atribuição de uma pasta"
-      user_member: "%{user} começou a participar do espaço de trabalho %{team}"
-      user_requested: "%{user} enviou solicitação para participar do espaço de trabalho %{team}"
-      user_invited: "%{user} foi convidado(a) a participar do espaço de trabalho %{team}"
-      user_banned: "%{user} foi banido(a) do espaço de trabalho %{team}"
   mail_view_welcome: Bem-vindo/bem-vinda ao %{app_name}
   mail_view_register: 'Você está a somente um passo de usar o %{app_name}! Por favor, confirme o seu endereço de e-mail clicando neste link:'
   mail_confirm_button: Confirmar minha conta
@@ -234,7 +189,6 @@ pt:
     flash:
       delete_team_scheduled: O espaço de trabalho %{team} está sendo excluído
   email_not_found: E-mail não encontrado
-  slack_channel_format_wrong: O canal do Slack é inválido
   invalid_token: Token inválido
   time:
     formats:

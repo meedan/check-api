@@ -13,7 +13,6 @@ class TeamType < DefaultObject
   field :dbid, GraphQL::Types::Int, null: true
   field :members_count, GraphQL::Types::Int, null: true
   field :permissions, GraphQL::Types::String, null: true
-  field :get_slack_webhook, GraphQL::Types::String, null: true
   field :get_embed_whitelist, GraphQL::Types::String, null: true
   field :get_report_design_image_template, GraphQL::Types::String, null: true
   field :get_status_target_turnaround, GraphQL::Types::String, null: true
@@ -26,10 +25,8 @@ class TeamType < DefaultObject
   field :public_team_id, GraphQL::Types::String, null: true
   field :permissions_info, JsonStringType, null: true
   field :dynamic_search_fields_json_schema, JsonStringType, null: true
-  field :get_slack_notifications, JsonStringType, null: true
   field :get_rules, JsonStringType, null: true
   field :rules_json_schema, GraphQL::Types::String, null: true
-  field :slack_notifications_json_schema, GraphQL::Types::String, null: true
   field :rules_search_fields_json_schema, JsonStringType, null: true
   field :medias_count, GraphQL::Types::Int, null: true
   field :spam_count, GraphQL::Types::Int, null: true
@@ -41,18 +38,6 @@ class TeamType < DefaultObject
   field :url, GraphQL::Types::String, null: true
   field :data_report, JsonStringType, null: true
   field :available_newsletter_header_types, JsonStringType, null: true # List of header type strings
-
-  field :get_slack_notifications_enabled, GraphQL::Types::String, null: true
-
-  def get_slack_notifications_enabled
-    object.get_slack_notifications_enabled
-  end
-
-  field :get_slack_webhook, GraphQL::Types::String, null: true
-
-  def get_slack_webhook
-    object.get_slack_webhook
-  end
 
   field :get_embed_whitelist, GraphQL::Types::String, null: true
 
@@ -70,12 +55,6 @@ class TeamType < DefaultObject
 
   def get_status_target_turnaround
     object.get_status_target_turnaround
-  end
-
-  field :get_slack_notifications, JsonStringType, null: true
-
-  def get_slack_notifications
-    object.get_slack_notifications
   end
 
   field :get_rules, JsonStringType, null: true

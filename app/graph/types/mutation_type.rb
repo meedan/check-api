@@ -66,7 +66,6 @@ class MutationType < BaseObject
   field :updateTeamBotInstallation, mutation: TeamBotInstallationMutations::Update
   field :destroyTeamBotInstallation, mutation: TeamBotInstallationMutations::Destroy
 
-  field :smoochBotAddSlackChannelUrl, mutation: SmoochBotMutations::AddSlackChannelUrl
   field :smoochBotAddIntegration, mutation: SmoochBotMutations::AddIntegration
   field :smoochBotRemoveIntegration, mutation: SmoochBotMutations::RemoveIntegration
 
