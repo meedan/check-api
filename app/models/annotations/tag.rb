@@ -49,7 +49,7 @@ class Tag < ApplicationRecord
     tag_pms = {}
     TagText.where(text: texts, team_id: team.id).each do |tag_text|
       texts_to_ids[tag_text.text] = tag_text.id
-      existing_tags = Tag.where(annotated_id: ids, annotated_type: 'ProjectMedia').where("data = ?", { tag: tag_text.id }.with_indifferent_access.to_yaml)
+      existing_tags = Tag.where(annotation_type: 'tag', annotated_id: ids, annotated_type: 'ProjectMedia').where("data_json ->> 'tag' = ?", tag_text.id.to_s)
       tag_pms[tag_text.id] = existing_tags.map(&:annotated_id)
     end
 
@@ -58,7 +58,7 @@ class Tag < ApplicationRecord
     inputs.each do |input|
       tag = texts_to_ids[input[:tag]] || input[:tag]
       if ids.include?(input[:annotated_id].to_i) && !tag_pms[tag].include?(input[:annotated_id].to_i)
-        inserts << input.to_h.with_indifferent_access.reject{ |k, _v| k.to_sym == :tag }.merge({ annotation_type: 'tag', data: { tag: tag } })
+        inserts << input.to_h.with_indifferent_access.reject{ |k, _v| k.to_sym == :tag }.merge({ annotation_type: 'tag', data: { tag: tag }, data_json: { tag: tag} })
       end
     end
     result = Annotation.import inserts, validate: false, recursive: false, timestamps: true

@@ -20,6 +20,8 @@ namespace :check do
         end
         Rails.cache.write('check:migrate:migrate_tags_data_json', team.id)
       end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
   end
 end
