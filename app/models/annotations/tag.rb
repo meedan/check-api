@@ -16,6 +16,7 @@ class Tag < ApplicationRecord
   after_commit :destroy_elasticsearch_tag, on: :destroy
   after_commit :apply_rules_and_actions, on: [:create]
   after_commit :update_tags_count
+  after_save :update_data_json
 
   def content
     { tag: self.tag_text, tag_text_id: self.tag }.to_json
@@ -152,6 +153,10 @@ class Tag < ApplicationRecord
   def update_tags_count
     tag_text = self.tag_text_object
     tag_text.update_column(:tags_count, tag_text.calculate_tags_count) unless tag_text.nil?
+  end
+
+  def update_data_json
+    self.update_column(:data_json, self.data)
   end
 
   def apply_rules_and_actions
