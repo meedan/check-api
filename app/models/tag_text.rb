@@ -27,7 +27,7 @@ class TagText < ApplicationRecord
 
   # Performance here could be much better, and we are also considering only ProjectMedia tags
   def self.tags(id, team_id)
-    Tag.where("data = ?", { tag: id }.with_indifferent_access.to_yaml)
+    Tag.where(annotation_type: 'tag').where("data_json ->> 'tag' = ?", id.to_s)
        .joins("INNER JOIN project_medias pm ON pm.id = annotations.annotated_id AND annotations.annotated_type = 'ProjectMedia'")
        .where('pm.team_id' => team_id)
   end
