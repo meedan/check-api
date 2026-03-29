@@ -191,8 +191,6 @@ en:
   mail_view_register: 'You are only one step away from using %{app_name}! Please confirm
     your email address by clicking the following link:'
   mail_confirm_button: Confirm my account
-  slack_restricted_join_to_members: Sorry, you cannot join %{team_name} because it
-    is restricted to members of the Slack workspace(s) %{teams}.
   admin:
     actions:
       send_reset_password_email:

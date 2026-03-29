@@ -62,7 +62,7 @@ class BotGardenRefactoring < ActiveRecord::Migration[4.2]
       Annotation.where(annotator_type: 'Bot::Bot', annotator_id: old_check).update_all(annotator_type: 'BotUser', annotator_id: check.id)
     end
 
-    ['alegre', 'facebook', 'twitter', 'slack', 'bridge_reader', 'viber'].each do |identifier|
+    ['alegre', 'facebook', 'twitter', 'bridge_reader', 'viber'].each do |identifier|
       if ApplicationRecord.connection.table_exists?("bot_#{identifier.pluralize}")
         old = nil
         name = identifier.camelize.gsub(/([a-z])([A-Z])/, '\1 \2') + ' Bot'
