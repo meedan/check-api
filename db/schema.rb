@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_01_23_042611) do
+ActiveRecord::Schema.define(version: 2026_03_25_140013) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -183,12 +183,15 @@ ActiveRecord::Schema.define(version: 2026_01_23_042611) do
     t.text "fragment"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.jsonb "data_json"
+    t.index "((data_json ->> 'tag'::text))", name: "index_annotations_on_data_json_tag", where: "((annotation_type)::text = 'tag'::text)"
     t.index "task_fieldset((annotation_type)::text, data)", name: "task_fieldset", where: "((annotation_type)::text = 'task'::text)"
     t.index "task_team_task_id((annotation_type)::text, data)", name: "task_team_task_id", where: "((annotation_type)::text = 'task'::text)"
     t.index ["annotated_type", "annotated_id"], name: "index_annotations_on_annotated_type_and_annotated_id"
     t.index ["annotation_type"], name: "index_annotation_type_order", opclass: :varchar_pattern_ops
     t.index ["annotation_type"], name: "index_annotations_on_annotation_type"
     t.index ["created_at"], name: "index_annotations_on_created_at"
+    t.index ["data_json"], name: "index_annotations_on_data_json", using: :gin
   end
 
   create_table "api_keys", id: :serial, force: :cascade do |t|
@@ -571,6 +574,7 @@ ActiveRecord::Schema.define(version: 2026_01_23_042611) do
     t.index ["media_id"], name: "index_project_medias_on_media_id"
     t.index ["source_id"], name: "index_project_medias_on_source_id"
     t.index ["team_id", "archived", "sources_count"], name: "index_project_medias_on_team_id_and_archived_and_sources_count"
+    t.index ["team_id"], name: "index_project_medias_on_team_id"
     t.index ["unmatched"], name: "index_project_medias_on_unmatched"
     t.index ["user_id"], name: "index_project_medias_on_user_id"
   end
