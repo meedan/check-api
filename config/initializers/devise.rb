@@ -39,7 +39,6 @@ Devise.setup do |config|
   config.reset_password_within = 6.hours
   config.sign_in_after_reset_password = false
   config.sign_out_via = :delete
-  config.omniauth :twitter, setup: true
   config.omniauth :facebook, CheckConfig.get('facebook_app_id'), CheckConfig.get('facebook_app_secret'), scope: 'email,public_profile', info_fields: 'name,email,picture', setup: true
   google_auth_config = { access_type: 'offline', approval_prompt: '',  provider_ignores_state: true }
   config.omniauth :google_oauth2, CheckConfig.get('google_client_id'), CheckConfig.get('google_client_secret'), google_auth_config
