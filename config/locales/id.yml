@@ -170,7 +170,6 @@ id:
   mail_view_welcome: Selamat datang di %{app_name}
   mail_view_register: 'Satu langkah lagi agar Anda dapat menggunakan %{app_name}! Mohon konfirmasi alamat surel Anda dengan mengeklik tautan berikut:'
   mail_confirm_button: Konfirmasi akun saya
-  slack_restricted_join_to_members: Maaf, Anda tidak dapat bergabung dengan %{team_name} karena terbatas hanya untuk anggota ruang kerja %{teams} di Slack.
   admin:
     actions:
       send_reset_password_email:

@@ -175,7 +175,6 @@ ar:
   mail_view_welcome: مرحباً بكم في %{app_name}
   mail_view_register: 'إنك على وشك الانتهاء من تسجيل حسابك على %{app_name}! يرجى تأكيد بريدك الإلكتروني بالضّغط على الرّابط التالي:'
   mail_confirm_button: تأكيد الحساب
-  slack_restricted_join_to_members: عذراً، لا يمكنك الانضمام إلى %{team_name} حيث أنه محصور على أعضاء مساحات عمل %{teams} على Slack.
   admin:
     actions:
       send_reset_password_email:

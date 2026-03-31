@@ -169,7 +169,6 @@ pt:
   mail_view_welcome: Bem-vindo/bem-vinda ao %{app_name}
   mail_view_register: 'Você está a somente um passo de usar o %{app_name}! Por favor, confirme o seu endereço de e-mail clicando neste link:'
   mail_confirm_button: Confirmar minha conta
-  slack_restricted_join_to_members: Lamentamos, mas você não pode integrar %{team_name}, porque o acesso está restrito aos integrantes do(s) espaço(s) de trabalho %{teams} do Slack.
   admin:
     actions:
       send_reset_password_email:

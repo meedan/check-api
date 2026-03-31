@@ -154,7 +154,6 @@ sw:
   mail_view_welcome: Welcome %{app_name}
   mail_view_register: 'Imesalia hatua moja tu uweze kutumia %{app_name}! Tafadhali thibitisha barua pepe yako kwa kubonyeza kiungo kifwatacho:'
   mail_confirm_button: Thibitisha akaunti
-  slack_restricted_join_to_members: 'Samahani, huwezi kujiunga na %{team_name} kwa sababu imezuiliwa kwa wanachama wa ulingo wa kazi wa Slack %{teams}. '
   admin:
     actions:
       send_reset_password_email:

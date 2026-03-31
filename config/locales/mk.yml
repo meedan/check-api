@@ -166,7 +166,6 @@ mk:
   mail_view_welcome: Добре дојдовте на %{app_name}
   mail_view_register: 'Ви остана уште еден чекор за да пристапите до %{app_name}! Потврдете ја вашата адреса на е-пошта со кликање на следнава врска:'
   mail_confirm_button: Потврди ја мојата сметка
-  slack_restricted_join_to_members: За жал, не можете да се приклучите на %{team_name} дозволен е пристап само за членови на работниот простор(и) на Слек %{teams}.
   admin:
     actions:
       send_reset_password_email:

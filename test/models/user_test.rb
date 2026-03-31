@@ -1049,6 +1049,9 @@ class UserTest < ActiveSupport::TestCase
 
   test "should get user accounts and providers" do
     u = create_omniauth_user provider: 'facebook'
+    providers = u.providers
+    assert_equal 1, providers.count
+    assert_not providers.dig(0, :values, 0, :connected)
     s = u.source
     omniauth_info = {"info"=> { "name" => "test" } }
     create_account source: s, user: u, provider: 'google_oauth2', uid: '123456', omniauth_info: omniauth_info
