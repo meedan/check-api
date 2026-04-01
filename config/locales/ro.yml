@@ -153,7 +153,6 @@ ro:
   mail_view_welcome: Bun venit în %{app_name}
   mail_view_register: 'Sunteți la un pas de a folosi %{app_name}! Confirmați adresa de e-mail, făcând click pe următorul link:'
   mail_confirm_button: Confirmă contul meu
-  slack_restricted_join_to_members: Ne pare rău, nu vă puteți alătura %{team_name} deoarece este rezervată membrilor spațiilor de lucru din Slack %{teams}.
   admin:
     actions:
       send_reset_password_email:
@@ -331,6 +330,7 @@ ro:
       unassign_log: "%{author} a transferat %{model} de la %{username}"
       assign_by: Atribuit de
       unassign_by: Transferat de către
+      view_button: Vizualizează %{type} pe %{app}
     request_to_join:
       subject: Cerere pentru a intra în spațiul de lucru %{team}
       team_page: pagina spațiului de lucru

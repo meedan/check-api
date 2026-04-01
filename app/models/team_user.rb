@@ -7,7 +7,6 @@ class TeamUser < ApplicationRecord
 
   validates :status, presence: true
   validates :user_id, uniqueness: { scope: :team_id, message: 'already joined this team' }
-  validate :user_is_member_in_slack_team
 
   check_settings
 
@@ -110,28 +109,6 @@ class TeamUser < ApplicationRecord
 
   def set_role_default_value
     self.role = 'collaborator' if self.role.nil?
-  end
-
-  # Validate that a Slack user is part of the team's `slack_teams` setting.
-  # The `slack_teams` should be a hash of the form:
-  # { 'Slack team 1 id' => 'Slack team 1 name', 'Slack team 2 id' => 'Slack team 2 name', ... }
-  def user_is_member_in_slack_team
-    return if self.user.nil?
-    accounts = self.user.get_social_accounts_for_login({provider: 'slack'})
-    if !self.user.nil? && !accounts.blank? && self.team.setting(:slack_teams)&.is_a?(Hash)
-      accounts_team = accounts.collect{|a| a.omniauth_info&.dig('info', 'team_id')}
-      unless (self.team.setting(:slack_teams)&.keys & accounts_team).empty?
-        # Auto-approve slack user
-        self.status = 'member'
-      else
-        params = {
-          default: "Sorry, you cannot join %{team_name} because it is restricted to members of the Slack team(s) %{teams}.",
-          team_name: self.team.name,
-          teams: self.team.setting(:slack_teams).values.join(', ')
-        }
-        errors.add(:base, I18n.t(:slack_restricted_join_to_members, **params))
-      end
-    end
   end
 
   def update_user_cached_teams_after_save

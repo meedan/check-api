@@ -4,7 +4,7 @@ module UserMultiAuthLogin
   extend ActiveSupport::Concern
 
   included do
-    LOGINPROVIDERS = %w[slack google_oauth2]
+    LOGINPROVIDERS = %w[google_oauth2]
 
     def self.from_omniauth(auth, current_user=nil)
       self.update_facebook_uuid(auth)
@@ -144,11 +144,7 @@ module UserMultiAuthLogin
           values = []
           provider_accounts.each do |a|
             info = a.omniauth_info.dig('info')
-            if a.provider == 'slack'
-              name = "#{info['nickname']} at #{info['team']}"
-            else
-              name = info['name']
-            end
+            name = info['name']
             values << { connected: true, uid: "#{a.uid}", allow_disconnect: allow_disconnect, info: "#{provider_label}: #{name}" }
           end
           providers << { key: p, add_another: true, values: values }

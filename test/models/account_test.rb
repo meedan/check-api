@@ -309,10 +309,11 @@ class AccountTest < ActiveSupport::TestCase
   end
 
   test "should refresh user account with user omniauth_info" do
-    omniauth_info = {"info"=> {"name"=>"Daniela Feitosa" }, "url"=>"https://meedan.slack.com/team/daniela"}
-    u = create_omniauth_user provider: 'slack', uid: '123456', info: omniauth_info['info'], url: omniauth_info['url']
-    a = u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).first
-    assert_equal 'https://meedan.slack.com/team/daniela', a.url
+    url = random_url
+    omniauth_info = { "info" => { "name"=>"Daniela Feitosa" }, "url" => url }
+    u = create_omniauth_user provider: 'google', uid: '123456', info: omniauth_info['info'], url: omniauth_info['url']
+    a = u.get_social_accounts_for_login({provider: 'google', uid: '123456'}).first
+    assert_equal url, a.url
     assert_equal 'Daniela Feitosa', a.data['author_name']
 
     a.omniauth_info['info']['name'] = 'Daniela'

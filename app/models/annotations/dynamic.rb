@@ -180,16 +180,6 @@ class Dynamic < ApplicationRecord
     end
   end
 
-  def create_fields_bg(set_fields)
-    data = JSON.parse(set_fields)
-    data.each do |field_name, value|
-      next unless DynamicAnnotation::FieldInstance.where(name: field_name).exists?
-      value ||= ""
-      f = create_field(field_name, value)
-      f.save!
-    end
-  end
-
   def update_fields
     if !self.set_fields.blank? && self.json_schema.blank?
       fields = self.fields

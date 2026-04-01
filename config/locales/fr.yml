@@ -172,7 +172,6 @@ fr:
   mail_view_welcome: Bienvenue sur %{app_name}
   mail_view_register: 'Vous n’êtes qu’à une étape pour de pouvoir utiliser %{app_name}. Confirmez votre adresse courriel en cliquant le lien suivant :'
   mail_confirm_button: Confirmer mon compte
-  slack_restricted_join_to_members: Désolé, vous ne pouvez pas vous joindre à %{team_name}, car l’équipe est réservée aux membres des espaces de travail Slack %{teams}.
   admin:
     actions:
       send_reset_password_email:
@@ -365,6 +364,7 @@ fr:
       unassign_log: "%{author} a retirer l’attribution de %{model} de %{username}"
       assign_by: Attribués par
       unassign_by: Attribution retirée par
+      view_button: Afficher %{type} sur %{app}
     request_to_join:
       subject: Demande de se joindre à l’espace de travail %{team}
       team_page: page de l’espace de travail

@@ -2,7 +2,6 @@ module Api
   module V1
     class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       include FacebookAuthentication
-      include SlackAuthentication
       include GoogleAuthentication
 
       before_action :store_request

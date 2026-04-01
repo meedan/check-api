@@ -154,7 +154,6 @@ ru:
   mail_view_welcome: Добро пожаловать в %{app_name}
   mail_view_register: 'Вы уже совсем близко к тому, чтобы начать пользоваться %{app_name}! Пожалуйста, перейдите по ссылке, чтобы подтвердить свой e-mail адрес:'
   mail_confirm_button: Подтвердить мой аккаунт
-  slack_restricted_join_to_members: К сожалению, группа %{team_name} доступна только членам воркспейса %{teams} в Slack.
   admin:
     actions:
       send_reset_password_email:
@@ -327,6 +326,7 @@ ru:
       unassign_log: "Снято назначение элемента «%{model}» с пользователя %{username} (%{author})."
       assign_by: Назначил(а)
       unassign_by: Снял(а)
+      view_button: '%{type} в %{app}'
     request_to_join:
       subject: Запрос на вступление в проект %{team}
       team_page: страница проекта

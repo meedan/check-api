@@ -261,11 +261,11 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should refresh source and user account with user omniauth_info" do
-    info = {"name"=>"Daniela Feitosa", name: 'Daniela Feitosa'}
-    url = "https://meedan.slack.com/team/daniela"
-    u = create_omniauth_user provider: 'twitter', info: info, url: url
-    a = u.get_social_accounts_for_login({provider: 'twitter'}).first
-    assert_equal 'https://meedan.slack.com/team/daniela', a.url
+    info = { "name"=>"Daniela Feitosa", name: 'Daniela Feitosa' }
+    url = random_url
+    u = create_omniauth_user provider: 'google', info: info, url: url
+    a = u.get_social_accounts_for_login({provider: 'google'}).first
+    assert_equal url, a.url
     assert_equal 'Daniela Feitosa', a.data['author_name']
 
     a.omniauth_info['info']['name'] = 'Daniela'

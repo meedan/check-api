@@ -198,13 +198,6 @@ development: &default
   facebook_app_id: # '<FACEBOOK APP ID>'
   facebook_app_secret: # '<FACEBOOK APP SECRET>'
 
-  # Slack social login
-  #
-  # REQUIRED for Slack social login
-  #
-  slack_app_id: # '<SLACK APP ID>'
-  slack_app_secret: # '<SLACK APP SECRET>'
-
   # Google social login
   #
   # REQUIRED for Google social login https://developers.google.com/identity/protocols/oauth2
@@ -341,13 +334,6 @@ test:
   #
   facebook_app_id: # '<FACEBOOK APP ID>'
   facebook_app_secret: # '<FACEBOOK APP SECRET>'
-
-  # Slack social login
-  #
-  # REQUIRED to pass Slack social login tests
-  #
-  slack_app_id: # '<SLACK APP ID>'
-  slack_app_secret: # '<SLACK APP SECRET>'
 
 production:
   <<: *default
