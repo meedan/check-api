@@ -364,6 +364,7 @@ fr:
       unassign_log: "%{author} a retirer l’attribution de %{model} de %{username}"
       assign_by: Attribués par
       unassign_by: Attribution retirée par
+      view_button: Afficher %{type} sur %{app}
     request_to_join:
       subject: Demande de se joindre à l’espace de travail %{team}
       team_page: page de l’espace de travail

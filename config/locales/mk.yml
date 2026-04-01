@@ -353,6 +353,7 @@ mk:
       unassign_log: "%{author} го поништи доделувањето на %{model} на %{username}"
       assign_by: Доделено од страна на
       unassign_by: Доделувањето беше поништено од страна на
+      view_button: Погледнете го %{type} на %{app}
     request_to_join:
       subject: Поднесете барање да се приклучите на работниот простор %{team}
       team_page: страница од работниот простор

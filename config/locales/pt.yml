@@ -361,6 +361,7 @@ pt:
       unassign_log: " %{author} removeu a atribuição de %{model} de %{username}"
       assign_by: Atribuídos por
       unassign_by: A atribuição foi removida por
+      view_button: Ver %{type} no %{app}
     request_to_join:
       subject: Solicitação para participar do espaço de trabalho %{team}
       team_page: página do espaço de trabalho

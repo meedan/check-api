@@ -365,6 +365,7 @@ es:
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
+      view_button: Ver %{type} en %{app}
     request_to_join:
       subject: Solicitar unirse a área de trabajo %{team}
       team_page: página del área de trabajo

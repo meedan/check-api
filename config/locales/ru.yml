@@ -326,6 +326,7 @@ ru:
       unassign_log: "Снято назначение элемента «%{model}» с пользователя %{username} (%{author})."
       assign_by: Назначил(а)
       unassign_by: Снял(а)
+      view_button: '%{type} в %{app}'
     request_to_join:
       subject: Запрос на вступление в проект %{team}
       team_page: страница проекта

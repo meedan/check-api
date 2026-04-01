@@ -358,6 +358,7 @@ id:
       unassign_log: "%{author} membatalkan %{model} dari %{username}"
       assign_by: Ditugaskan oleh
       unassign_by: Dibatalkan oleh
+      view_button: Lihat %{type} pada %{app}
     request_to_join:
       subject: Permintaan untuk bergabung ke ruang kerja %{team}
       team_page: halaman ruang kerja

@@ -330,6 +330,7 @@ ro:
       unassign_log: "%{author} a transferat %{model} de la %{username}"
       assign_by: Atribuit de
       unassign_by: Transferat de către
+      view_button: Vizualizează %{type} pe %{app}
     request_to_join:
       subject: Cerere pentru a intra în spațiul de lucru %{team}
       team_page: pagina spațiului de lucru

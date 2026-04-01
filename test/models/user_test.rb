@@ -344,7 +344,7 @@ class UserTest < ActiveSupport::TestCase
   test "should not crash when creating user account" do
     Account.any_instance.stubs(:save).raises(Errno::ECONNREFUSED)
     assert_nothing_raised do
-      create_omniauth_user url: 'http://slack.com/meedan', provider: 'google'
+      create_omniauth_user url: random_url, provider: 'google'
     end
     Account.any_instance.unstub(:save)
   end
@@ -1022,14 +1022,14 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'User.count' do
       assert_difference 'Account.count', 1 do
-        create_omniauth_user provider: 'slack', uid: '123456', current_user: u
+        create_omniauth_user provider: 'google', uid: '123456', current_user: u
       end
     end
   end
 
   test "should get user through omniauth info" do
-    u = create_omniauth_user uid: '123456', provider: 'slack'
-    assert_equal u, User.find_with_omniauth('123456', 'slack')
+    u = create_omniauth_user uid: '123456', provider: 'google'
+    assert_equal u, User.find_with_omniauth('123456', 'google')
   end
 
   test "should get user through token" do
@@ -1038,7 +1038,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get social accounts for login" do
-    u = create_omniauth_user provider: 'slack'
+    u = create_omniauth_user provider: 'google'
     a = create_account source: u.source, user: u, provider: 'facebook'
     a2 = create_account source: u.source, user: u, uid: ''
     assert_equal 2, u.get_social_accounts_for_login.count

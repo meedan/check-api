@@ -328,6 +328,7 @@ sw:
       unassign_log: "%{author} amepangua %{model} kutoka kwa %{username}"
       assign_by: Imepangwa na
       unassign_by: Imepanguliwa na
+      view_button: Angalia %{type} kwa %{app}
     request_to_join:
       subject: Omba kujiunga na ulingo wa kazi %{team}
       team_page: Ukurasa wa ulingo wa kazi

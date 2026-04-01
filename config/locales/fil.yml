@@ -326,6 +326,7 @@ fil:
       unassign_log: "Inalis ni %{author} ang pagkakatalaga ng %{model} kay %{username}"
       assign_by: Itinalaga ni
       unassign_by: Inalis sa pagkakatalaga ni
+      view_button: Tingnan ang %{type} sa %{app}
     request_to_join:
       subject: Kahilingang sumali sa workspace na %{team}
       team_page: pahina ng workspace

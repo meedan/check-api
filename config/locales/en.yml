@@ -400,6 +400,7 @@ en:
       unassign_log: "%{author} unassigned %{model} from %{username}"
       assign_by: Assigned by
       unassign_by: Unassigned by
+      view_button: View %{type} on %{app}
     request_to_join:
       subject: Request to join workspace %{team}
       team_page: workspace page
