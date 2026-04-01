@@ -172,7 +172,6 @@ es:
   mail_view_welcome: Bienvenida / Bienvenido a %{app_name}
   mail_view_register: '¡Estás a un solo paso de usar %{app_name}! Por favor, confirma tu dirección de correo electrónico haciendo clic en el siguiente enlace:'
   mail_confirm_button: Confirmar mi cuenta
-  slack_restricted_join_to_members: Lo sentimos, no puedes unirte a %{team_name} porque está restringido a los miembros de la(s) área(s) de trabajo de Slack %{teams}.
   admin:
     actions:
       send_reset_password_email:
@@ -366,6 +365,7 @@ es:
       unassign_log: "%{author} desasignó %{model} a %{username}"
       assign_by: Asignado por
       unassign_by: Desasignado por
+      view_button: Ver %{type} en %{app}
     request_to_join:
       subject: Solicitar unirse a área de trabajo %{team}
       team_page: página del área de trabajo

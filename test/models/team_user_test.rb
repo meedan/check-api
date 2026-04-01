@@ -205,61 +205,6 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
-
-  test "should take :slack_teams setting into account" do
-    t1 = create_team slug: 'test1'
-    t2 = create_team slug: 'test2'
-    t2.set_slack_teams = { 'SlackTeamID' => 'SlackTeamName' }
-    t2.save!
-    t2.reload
-    u1 = create_user
-    u2 = create_omniauth_user provider: 'twitter'
-    u3 = create_omniauth_user provider: 'slack'
-    u4 = create_omniauth_user provider: 'slack', info: { 'team_id' => 'SlackTeamID' }
-    u5 = create_omniauth_user provider: 'slack', info: { 'team_id' => 'OtherSlackTeamID' }
-    User.current = nil
-    assert_nothing_raised do
-      create_team_user team: t1, user: u1
-    end
-    assert_nothing_raised do
-      create_team_user team: t1, user: u2
-    end
-    assert_nothing_raised do
-      create_team_user team: t1, user: u3
-    end
-    assert_nothing_raised do
-      create_team_user team: t1, user: u4
-    end
-    assert_nothing_raised do
-      create_team_user team: t1, user: u5
-    end
-    assert_nothing_raised do
-      create_team_user team: t2, user: u1
-    end
-    assert_nothing_raised do
-      create_team_user team: t2, user: u2
-    end
-    assert_raise ActiveRecord::RecordInvalid do
-      create_team_user team: t2, user: u3
-    end
-    assert_nothing_raised do
-      create_team_user team: t2, user: u4
-    end
-    assert_raise ActiveRecord::RecordInvalid do
-      create_team_user team: t2, user: u5
-    end
-  end
-
-  test "should auto-approve slack users" do
-    t = create_team slug: 'slack'
-    t.set_slack_teams = { 'SlackTeamID' => 'SlackTeamName' }
-    t.save
-    u = create_omniauth_user provider: 'slack', 'info': { 'team_id' => 'SlackTeamID' }
-    tu = create_team_user team: t, user: u
-    assert_equal 'member', tu.status
-    assert_equal 'collaborator', tu.role
-  end
-
   test "should protect attributes from mass assignment" do
     raw_params = { user: create_user, team: create_team }
     params = ActionController::Parameters.new(raw_params)

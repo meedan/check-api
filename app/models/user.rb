@@ -31,7 +31,7 @@ class User < ApplicationRecord
   has_many :explainers
 
   devise :recoverable, :rememberable, :trackable, :validatable, :confirmable,
-         :omniauthable, omniauth_providers: [:twitter, :facebook, :slack, :google_oauth2]
+         :omniauthable, omniauth_providers: [:facebook, :google_oauth2]
 
   before_create :skip_confirmation_for_non_email_provider, :set_last_received_terms_email_at
   after_create :create_source_and_account, :set_source_image
