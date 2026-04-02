@@ -35,7 +35,7 @@ namespace :check do
         webhook_installations = team.team_users.joins(:user).where('users.type' => 'BotUser', 'users.default' => false).select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? && !team_user.user.get_approved }
         webhook_installations.map(&:user).each do |bu|
           puts "\nDeleting webhook #{bu.name}....\n"
-          puts "\nWebhook events: #{bu.events.inspect}"
+          puts "\nWebhook settings: #{bu.settings.inspect}"
           bu.destroy
         end
         team.inactive = true
