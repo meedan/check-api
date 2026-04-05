@@ -4,6 +4,8 @@ class TiplineNewsletterWorker
   sidekiq_options queue: 'smooch_priority', retry: 0
 
   def perform(team_id, language, job_created_at = 0)
+    team = Team.find_by_id team_id.to_i
+    return 0 if team.nil? || !team.tipline_newsletter_enabled
     tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
     newsletter = Bot::Smooch.get_newsletter(team_id, language)
     return 0 if tbi.nil? || !newsletter&.enabled
@@ -34,7 +36,10 @@ class TiplineNewsletterWorker
     log team_id, language, 'Preparing newsletter to be sent...'
     start = Time.now
     total = 0
-    TiplineSubscription.where(language: language, team_id: team_id).find_each do |ts|
+    limit = team.get_tipline_newsletter_subscribers_limit
+    query = TiplineSubscription.where(language: language, team_id: team_id
+    query = query.limit(limit) unless limit.nil?
+    query.each do |ts|
       log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
       begin
         RequestStore.store[:smooch_bot_platform] = ts.platform
