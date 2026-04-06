@@ -65816,6 +65816,20 @@
               "deprecationReason": null
             },
             {
+              "name": "get_tipline_newsletter_enabled",
+              "description": null,
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "id",
               "description": null,
               "args": [

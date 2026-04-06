@@ -37,7 +37,7 @@ class TiplineNewsletterWorker
     start = Time.now
     total = 0
     limit = team.get_tipline_newsletter_subscribers_limit
-    query = TiplineSubscription.where(language: language, team_id: team_id
+    query = TiplineSubscription.where(language: language, team_id: team_id)
     query = query.limit(limit) unless limit.nil?
     query.each do |ts|
       log team_id, language, "Sending newsletter to subscriber ##{ts.id}..."
