@@ -12602,7 +12602,7 @@ type Team implements Node {
   get_status_target_turnaround: String
   get_suggested_matches_filters: JsonStringType
   get_tipline_inbox_filters: JsonStringType
-  get_tipline_newsletter_enabled: Boolean
+  get_tipline_newsletter_enabled: Int
   id: ID!
   inactive: Boolean
   join_requests(

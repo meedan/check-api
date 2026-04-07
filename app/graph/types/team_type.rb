@@ -121,7 +121,7 @@ class TeamType < DefaultObject
     object.get_explainers_enabled
   end
 
-  field :get_tipline_newsletter_enabled, GraphQL::Types::Boolean, null: true
+  field :get_tipline_newsletter_enabled, GraphQL::Types::Int, null: true
 
   def get_tipline_newsletter_enabled
     object.get_tipline_newsletter_enabled

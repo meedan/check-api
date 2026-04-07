@@ -11,22 +11,20 @@ namespace :check do
         integrations = tbi.smooch_enabled_integrations
         unless integrations.empty?
           team = tbi.team
-          action = nil
+          action = 2
           if integrations.count == 1 
             action = !(integrations.keys == ['whatsapp'])
           elsif !integrations.keys.include?('whatsapp')
-            action = true
+            action = 1
           else
             platforms = TiplineSubscription.where(team_id: team.id).map(&:platform).uniq
             if platforms.count == 1
               action = !(platforms == ['WhatsApp'])
             end
           end
-          unless action.nil?
-            output << {team: team.slug, action: action}
-            team.set_tipline_newsletter_enabled = action
-            team.save!
-          end
+          output << { team: team.slug, action: action.to_i }
+          team.set_tipline_newsletter_enabled = action.to_i
+          team.save!
         end
       end
       puts "Workspace actions......\n"
