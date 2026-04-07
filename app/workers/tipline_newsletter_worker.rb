@@ -5,7 +5,7 @@ class TiplineNewsletterWorker
 
   def perform(team_id, language, job_created_at = 0)
     team = Team.find_by_id team_id.to_i
-    return 0 if team.nil? || !team.tipline_newsletter_enabled
+    return 0 if team.nil? || !team.get_tipline_newsletter_enabled
     tbi = TeamBotInstallation.where(user_id: BotUser.smooch_user&.id.to_i, team_id: team_id.to_i).last
     newsletter = Bot::Smooch.get_newsletter(team_id, language)
     return 0 if tbi.nil? || !newsletter&.enabled
