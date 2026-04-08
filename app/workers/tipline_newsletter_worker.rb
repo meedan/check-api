@@ -45,8 +45,8 @@ class TiplineNewsletterWorker
     if team.get_tipline_newsletter_enabled.to_i == 1
       limit = team.get_tipline_newsletter_subscribers_limit
       query = TiplineSubscription.where(language: language, team_id: team_id, platform: 'WhatsApp')
-      query = query.limit(limit) unless limit.nil?
-      query.each do |ts|
+      query = query.limit(limit.to_i) unless limit.blank?
+      query.find_each do |ts|
         count += send_newsletter_to_subscriber(ts, tbi.id, newsletter, team_id, language)
         total += 1
       end

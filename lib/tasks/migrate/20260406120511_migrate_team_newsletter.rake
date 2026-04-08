@@ -22,6 +22,7 @@ namespace :check do
               action = !(platforms == ['WhatsApp'])
             end
           end
+          # Use action.to_i as the return in lines 16 and 22 is a boolean
           output << { team: team.slug, action: action.to_i }
           team.set_tipline_newsletter_enabled = action.to_i
           team.save!
