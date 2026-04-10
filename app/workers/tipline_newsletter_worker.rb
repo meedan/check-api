@@ -71,7 +71,7 @@ class TiplineNewsletterWorker
   private
 
   def log(team_slug, language, message)
-    logger.info "[Smooch Bot] [Newsletter] [Team ##{team_slug}] [Language #{language}] [#{Time.now}] #{message}"
+    logger.info "[Smooch Bot] [Newsletter] [Team #{team_slug}] [Language #{language}] [#{Time.now}] #{message}"
   end
 
   def send_newsletter_to_subscriber(ts, tbi_id, newsletter, team_slug, language)
@@ -85,14 +85,14 @@ class TiplineNewsletterWorker
       response = (ts.platform == 'WhatsApp' ? Bot::Smooch.send_message_to_user(ts.uid, newsletter.format_as_template_message, {}, false, true, 'newsletter') : Bot::Smooch.send_message_to_user(ts.uid, *newsletter.format_as_tipline_message))
 
       if response.code.to_i < 400
-        log team_slug, language, "Newsletter sent to subscriber ##{ts.id} [platform #{ts.platform}], response: (#{response.code}) #{response.body.inspect}"
+        log team_slug, language, "[platform #{ts.platform}]: Newsletter sent to subscriber ##{ts.id}, response: (#{response.code}) #{response.body.inspect}"
         Bot::Smooch.save_smooch_response(response, nil, Time.now.to_i, 'newsletter', language, {}, 1.month)
         count = 1
       else
-        log team_slug, language, "Could not send newsletter to subscriber ##{ts.id} [platform #{ts.platform}]: (#{response.code}) #{response.body.inspect}"
+        log team_slug, language, "[platform #{ts.platform}]: Could not send newsletter to subscriber ##{ts.id}: (#{response.code}) #{response.body.inspect}"
       end
     rescue StandardError => e
-      log team_slug, language, "Could not send newsletter to subscriber ##{ts.id} [platform #{ts.platform}] (exception): #{e.message}"
+      log team_slug, language, "[platform #{ts.platform}]: Could not send newsletter to subscriber ##{ts.id} (exception): #{e.message}"
     end
     count
   end
