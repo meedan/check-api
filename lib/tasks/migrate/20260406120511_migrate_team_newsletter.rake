@@ -33,24 +33,26 @@ namespace :check do
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
     end
-    # bundle exec rails "check:migrate:set_tipline_newsletter_subscribers_limit[slug, limit]"
+    # bundle exec rails "check:migrate:set_tipline_newsletter_subscribers_limit[slug_a|slug_b, limit]"
     desc 'Set tipline newsletter subscribers limit, 0 means no limit'
-    task :set_tipline_newsletter_subscribers_limit, [:slug, :limit] => :environment do |_t, args|
-      raise "You should set team slug" if args[:slug].blank?
-      team = Team.where(slug: args[:slug]).first
-      unless team.nil?
+    task :set_tipline_newsletter_subscribers_limit, [:slugs, :limit] => :environment do |_t, args|
+      slugs = args[:slugs].to_s.split('|')
+      raise "You should set team slug" if slugs.blank?
+      Team.where(slug: slugs).find_each do |team|
+        print '.'
         limit = args[:limit].to_i == 0 ? nil : args[:limit].to_i
         team.set_tipline_newsletter_subscribers_limit = limit
         team.save!
       end
     end
-    # bundle exec rails "check:migrate:set_tipline_newsletter_action[slug, true/false]"
+    # bundle exec rails "check:migrate:set_tipline_newsletter_action[slug_a|slug_b, 0/1/2]"
     desc 'Enable/Disable tipline newsletter'
-    task :set_tipline_newsletter_action, [:slug, :action] => :environment do |_t, args|
-      raise "You should set team slug" if args[:slug].blank?
-      team = Team.where(slug: args[:slug]).first
-      unless team.nil?
-        team.set_tipline_newsletter_enabled = ActiveModel::Type::Boolean.new.cast(args[:action])
+    task :set_tipline_newsletter_action, [:slugs, :action] => :environment do |_t, args|
+      slugs = args[:slugs].to_s.split('|')
+      raise "You should set team slugs" if slugs.blank?
+      Team.where(slug: slugs).find_each do |team|
+        print '.'
+        team.set_tipline_newsletter_enabled = args[:action].to_i
         team.save!
       end
     end
