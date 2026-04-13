@@ -175,7 +175,6 @@ ar:
   mail_view_welcome: مرحباً بكم في %{app_name}
   mail_view_register: 'إنك على وشك الانتهاء من تسجيل حسابك على %{app_name}! يرجى تأكيد بريدك الإلكتروني بالضّغط على الرّابط التالي:'
   mail_confirm_button: تأكيد الحساب
-  slack_restricted_join_to_members: عذراً، لا يمكنك الانضمام إلى %{team_name} حيث أنه محصور على أعضاء مساحات عمل %{teams} على Slack.
   admin:
     actions:
       send_reset_password_email:
@@ -378,6 +377,7 @@ ar:
       unassign_log: "قام المؤلف %{author} بإلغاء تخصيص %{model} عن %{username}"
       assign_by: عُيِّن من طرف
       unassign_by: لقد أُلغِي التخصيص من طرف
+      view_button: عرض %{type} في %{app}
     request_to_join:
       subject: طلب انضمام إلى مساحة العمل %{team}
       team_page: صفحة مساحة العمل

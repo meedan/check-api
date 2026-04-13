@@ -72,7 +72,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not require password if there is a provider" do
     assert_nothing_raised do
-      create_omniauth_user password: '', provider: 'slack'
+      create_omniauth_user password: '', provider: 'google'
     end
     assert_raises ActiveRecord::RecordInvalid do
       create_user password: ''
@@ -161,7 +161,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should not add duplicate mail" do
     u = create_user
-    create_account user: u, source: u.source, provider: 'slack', email: 'test@local.com'
+    create_account user: u, source: u.source, provider: 'google', email: 'test@local.com'
     assert_no_difference 'User.count' do
       assert_raises ActiveRecord::RecordInvalid do
         create_user email: u.email
@@ -344,7 +344,7 @@ class UserTest < ActiveSupport::TestCase
   test "should not crash when creating user account" do
     Account.any_instance.stubs(:save).raises(Errno::ECONNREFUSED)
     assert_nothing_raised do
-      create_omniauth_user url: 'http://slack.com/meedan', provider: 'slack'
+      create_omniauth_user url: random_url, provider: 'google'
     end
     Account.any_instance.unstub(:save)
   end
@@ -426,8 +426,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 'user@email.com', u.handle
     u = create_omniauth_user provider: 'facebook', email: 'test@local.com', url: 'https://facebook.com/10157109339765023'
     assert_equal 'test@local.com', u.handle
-    u = create_omniauth_user provider: 'slack', email: 'test2@local.com', info: { name: 'caiosba' }, extra: { 'raw_info' => { 'url' => 'https://meedan.slack.com' } }
-    assert_equal 'test2@local.com', u.handle
   end
 
   test "should return whether two users are colleagues in a team" do
@@ -447,14 +445,14 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should require confirmation for e-mail accounts only" do
-    u = create_omniauth_user provider: 'slack'
+    u = create_omniauth_user provider: 'google'
     assert !u.send(:confirmation_required?)
     u = create_user confirm: false
     assert u.send(:confirmation_required?)
   end
 
   test "should require confirmation after update email" do
-    u = create_omniauth_user provider: 'slack'
+    u = create_omniauth_user provider: 'google'
     assert u.is_confirmed?
     u = create_user email: 'foo@bar.com', confirm: false
     assert_not u.is_confirmed?
@@ -642,8 +640,8 @@ class UserTest < ActiveSupport::TestCase
       "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"
     }
     url = "https://meedan.slack.com/team/daniela"
-    u = create_omniauth_user provider: 'slack', info: info, url: url
-    account = u.get_social_accounts_for_login({provider: 'slack'}).first
+    u = create_omniauth_user provider: 'google', info: info, url: url
+    account = u.get_social_accounts_for_login({provider: 'google'}).first
     assert account.created_on_registration?
     assert_equal url, account.url
     assert_equal info['nickname'], account.data['username']
@@ -656,8 +654,8 @@ class UserTest < ActiveSupport::TestCase
   test "should create source with image on omniauth data" do
     info = { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"}
 
-    u = create_omniauth_user provider: 'slack', info: info
-    account = u.get_social_accounts_for_login({provider: 'slack'}).first
+    u = create_omniauth_user provider: 'google', info: info
+    account = u.get_social_accounts_for_login({provider: 'google'}).first
     source = u.source
     assert_equal info['image'], source.avatar
   end
@@ -669,11 +667,11 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should set source image when call user from omniauth" do
-    u = create_omniauth_user provider: 'slack', uid: '12345'
+    u = create_omniauth_user provider: 'google', uid: '12345'
     assert_match /images\/user.png/, u.source.avatar
     credentials = OpenStruct.new({ token: '1234', secret: 'secret'})
     info = OpenStruct.new({ email: 'user@fb.com', name: 'John', image: 'picture.png' })
-    auth = OpenStruct.new({ provider: 'slack', uid: '12345', credentials: credentials, info: info, url: random_url})
+    auth = OpenStruct.new({ provider: 'google', uid: '12345', credentials: credentials, info: info, url: random_url})
     omniauth_info = {"info"=> { "image"=>"https://avatars.slack-edge.com/2016-08-30/74454572532_7b40a563ce751e1c1d50_192.jpg"} }
     Account.any_instance.stubs(:omniauth_info).returns(omniauth_info)
     User.from_omniauth(auth)
@@ -1024,14 +1022,14 @@ class UserTest < ActiveSupport::TestCase
     u = create_user
     assert_no_difference 'User.count' do
       assert_difference 'Account.count', 1 do
-        create_omniauth_user provider: 'slack', uid: '123456', current_user: u
+        create_omniauth_user provider: 'google', uid: '123456', current_user: u
       end
     end
   end
 
   test "should get user through omniauth info" do
-    u = create_omniauth_user uid: '123456', provider: 'slack'
-    assert_equal u, User.find_with_omniauth('123456', 'slack')
+    u = create_omniauth_user uid: '123456', provider: 'google'
+    assert_equal u, User.find_with_omniauth('123456', 'google')
   end
 
   test "should get user through token" do
@@ -1040,7 +1038,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should get social accounts for login" do
-    u = create_omniauth_user provider: 'slack'
+    u = create_omniauth_user provider: 'google'
     a = create_account source: u.source, user: u, provider: 'facebook'
     a2 = create_account source: u.source, user: u, uid: ''
     assert_equal 2, u.get_social_accounts_for_login.count
@@ -1051,36 +1049,39 @@ class UserTest < ActiveSupport::TestCase
 
   test "should get user accounts and providers" do
     u = create_omniauth_user provider: 'facebook'
+    providers = u.providers
+    assert_equal 1, providers.count
+    assert_not providers.dig(0, :values, 0, :connected)
     s = u.source
     omniauth_info = {"info"=> { "name" => "test" } }
-    create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
-    create_account source: s, user: u, provider: 'slack', uid: '987654', omniauth_info: omniauth_info
+    create_account source: s, user: u, provider: 'google_oauth2', uid: '123456', omniauth_info: omniauth_info
+    create_account source: s, user: u, provider: 'facebook', uid: '987654', omniauth_info: omniauth_info
     assert_equal 3, u.get_social_accounts_for_login.count
-    assert_equal 1, u.get_social_accounts_for_login({provider: 'facebook'}).count
-    assert_equal 2, u.get_social_accounts_for_login({provider: 'slack'}).count
-    assert_equal 1, u.get_social_accounts_for_login({provider: 'slack', uid: '123456'}).count
+    assert_equal 2, u.get_social_accounts_for_login({ provider: 'facebook' }).count
+    assert_equal 1, u.get_social_accounts_for_login({ provider: 'google_oauth2'}).count
+    assert_equal 1, u.get_social_accounts_for_login({ provider: 'google_oauth2', uid: '123456' }).count
     providers = u.providers
-    assert_equal 2, providers.count
-    assert_equal ['slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
+    assert_equal 1, providers.count
+    assert_equal ['google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
     # connect using FB
     create_account source: s, user: u, provider: 'google_oauth2', uid: '987654', omniauth_info: omniauth_info
-    assert_equal 1, u.get_social_accounts_for_login({provider: 'google_oauth2'}).count
+    assert_equal 2, u.get_social_accounts_for_login({provider: 'google_oauth2'}).count
     providers = u.providers
-    assert_equal 2, providers.count
-    assert_equal ['slack', 'google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
+    assert_equal 1, providers.count
+    assert_equal ['google_oauth2'].sort, providers.collect{|p| p[:key]}.sort
   end
 
   test "should disconnect social account" do
-    u = create_omniauth_user provider: 'slack', uid: '123456'
-    u.disconnect_login_account('slack', '123456')
+    u = create_omniauth_user provider: 'google_oauth2', uid: '123456'
+    u.disconnect_login_account('google_oauth2', '123456')
     assert_equal 0, u.get_social_accounts_for_login.count
-    u2 = create_omniauth_user provider: 'slack', uid: '456789'
-    a = u2.get_social_accounts_for_login({provider: 'slack', uid: '456789'}).first
+    u2 = create_omniauth_user provider: 'google_oauth2', uid: '456789'
+    a = u2.get_social_accounts_for_login({provider: 'google_oauth2', uid: '456789'}).first
     create_account_source account: a
     assert_equal 2, a.sources.count
     assert_not_nil a.uid, a.provider
     assert_not_nil a.token, a.omniauth_info
-    u2.disconnect_login_account('slack', '456789')
+    u2.disconnect_login_account('google_oauth2', '456789')
     assert_equal 0, u2.get_social_accounts_for_login.count
     a = Account.find(a.id)
     assert_not_nil a
@@ -1098,21 +1099,21 @@ class UserTest < ActiveSupport::TestCase
       end
     end
     u = create_omniauth_user provider: 'google', email: 'test@local.com', uid: '123456'
-    u2 = create_omniauth_user provider: 'slack', email: 'test@local.com', uid: '456789'
+    u2 = create_omniauth_user provider: 'facebook', email: 'test@local.com', uid: '456789'
     assert_equal u.id, u2.id
     accounts = u.source.accounts
     assert_equal 2, accounts.count
-    assert_equal ['google', 'slack'].sort, accounts.map(&:provider).sort
+    assert_equal ['google', 'facebook'].sort, accounts.map(&:provider).sort
   end
 
   test "should keep higher role when merge accounts in same team" do
     t = create_team
-    u = create_omniauth_user provider: 'slack', email: 'test@local.com'
+    u = create_omniauth_user provider: 'google', email: 'test@local.com'
     u2 = create_omniauth_user provider: 'facebook', email: 'test2@local.com'
     create_team_user team: t, user: u, role: 'collaborator'
     create_team_user team: t, user: u2, role: 'editor'
     assert_equal 2, t.team_users.count
-    create_omniauth_user provider: 'slack', email: 'test@local.com', current_user: u2
+    create_omniauth_user provider: 'google', email: 'test@local.com', current_user: u2
     assert_equal 1, t.team_users.count
     assert_equal ['editor'], t.team_users.map(&:role)
   end

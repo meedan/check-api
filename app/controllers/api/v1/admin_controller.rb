@@ -1,14 +1,6 @@
 class Api::V1::AdminController < Api::V1::BaseApiController
   before_action :authenticate_from_token!, except: [:save_messenger_credentials_for_smooch_bot, :save_instagram_credentials_for_smooch_bot]
 
-  # GET /api/admin/user/slack?uid=:uid
-  def slack_user
-    user = User.find_with_omniauth(params[:uid].to_s, 'slack')
-    slack_account = user.accounts.where(provider: 'slack').first unless user.nil?
-    user = { token: slack_account.token } unless slack_account.nil?
-    render_user user, 'slack_uid'
-  end
-
   # GET /api/admin/smooch_bot/:bot-installation-id/authorize/messenger?token=:bot-installation-token
   def save_messenger_credentials_for_smooch_bot
     self.save_facebook_credentials_for_smooch_bot('messenger')

@@ -6,6 +6,8 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
     require 'sidekiq/testing'
     Sidekiq::Testing.inline!
     setup_smooch_bot(true)
+    @team.set_tipline_newsletter_enabled = 1
+    @team.save!
     create_tipline_subscription team_id: @team.id
     rss = '<rss version="1"><channel><title>x</title><link>x</link><description>x</description><item><title>x</title><link>x</link></item></channel></rss>'
     WebMock.stub_request(:get, 'http://test.com/feed.rss').to_return(status: 200, body: rss)
@@ -87,6 +89,25 @@ class TiplineNewsletterWorkerTest < ActiveSupport::TestCase
     create_tipline_subscription team_id: @team.id, platform: 'Telegram'
     assert_nothing_raised do
       TiplineNewsletterWorker.perform_async(@team.id, 'en')
+    end
+  end
+
+  [
+    { test: 'nl_0_without_limit', enabled: 0, limit: nil, expected: 0 },
+    { test: 'nl_0_with_limit', enabled: 0, limit: 1, expected: 0 },
+    { test: 'nl_1_without_limit', enabled: 1, limit: nil, expected: 6},
+    { test: 'nl_1_with_limit', enabled: 1, limit: 1, expected: 4},
+    { test: 'nl_2_without_limit', enabled: 2, limit: nil,expected: 3 },
+    { test: 'nl_2_with_limit', enabled: 2, limit: 1, expected: 3 },
+  ].each do |raw|
+    test "should send newsletter when set_tipline_newsletter_enabled is #{raw[:test]}" do
+      @team.set_tipline_newsletter_enabled = raw[:enabled]
+      @team.set_tipline_newsletter_subscribers_limit = raw[:limit]
+      @team.save!
+      ['WhatsApp', 'WhatsApp', 'Telegram', 'Telegram', 'Facebook Messenger'].each do |platform|
+        create_tipline_subscription team_id: @team.id, platform: platform
+      end
+      assert_equal raw[:expected], TiplineNewsletterWorker.new.perform(@team.id, 'en')
     end
   end
 end
