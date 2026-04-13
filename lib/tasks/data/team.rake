@@ -26,7 +26,18 @@ namespace :check do
     task :deactivate, [:slugs] => :environment do |_t, args|
       slugs = args[:slugs].to_s.split('|')
       Team.where(slug: slugs, inactive: false).find_each do |team|
+        puts "\nProcessing team #{team.slug}....\n"
         print '.'
+        # Expire API keys
+        date = Time.now - 1.month
+        ApiKey.where(team_id: team.id).update_all(expire_at: date)
+        # Delete webhooks
+        webhook_installations = team.team_users.joins(:user).where('users.type' => 'BotUser', 'users.default' => false).select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? && !team_user.user.get_approved }
+        webhook_installations.map(&:user).each do |bu|
+          puts "\nDeleting webhook #{bu.name}....\n"
+          puts "\nWebhook settings: #{bu.settings.inspect}"
+          bu.destroy
+        end
         team.inactive = true
         team.save!
       end

@@ -456,7 +456,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     s = u.source
     omniauth_info = {"info"=> { "name" => "test" } }
-    a = create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
+    a = create_account source: s, user: u, provider: 'google', uid: '123456', omniauth_info: omniauth_info
     authenticate_with_user(u)
     query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
     post :create, params: { query: query, team: @team.slug }

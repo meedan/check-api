@@ -7,7 +7,7 @@ class OmniauthIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "should close in case of failure" do
-    get '/api/users/auth/slack/callback', params: { error: 'access_denied' }
+    get '/api/users/auth/google_oauth2/callback', params: { error: 'access_denied' }
     assert_redirected_to '/close.html'
   end
 end

@@ -152,7 +152,6 @@ fil:
   mail_view_welcome: Maligayang pagdating sa %{app_name}
   mail_view_register: 'Isang hakbang na lang at magagamit mo na ang %{app_name}! Mangyaring kumpirmahin ang iyong email address sa pag-click sa sumusunod na link:'
   mail_confirm_button: Kumpirmahin ang aking account
-  slack_restricted_join_to_members: 'Paumanhin, hindi ka pwedeng sumali sa %{team_name}dahil mga miyembro lang ng Slack workspace(s) na %{teams} ang makakasali rito.  '
   admin:
     actions:
       send_reset_password_email:
@@ -327,6 +326,7 @@ fil:
       unassign_log: "Inalis ni %{author} ang pagkakatalaga ng %{model} kay %{username}"
       assign_by: Itinalaga ni
       unassign_by: Inalis sa pagkakatalaga ni
+      view_button: Tingnan ang %{type} sa %{app}
     request_to_join:
       subject: Kahilingang sumali sa workspace na %{team}
       team_page: pahina ng workspace
