@@ -136,7 +136,8 @@ gem 'unicode-display_width', '1.6.0'
 gem 'addressable'
 gem 'rss'
 
-# Exception reporting
+# Telemetry and exception reporting
+gem 'opentelemetry-sdk'
 gem 'sentry-ruby'
 gem 'sentry-rails'
 gem 'sentry-sidekiq'

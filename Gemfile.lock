@@ -470,6 +470,18 @@ GEM
       oauth2 (~> 1.0)
       omniauth (~> 1.2)
     open_uri_redirections (0.2.1)
+    opentelemetry-api (1.4.0)
+    opentelemetry-common (0.21.0)
+      opentelemetry-api (~> 1.0)
+    opentelemetry-registry (0.3.1)
+      opentelemetry-api (~> 1.1)
+    opentelemetry-sdk (1.7.0)
+      opentelemetry-api (~> 1.1)
+      opentelemetry-common (~> 0.20)
+      opentelemetry-registry (~> 0.2)
+      opentelemetry-semantic_conventions
+    opentelemetry-semantic_conventions (1.10.1)
+      opentelemetry-api (~> 1.0)
     orm_adapter (0.5.0)
     os (1.1.4)
     pact (1.62.0)
@@ -836,6 +848,7 @@ DEPENDENCIES
   omniauth-facebook
   omniauth-google-oauth2!
   open_uri_redirections
+  opentelemetry-sdk
   pact-consumer-minitest
   paper_trail (= 13.0.0)
   parallel
@@ -901,4 +914,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.19
+   2.5.23
