@@ -1,5 +1,4 @@
 require 'error_codes'
-require 'tracing_service'
 
 class ApplicationController < ActionController::Base
   include HttpAcceptLanguage::AutoLocale
@@ -23,11 +22,6 @@ class ApplicationController < ActionController::Base
     api_key_id = ApiKey.current&.id
 
     CheckSentry.set_user_info(user_id, team_id: team_id, api_key_id: api_key_id)
-    TracingService.add_attributes_to_current_span(
-      'app.user.id' => user_id,
-      'app.user.team_id' => team_id,
-      'app.api_key_id' => api_key_id,
-    )
   end
 
   private

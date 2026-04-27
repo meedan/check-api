@@ -240,22 +240,6 @@ development: &default
   cloudflare_auth_key: # '<CLOUDFLARE AUTH KEY>'
   cloudflare_zone: # '<CLOUDFLARE ZONE>'
 
-  # Open Telemetry configuration, for reporting to Honeycomb
-  # See initializers/open_telemetry.rb for usage.
-  #
-  # OPTIONAL (set to report to Honeycomb Dev environment from local)
-  # Note: any values prefixed with `otel_custom` are our own configuration
-  # which will be used to programmatically set otel-supported env vars
-  #
-  otel_exporter_otlp_endpoint: # "https://api.honeycomb.io"
-  otel_exporter_otlp_headers: # "x-honeycomb-team=<DEV API KEY>"
-  otel_service_name: # "check-api"
-  otel_resource_attributes:
-    # developer.name: <DEVELOPER_NAME>
-  otel_log_level: info
-  otel_traces_sampler:
-  otel_custom_sampling_rate:
-
   # Limits
   #
   # OPTIONAL
@@ -323,8 +307,6 @@ test:
   storage_public_endpoint: 'http://localhost:9000/check-api-test'
   storage_asset_host: 'http://localhost:9000/check-api-test'
   storage_bucket: 'check-api-test'
-  otel_log_level: error
-  otel_traces_sampler:
   sentry_dsn:
   storage_rewrite_host: 'http://minio:9000'
 
