@@ -162,8 +162,10 @@ module UserInvitation
       user.skip_check_ability = true
       user.destroy
       s = user.source
-      s.skip_check_ability = true
-      s.destroy unless s.nil?
+      unless s.nil?
+        s.skip_check_ability = true
+        s.destroy
+      end
     end
   end
 end
