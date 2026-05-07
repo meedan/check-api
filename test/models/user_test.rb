@@ -946,6 +946,24 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should cancel user invitation even user has no source" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    u2 = create_user email: 'test2@local.com'
+    with_current_user_and_team(u, t) do
+      members = [{role: 'collaborator', email: 'test1@local.com'}]
+      User.send_user_invitation(members)
+    end
+    user = User.where(email: 'test1@local.com').first
+    user.update_column(:source_id, nil)
+    with_current_user_and_team(u, t) do
+      assert_difference ['TeamUser.count', 'User.count'], -1 do
+        User.cancel_user_invitation(user.reload)
+      end
+    end
+  end
+
   test "should not accept invalid invitation" do
     t = create_team
     u = create_user
