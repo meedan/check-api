@@ -77,7 +77,9 @@ module UserPrivate
   end
 
   def freeze_account_ids_and_source_id
-    self.frozen_source_id = self.source.id
-    self.frozen_account_ids = (self.account_ids + [self.source.account_ids]).flatten
+    unless self.source.nil?
+      self.frozen_source_id = self.source.id
+      self.frozen_account_ids = (self.account_ids + [self.source.account_ids]).flatten
+    end
   end
 end
