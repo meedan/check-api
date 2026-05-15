@@ -164,6 +164,16 @@ class SmoochCapiTest < ActiveSupport::TestCase
     assert_equal 'message:appUser', preprocessed_message[:trigger]
   end
 
+  test 'should preprocess incoming text and fallback to user_id' do
+    payload = JSON.parse(@incoming_text_message_payload.clone)
+    payload['entry'][0]['changes'][0]['value']['contacts'][0]['wa_id'] = nil
+    payload['entry'][0]['changes'][0]['value']['contacts'][0]['user_id'] = 'id:654321'
+    preprocessed_message = Bot::Smooch.preprocess_message(payload.to_json)
+    # Verify _id and authId include user_id when wa_id is nil
+    assert_equal "123456:id:654321", preprocessed_message.dig('appUser', '_id')
+    assert_equal "123456:id:654321", preprocessed_message.dig('messages', 0, 'authorId')
+  end
+
   test 'should preprocess message delivery event' do
     preprocessed_message = Bot::Smooch.preprocess_message(@message_delivery_payload)
     assert_equal @uid, preprocessed_message.dig('appUser', '_id') 

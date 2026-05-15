@@ -39,8 +39,9 @@ module SmoochCapi
     end
 
     def get_capi_uid(value)
-      "#{value.dig('metadata', 'display_phone_number')}:#{value.dig('contacts', 0, 'wa_id')}" || # WhatsApp phone
-      "#{value.dig('metadata', 'display_phone_number')}:#{value.dig('contacts', 0, 'user_id')}" # WhatsApp BSUID (fallback)
+      # Get WhatsApp phone and fallback to WhatsApp BSUID
+      user_id = value.dig('contacts', 0, 'wa_id') || value.dig('contacts', 0, 'user_id')
+      "#{value.dig('metadata', 'display_phone_number')}:#{user_id}"
     end
 
     def get_capi_message_text(message)
@@ -70,8 +71,8 @@ module SmoochCapi
     def handle_capi_system_message(message)
       if message.dig('system', 'type') == 'user_changed_number'
         old_uid = "#{self.config['capi_phone_number']}:#{message['from']}"
-        new_uid = "#{self.config['capi_phone_number']}:#{message['system']['wa_id']}" ||
-        "#{self.config['capi_phone_number']}:#{message['system']['user_id']}"
+        user_id = message['system']['wa_id'] || message['system']['user_id']
+        new_uid = "#{self.config['capi_phone_number']}:#{user_id}"
         TiplineSubscription.where(uid: old_uid).find_each do |subscription|
           subscription.uid = new_uid
           subscription.save!
