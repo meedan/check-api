@@ -70,9 +70,10 @@ module SmoochCapi
 
     def handle_capi_system_message(message)
       if message.dig('system', 'type') == 'user_changed_number'
-        old_uid = "#{self.config['capi_phone_number']}:#{message['from']}"
-        user_id = message['system']['wa_id'] || message['system']['user_id']
-        new_uid = "#{self.config['capi_phone_number']}:#{user_id}"
+        from_id = message['from'] || message['from_user_id']
+        old_uid = "#{self.config['capi_phone_number']}:#{from_id}"
+        bsuid = message['system']['wa_id'] || message['system']['user_id']
+        new_uid = "#{self.config['capi_phone_number']}:#{bsuid}"
         TiplineSubscription.where(uid: old_uid).find_each do |subscription|
           subscription.uid = new_uid
           subscription.save!
@@ -236,7 +237,6 @@ module SmoochCapi
         payload = {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
-          to: to,
           type: 'text',
           text: {
             preview_url: preview_url && !text.to_s.match(/https?:\/\//).nil?,
@@ -246,15 +246,13 @@ module SmoochCapi
       else
         payload = {
           messaging_product: 'whatsapp',
-          recipient_type: 'individual',
-          to: to
+          recipient_type: 'individual'
         }.merge(text)
       end
       if extra['type'] == 'image'
         payload = {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
-          to: to,
           type: 'image',
           image: {
             link: extra['mediaUrl'],
@@ -265,7 +263,6 @@ module SmoochCapi
         payload = {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
-          to: to,
           type: 'video',
           video: {
             link: extra['mediaUrl'],
@@ -273,6 +270,8 @@ module SmoochCapi
           }
         }
       end
+
+      payload.merge!(self.recipient_params(to))
       payload.merge!(extra.dig(:override, :whatsapp, :payload).to_h)
       payload.delete(:text) if payload[:type] == 'interactive'
       return if payload[:type] == 'text' && payload[:text][:body].blank?
@@ -320,6 +319,20 @@ module SmoochCapi
           components: components
         }
       }
+    end
+
+    # BSUIDs have the format "XX.alphanumeric" (e.g., "US.1349120865530274"),
+    # while phone numbers are purely numeric (with optional leading +).
+    def bsuid?(identifier)
+      identifier.to_s.match?(/\A[A-Z]{2}\./)
+    end
+
+    def recipient_params(identifier)
+      if self.bsuid?(identifier)
+        { recipient: identifier }
+      else
+        { to: identifier }
+      end
     end
   end
 end
