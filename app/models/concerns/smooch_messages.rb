@@ -292,7 +292,7 @@ module SmoochMessages
       # Define a text variable to hold short text
       text = []
       list.collect{ |m| JSON.parse(m) }.sort_by{ |m| m['received'].to_f }.each do |message|
-        message['text'].gsub!('\u0000', '') # Avoid PG::UntranslatableCharacter exception
+        message['text']&.gsub!('\u0000', '') # Avoid PG::UntranslatableCharacter exception
         if message['type'] == 'text'
           # Get an item for long text (message that match number of words condition)
           if message['payload'].nil?
