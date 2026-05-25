@@ -25,6 +25,7 @@ namespace :check do
     # bundle exec rails check:team:deactivate['slug-1|slug-2|...|slug-N']
     task :deactivate, [:slugs] => :environment do |_t, args|
       slugs = args[:slugs].to_s.split('|')
+      smooch = BotUser.smooch_user
       Team.where(slug: slugs, inactive: false).find_each do |team|
         puts "\nProcessing team #{team.slug}....\n"
         print '.'
@@ -37,6 +38,13 @@ namespace :check do
           puts "\nDeleting webhook #{bu.name}....\n"
           puts "\nWebhook settings: #{bu.settings.inspect}"
           bu.destroy
+        end
+        # Disable Tipline
+        tbi = team.team_bot_installations.where(user_id: smooch.id).first
+        unless tbi.nil?
+          puts "Inactivate Tipline #{team.slug} ..."
+          tbi.set_smooch_disabled = true
+          tbi.save!
         end
         team.inactive = true
         team.save!
