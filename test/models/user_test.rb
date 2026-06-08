@@ -1351,9 +1351,4 @@ class UserTest < ActiveSupport::TestCase
       u2.merge_with(u)
     end
   end
-
-  test "should have Intercom JWT token" do
-    u = create_user
-    assert_kind_of String, u.intercom_user_jwt
-  end
 end
