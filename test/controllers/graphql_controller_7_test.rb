@@ -115,7 +115,7 @@ class GraphqlController7Test < ActionController::TestCase
     t = create_team private: true
     b = create_team_bot login: 'smooch', set_approved: true
     app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id, smooch_secret_key_secret: random_string }
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
 
@@ -148,7 +148,7 @@ class GraphqlController7Test < ActionController::TestCase
     t = create_team private: true
     b = create_team_bot login: 'smooch', set_approved: true
     app_id = random_string
-    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id }
+    tbi = create_team_bot_installation team_id: t.id, user_id: b.id, settings: { smooch_app_id: app_id, smooch_secret_key_secret: random_string}
     u = create_user
     create_team_user user: u, team: t, role: 'admin'
 

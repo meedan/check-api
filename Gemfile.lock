@@ -385,7 +385,8 @@ GEM
     jsonpath (0.8.12)
       multi_json
       to_regexp (~> 0.2.1)
-    jwt (2.3.0)
+    jwt (2.10.3)
+      base64
     listen (3.7.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
