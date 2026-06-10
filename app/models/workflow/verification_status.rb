@@ -3,8 +3,8 @@ class Workflow::VerificationStatus < Workflow::Base
   check_default_project_media_workflow
 
   check_workflow from: :any, to: :any, actions: [:check_if_item_is_published, :apply_rules, :update_report_design_if_needed, :replicate_status_to_children]
-  check_workflow on: :create, actions: :index_on_es_background
-  check_workflow on: :update, actions: :index_on_es_foreground
+  check_workflow on: :save, actions: :index_on_es_background
+  # check_workflow on: :update, actions: :index_on_es_foreground
 
   def self.core_default_value
     'undetermined'

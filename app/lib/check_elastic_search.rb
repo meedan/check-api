@@ -34,7 +34,7 @@ module CheckElasticSearch
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = { keys: keys, data: data, pm_id: pm_id, skip_get_data: skip_get_data }
     model = { klass: self.class.name, id: self.id }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc', Time.now.utc.to_i)
   end
 
   def update_recent_activity(obj)
@@ -50,13 +50,13 @@ module CheckElasticSearch
     fields = {}
     options[:keys].each do |k|
       if data[k].class.to_s == 'Hash'
-        value = get_fresh_value(data[k].with_indifferent_access)
-        fields[k] = value
+        value = get_fresh_value(data[k].with_indifferent_access, options[:enqueued_at])
+        fields[k] = value unless value.nil?
       else
         fields[k] = data[k]
       end
     end
-    if fields.count
+    if fields.with_indifferent_access.except('updated_at').count
       create_doc_if_not_exists(options)
       sleep 1
       $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
@@ -64,14 +64,18 @@ module CheckElasticSearch
   end
 
   # Get a fresh data based on data(Hash)
-  def get_fresh_value(data)
+  def get_fresh_value(data, enqueued_at)
     value = data['default']
     klass = data['klass']
     obj = klass.constantize.find_by_id data['id'] unless klass.blank?
     unless obj.nil?
-      callback = data['method']
-      value = obj.send(callback) if !callback.blank? && obj.respond_to?(callback)
-      value = value.to_i if data['type'] == 'int'
+      if obj.updated_at.to_i > enqueued_at
+        value = nil
+      else
+        callback = data['method']
+        value = obj.send(callback) if !callback.blank? && obj.respond_to?(callback)
+        value = value.to_i if data['type'] == 'int'
+      end
     end
     value
   end

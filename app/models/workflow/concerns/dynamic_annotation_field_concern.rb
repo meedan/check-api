@@ -30,25 +30,25 @@ module Workflow
           end
         end
 
-        def index_on_es_foreground
-          return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
-          obj = self&.annotation&.annotated
-          if !obj.nil? && obj.class.name == 'ProjectMedia'
-            data = { self.annotation_type => self.value }
-            if User.current.present?
-              updated_at = Time.now
-              obj.update_columns(updated_at: updated_at)
-              data['updated_at'] = updated_at.utc
-            end
-            options = {
-              keys: data.keys,
-              data: data,
-              pm_id: obj.id,
-              doc_id: Base64.encode64("#{obj.class.name}/#{obj.id}")
-            }
-            self.update_elasticsearch_doc_bg(options)
-          end
-        end
+        # def index_on_es_foreground
+        #   return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
+        #   obj = self&.annotation&.annotated
+        #   if !obj.nil? && obj.class.name == 'ProjectMedia'
+        #     data = { self.annotation_type => self.value }
+        #     if User.current.present?
+        #       updated_at = Time.now
+        #       obj.update_columns(updated_at: updated_at)
+        #       data['updated_at'] = updated_at.utc
+        #     end
+        #     options = {
+        #       keys: data.keys,
+        #       data: data,
+        #       pm_id: obj.id,
+        #       doc_id: Base64.encode64("#{obj.class.name}/#{obj.id}")
+        #     }
+        #     self.update_elasticsearch_doc_bg(options)
+        #   end
+        # end
 
         ::Workflow::Workflow.workflow_ids.each do |id|
           define_method "field_formatter_name_#{id}_status" do
