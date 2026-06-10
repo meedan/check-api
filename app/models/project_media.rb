@@ -615,7 +615,8 @@ class ProjectMedia < ApplicationRecord
     ms.attributes[:assigned_user_ids] = assignments_uids.uniq
     # 'requests'
     requests = []
-    TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id).each do |tr|
+    TiplineRequest.where(associated_type: 'ProjectMedia', associated_id: self.id).limit(CheckConfig.get('nested_objects_limit', 10000, :integer))
+    .find_each do |tr|
       identifier = begin tr.smooch_user_external_identifier&.value rescue tr.smooch_user_external_identifier end
       requests << {
         id: tr.id,
