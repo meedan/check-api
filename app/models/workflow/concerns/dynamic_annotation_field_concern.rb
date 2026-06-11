@@ -26,7 +26,7 @@ module Workflow
               obj.update_columns(updated_at: updated_at)
               data['updated_at'] = updated_at.utc
             end
-            self.update_elasticsearch_doc(data.keys, data, obj.id)
+            self.update_elasticsearch_doc(data.keys, data, obj.id, false, Time.now.utc.to_i)
           end
         end
 
