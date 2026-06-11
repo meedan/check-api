@@ -11,7 +11,7 @@ class ElasticSearchWorker
     unless model_data.nil?
       model = model_data[:klass].constantize.find_by_id model_data[:id]
       if !model.nil? || ['destroy_doc', 'destroy_doc_nested'].include?(type)
-        options = set_options(model, options, type, enqueued_at)
+        options = set_options(model, options, type)
         ops = {
           'create_doc' => 'create_elasticsearch_doc_bg',
           'update_doc' => 'update_elasticsearch_doc_bg',
@@ -44,7 +44,7 @@ class ElasticSearchWorker
     action
   end
 
-  def set_options(model, options, type, enqueued_at)
+  def set_options(model, options, type)
     options = YAML::load(options)
     if ['destroy_doc', 'destroy_doc_nested'].include?(type)
       options[:doc_id] = Base64.encode64("ProjectMedia/#{options[:pm_id]}")
@@ -54,7 +54,6 @@ class ElasticSearchWorker
     options[:skip_get_data] = false unless options.has_key?(:skip_get_data)
     options[:pm_id] = model.get_es_doc_obj unless options.has_key?(:pm_id)
     options[:doc_id] = model.get_es_doc_id(options[:pm_id]) unless options.has_key?(:doc_id)
-    options[:enqueued_at] = enqueued_at
     options
   end
 end

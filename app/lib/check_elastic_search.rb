@@ -56,7 +56,7 @@ module CheckElasticSearch
         fields[k] = data[k]
       end
     end
-    if fields.with_indifferent_access.except('updated_at').count
+    if fields.count
       create_doc_if_not_exists(options)
       sleep 1
       $repository.client.update index: CheckElasticSearchModel.get_index_alias, id: options[:doc_id], body: { doc: fields }
