@@ -24,7 +24,7 @@ class ElasticSearchWorker
             options[:model_id] = model_data[:id]
             model_data[:klass].constantize.send(ops[type],options)
           else
-            model.send(ops[type], options)
+            model.send(ops[type], options) if enqueued_at >= model.updated_at.to_i
           end
         end
       end
