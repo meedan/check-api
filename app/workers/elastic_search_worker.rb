@@ -6,7 +6,7 @@ class ElasticSearchWorker
 
   sidekiq_retry_in { |_count, _e| 3 }
 
-  def perform(model_data, options, type, enqueued_at = Time.now.utc.to_i)
+  def perform(model_data, options, type, enqueued_at = 0)
     model_data = begin YAML::load(model_data) rescue nil end
     unless model_data.nil?
       model = model_data[:klass].constantize.find_by_id model_data[:id]
@@ -24,7 +24,7 @@ class ElasticSearchWorker
             options[:model_id] = model_data[:id]
             model_data[:klass].constantize.send(ops[type],options)
           else
-            model.send(ops[type], options) if enqueued_at >= model.updated_at.to_i
+            model.send(ops[type], options) if enqueued_at == 0 || enqueued_at >= model.updated_at.to_i
           end
         end
       end
