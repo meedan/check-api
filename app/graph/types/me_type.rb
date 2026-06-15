@@ -171,5 +171,4 @@ class MeType < DefaultObject
     FeedInvitation.where(email: object.email)
   end
 
-  field :intercom_user_jwt, GraphQL::Types::String, null: true
 end

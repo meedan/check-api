@@ -7,7 +7,7 @@ class FakeSmoochZendesk
     # Mock out config, which is normally set in the Smooch class as
     # RequestStore.store[:smooch_bot_settings]
     def config
-      { "smooch_app_id" => 'app-id' }
+      { "smooch_app_id" => 'app-id', "smooch_secret_key_secret" => 'app-secret-key' }
     end
 
     def replace_placeholders(uid, text)
