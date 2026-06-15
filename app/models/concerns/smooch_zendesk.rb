@@ -41,7 +41,8 @@ module SmoochZendesk
     def zendesk_api_client
       payload = { scope: 'app' }
       jwt_header = { kid: self.config['smooch_secret_key_key_id'] }
-      token = JWT.encode payload, self.config['smooch_secret_key_secret'], 'HS256', jwt_header
+      smooch_secret_key_secret =  self.config['smooch_secret_key_secret'] || ' '
+      token = JWT.encode payload, smooch_secret_key_secret, 'HS256', jwt_header
       config = SmoochApi::Configuration.new
       config.api_key['Authorization'] = token
       config.api_key_prefix['Authorization'] = 'Bearer'
