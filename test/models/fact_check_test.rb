@@ -329,6 +329,19 @@ class FactCheckTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate max length" do
+    stub_configs({ 'fact_check_max_fields_length' => 20 }) do
+      assert_difference 'FactCheck.count' do
+        create_fact_check claim_description: create_claim_description, title: random_string(5), summary: random_string(12), url: nil
+      end
+      assert_no_difference 'FactCheck.count' do
+        assert_raises ActiveRecord::RecordInvalid do
+          create_fact_check claim_description: create_claim_description, title: random_string(15), summary: random_string(12), url: nil
+        end
+      end
+    end
+  end
+
   test "should create many fact-checks without signature" do
     assert_difference 'FactCheck.count', 2 do
       create_fact_check signature: nil, claim_description: create_claim_description

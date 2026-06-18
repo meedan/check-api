@@ -14,11 +14,9 @@ module Article
     before_validation :set_author, on: :create
     before_validation :set_user
     before_validation :set_channel, on: :create, unless: -> { self.is_a?(ClaimDescription) }
-
     validates_presence_of :user
-    validates :channel, inclusion: { in: ARTICLE_CHANNELS.keys }, unless: -> { self.is_a?(ClaimDescription) }
-    validate :max_article_fields_length
 
+    validates :channel, inclusion: { in: ARTICLE_CHANNELS.keys }, unless: -> { self.is_a?(ClaimDescription) }
     enum channel: ARTICLE_CHANNELS
 
     after_commit :update_elasticsearch_data, :send_to_alegre, :notify_bots, on: [:create, :update]
@@ -66,14 +64,6 @@ module Article
       'FactCheck' => 'save_fact_check'
     }[self.class.name]
     BotUser.enqueue_event(event, self.project_media.team_id, self) unless self.project_media.nil?
-  end
-
-  private
-
-  def max_article_fields_length
-    max_length = self.is_a(Explainer) ? CheckConfig.get(:explainer_max_fields_length, 4096, :integer) : CheckConfig.get(:fact_check_max_fields_length, 900, :integer)
-    length = [self.title, self.summary, self.url].compact.sum(&:length)
-    errors.add(:base, I18n.t(:"errors.messages.article_character_limit_reached")) if length > max_length
   end
 
   protected

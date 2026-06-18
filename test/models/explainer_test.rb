@@ -48,6 +48,19 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate max length" do
+    stub_configs({ 'explainer_max_fields_length' => 20 }) do
+      assert_difference 'Explainer.count' do
+        create_explainer title: random_string(5), description: random_string(12), url: nil
+      end
+      assert_no_difference 'Explainer.count' do
+        assert_raises ActiveRecord::RecordInvalid do
+          create_explainer title: random_string(15), description: random_string(12), url: nil
+        end
+      end
+    end
+  end
+
   test "should belong to user and team" do
     u = create_user
     t = create_team

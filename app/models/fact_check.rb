@@ -19,7 +19,7 @@ class FactCheck < ApplicationRecord
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values
+  validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values, :max_fields_length
 
   before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }
@@ -126,6 +126,11 @@ class FactCheck < ApplicationRecord
 
   def title_or_summary_exists
     errors.add(:base, I18n.t(:"errors.messages.fact_check_empty_title_and_summary")) if self.title.blank? && self.summary.blank?
+  end
+
+  def max_fields_length
+    length = [self.title, self.summary, self.url].compact.sum(&:length)
+    errors.add(:base, I18n.t(:"errors.messages.article_character_limit_reached")) if length > CheckConfig.get(:fact_check_max_fields_length, 900, :integer)
   end
 
   def update_report

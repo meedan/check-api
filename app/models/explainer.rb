@@ -12,7 +12,7 @@ class Explainer < ApplicationRecord
   before_validation :set_team, :set_language
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates_presence_of :team, :title, :description
-  validate :language_in_allowed_values
+  validate :language_in_allowed_values, :max_fields_length
 
   after_save :update_paragraphs_in_alegre
   after_update :detach_explainer_if_trashed
@@ -177,6 +177,11 @@ class Explainer < ApplicationRecord
     allowed_languages = self.team&.get_languages || ['en']
     allowed_languages << 'und'
     errors.add(:language, I18n.t(:"errors.messages.invalid_article_language_value")) unless allowed_languages.include?(self.language)
+  end
+
+  def max_fields_length
+    length = [self.title, self.description, self.url].compact.sum(&:length)
+    errors.add(:base, I18n.t(:"errors.messages.article_character_limit_reached")) if length > CheckConfig.get(:explainer_max_fields_length, 4096, :integer)
   end
 
   def detach_explainer_if_trashed
