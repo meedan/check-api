@@ -114,6 +114,7 @@ en:
       invalid_feed_saved_search_list_type: The saved search list type is invalid.
       platform_allowed_values_error: 'cannot be of type %{type}, allowed types: %{allowed_types}'
       restrict_registration_to_invited_users_only: 'Looks like you don’t have an invitation yet. Please request one from your workspace.'
+      article_character_limit_reached: Character Limit Reached.
   activerecord:
     models:
       link: Link
