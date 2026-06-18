@@ -62,7 +62,7 @@ gem 'nokogiri', '1.16.5'
 gem 'puma'
 gem 'rack-attack'
 gem 'rack-cors', '1.0.6', require: 'rack/cors'
-gem 'sidekiq', '5.2.10'
+gem 'sidekiq', '7.3.9'
 gem 'sidekiq-cloudwatchmetrics'
 gem 'pusher'
 gem 'redis-namespace'
@@ -125,7 +125,7 @@ gem 'bitly', require: false
 gem 'open_uri_redirections', require: false
 gem 'jsonapi-resources'
 gem 'bootsnap', require: false
-gem 'sidekiq-cron', '~> 1.1'
+gem 'sidekiq-cron', '~> 2.4'
 gem 'parse-cron'
 gem 'streamio-ffmpeg'
 gem 'rdoc', '6.3.4.1'
