@@ -15,6 +15,7 @@ class FactCheck < ApplicationRecord
   before_validation :set_imported, on: :create
   before_validation :set_claim_description, on: :create, unless: proc { |fc| fc.claim_description.present? }
   before_validation :set_original_claim_for_published_articles, on: :create, if: proc { |fc| fc.publish_report && fc.set_original_claim.blank? }
+  before_validation :truncate_fields_for_bot_user, if: proc { |fc| fc.user.is_a?(BotUser) }
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
@@ -126,11 +127,6 @@ class FactCheck < ApplicationRecord
 
   def title_or_summary_exists
     errors.add(:base, I18n.t(:"errors.messages.fact_check_empty_title_and_summary")) if self.title.blank? && self.summary.blank?
-  end
-
-  def max_fields_length
-    length = [self.title, self.summary, self.url].compact.sum(&:length)
-    errors.add(:base, I18n.t(:"errors.messages.article_character_limit_reached")) if length > CheckConfig.get(:fact_check_max_fields_length, 900, :integer)
   end
 
   def update_report
