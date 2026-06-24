@@ -10,9 +10,10 @@ class Explainer < ApplicationRecord
   has_many :project_medias, through: :explainer_items
 
   before_validation :set_team, :set_language
+  before_validation :truncate_fields_for_bot_user, if: proc { |fc| fc.user.is_a?(BotUser) }
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
   validates_presence_of :team, :title, :description
-  validate :language_in_allowed_values
+  validate :language_in_allowed_values, :max_fields_length
 
   after_save :update_paragraphs_in_alegre
   after_update :detach_explainer_if_trashed

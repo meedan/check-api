@@ -15,11 +15,12 @@ class FactCheck < ApplicationRecord
   before_validation :set_imported, on: :create
   before_validation :set_claim_description, on: :create, unless: proc { |fc| fc.claim_description.present? }
   before_validation :set_original_claim_for_published_articles, on: :create, if: proc { |fc| fc.publish_report && fc.set_original_claim.blank? }
+  before_validation :truncate_fields_for_bot_user, if: proc { |fc| fc.user.is_a?(BotUser) }
 
   validates_presence_of :claim_description
   validates_uniqueness_of :claim_description_id
   validates_format_of :url, with: URI.regexp, allow_blank: true, allow_nil: true
-  validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values
+  validate :language_in_allowed_values, :title_or_summary_exists, :rating_in_allowed_values, :max_fields_length
 
   before_save :clean_fact_check_tags
   after_save :update_report, unless: proc { |fc| fc.skip_report_update || !DynamicAnnotation::AnnotationType.where(annotation_type: 'report_design').exists? || fc.project_media.blank? }

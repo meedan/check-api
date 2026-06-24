@@ -329,6 +329,34 @@ class FactCheckTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate max length" do
+    stub_configs({ 'article_max_title_length' => 20, 'article_max_url_length' => 30, 'article_max_summary_length' => 20 }) do
+      assert_difference 'FactCheck.count' do
+        create_fact_check claim_description: create_claim_description, title: random_string(5), summary: random_string(12), url: nil
+      end
+      assert_no_difference 'FactCheck.count' do
+        assert_raises ActiveRecord::RecordInvalid do
+          create_fact_check claim_description: create_claim_description, title: random_string(15), summary: random_string(25), url: random_url
+        end
+        assert_raises ActiveRecord::RecordInvalid do
+          create_fact_check claim_description: create_claim_description, title: random_string(25), summary: random_string(15), url: random_url
+        end
+      end
+      # should pass for autmation import (user is a Bot)
+      team = create_team
+      pm = create_project_media team: team
+      bot_user = create_bot_user team: team, team_author_id: team.id
+      fc = nil
+      with_current_user_and_team(bot_user, team) do
+        assert_difference 'FactCheck.count' do
+          fc = create_fact_check claim_description: create_claim_description(project_media: pm), title: random_string(30), summary: random_string(30), url: random_url
+        end
+      end
+      assert_equal 20, fc.title.length
+      assert_equal 20, fc.summary.length
+    end
+  end
+
   test "should create many fact-checks without signature" do
     assert_difference 'FactCheck.count', 2 do
       create_fact_check signature: nil, claim_description: create_claim_description
