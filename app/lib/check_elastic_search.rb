@@ -30,11 +30,11 @@ module CheckElasticSearch
     $repository.refresh_index! if CheckConfig.get('elasticsearch_sync')
   end
 
-  def update_elasticsearch_doc(keys, data = {}, pm_id = nil, skip_get_data = false)
+  def update_elasticsearch_doc(keys, data = {}, pm_id = nil, skip_get_data = false, enqueued_at = 0)
     return if self.disable_es_callbacks || RequestStore.store[:disable_es_callbacks]
     options = { keys: keys, data: data, pm_id: pm_id, skip_get_data: skip_get_data }
     model = { klass: self.class.name, id: self.id }
-    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc')
+    ElasticSearchWorker.perform_in(1.second, YAML::dump(model), YAML::dump(options), 'update_doc', enqueued_at)
   end
 
   def update_recent_activity(obj)

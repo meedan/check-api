@@ -106,6 +106,8 @@ class ElasticSearch5Test < ActionController::TestCase
 
   test "should create update elasticsearch status" do
     m = create_valid_media
+    s = nil
+    pm = nil
     Sidekiq::Testing.inline! do
       pm = create_project_media media: m, disable_es_callbacks: false
       sleep 2
@@ -119,6 +121,20 @@ class ElasticSearch5Test < ActionController::TestCase
       ms = $repository.find(get_es_id(pm))
       assert_equal 'verified', ms['verification_status']
     end
+    assert_equal 'verified', s.reload.status
+    Sidekiq::Testing.fake! do
+      s.status = 'in_progress'
+      s.save!
+    end
+    sleep 2
+    Sidekiq::Testing.inline! do
+      s.status = 'false'
+      s.save!
+    end
+    Sidekiq::Worker.drain_all
+    sleep 2
+    ms = $repository.find(get_es_id(pm))
+    assert_equal 'false', ms['verification_status']
   end
 
   test "should create parent if not exists" do

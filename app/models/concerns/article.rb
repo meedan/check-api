@@ -66,6 +66,32 @@ module Article
     BotUser.enqueue_event(event, self.project_media.team_id, self) unless self.project_media.nil?
   end
 
+  def field_max_length(field, default)
+    CheckConfig.get(:"article_max_#{field}_length", default, :integer)
+  end
+
+  def article_get_validation_length_fields
+    fields = { title: 800, url: 600 }
+    extra = self.is_a?(FactCheck) ? { summary: 3956 } : { description: 3956 }
+    fields.merge(extra)
+  end
+
+  def max_fields_length
+    article_get_validation_length_fields.each do |field, default|
+      max = field_max_length(field, default)
+      length = self[field]&.length || 0
+      errors.add(field, I18n.t(:"errors.messages.article_character_limit_reached")) if length > max
+    end
+  end
+
+  def truncate_fields_for_bot_user
+    article_get_validation_length_fields.each do |field, default|
+      max = field_max_length(field, default)
+      length = self[field]&.length || 0
+      self[field] = self[field][0...max] if length > max
+    end
+  end
+
   protected
 
   def index_in_elasticsearch(pm_id, data)

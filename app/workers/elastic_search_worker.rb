@@ -6,7 +6,7 @@ class ElasticSearchWorker
 
   sidekiq_retry_in { |_count, _e| 3 }
 
-  def perform(model_data, options, type)
+  def perform(model_data, options, type, enqueued_at = 0)
     model_data = begin YAML::load(model_data) rescue nil end
     unless model_data.nil?
       model = model_data[:klass].constantize.find_by_id model_data[:id]
@@ -15,7 +15,6 @@ class ElasticSearchWorker
         ops = {
           'create_doc' => 'create_elasticsearch_doc_bg',
           'update_doc' => 'update_elasticsearch_doc_bg',
-          'update_doc_team' => 'update_elasticsearch_doc_team_bg',
           'create_update_doc_nested' => 'create_update_nested_obj_bg',
           'destroy_doc' => 'destroy_elasticsearch_doc',
           'destroy_doc_nested' => 'destroy_elasticsearch_doc_nested',
@@ -25,7 +24,7 @@ class ElasticSearchWorker
             options[:model_id] = model_data[:id]
             model_data[:klass].constantize.send(ops[type],options)
           else
-            model.send(ops[type], options)
+            model.send(ops[type], options) if enqueued_at == 0 || enqueued_at >= model.updated_at.to_i
           end
         end
       end
@@ -37,7 +36,7 @@ class ElasticSearchWorker
   def should_perform_es_action?(type, options, model, op)
     # Verify that object still exists in PG (should skip destroy operation)
     action = false
-    if ['destroy_doc', 'destroy_doc_nested', 'update_doc_team'].include?(type)
+    if ['destroy_doc', 'destroy_doc_nested'].include?(type)
       action = true
     elsif !options[:doc_id].blank? && !options[:pm_id].nil?
       action = ProjectMedia.exists?(options[:pm_id]) && model.respond_to?(op)

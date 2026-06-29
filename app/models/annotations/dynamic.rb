@@ -110,7 +110,7 @@ class Dynamic < ApplicationRecord
   def handle_report_fields
     if self.annotated_type == 'ProjectMedia' && self.annotation_type == 'report_design'
       data = { 'report_published_at' => self.data['last_published'], 'report_language' => self.report_design_field_value('language') }
-      self.update_elasticsearch_doc(data.keys, data, self.annotated_id, true)
+      self.update_elasticsearch_doc(data.keys, data, self.annotated_id, true, Time.now.utc.to_i)
     end
   end
 
@@ -139,7 +139,7 @@ class Dynamic < ApplicationRecord
         end
         uids.uniq!
         Rails.cache.write(key, uids)
-        task.update_elasticsearch_doc(['annotated_by'], { 'annotated_by' => uids }, pm.id, true)
+        task.update_elasticsearch_doc(['annotated_by'], { 'annotated_by' => uids }, pm.id, true, Time.now.utc.to_i)
       end
     end
   end

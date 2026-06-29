@@ -48,6 +48,30 @@ class ExplainerTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate max length" do
+    stub_configs({ 'article_max_title_length' => 20, 'article_max_url_length' => 30, 'article_max_description_length' => 20 }) do
+      assert_difference 'Explainer.count' do
+        create_explainer title: random_string(5), description: random_string(12), url: nil
+      end
+      assert_no_difference 'Explainer.count' do
+        assert_raises ActiveRecord::RecordInvalid do
+          create_explainer title: random_string(15), description: random_string(25), url: random_url
+        end
+        assert_raises ActiveRecord::RecordInvalid do
+          create_explainer title: random_string(25), description: random_string(20), url: random_url
+        end
+      end
+      team = create_team
+      bot_user = create_bot_user team: team, team_author_id: team.id
+      ex = nil
+      assert_difference 'Explainer.count' do
+        ex = create_explainer team: team, user: bot_user, title: random_string(30), description: random_string(30), url: nil
+      end
+      assert_equal 20, ex.title.length
+      assert_equal 20, ex.description.length
+    end
+  end
+
   test "should belong to user and team" do
     u = create_user
     t = create_team
