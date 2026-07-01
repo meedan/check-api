@@ -17,8 +17,10 @@ class ResendCancelInvitationMutation < Mutations::BaseMutation
         User.cancel_user_invitation(user)
       when "resend"
         tu = user.team_users.where(team_id: Team.current.id).last
-        tu.update_columns(created_at: Time.now)
-        user.send_invitation_mail(tu.reload)
+        unless tu.nil?
+          tu.update_columns(created_at: Time.now)
+          user.send_invitation_mail(tu.reload)
+        end
       end
       { success: true, team: Team.current }
     end
