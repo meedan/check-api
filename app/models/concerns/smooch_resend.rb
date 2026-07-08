@@ -142,6 +142,35 @@ module SmoochResend
       }
     end
 
+  def messenger_utility_template_payload(template_name, parameters, language: 'en')
+    {
+      override: {
+        messenger: {
+          payload: {
+            messaging_type: 'UTILITY',
+            template: {
+              name: template_name,
+              language: {
+                code: language
+              },
+              components: [
+                {
+                  type: 'body',
+                  parameters: parameters.map do |parameter|
+                    {
+                      type: 'text',
+                      text: parameter.to_s
+                    }
+                  end
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  end
+
     def resend_facebook_messenger_message_after_window(message, original)
       original = JSON.parse(original) unless original.blank?
       uid = message['appUser']['_id']
@@ -153,7 +182,9 @@ module SmoochResend
       if original&.dig('fallback_template') == 'newsletter'
         newsletter = TiplineNewsletter.where(language: original['language'], team_id: self.config['team_id'].to_i).last
         newsletter_content = newsletter.build_content
-        self.send_message_to_user(uid, newsletter_content, self.message_tags_payload(newsletter_content))
+        payload = self.messenger_utility_template_payload('newsletter_subscription_update_v1', ['Check'])
+        self.send_message_to_user(uid, newsletter_content, payload)
+        # self.send_message_to_user(uid, newsletter_content, self.message_tags_payload(newsletter_content))
         return true
       end
 
