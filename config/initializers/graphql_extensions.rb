@@ -26,7 +26,7 @@ module GraphQL
 
       def edge_nodes
         @edge_nodes ||= paged_nodes
-        @edge_nodes = @edge_nodes.map(&:load) if @field.name == 'annotations'
+        @edge_nodes = Annotation.load_edge_nodes(@edge_nodes) if @field.name == "annotations"
         @edge_nodes
       end
 

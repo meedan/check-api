@@ -16,14 +16,19 @@ class TaskType < BaseObject
 
   def first_response
     obj = object.load || object
-    obj.nil? ? nil : obj.first_response_obj
+    obj.nil? ? nil : Loaders::FirstResponseLoader.for.load(obj.id)
   end
 
   field :first_response_value, GraphQL::Types::String, null: true
 
   def first_response_value
     obj = object.load || object
-    obj.nil? ? "" : obj.first_response
+    return "" if obj.nil?
+    Loaders::FirstResponseLoader.for.load(obj.id).then do |response|
+      next nil if response.nil?
+      field = response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
+      field&.to_s
+    end
   end
 
   field :jsonoptions, GraphQL::Types::String, null: true
