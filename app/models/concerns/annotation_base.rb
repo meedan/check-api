@@ -212,7 +212,7 @@ module AnnotationBase
 
   def get_fields
     if self.json_schema.blank?
-      DynamicAnnotation::Field.includes(:field_instance).where(annotation_id: self.id).to_a
+      DynamicAnnotation::Field.includes(:field_instance, :annotation).where(annotation_id: self.id).to_a
     else
       data = self.read_attribute(:data) || {}
       fields = []
