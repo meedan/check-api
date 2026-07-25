@@ -213,8 +213,7 @@ module AnnotationBase
   def get_fields(preloaded_fields = nil)
     if self.json_schema.blank?
       # Get preloaded_fields to avoid N+1 query
-      return preloaded_fields unless preloaded_fields.nil?
-      DynamicAnnotation::Field.includes(:field_instance, :annotation).where(annotation_id: self.id).to_a
+      preloaded_fields.nil? ? DynamicAnnotation::Field.includes(:field_instance, :annotation).where(annotation_id: self.id).to_a : preloaded_fields
     else
       data = self.read_attribute(:data) || {}
       fields = []
