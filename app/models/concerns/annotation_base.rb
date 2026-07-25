@@ -210,8 +210,10 @@ module AnnotationBase
     fields.empty? ? self.data.merge(self.file_data).to_json : fields.to_json
   end
 
-  def get_fields
+  def get_fields(preloaded_fields = nil)
     if self.json_schema.blank?
+      # Get preloaded_fields to avoid N+1 query
+      return preloaded_fields unless preloaded_fields.nil?
       DynamicAnnotation::Field.includes(:field_instance, :annotation).where(annotation_id: self.id).to_a
     else
       data = self.read_attribute(:data) || {}
