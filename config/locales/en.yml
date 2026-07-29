@@ -463,6 +463,8 @@ en:
     manage_text: Manage
     privace_manage_plain: Manage your email notifications
     privacy_plain: Learn more about our Privacy Policy
+  mail_sunset:
+    subject: 'Sunset alert: %{app_name} sunset for %{workspace} workspace'
   archive_keep_backup: Video Vault
   archive_pender_archive: Screenshot
   archive_archive_org: Archive.org
