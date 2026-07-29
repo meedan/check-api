@@ -1,6 +1,6 @@
 namespace :check do
   namespace :sunset do
-    # bundle exec rails check:sunset:notify_workspace_admins[team-slug, team=role, 'email1|email2|...']
+    # bundle exec rails check:sunset:notify_workspace_admins[team-slug, team-role, 'email1|email2|...']
     task :notify_workspace_admins, [:slug, :role, :emails] => :environment do |_t, args|
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
