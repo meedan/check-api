@@ -18,7 +18,7 @@ module FacebookAuthentication
 
   # OAuth callback
   def facebook
-    Rails.logger.info "FacebookAuthentication-facebook:oauthcallback:: #{request.env.to_json}"
+    Rails.logger.info "FacebookAuthentication-facebook:oauthcallback:: #{request.env['omniauth.auth'].to_json}"
     request.env['omniauth.auth']['url'] = 'https://facebook.com/' + request.env['omniauth.auth'].uid
     start_session_and_redirect
   end
