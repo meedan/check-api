@@ -73,12 +73,17 @@ namespace :check do
         last_active = Version.from_partition(team.id).last&.created_at || team.created_at
         users_count = team.team_users.where(status: 'member').count
         items_count = team.project_medias.count
+        requests_count = TiplineRequest.where(team_id: team.id).count
+        fact_checks_count = team.fact_checks.count
+        explainers_count = team.explainers.count
         tbi = team.team_bot_installations.where(user_id: smooch.id).first
         tipline_wa = 'No'
         tipline_non_wa = 'No'
         has_tipline = 'No'
+        all_tiplines = ''
         unless tbi.nil?
           tiplines = tbi.smooch_enabled_integrations.keys
+          all_tiplines = tiplines.join('-')
           if tiplines.length > 0
             has_tipline = 'Yes'
             tipline_wa = 'Yes' if tiplines.include?('whatsapp')
@@ -98,32 +103,42 @@ namespace :check do
         # Last active for non Meedan users
         last_active_non_meedan = team.team_users.joins(:user).where.not("users.email ILIKE ? OR users.email ILIKE ?", "%@meedan.com", "%@meedan.org").maximum(:last_active_at)
         data_csv << [
+          team.id,
           team.name,
           team.url,
           team.created_at,
           last_active,
           users_count,
           items_count,
+          requests_count,
+          fact_checks_count,
+          explainers_count,
+          has_tipline,
           tipline_wa,
           tipline_non_wa,
-          has_tipline,
+          all_tiplines,
           has_active_api,
           last_active_non_meedan
         ]
         # Write to CSV
         file = "#{Rails.root}/public/#{team.slug}/workspace_data.csv"
         headers = [
-         "Name",
-         "URL",
-         "Created at",
-         "Last activity",
-         "Number of users",
-         "Number of items",
-         "Active WhatsApp integration?",
-         "Active non-WhatsApp integration?",
-         "Enabled tipline?",
-         "Active API?",
-         "Last access(non-meedian)"
+          "ID",
+          "Name",
+          "URL",
+          "Created at",
+          "Last activity",
+          "Users #",
+          "Items #",
+          "Requests #",
+          "FactChecks #",
+          "Explainers #",
+          "Enabled tipline?",
+          "Active WhatsApp integration?",
+          "Active non-WhatsApp integration?",
+          "Active tiplines",
+          "Active API?",
+          "Last access(non-meedian)"
         ]
         write_to_csv(file, headers, data_csv)
       end
@@ -166,7 +181,41 @@ namespace :check do
         write_to_csv(file, headers, data_csv)
       end
     end
-    task :export_workspace_item_data,[:slug] => [:environment, :export_workspace_articles_data] do |_t, args|
+    task :export_workspace_tasks_data,[:slug] => [:environment, :export_workspace_articles_data] do |_t, args|
+      print_task_title 'Exporting workspace tasks data'
+      slug = args[:slug].to_s
+      team = Team.find_by_slug slug
+      unless team.nil?
+      end
+    end
+    task :export_workspace_tipline_requets_data,[:slug] => [:environment, :export_workspace_tasks_data] do |_t, args|
+      print_task_title 'Exporting workspace TiplineRequests data'
+      slug = args[:slug].to_s
+      team = Team.find_by_slug slug
+      unless team.nil?
+        data_csv = []
+        TiplineRequest.where(team_id: team.id).find_each do |tr|
+          data_csv << [
+            tr.id,
+            tr.language,
+            tr.created_at,
+            tr.tipline_user_uid,
+            tr.smooch_data.to_json
+          ]
+        end
+        file = "#{Rails.root}/public/#{team.slug}/workspace_tipline_requets_data.csv"
+        headers = [
+         "ID",
+         "Language",
+         "Platform",
+         "Creation date",
+         "User UID",
+         "Data"
+        ]
+        write_to_csv(file, headers, data_csv)
+      end
+    end
+    task :export_workspace_item_data,[:slug] => [:environment, :export_workspace_tipline_requets_data] do |_t, args|
       print_task_title 'Exporting workspace item data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -176,6 +225,7 @@ namespace :check do
           media = pm.media
           media_data = media.quote || media.url || media.file&.url
           data_csv << [
+            pm.id,
             pm.title,
             pm.description,
             pm.created_at,
@@ -188,18 +238,20 @@ namespace :check do
         end
         file = "#{Rails.root}/public/#{team.slug}/workspace_item_data.csv"
         headers = [
-         "Title",
-         "Description",
-         "Creation date",
-         "Tags",
-         "Status",
-         "Source",
-         "Media type",
-         "Media data",
+          "ID",
+          "Title",
+          "Description",
+          "Creation date",
+          "Tags",
+          "Status",
+          "Source",
+          "Media type",
+          "Media data",
         ]
         write_to_csv(file, headers, data_csv)
       end
     end
+
     # Upload workspace data to S3
     task :export_and_upload_workspace_data,[:slug] => [:environment, :export_workspace_item_data] do |_t, args|
       print_task_title 'Uploading workspace data'
