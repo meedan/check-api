@@ -176,7 +176,7 @@ namespace :check do
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        data_csv = team.get_articles_exported_data({}).drop(1) # Remove the header, we don't it
+        data_csv = team.get_articles_exported_data({})
         headers = data_csv.shift
         file = "#{Rails.root}/public/#{team.slug}/workspace_articles_data.csv"
         write_to_csv(file, headers, data_csv)
@@ -188,6 +188,7 @@ namespace :check do
       team = Team.find_by_slug slug
       unless team.nil?
         team_tasks = team.team_tasks
+        return if team_tasks.empty?
         headers_id = team_tasks.map(&:id)
         data_csv = []
         team.project_medias.find_each do |pm|
@@ -203,14 +204,15 @@ namespace :check do
           .where('a.annotated_type' => 'Task', 'a2.annotated_type' => 'ProjectMedia', 'a2.annotated_id' => pm.id).each do |f|
             a_answer[f.tid] = begin JSON.parse(f.answer) rescue f.answer end
           end
-          pm_raw = []
+          next if a_answer.empty?
+          pm_raw = [pm.id]
           headers_id.each do |ttid|
             pm_raw << a_answer[a_ttid[ttid]] || '-'
           end
           data_csv << pm_raw
         end
         file = "#{Rails.root}/public/#{team.slug}/workspace_tasks_data.csv"
-        headers = team_tasks.map(&:label)
+        headers = ['Item ID'].concat(team_tasks.map(&:label))
         write_to_csv(file, headers, data_csv)
       end
     end
@@ -227,7 +229,7 @@ namespace :check do
             tr.language,
             tr.created_at,
             tr.tipline_user_uid,
-            tr.smooch_data.to_json
+            tr.smooch_data['text']
           ]
         end
         file = "#{Rails.root}/public/#{team.slug}/workspace_tipline_requets_data.csv"
@@ -237,7 +239,7 @@ namespace :check do
          "Platform",
          "Creation date",
          "User UID",
-         "Data"
+         "Text"
         ]
         write_to_csv(file, headers, data_csv)
       end
