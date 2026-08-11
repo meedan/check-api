@@ -150,6 +150,7 @@ namespace :check do
       unless team.nil?
         data_csv = []
         team.team_users.where(status: 'member').find_each do |tu|
+          print '.'
           user = tu.user
           data_csv << [
             user.name,
@@ -186,6 +187,31 @@ namespace :check do
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
+        team_tasks = team.team_tasks
+        headers_id = team_tasks.map(&:id)
+        data_csv = []
+        team.project_medias.find_each do |pm|
+          print '.'
+          a_ttid = {}
+          pm.get_annotations(['task']).find_each do |a|
+            a_ttid[a.data["team_task_id"]] = a.id
+          end
+          a_answer = {}
+          DynamicAnnotation::Field.select("a.annotated_id AS tid, dynamic_annotation_fields.value AS answer")
+          .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN annotations a2 ON a2.id = a.annotated_id")
+          .where("field_name LIKE 'response_%'")
+          .where('a.annotated_type' => 'Task', 'a2.annotated_type' => 'ProjectMedia', 'a2.annotated_id' => pm.id).each do |f|
+            a_answer[f.tid] = begin JSON.parse(f.answer) rescue f.answer end
+          end
+          pm_raw = []
+          headers_id.each do |ttid|
+            pm_raw << a_answer[a_ttid[ttid]] || '-'
+          end
+          data_csv << pm_raw
+        end
+        file = "#{Rails.root}/public/#{team.slug}/workspace_tasks_data.csv"
+        headers = team_tasks.map(&:label)
+        write_to_csv(file, headers, data_csv)
       end
     end
     task :export_workspace_tipline_requets_data,[:slug] => [:environment, :export_workspace_tasks_data] do |_t, args|
@@ -195,6 +221,7 @@ namespace :check do
       unless team.nil?
         data_csv = []
         TiplineRequest.where(team_id: team.id).find_each do |tr|
+          print '.'
           data_csv << [
             tr.id,
             tr.language,
@@ -222,6 +249,7 @@ namespace :check do
       unless team.nil?
         data_csv = []
         team.project_medias.includes(:source, :media).find_each do |pm|
+          print '.'
           media = pm.media
           media_data = media.quote || media.url || media.file&.url
           data_csv << [
@@ -254,6 +282,7 @@ namespace :check do
 
     # Upload workspace data to S3
     task :export_and_upload_workspace_data,[:slug] => [:environment, :export_workspace_item_data] do |_t, args|
+      started = Time.now.to_i
       print_task_title 'Uploading workspace data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -267,11 +296,13 @@ namespace :check do
         download_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}/#{Time.now.to_i}/#{team.slug}.zip", 'application/zip', zip_path, CheckConfig.get('export_csv_expire', 7.days.to_i, :integer))
         puts "Download link (valid 7 days): #{download_url}"
         # Send download link to workspace admins
-        team.team_users.where(status: 'member').find_each do |tu|
-          puts "Sending email to #{tu.user.email}\n"
-          SunsetMailer.delay.notify(tu.user, tu.team.name)
-        end
+        # team.team_users.where(status: 'member').find_each do |tu|
+        #   puts "Sending email to #{tu.user.email}\n"
+        #   SunsetMailer.delay.notify(tu.user, tu.team.name)
+        # end
       end
+      minutes = ((Time.now.to_i - started) / 60).to_i
+      puts "[#{Time.now}] Done in #{minutes} minutes."
     end
   end
 end
