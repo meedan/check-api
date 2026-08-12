@@ -9,7 +9,6 @@ class ProjectMediaType < DefaultObject
   field :user_id, GraphQL::Types::Int, null: true
   field :fact_check_id, GraphQL::Types::Int, null: true
   field :url, GraphQL::Types::String, null: true
-  field :full_url, GraphQL::Types::String, null: true
   field :quote, GraphQL::Types::String, null: true
   field :oembed_metadata, GraphQL::Types::String, null: true
   field :dbid, GraphQL::Types::Int, null: true
@@ -45,6 +44,15 @@ class ProjectMediaType < DefaultObject
   field :imported_from_feed_id, GraphQL::Types::Int, null: true
   field :imported_from_project_media_id, GraphQL::Types::Int, null: true
   field :pusher_channel, GraphQL::Types::String, null: true
+
+  field :full_url, GraphQL::Types::String, null: true
+
+  def full_url
+    Loaders::TeamLoader.for.load(object.team_id).then do |team|
+      object.full_url(team)
+    end
+  end
+
   field :imported_from_feed, FeedType, null: true
 
   def imported_from_feed

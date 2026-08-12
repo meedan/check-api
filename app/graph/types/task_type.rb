@@ -26,8 +26,10 @@ class TaskType < BaseObject
     return "" if obj.nil?
     Loaders::FirstResponseLoader.for.load(obj.id).then do |response|
       next nil if response.nil?
-      field = response.get_fields.select{ |f| f.field_name =~ /^response/ }.first
-      field&.to_s
+      Loaders::AnnotationFieldsLoader.for.load(response.id).then do |fields|
+        field = response.get_fields(fields).select{ |f| f.field_name =~ /^response/ }.first
+        field&.to_s
+      end
     end
   end
 

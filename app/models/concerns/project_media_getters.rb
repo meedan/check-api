@@ -59,8 +59,9 @@ module ProjectMediaGetters
     self.media.text
   end
 
-  def full_url
-    "#{CheckConfig.get('checkdesk_client')}/#{self.team.slug}/media/#{self.id}"
+  def full_url(team = nil)
+    team ||= self.team
+    "#{CheckConfig.get('checkdesk_client')}/#{team.slug}/media/#{self.id}"
   end
 
   def updated_at_timestamp
