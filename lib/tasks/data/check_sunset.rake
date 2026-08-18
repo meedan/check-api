@@ -33,6 +33,21 @@ namespace :check do
       end
     end
 
+    def append_export_documentation(readme_path, filename, description, headers)
+      File.open(readme_path, "a") do |file|
+        file.puts
+        file.puts filename
+        file.puts "-" * filename.length
+        file.puts "Description: #{description}"
+        file.puts
+        file.puts "Headers:"
+        headers.each do |key, description|
+          file.puts "- #{key}: #{description}"
+        end
+        file.puts
+      end
+    end
+
     # bundle exec rails check:sunset:notify_workspace_admins[team-slug, team-role, 'email1|email2|...']
     task :notify_workspace_admins, [:slug, :role, :emails] => :environment do |_t, args|
       slug = args[:slug].to_s
@@ -60,8 +75,24 @@ namespace :check do
       end
     end
     # Export workspace data
-    # bundle exec rails check:sunset:export_workspace_data[team-slug]
-    task :export_workspace_data, [:slug] => :environment do |_t, args|
+    task :export_workspace_init_readme, [:slug] => :environment do |_t, args|
+      print_task_title 'CSV Export Documentation'
+      slug = args[:slug].to_s
+      team = Team.find_by_slug slug
+      unless team.nil?
+        export_dir = Rails.root.join("public", team.slug)
+        FileUtils.mkdir_p(export_dir)
+        File.write(
+          export_dir.join("README.txt"),
+          <<~README
+            CSV Export Documentation
+            ========================
+
+          README
+        )
+      end
+    end
+    task :export_workspace_data, [:slug] => [:environment, :export_workspace_init_readme] do |_t, args|
       print_task_title 'Exporting workspace data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -121,26 +152,28 @@ namespace :check do
           last_active_non_meedan
         ]
         # Write to CSV
-        file = "#{Rails.root}/public/#{team.slug}/workspace_data.csv"
-        headers = [
-          "ID",
-          "Name",
-          "URL",
-          "Created at",
-          "Last activity",
-          "Users #",
-          "Items #",
-          "Requests #",
-          "FactChecks #",
-          "Explainers #",
-          "Enabled tipline?",
-          "Active WhatsApp integration?",
-          "Active non-WhatsApp integration?",
-          "Active tiplines",
-          "Active API?",
-          "Last access(non-meedian)"
-        ]
-        write_to_csv(file, headers, data_csv)
+        export_dir = Rails.root.join('public', team.slug)
+        file = export_dir.join('workspace_data.csv')
+        headers = {
+          'ID' => 'Unique identifier of the workspace.',
+          'Name' => 'Name of the workspace.',
+          'URL' => 'URL used to access the workspace.',
+          'Created at' => 'Date when the workspace was created.',
+          'Last activity' => 'Date of the most recent activity in the workspace.',
+          'Users #' => 'Total number of users in the workspace.',
+          'Items #' => 'Total number of items in the workspace, including Claims, Links, Images, Videos, and Audio.',
+          'Requests #' => 'Total number of requests submitted through the workspace\'s tiplines.',
+          'FactChecks #' => 'Total number of FactChecks in the workspace.',
+          'Explainers #' => 'Total number of Explainers in the workspace.',
+          'Enabled tipline?' => 'Indicates whether the workspace has a tipline enabled (Yes/No).',
+          'Active WhatsApp integration?' => 'Indicates whether the workspace has an active WhatsApp integration (Yes/No).',
+          'Active non-WhatsApp integration?' => 'Indicates whether the workspace has any active tipline integration other than WhatsApp (Yes/No).',
+          'Active tiplines' => 'List of all active tiplines associated with the workspace, separated by -.',
+          'Active API?' => 'Indicates whether the workspace has an active API (Yes/No).',
+          'Last access' => 'Date of the most recent access to the workspace.',
+        }
+        write_to_csv(file, headers.keys, data_csv)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_data.csv', 'Contains workspace information and activity statistics.', headers)
       end
     end
     task :export_workspace_user_data,[:slug] => [:environment, :export_workspace_data] do |_t, args|
@@ -153,6 +186,7 @@ namespace :check do
           print '.'
           user = tu.user
           data_csv << [
+            user.id,
             user.name,
             user.email,
             tu.created_at,
@@ -160,15 +194,18 @@ namespace :check do
             tu.role
           ]
         end
-        file = "#{Rails.root}/public/#{team.slug}/workspace_user_data.csv"
-        headers = [
-         "Name",
-         "Email",
-         "Joined data",
-         "Last access date",
-         "Role"
-        ]
-        write_to_csv(file, headers, data_csv)
+        export_dir = Rails.root.join('public', team.slug)
+        file = export_dir.join('workspace_user_data.csv')
+        headers = {
+          'ID' => 'Unique identifier of the user.',
+          'Name' => 'Name of the user.',
+          'Email' => 'Email address of the user.',
+          'Joined data' => 'Date when the user joined the workspace.',
+          'Last access date' => 'Date when the user most recently accessed the workspace.',
+          'Role' => 'User\'s role in the workspace.',
+        }
+        write_to_csv(file, headers.keys, data_csv)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_user_data.csv', 'Contains information about workspace users and their access.', headers)
       end
     end
     task :export_workspace_articles_data,[:slug] => [:environment, :export_workspace_user_data] do |_t, args|
@@ -188,32 +225,33 @@ namespace :check do
       team = Team.find_by_slug slug
       unless team.nil?
         team_tasks = team.team_tasks
-        return if team_tasks.empty?
-        headers_id = team_tasks.map(&:id)
-        data_csv = []
-        team.project_medias.find_each do |pm|
-          print '.'
-          a_ttid = {}
-          pm.get_annotations(['task']).find_each do |a|
-            a_ttid[a.data["team_task_id"]] = a.id
+        unless team_tasks.empty?
+          headers_id = team_tasks.map(&:id)
+          data_csv = []
+          team.project_medias.find_each do |pm|
+            print '.'
+            a_ttid = {}
+            pm.get_annotations(['task']).find_each do |a|
+              a_ttid[a.data["team_task_id"]] = a.id
+            end
+            a_answer = {}
+            DynamicAnnotation::Field.select("a.annotated_id AS tid, dynamic_annotation_fields.value AS answer")
+            .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN annotations a2 ON a2.id = a.annotated_id")
+            .where("field_name LIKE 'response_%'")
+            .where('a.annotated_type' => 'Task', 'a2.annotated_type' => 'ProjectMedia', 'a2.annotated_id' => pm.id).each do |f|
+              a_answer[f.tid] = begin JSON.parse(f.answer) rescue f.answer end
+            end
+            next if a_answer.empty?
+            pm_raw = [pm.id]
+            headers_id.each do |ttid|
+              pm_raw << a_answer[a_ttid[ttid]] || '-'
+            end
+            data_csv << pm_raw
           end
-          a_answer = {}
-          DynamicAnnotation::Field.select("a.annotated_id AS tid, dynamic_annotation_fields.value AS answer")
-          .joins("INNER JOIN annotations a ON a.id = dynamic_annotation_fields.annotation_id INNER JOIN annotations a2 ON a2.id = a.annotated_id")
-          .where("field_name LIKE 'response_%'")
-          .where('a.annotated_type' => 'Task', 'a2.annotated_type' => 'ProjectMedia', 'a2.annotated_id' => pm.id).each do |f|
-            a_answer[f.tid] = begin JSON.parse(f.answer) rescue f.answer end
-          end
-          next if a_answer.empty?
-          pm_raw = [pm.id]
-          headers_id.each do |ttid|
-            pm_raw << a_answer[a_ttid[ttid]] || '-'
-          end
-          data_csv << pm_raw
+          file = "#{Rails.root}/public/#{team.slug}/workspace_tasks_data.csv"
+          headers = ['Item ID'].concat(team_tasks.map(&:label))
+          write_to_csv(file, headers, data_csv)
         end
-        file = "#{Rails.root}/public/#{team.slug}/workspace_tasks_data.csv"
-        headers = ['Item ID'].concat(team_tasks.map(&:label))
-        write_to_csv(file, headers, data_csv)
       end
     end
     task :export_workspace_tipline_requets_data,[:slug] => [:environment, :export_workspace_tasks_data] do |_t, args|
@@ -232,16 +270,18 @@ namespace :check do
             tr.smooch_data['text']
           ]
         end
-        file = "#{Rails.root}/public/#{team.slug}/workspace_tipline_requets_data.csv"
-        headers = [
-         "ID",
-         "Language",
-         "Platform",
-         "Creation date",
-         "User UID",
-         "Text"
-        ]
-        write_to_csv(file, headers, data_csv)
+        export_dir = Rails.root.join('public', team.slug)
+        file = export_dir.join('workspace_tipline_requets_data.csv')
+        headers = {
+          'ID' => 'Unique identifier of the TiplineRequest.',
+          'Language' => 'Language of the TiplineRequest in two-letter format, such as en/ar/fr.',
+          'Platform' => 'Platform through which the TiplineRequest was submitted.',
+          'Creation date' => 'Date and time when the TiplineRequest was created.',
+          'User UID' => 'Unique identifier of the tipline user who submitted the request.',
+          'Text' => 'Text submitted as part of the TiplineRequest.'
+        }
+        write_to_csv(file, headers.keys, data_csv)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_requets_data.csv', 'Contains information about requests submitted through workspace tiplines.', headers)
       end
     end
     task :export_workspace_item_data,[:slug] => [:environment, :export_workspace_tipline_requets_data] do |_t, args|
@@ -266,19 +306,21 @@ namespace :check do
             media_data
           ]
         end
-        file = "#{Rails.root}/public/#{team.slug}/workspace_item_data.csv"
-        headers = [
-          "ID",
-          "Title",
-          "Description",
-          "Creation date",
-          "Tags",
-          "Status",
-          "Source",
-          "Media type",
-          "Media data",
-        ]
-        write_to_csv(file, headers, data_csv)
+        export_dir = Rails.root.join('public', team.slug)
+        file = export_dir.join('workspace_item_data.csv')
+        headers = {
+          'ID' => 'Unique identifier of the item.',
+          'Title' => 'Title of the item',
+          'Description' => 'Description of the item',
+          'Creation date' => 'Date and time when the item was created.',
+          'Tags' => 'Tags associated with the item',
+          'Status' => 'Current status of the item.',
+          'Source' => 'Source associated with the item',
+          'Media type' => 'Type of the item, such as Claim, Link, Image, Video, or Audio.',
+          'Media data' => 'Content or reference associated with the item, such as a Quote, URL, or file path.',
+        }
+        write_to_csv(file, headers.keys, data_csv)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_item_data.csv', 'Contains information about workspace items, including Claims, Links, and Media.', headers)
       end
     end
 
