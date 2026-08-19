@@ -92,6 +92,7 @@ namespace :check do
         )
       end
     end
+    # bundle exec rails check:sunset:export_workspace_data[team-slug]
     task :export_workspace_data, [:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace data'
       slug = args[:slug].to_s
@@ -176,6 +177,7 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_data.csv', 'Contains workspace information and activity statistics.', headers)
       end
     end
+    # bundle exec rails check:sunset:export_workspace_user_data[team-slug]
     task :export_workspace_user_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace user data'
       slug = args[:slug].to_s
@@ -208,6 +210,7 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_user_data.csv', 'Contains information about workspace users and their access.', headers)
       end
     end
+    # bundle exec rails check:sunset:export_workspace_articles_data[team-slug]
     task :export_workspace_articles_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace articles data (FactChecks & Explainers)'
       slug = args[:slug].to_s
@@ -242,6 +245,7 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_explainers_data.csv', 'Contains information about Explainers in the workspace.', headers)
       end
     end
+    # bundle exec rails check:sunset:export_workspace_annotations_data[team-slug]
     task :export_workspace_annotations_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace annotations data'
       slug = args[:slug].to_s
@@ -282,6 +286,7 @@ namespace :check do
         end
       end
     end
+    # bundle exec rails check:sunset:export_workspace_tipline_requets_data[team-slug]
     task :export_workspace_tipline_requets_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace TiplineRequests data'
       slug = args[:slug].to_s
@@ -312,6 +317,7 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_requets_data.csv', 'Contains information about requests submitted through workspace tiplines.', headers)
       end
     end
+    # bundle exec rails check:sunset:export_workspace_tipline_newsletter_data[team-slug]
     task :export_workspace_tipline_newsletter_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace TiplineNewsletter data'
       slug = args[:slug].to_s
@@ -365,6 +371,7 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_newsletter_data.csv', 'Contains information about Tipline newsletters configured for the workspace.', headers)
       end
     end
+    # bundle exec rails check:sunset:export_workspace_item_data[team-slug]
     task :export_workspace_item_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace item data'
       slug = args[:slug].to_s
@@ -405,12 +412,13 @@ namespace :check do
       end
     end
 
-    # Upload workspace data to S3
+    # bundle exec rails check:sunset:export_and_upload_workspace_data[team-slug]
     task :export_and_upload_workspace_data,[:slug] => :environment do |_t, args|
       started = Time.now.to_i
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
+        # Call all exported tasks
         Rake::Task['check:sunset:export_workspace_init_readme'].invoke(args[:slug])
         Rake::Task['check:sunset:export_workspace_data'].invoke(args[:slug])
         Rake::Task['check:sunset:export_workspace_user_data'].invoke(args[:slug])
