@@ -92,7 +92,7 @@ namespace :check do
         )
       end
     end
-    task :export_workspace_data, [:slug] => [:environment, :export_workspace_init_readme] do |_t, args|
+    task :export_workspace_data, [:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -176,7 +176,7 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_data.csv', 'Contains workspace information and activity statistics.', headers)
       end
     end
-    task :export_workspace_user_data,[:slug] => [:environment, :export_workspace_data] do |_t, args|
+    task :export_workspace_user_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace user data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -208,19 +208,42 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_user_data.csv', 'Contains information about workspace users and their access.', headers)
       end
     end
-    task :export_workspace_articles_data,[:slug] => [:environment, :export_workspace_user_data] do |_t, args|
-      print_task_title 'Exporting workspace articles data'
+    task :export_workspace_articles_data,[:slug] => :environment do |_t, args|
+      print_task_title 'Exporting workspace articles data (FactChecks & Explainers)'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        data_csv = team.get_articles_exported_data({})
-        headers = data_csv.shift
-        file = "#{Rails.root}/public/#{team.slug}/workspace_articles_data.csv"
-        write_to_csv(file, headers, data_csv)
+        export_dir = Rails.root.join('public', team.slug)
+        # Export FactChecks
+        data_csv = FactCheck.get_exported_data({}, team).drop(1)
+        file = export_dir.join('workspace_fact_checks_data.csv')
+        headers = {
+          'ID' => 'Unique identifier of the FactCheck.',
+          'Title' => 'Title of the FactCheck',
+          'Summary' => 'Summary of the FactCheck',
+          'URL' => 'URL of the FactCheck',
+          'Language' => 'Language of the FactCheck in two-letter format, such as en/ar/fr.',
+          'Report Status' => 'Current status of the FactCheck report.',
+          'Imported?' => 'Indicates whether the FactCheck was imported into the workspace'
+        }
+        write_to_csv(file, headers.keys, data_csv)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_fact_checks_data.csv', 'Contains information about FactChecks in the workspace.', headers)
+        # Export Explainers
+        data_csv = Explainer.get_exported_data({}, team).drop(1)
+        headers = {
+          'ID' => 'Unique identifier of the Explainer.',
+          'Title' => 'Title of the Explainer',
+          'Description' => 'Description of the Explainer',
+          'URL' => 'URL of the Explainer',
+          'Language' => 'Language of the Explainer in two-letter format, such as en/ar/fr.',
+        }
+        file = export_dir.join('workspace_explainers_data.csv')
+        write_to_csv(file, headers.keys, data_csv)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_explainers_data.csv', 'Contains information about Explainers in the workspace.', headers)
       end
     end
-    task :export_workspace_tasks_data,[:slug] => [:environment, :export_workspace_articles_data] do |_t, args|
-      print_task_title 'Exporting workspace tasks data'
+    task :export_workspace_annotations_data,[:slug] => :environment do |_t, args|
+      print_task_title 'Exporting workspace annotations data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
@@ -248,13 +271,18 @@ namespace :check do
             end
             data_csv << pm_raw
           end
-          file = "#{Rails.root}/public/#{team.slug}/workspace_tasks_data.csv"
-          headers = ['Item ID'].concat(team_tasks.map(&:label))
-          write_to_csv(file, headers, data_csv)
+          export_dir = Rails.root.join('public', team.slug)
+          file = export_dir.join('workspace_annotations_data.csv')
+          headers = { 'Item ID' => 'Unique identifier of the item associated with the annotation.' }
+          team_tasks.each do |tt|
+            headers[tt.label] = tt.description
+          end
+          write_to_csv(file, headers.keys, data_csv)
+          append_export_documentation(export_dir.join('README.txt'), 'workspace_annotations_data.csv', 'Contains information about workspace annotations. Each column represents an annotation label, and each row contains the corresponding annotation value for an item.', headers)
         end
       end
     end
-    task :export_workspace_tipline_requets_data,[:slug] => [:environment, :export_workspace_tasks_data] do |_t, args|
+    task :export_workspace_tipline_requets_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace TiplineRequests data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -284,7 +312,60 @@ namespace :check do
         append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_requets_data.csv', 'Contains information about requests submitted through workspace tiplines.', headers)
       end
     end
-    task :export_workspace_item_data,[:slug] => [:environment, :export_workspace_tipline_requets_data] do |_t, args|
+    task :export_workspace_tipline_newsletter_data,[:slug] => :environment do |_t, args|
+      print_task_title 'Exporting workspace TiplineNewsletter data'
+      slug = args[:slug].to_s
+      team = Team.find_by_slug slug
+      unless team.nil?
+        data_csv = []
+        team.tipline_newsletters.find_each do |tn|
+          print '.'
+          data_csv << [
+            tn.id,
+            tn.header_type,
+            tn.header_file,
+            tn.header_overlay_text,
+            tn.header_media_url,
+            tn.introduction,
+            tn.content_type,
+            tn.rss_feed_url,
+            tn.number_of_articles,
+            tn.first_article,
+            tn.second_article,
+            tn.third_article,
+            tn.footer,
+            tn.last_sent_at,
+            tn.language,
+            tn.enabled,
+            tn.created_at,
+          ]
+        end
+        export_dir = Rails.root.join('public', team.slug)
+        file = export_dir.join('workspace_tipline_newsletter_data.csv')
+        headers = {
+          'ID' => 'Unique identifier for the TiplineNewsletter.',
+          'Header type' => 'Type of header used in the newsletter.',
+          'Hheader file' => 'File used as the newsletter header.',
+          'Header overlay text' => 'Text displayed as an overlay on the newsletter header.',
+          'Header media url' => 'URL of the media used in the newsletter header.',
+          'Introduction' => 'Introduction text displayed in the newsletter.',
+          'Content type' => 'Type of content included in the newsletter.',
+          'RSS feed url' => 'URL of the RSS feed used to populate the newsletter content.',
+          'Number of articles' => 'Number of articles included in the newsletter.',
+          'First article' => 'Content of the first article',
+          'Second article' => 'Content of the second article',
+          'Third article' => 'Content of the third article',
+          'Footer' => 'Footer text displayed in the newsletter.',
+          'Last sent at' => 'Date and time when the newsletter was last sent.',
+          'Language' => 'Language of the TiplineNewsletter in two-letter format, such as en/ar/fr.',
+          'Enabled' => 'Indicates whether the newsletter is enabled',
+          'Creation data' => 'Date and time when the newsletter was created.',
+        }
+        write_to_csv(file, headers.keys, data_csv)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_newsletter_data.csv', 'Contains information about Tipline newsletters configured for the workspace.', headers)
+      end
+    end
+    task :export_workspace_item_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace item data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -325,12 +406,20 @@ namespace :check do
     end
 
     # Upload workspace data to S3
-    task :export_and_upload_workspace_data,[:slug] => [:environment, :export_workspace_item_data] do |_t, args|
+    task :export_and_upload_workspace_data,[:slug] => :environment do |_t, args|
       started = Time.now.to_i
-      print_task_title 'Uploading workspace data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
+        Rake::Task['check:sunset:export_workspace_init_readme'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_data'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_user_data'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_articles_data'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_annotations_data'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_tipline_requets_data'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_tipline_requets_data'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_item_data'].invoke(args[:slug])
+        print_task_title 'Uploading workspace data'
         # compress & upload
         folder_path = "#{Rails.root}/public/#{team.slug}"
         zip_path = "#{Rails.root}/public/#{team.slug}-#{Time.now.to_i}.zip"
