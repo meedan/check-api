@@ -42,6 +42,7 @@ class Api::V1::AdminController < Api::V1::BaseApiController
           'appSecret' => CheckConfig.get('smooch_facebook_app_secret'),
           'pageAccessToken' => pages[0]['access_token']
         }
+        Rails.logger.info("[Facebook Messenger Integration] params: #{params.inspect}")
         tbi.smooch_add_integration(platform, params)
         @message = I18n.t(:smooch_facebook_success)
         status = 200
