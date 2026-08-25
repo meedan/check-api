@@ -61,6 +61,11 @@ namespace :check do
           <<~README
             CSV Export Documentation
             ========================
+            This export contains information and data from the workspace in CSV format. Each CSV file contains a specific type of workspace data, such as workspace information, users, items, annotations, FactChecks, Explainers, and Tipline requests.
+
+            Media Files
+            ===========
+            Media files are not included directly in the CSV export. For items that contain media, the corresponding Media data or media URL in workspace_item_data.csv should be used to download the actual media files.
 
           README
         )
@@ -411,10 +416,10 @@ namespace :check do
         download_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}/#{Time.now.to_i}/#{team.slug}.zip", 'application/zip', zip_path, CheckConfig.get('export_csv_expire', 7.days.to_i, :integer))
         puts "Download link (valid 7 days): #{download_url}"
         # Send download link to workspace admins
-        # team.team_users.where(status: 'member').find_each do |tu|
-        #   puts "Sending email to #{tu.user.email}\n"
-        #   SunsetMailer.delay.notify(tu.user, tu.team.name)
-        # end
+        team.team_users.where(status: 'member').find_each do |tu|
+          puts "Sending email to #{tu.user.email}\n"
+          SunsetMailer.delay.notify(tu.user, tu.team.name)
+        end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
