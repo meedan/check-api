@@ -413,13 +413,16 @@ namespace :check do
         puts "Compressing #{folder_path} -> #{zip_path}"
         compress_folder(folder_path, zip_path)
         # Save to S3
-        download_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}/#{Time.now.to_i}/#{team.slug}.zip", 'application/zip', zip_path, CheckConfig.get('export_csv_expire', 7.days.to_i, :integer))
+        zip_content = File.binread(zip_path)
+        s3_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}/#{Time.now.to_i}/#{team.slug}.zip", 'application/zip', zip_content, CheckConfig.get('export_csv_expire', 7.days.to_i, :integer))
+        key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
+        download_url = CheckConfig.get('short_url_host') + '/' + key
         puts "Download link (valid 7 days): #{download_url}"
         # Send download link to workspace admins
-        team.team_users.where(status: 'member').find_each do |tu|
-          puts "Sending email to #{tu.user.email}\n"
-          SunsetMailer.delay.notify(tu.user, tu.team.name)
-        end
+        # team.team_users.where(status: 'member').find_each do |tu|
+        #   puts "Sending email to #{tu.user.email}\n"
+        #   SunsetMailer.delay.notify(tu.user, tu.team.name)
+        # end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
