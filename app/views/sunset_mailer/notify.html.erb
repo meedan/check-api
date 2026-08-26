@@ -1,23 +1,31 @@
 <%= render "shared/header" %>
 
-          <style>
-            @media only screen and (max-width: 601px) {
-              .notify-title__content {
-                padding: 0 30px;
-              }
-            }
+<style>
+  @media only screen and (max-width: 481px) {
+    .notify-title a {
+      display: block !important;
+      width: auto !important;
+    }
+  }
 
 
-            @media only screen and (max-width: 481px) {
-              .notify-title__content {
-                padding: 0 !important;
-              }
-            }
-          </style>
+  @media only screen and (max-width: 601px) {
+    .notify-title__content {
+      padding: 0 30px;
+    }
+  }
 
-          <!--~~// Notify-title module start \\~~-->
-          <!--————————————————————————————-->
-          <div class="notify-title" style="text-align: <%= @direction[:align] %> !important; direction: <%= @direction[:dir] %>">
+
+  @media only screen and (max-width: 481px) {
+    .notify-title__content {
+      padding: 0 !important;
+    }
+  }
+</style>
+
+<!--~~// Notify-title module start \\~~-->
+<!--————————————————————————————-->
+  <div class="notify-title" style="text-align: left !important; direction: <%= @direction[:dir] %>">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
               <tr>
                 <td style="border-collapse: collapse; font-size: 44px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
@@ -26,22 +34,62 @@
             <div class="container " width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
               <table class="container__table" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; margin: 0 auto; mso-table-lspace: 0pt; mso-table-rspace: 0pt; table-layout: fixed;">
                 <tr>
-                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" text-align: <%= @direction[:align] %>>
+                  <th class="col-1" style="font-weight: normal; mso-line-height-rule: exactly; padding: 0;" width="600px" valign="top" align="<%= @direction[:align] %>">
                     <div class="notify-title__content" style="text-align:<%= @direction[:align] %>;">
-                      <div class="h3 notify-title__greeting" style="font-size: 21px; letter-spacing: -0.2px; line-height: 29px;"><%= I18n.t("mails_notifications.greeting", username: @name) %></div>
+                      <div class="h3 notify-title__greeting" style="font-size: 21px; letter-spacing: -0.2px; line-height: 29px;">
+                        <%= I18n.t("mails_notifications.greeting", username: @name) %>
+                      </div>
+                    </div>
+                    <!--————————————————————————————-->
+                    <!--~~\\ Notify-title module end //~~-->
+
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                      <tr>
+                        <td style="border-collapse: collapse; font-size: 28px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                      </tr>
+                    </table>
+                    <style>
+                      @media only screen and (max-width: 481px) {
+                        .section__title {
+                          padding-left: 20px !important;
+                          padding-right: 20px !important;
+                        }
+                      }
+
+
+                      @media only screen and (max-width: 481px) {
+                        .section__title .text {
+                          font-size: 17px !important;
+                          line-height: 25px !important;
+                        }
+                      }
+
+                      @media only screen and (max-width: 481px) {
+                        body .media-list__image {
+                          width: 300px !important;
+                          height: auto !important;
+                        }
+                      }
+
+
+                      @media only screen and (max-width: 481px) {
+                        body .media-list__image img {
+                          width: 300px !important;
+                        }
+                      }
+                    </style>
+
+                    <!--~~// Section module start \\~~-->
+                    <!--————————————————————————————-->
+                    <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
+  
                       <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                         <tr>
-                          <td style="border-collapse: collapse; font-size: 13px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
+                          <td style="border-collapse: collapse; font-size: 44px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
                         </tr>
                       </table>
+
                     </div>
-                  </th>
-                </tr>
-              </table>
-            </div>
-            <div>
-              TODO: ADD COPY
-            </div>
+<%= render @mail_copy %>
 
 <%= render "shared/footer" %>
-
