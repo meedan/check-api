@@ -404,7 +404,7 @@ namespace :check do
         Rake::Task['check:sunset:export_workspace_articles_data'].invoke(args[:slug])
         Rake::Task['check:sunset:export_workspace_annotations_data'].invoke(args[:slug])
         Rake::Task['check:sunset:export_workspace_tipline_requets_data'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_tipline_requets_data'].invoke(args[:slug])
+        Rake::Task['check:sunset:export_workspace_tipline_newsletter_data'].invoke(args[:slug])
         Rake::Task['check:sunset:export_workspace_item_data'].invoke(args[:slug])
         print_task_title 'Uploading workspace data'
         # compress & upload
@@ -414,14 +414,14 @@ namespace :check do
         compress_folder(folder_path, zip_path)
         # Save to S3
         zip_content = File.binread(zip_path)
-        s3_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}/#{Time.now.to_i}/#{team.slug}.zip", 'application/zip', zip_content, CheckConfig.get('export_csv_expire', 7.days.to_i, :integer))
+        s3_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}/#{Time.now.to_i}/#{team.slug}.zip", 'application/zip', zip_content, CheckConfig.get('check_sunset_download_expire_days', 7, :integer).days.to_i)
         key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
         download_url = CheckConfig.get('short_url_host') + '/' + key
-        puts "Download link (valid 7 days): #{download_url}"
+        puts "Download link (valid #{CheckConfig.get('check_sunset_download_expire_days', 7, :integer)} days): #{download_url}"
         # Send download link to workspace admins
         # team.team_users.where(status: 'member').find_each do |tu|
         #   puts "Sending email to #{tu.user.email}\n"
-        #   SunsetMailer.delay.notify(tu.user, tu.team.name)
+        #   SunsetMailer.delay.notify('download', tu.user, tu.team.name)
         # end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
