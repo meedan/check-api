@@ -3,7 +3,7 @@
 		<span style="font-weight: normal;">We're writing to let you know about some housekeeping we're doing across <%= CheckConfig.get('app_name') %>.</span>
 	</p>
 	<p>
-		<span style="font-weight: normal;">To keep the platform running smoothly and securely for everyone, we're reviewing workspace activity across Check and closing out accounts that have gone unused for an extended period. This helps keep our systems lean and focus our infrastructure on active workspaces. Based on our records, the workspace <%= link_to(@workspace, @workspace_url, :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>, which you&rsquo;re an admin of, hasn't seen recent activity and falls into this group.</span>
+		<span style="font-weight: normal;">To keep the platform running smoothly and securely for everyone, we're reviewing workspace activity across Check and closing out accounts that have gone unused for an extended period. This helps keep our systems lean and focus our infrastructure on active workspaces. Based on our records, the workspace <%= link_to(@info[:workspace], @info[:workspace_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>, which you&rsquo;re an admin of, hasn't seen recent activity and falls into this group.</span>
 	</p>
 	<p><strong>What this means</strong></p>
 	<p>

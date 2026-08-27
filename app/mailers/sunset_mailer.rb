@@ -21,8 +21,6 @@ class SunsetMailer < ApplicationMailer
       download_expire_days: CheckConfig.get('check_sunset_download_expire_days', 14, :integer),
       download_expire_extended_days: CheckConfig.get('check_sunset_download_expire_extended_days', 10, :integer),
     }
-    @workspace = workspace
-    @workspace_url = workspace_url
     mail(to: user.email, subject: subject)
   end
 end

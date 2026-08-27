@@ -1,5 +1,5 @@
-<%= @workspace %> workspace data export is ready to download.
+<%= @info[:workspace] %> workspace data export is ready to download.
 The export includes workspace data in CSV format, along with a README file describing the exported files and their contents.
-Download <%= @workspace %> exported data
+Download <%= @info[:workspace] %> exported data
 This download link will expire after <%= @info[:download_expire_days] %> days. Please make sure to download and save the export before the link expires.
 Please note that some media files are referenced by URLs in the exported data and are not included directly in the CSV files. You may need to download these media files separately. The README file included in the export provides more information about the exported data and media files.
