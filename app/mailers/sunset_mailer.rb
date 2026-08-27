@@ -4,8 +4,7 @@ class SunsetMailer < ApplicationMailer
   def notify(type, user, workspace, workspace_url)
     @name = user.name
     # Set subject based on type (notify or download)
-    subject_type = type == 'download' ? 'download' : 'notify'
-    subject = I18n.t("mail_sunset.#{subject_type}_subject", app_name: CheckConfig.get('app_name'), workspace: workspace)
+    subject = (type == 'download') ? "#{CheckConfig.get('app_name')} exported data for #{workspace} workspace is ready to download" : "Sunset alert: #{CheckConfig.get('app_name')} sunset for #{workspace} workspace"
     # Dates for low usage workspaces
     low_usage_end_date = begin Time.parse(CheckConfig.get('check_sunset_low_usage_date')) rescue Time.parse('2026-11-03') end
     low_usage_download_link_date = begin Time.parse(CheckConfig.get('check_sunset_low_usage_download_link_date')) rescue Time.parse('2026-11-04') end
