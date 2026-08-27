@@ -2,6 +2,6 @@
 	<p><strong><%= @workspace %> workspace data export is ready to download.</strong></p>
 	<p>The export includes workspace data in CSV format, along with a README file describing the exported files and their contents.</p>
 	<p><a href="#">Download <%= @workspace %> exported data</a></p>
-	<p>This download link will expire after 10 days. Please make sure to download and save the export before the link expires.</p>
+	<p>This download link will expire after <strong><%= @info[:download_expire_days] %> days</strong>. Please make sure to download and save the export before the link expires.</p>
 	<p>Please note that some media files are referenced by URLs in the exported data and are not included directly in the CSV files. You may need to download these media files separately. The README file included in the export provides more information about the exported data and media files.</p>
 </div>

@@ -1,0 +1,51 @@
+<div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
+	<p>
+		<span style="font-weight: normal;">We're writing to let you know about some housekeeping we're doing across <%= CheckConfig.get('app_name') %>.</span>
+	</p>
+	<p>
+		<span style="font-weight: normal;">To keep the platform running smoothly and securely for everyone, we're reviewing workspace activity across Check and closing out accounts that have gone unused for an extended period. This helps keep our systems lean and focus our infrastructure on active workspaces. Based on our records, the workspace <%= link_to(@workspace, @workspace_url, :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>, which you&rsquo;re an admin of, hasn't seen recent activity and falls into this group.</span>
+	</p>
+	<p><strong>What this means</strong></p>
+	<p>
+		<span style="font-weight: normal;">Your Check workspace will be unavailable starting on </span><strong><%= @info[:low_usage_end_date].strftime("%B %-d") %></strong><span style="font-weight: normal;">. After this date, you'll no longer be able to access the platform with this account.</span>
+	</p>
+	<p><strong>Your data</strong></p>
+	<p>
+		<span style="font-weight: normal;">If you'd like to keep a copy of your workspace data, you'll need to download it before it's removed. On </span>
+		<strong><%= @info[:low_usage_download_link_date].strftime("%B %-d") %></strong><span style="font-weight: normal;">, we'll send workspace admins a link to download a ZIP export containing:</span>
+	</p>
+	<ul>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Workspace information &mdash; name, URL, creation date, activity, users, and integrations</span>
+		</li>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Users and access &mdash; names, emails, roles, join dates, and access details</span>
+		</li>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Articles &mdash; titles, summaries, URLs, languages, and report status</span>
+		</li>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Claims, links, and media &mdash; titles, descriptions, dates, tags, status, sources, and media info</span>
+		</li>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Tipline requests &mdash; submitted text, language, platform, date, and associated items</span>
+		</li>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Tasks and claim assessments &mdash; tasks and answers for each item</span>
+		</li>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Newsletter and Annotation data</span>
+		</li>
+	</ul>
+	<p><span style="font-weight: normal;">Please note:</span></p>
+	<ul>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">The download link will expire </span><strong><%= @info[:download_expire_days] %> days</strong><span style="font-weight: normal;"> after it's sent, so download and store the file securely before then.</span>
+		</li>
+		<li style="font-weight: normal;">
+			<span style="font-weight: normal;">Your data will remain available for an extra </span><strong><%= @info[:download_expire_extended_days] %> days</strong><span style="font-weight: normal;"> after the link expires. After that, the data will be permanently deleted and cannot be recovered.</span>
+		</li>
+	</ul>
+	<p><strong>Still using Check?</strong></p>
+	<p><span style="font-weight: normal;">If your workspace is active and you believe you're receiving this message in error, please reach out to us at <%= CheckConfig.get('support_email') %> as soon as possible so we can look into it.</span></p>
+</div>

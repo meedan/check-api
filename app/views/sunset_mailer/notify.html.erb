@@ -79,17 +79,6 @@
                       }
                     </style>
 
-                    <!--~~// Section module start \\~~-->
-                    <!--————————————————————————————-->
-                    <div class="container wide" width="600" style="margin: 0 auto; text-align: <%= @direction[:align] %>; width: 600px;">
-  
-                      <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
-                        <tr>
-                          <td style="border-collapse: collapse; font-size: 44px; line-height: 1; text-decoration: none !important;">&nbsp;</td>
-                        </tr>
-                      </table>
-
-                    </div>
-<%= render @mail_copy %>
+<%= render @info[:mail_copy] %>
 
 <%= render "shared/footer" %>

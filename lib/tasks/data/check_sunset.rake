@@ -7,7 +7,7 @@ namespace :check do
       unless team.nil?
         priority = args[:priority].to_s
         raise "You should set mail priority" unless ['high', 'low'].include?(priority)
-        mail_type = "notify_#{priority}"
+        mail_type = "notify_#{priority}_usage"
         # Define 3PFC and clients workspaces
         excluded_workspaces = []
         unless excluded_workspaces.include?(team.slug)
@@ -15,7 +15,7 @@ namespace :check do
           # Send email
           User.where(email: to_mails).find_each do |user|
             puts "Sending email to #{user.email}\n"
-            SunsetMailer.delay.notify(mail_type, user, team.name)
+            SunsetMailer.delay.notify(mail_type, user, team.name, team.url)
           end
         end
       end
