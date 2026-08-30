@@ -54,7 +54,7 @@ namespace :check do
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        export_dir = Rails.root.join("public", team.slug)
+        export_dir = Rails.root.join("tmp", team.slug)
         FileUtils.mkdir_p(export_dir)
         File.write(
           export_dir.join("README.txt"),
@@ -132,7 +132,7 @@ namespace :check do
           last_active_non_meedan
         ]
         # Write to CSV
-        export_dir = Rails.root.join('public', team.slug)
+        export_dir = Rails.root.join('tmp', team.slug)
         file = export_dir.join('workspace_data.csv')
         headers = {
           'ID' => 'Unique identifier of the workspace.',
@@ -175,7 +175,7 @@ namespace :check do
             tu.role
           ]
         end
-        export_dir = Rails.root.join('public', team.slug)
+        export_dir = Rails.root.join('tmp', team.slug)
         file = export_dir.join('workspace_user_data.csv')
         headers = {
           'ID' => 'Unique identifier of the user.',
@@ -195,7 +195,7 @@ namespace :check do
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        export_dir = Rails.root.join('public', team.slug)
+        export_dir = Rails.root.join('tmp', team.slug)
         # Export FactChecks
         data_csv = FactCheck.get_exported_data({}, team).drop(1)
         file = export_dir.join('workspace_fact_checks_data.csv')
@@ -250,23 +250,23 @@ namespace :check do
             next if a_answer.empty?
             pm_raw = [pm.id]
             headers_id.each do |ttid|
-              pm_raw << a_answer[a_ttid[ttid]] || '-'
+              pm_raw << (a_answer[a_ttid[ttid]] || '-')
             end
             data_csv << pm_raw
           end
-          export_dir = Rails.root.join('public', team.slug)
+          export_dir = Rails.root.join('tmp', team.slug)
           file = export_dir.join('workspace_annotations_data.csv')
           headers = { 'Item ID' => 'Unique identifier of the item associated with the annotation.' }
           team_tasks.each do |tt|
-            headers[tt.label] = tt.description
+            headers["#{tt.label} (#{tt.id})"] = tt.description
           end
           write_to_csv(file, headers.keys, data_csv)
           append_export_documentation(export_dir.join('README.txt'), 'workspace_annotations_data.csv', 'Contains information about workspace annotations. Each column represents an annotation label, and each row contains the corresponding annotation value for an item.', headers)
         end
       end
     end
-    # bundle exec rails check:sunset:export_workspace_tipline_requets_data[team-slug]
-    task :export_workspace_tipline_requets_data,[:slug] => :environment do |_t, args|
+    # bundle exec rails check:sunset:export_workspace_tipline_requests_data[team-slug]
+    task :export_workspace_tipline_requests_data,[:slug] => :environment do |_t, args|
       print_task_title 'Exporting workspace TiplineRequests data'
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
@@ -282,7 +282,7 @@ namespace :check do
             tr.smooch_data['text']
           ]
         end
-        export_dir = Rails.root.join('public', team.slug)
+        export_dir = Rails.root.join('tmp', team.slug)
         file = export_dir.join('workspace_tipline_requets_data.csv')
         headers = {
           'ID' => 'Unique identifier of the TiplineRequest.',
@@ -325,7 +325,7 @@ namespace :check do
             tn.created_at,
           ]
         end
-        export_dir = Rails.root.join('public', team.slug)
+        export_dir = Rails.root.join('tmp', team.slug)
         file = export_dir.join('workspace_tipline_newsletter_data.csv')
         headers = {
           'ID' => 'Unique identifier for the TiplineNewsletter.',
@@ -373,7 +373,7 @@ namespace :check do
             media_data
           ]
         end
-        export_dir = Rails.root.join('public', team.slug)
+        export_dir = Rails.root.join('tmp', team.slug)
         file = export_dir.join('workspace_item_data.csv')
         headers = {
           'ID' => 'Unique identifier of the item.',
@@ -391,38 +391,41 @@ namespace :check do
       end
     end
 
-    # bundle exec rails check:sunset:export_and_upload_workspace_data[team-slug]
-    task :export_and_upload_workspace_data,[:slug] => :environment do |_t, args|
+    # bundle exec rails check:sunset:export_upload_and_send_workspace_data[team-slug, email]
+    task :export_upload_and_send_workspace_data,[:slug, :email] => :environment do |_t, args|
       started = Time.now.to_i
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        # Call all exported tasks
-        Rake::Task['check:sunset:export_workspace_init_readme'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_data'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_user_data'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_articles_data'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_annotations_data'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_tipline_requets_data'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_tipline_newsletter_data'].invoke(args[:slug])
-        Rake::Task['check:sunset:export_workspace_item_data'].invoke(args[:slug])
-        print_task_title 'Uploading workspace data'
-        # compress & upload
-        folder_path = "#{Rails.root}/public/#{team.slug}"
-        zip_path = "#{Rails.root}/public/#{team.slug}-#{Time.now.to_i}.zip"
-        puts "Compressing #{folder_path} -> #{zip_path}"
-        compress_folder(folder_path, zip_path)
-        # Save to S3
-        zip_content = File.binread(zip_path)
-        s3_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}/#{Time.now.to_i}/#{team.slug}.zip", 'application/zip', zip_content, CheckConfig.get('check_sunset_download_expire_days', 7, :integer).days.to_i)
-        key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
-        download_url = CheckConfig.get('short_url_host') + '/' + key
-        puts "Download link (valid #{CheckConfig.get('check_sunset_download_expire_days', 7, :integer)} days): #{download_url}"
-        # Send download link to workspace admins
-        # team.team_users.where(status: 'member').find_each do |tu|
-        #   puts "Sending email to #{tu.user.email}\n"
-        #   SunsetMailer.delay.notify('download', tu.user, tu.team.name)
-        # end
+        email = args[:email].to_s
+        user = User.where(email: email).first
+        if team.team_users.where(user_id: user.id, role: 'admin', status: 'member').exists?
+          # Call all exported tasks
+          Rake::Task['check:sunset:export_workspace_init_readme'].invoke(args[:slug])
+          Rake::Task['check:sunset:export_workspace_data'].invoke(args[:slug])
+          Rake::Task['check:sunset:export_workspace_user_data'].invoke(args[:slug])
+          Rake::Task['check:sunset:export_workspace_articles_data'].invoke(args[:slug])
+          Rake::Task['check:sunset:export_workspace_annotations_data'].invoke(args[:slug])
+          Rake::Task['check:sunset:export_workspace_tipline_requests_data'].invoke(args[:slug])
+          Rake::Task['check:sunset:export_workspace_tipline_newsletter_data'].invoke(args[:slug])
+          Rake::Task['check:sunset:export_workspace_item_data'].invoke(args[:slug])
+          print_task_title 'Uploading workspace data'
+          # compress & upload
+          folder_path = "#{Rails.root}/tmp/#{team.slug}"
+          zip_path = "#{Rails.root}/tmp/#{team.slug}.zip"
+          puts "Compressing #{folder_path} -> #{zip_path}"
+          compress_folder(folder_path, zip_path)
+          # Save to S3
+          zip_content = File.binread(zip_path)
+          s3_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}.zip", 'application/zip', zip_content, CheckConfig.get('check_sunset_download_expire_days', 7, :integer).days.to_i)
+          key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
+          download_url = CheckConfig.get('short_url_host') + '/' + key
+          puts "Download link (valid #{CheckConfig.get('check_sunset_download_expire_days', 7, :integer)} days): #{download_url}"
+          # Deleting exported files
+          puts "#{folder_path} -- #{zip_path}"
+          # File.delete(folder_path)
+          # File.delete(zip_path)
+        end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
       puts "[#{Time.now}] Done in #{minutes} minutes."
