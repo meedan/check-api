@@ -1,0 +1,7 @@
+<%= I18n.t("mails_notifications.greeting", username: @name) %>
+=======================================================
+
+<%= render @info[:mail_copy] %>
+
+<%= strip_tags I18n.t("mails_notifications.copyright_html", app_name: CheckConfig.get('app_name')) %>
+https://meedan.com
