@@ -142,6 +142,37 @@ module SmoochResend
       }
     end
 
+  def messenger_utility_template_payload(template_name, parameters, language: 'en')
+    {
+      override: {
+        messenger: {
+          payload: {
+            messaging_type: 'UTILITY',
+            message: {
+              template: {
+                name: template_name,
+                language: {
+                  code: language
+                },
+                components: [
+                  {
+                    type: 'BODY',
+                    parameters: parameters.map do |parameter|
+                      {
+                        type: 'text',
+                        text: parameter.to_s
+                      }
+                    end
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  end
+
     def resend_facebook_messenger_message_after_window(message, original)
       original = JSON.parse(original) unless original.blank?
       uid = message['appUser']['_id']
@@ -176,7 +207,13 @@ module SmoochResend
         last_smooch_response = nil
         last_smooch_response = self.send_message_to_user(uid, introduction, self.message_tags_payload(introduction)) if introduction
         last_smooch_response = self.send_message_to_user(uid, 'Visual Card', self.message_tags_payload(nil, image)) if image
-        last_smooch_response = self.send_message_to_user(uid, full_text, self.message_tags_payload(full_text)) if text
+        if text
+          # Use template here for testing
+          template = original&.dig('fallback_template')
+          payload = self.messenger_utility_template_payload(template, ['Check'])
+          # last_smooch_response = self.send_message_to_user(uid, full_text, self.message_tags_payload(full_text))
+          last_smooch_response = self.send_message_to_user(uid, full_text, payload)
+        end
         self.save_smooch_response(last_smooch_response, pm, query_date, 'fact_check_report', language)
         return true
       end
