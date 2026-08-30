@@ -45,16 +45,17 @@ class CheckS3
     end
   end
 
-  def self.write(path, content_type, content)
+  def self.write(path, content_type, content, bucket=nil)
+    bucket ||= CheckConfig.get('storage_bucket')
     client = Aws::S3::Client.new
     client.put_object(
       acl: 'public-read',
       key: path,
       body: content,
-      bucket: CheckConfig.get('storage_bucket'),
+      bucket: bucket,
       content_type: content_type
     )
-    begin client.put_object_acl(acl: 'public-read', key: path, bucket: CheckConfig.get('storage_bucket')) rescue nil end
+    begin client.put_object_acl(acl: 'public-read', key: path, bucket: bucket) rescue nil end
   end
 
   def self.delete(*paths)
@@ -66,9 +67,9 @@ class CheckS3
     client.delete_objects(bucket: CheckConfig.get('storage_bucket'), delete: { objects: objects })
   end
 
-  def self.write_presigned(path, content_type, content, expires_in)
-    self.write(path, content_type, content)
-    bucket = CheckConfig.get('storage_bucket')
+  def self.write_presigned(path, content_type, content, expires_in, bucket=nil)
+    bucket ||= CheckConfig.get('storage_bucket')
+    self.write(path, content_type, content, bucket)
     client = Aws::S3::Client.new
     s3 = Aws::S3::Resource.new(client: client)
     obj = s3.bucket(bucket).object(path)

@@ -391,15 +391,16 @@ namespace :check do
       end
     end
 
-    # bundle exec rails check:sunset:export_upload_and_send_workspace_data[team-slug, email]
+    # bundle exec rails check:sunset:export_upload_and_send_workspace_data[team-slug, email] EXPORT_OUTPUT_BUCKET=XXXXX
     task :export_upload_and_send_workspace_data,[:slug, :email] => :environment do |_t, args|
       started = Time.now.to_i
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
         email = args[:email].to_s
+        puts "email:: #{email}"
         user = User.where(email: email).first
-        if team.team_users.where(user_id: user.id, role: 'admin', status: 'member').exists?
+        if user && team.team_users.where(user_id: user.id, role: 'admin', status: 'member').exists?
           # Call all exported tasks
           Rake::Task['check:sunset:export_workspace_init_readme'].invoke(args[:slug])
           Rake::Task['check:sunset:export_workspace_data'].invoke(args[:slug])
@@ -411,20 +412,20 @@ namespace :check do
           Rake::Task['check:sunset:export_workspace_item_data'].invoke(args[:slug])
           print_task_title 'Uploading workspace data'
           # compress & upload
-          folder_path = "#{Rails.root}/tmp/#{team.slug}"
-          zip_path = "#{Rails.root}/tmp/#{team.slug}.zip"
+          folder_path = Rails.root.join('tmp', team.slug)
+          zip_path = Rails.root.join('tmp', "#{team.slug}.zip")
           puts "Compressing #{folder_path} -> #{zip_path}"
           compress_folder(folder_path, zip_path)
           # Save to S3
+          bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
           zip_content = File.binread(zip_path)
-          s3_url = CheckS3.write_presigned("export/workspaces_data/#{team.slug}.zip", 'application/zip', zip_content, CheckConfig.get('check_sunset_download_expire_days', 7, :integer).days.to_i)
+          s3_url = CheckS3.write_presigned("#{team.slug}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name)
           key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
           download_url = CheckConfig.get('short_url_host') + '/' + key
-          puts "Download link (valid #{CheckConfig.get('check_sunset_download_expire_days', 7, :integer)} days): #{download_url}"
-          # Deleting exported files
-          puts "#{folder_path} -- #{zip_path}"
-          # File.delete(folder_path)
-          # File.delete(zip_path)
+          puts "Download link (valid for 7 days): #{download_url}"
+          # Delete a directory for exported data and zip file
+          FileUtils.rm_rf(folder_path)
+          File.delete(zip_path) if File.exist?(zip_path)
         end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
