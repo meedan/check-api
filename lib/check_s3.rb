@@ -46,16 +46,18 @@ class CheckS3
   end
 
   def self.write(path, content_type, content, bucket=nil)
+    is_public = bucket.nil?
     bucket ||= CheckConfig.get('storage_bucket')
     client = Aws::S3::Client.new
-    client.put_object(
-      acl: 'public-read',
+    object = {
       key: path,
       body: content,
       bucket: bucket,
       content_type: content_type
-    )
-    begin client.put_object_acl(acl: 'public-read', key: path, bucket: bucket) rescue nil end
+    }
+    object[:acl] = 'public-read' if is_public
+    client.put_object(object)
+    begin client.put_object_acl(acl: 'public-read', key: path, bucket: bucket) rescue nil end if is_public
   end
 
   def self.delete(*paths)
