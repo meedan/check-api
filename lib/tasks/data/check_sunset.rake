@@ -72,7 +72,7 @@ namespace :check do
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        export_dir = Rails.root.join("tmp", team.slug)
+        export_dir = Rails.root.join('tmp', 'sunset', team.slug)
         FileUtils.mkdir_p(export_dir)
         File.write(
           export_dir.join("README.txt"),
@@ -150,7 +150,7 @@ namespace :check do
           last_active_non_meedan
         ]
         # Write to CSV
-        export_dir = Rails.root.join('tmp', team.slug)
+        export_dir = Rails.root.join('tmp', 'sunset', team.slug)
         file = export_dir.join('workspace_data.csv')
         headers = {
           'ID' => 'Unique identifier of the workspace.',
@@ -193,7 +193,7 @@ namespace :check do
             tu.role
           ]
         end
-        export_dir = Rails.root.join('tmp', team.slug)
+        export_dir = Rails.root.join('tmp', 'sunset', team.slug)
         file = export_dir.join('workspace_user_data.csv')
         headers = {
           'ID' => 'Unique identifier of the user.',
@@ -213,7 +213,7 @@ namespace :check do
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        export_dir = Rails.root.join('tmp', team.slug)
+        export_dir = Rails.root.join('tmp', 'sunset', team.slug)
         # Export FactChecks
         data_csv = FactCheck.get_exported_data({}, team).drop(1)
         file = export_dir.join('workspace_fact_checks_data.csv')
@@ -272,7 +272,7 @@ namespace :check do
             end
             data_csv << pm_raw
           end
-          export_dir = Rails.root.join('tmp', team.slug)
+          export_dir = Rails.root.join('tmp', 'sunset', team.slug)
           file = export_dir.join('workspace_annotations_data.csv')
           headers = { 'Item ID' => 'Unique identifier of the item associated with the annotation.' }
           team_tasks.each do |tt|
@@ -295,13 +295,14 @@ namespace :check do
           data_csv << [
             tr.id,
             tr.language,
+            tr.platform,
             tr.created_at,
             tr.tipline_user_uid,
             tr.smooch_data['text']
           ]
         end
-        export_dir = Rails.root.join('tmp', team.slug)
-        file = export_dir.join('workspace_tipline_requets_data.csv')
+        export_dir = Rails.root.join('tmp', 'sunset', team.slug)
+        file = export_dir.join('workspace_tipline_requests_data.csv')
         headers = {
           'ID' => 'Unique identifier of the TiplineRequest.',
           'Language' => 'Language of the TiplineRequest in two-letter format, such as en/ar/fr.',
@@ -311,7 +312,7 @@ namespace :check do
           'Text' => 'Text submitted as part of the TiplineRequest.'
         }
         write_to_csv(file, headers.keys, data_csv)
-        append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_requets_data.csv', 'Contains information about requests submitted through workspace tiplines.', headers)
+        append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_requests_data.csv', 'Contains information about requests submitted through workspace tiplines.', headers)
       end
     end
     # bundle exec rails check:sunset:export_workspace_tipline_newsletter_data[team-slug]
@@ -343,7 +344,7 @@ namespace :check do
             tn.created_at,
           ]
         end
-        export_dir = Rails.root.join('tmp', team.slug)
+        export_dir = Rails.root.join('tmp', 'sunset', team.slug)
         file = export_dir.join('workspace_tipline_newsletter_data.csv')
         headers = {
           'ID' => 'Unique identifier for the TiplineNewsletter.',
@@ -391,7 +392,7 @@ namespace :check do
             media_data
           ]
         end
-        export_dir = Rails.root.join('tmp', team.slug)
+        export_dir = Rails.root.join('tmp', 'sunset', team.slug)
         file = export_dir.join('workspace_item_data.csv')
         headers = {
           'ID' => 'Unique identifier of the item.',
@@ -430,20 +431,19 @@ namespace :check do
           Rake::Task['check:sunset:export_workspace_item_data'].invoke(args[:slug])
           print_task_title 'Uploading workspace data'
           # compress & upload
-          folder_path = Rails.root.join('tmp', team.slug)
-          zip_path = Rails.root.join('tmp', "#{team.slug}.zip")
+          folder_path = Rails.root.join('tmp', 'sunset', team.slug)
+          zip_path = Rails.root.join('tmp', 'sunset', "#{team.slug}.zip")
           puts "Compressing #{folder_path} -> #{zip_path}"
           compress_folder(folder_path, zip_path)
           # Save to S3
           bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
           zip_content = File.binread(zip_path)
-          s3_url = CheckS3.write_presigned("#{team.slug}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name)
+          s3_url = CheckS3.write_presigned("#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name)
           key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
           download_url = CheckConfig.get('short_url_host') + '/' + key
           puts "Download link (valid for 7 days): #{download_url}"
           # Delete a directory for exported data and zip file
-          FileUtils.rm_rf(folder_path)
-          File.delete(zip_path) if File.exist?(zip_path)
+          FileUtils.rm_rf(Rails.root.join('tmp', 'sunset'))
         end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
