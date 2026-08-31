@@ -199,7 +199,7 @@ namespace :check do
           'ID' => 'Unique identifier of the user.',
           'Name' => 'Name of the user.',
           'Email' => 'Email address of the user.',
-          'Joined data' => 'Date when the user joined the workspace.',
+          'Joined date' => 'Date when the user joined the workspace.',
           'Last access date' => 'Date when the user most recently accessed the workspace.',
           'Role' => 'User\'s role in the workspace.',
         }
@@ -349,7 +349,7 @@ namespace :check do
         headers = {
           'ID' => 'Unique identifier for the TiplineNewsletter.',
           'Header type' => 'Type of header used in the newsletter.',
-          'Hheader file' => 'File used as the newsletter header.',
+          'Header file' => 'File used as the newsletter header.',
           'Header overlay text' => 'Text displayed as an overlay on the newsletter header.',
           'Header media url' => 'URL of the media used in the newsletter header.',
           'Introduction' => 'Introduction text displayed in the newsletter.',
@@ -363,7 +363,7 @@ namespace :check do
           'Last sent at' => 'Date and time when the newsletter was last sent.',
           'Language' => 'Language of the TiplineNewsletter in two-letter format, such as en/ar/fr.',
           'Enabled' => 'Indicates whether the newsletter is enabled',
-          'Creation data' => 'Date and time when the newsletter was created.',
+          'Creation date' => 'Date and time when the newsletter was created.',
         }
         write_to_csv(file, headers.keys, data_csv)
         append_export_documentation(export_dir.join('README.txt'), 'workspace_tipline_newsletter_data.csv', 'Contains information about Tipline newsletters configured for the workspace.', headers)
@@ -437,13 +437,19 @@ namespace :check do
           compress_folder(folder_path, zip_path)
           # Save to S3
           bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
-          zip_content = File.binread(zip_path)
-          s3_url = CheckS3.write_presigned("#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name)
-          key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
-          download_url = CheckConfig.get('short_url_host') + '/' + key
-          puts "Download link (valid for 7 days): #{download_url}"
-          # Delete a directory for exported data and zip file
-          FileUtils.rm_rf(Rails.root.join('tmp', 'sunset'))
+          begin
+            zip_content = File.binread(zip_path)
+            s3_url = CheckS3.write_presigned("#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name, nil)
+            key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
+            download_url = CheckConfig.get('short_url_host') + '/' + key
+            puts "Download link (valid for 7 days): #{download_url}"
+          rescue StandardError => e
+            puts "Failed to upload exported data #{e.message}"
+          ensure
+            # Delete a directory for exported data and zip file
+            FileUtils.rm_rf(folder_path)
+            File.delete(zip_path) if File.exist?(zip_path)
+          end
         end
       end
       minutes = ((Time.now.to_i - started) / 60).to_i
