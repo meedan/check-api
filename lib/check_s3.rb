@@ -56,7 +56,7 @@ class CheckS3
     }
     object[:acl] = acl unless acl.nil?
     client.put_object(object)
-    begin client.put_object_acl(acl: 'public-read', key: path, bucket: bucket) rescue nil end unless acl.nil?
+    begin client.put_object_acl(acl: acl, key: path, bucket: bucket) rescue nil end unless acl.nil?
   end
 
   def self.delete(*paths)
