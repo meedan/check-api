@@ -439,7 +439,7 @@ namespace :check do
           bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
           begin
             zip_content = File.binread(zip_path)
-            s3_url = CheckS3.write_presigned("#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name, nil)
+            s3_url = CheckS3.write_presigned("#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name, 'private')
             key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
             download_url = CheckConfig.get('short_url_host') + '/' + key
             puts "Download link (valid for 7 days): #{download_url}"
