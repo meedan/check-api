@@ -23,6 +23,7 @@ module TeamAssociations
     has_many :explainers, dependent: :destroy
     has_many :claim_descriptions
     has_many :api_keys
+    has_one :check_data_export, dependent: :destroy
 
     has_annotations
   end

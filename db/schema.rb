@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_03_25_140013) do
+ActiveRecord::Schema.define(version: 2026_09_01_165331) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -236,6 +236,18 @@ ActiveRecord::Schema.define(version: 2026_03_25_140013) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_bounces_on_email", unique: true
+  end
+
+  create_table "check_data_exports", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "team_id"
+    t.string "download_url"
+    t.datetime "generated_at"
+    t.datetime "expired_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["team_id"], name: "index_check_data_exports_on_team_id"
+    t.index ["user_id"], name: "index_check_data_exports_on_user_id"
   end
 
   create_table "claim_descriptions", force: :cascade do |t|
@@ -983,6 +995,8 @@ ActiveRecord::Schema.define(version: 2026_03_25_140013) do
     t.index ["team_id"], name: "index_versions_on_team_id"
   end
 
+  add_foreign_key "check_data_exports", "teams"
+  add_foreign_key "check_data_exports", "users"
   add_foreign_key "claim_descriptions", "project_medias"
   add_foreign_key "claim_descriptions", "users"
   add_foreign_key "explainer_items", "explainers"

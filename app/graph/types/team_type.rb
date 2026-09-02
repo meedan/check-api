@@ -432,4 +432,12 @@ class TeamType < DefaultObject
     webhook_installations = object.team_users.joins(:user).where('users.type' => 'BotUser', 'users.default' => false).select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? && !team_user.user.get_approved }
     webhook_installations.map(&:user)
   end
+
+  field :data_export_download_url, GraphQL::Types::String, null: true
+
+  def data_export_download_url
+    ability = context[:ability] || Ability.new
+    de = object.check_data_export
+    (de && ability.can?(:read, de)) ? de.download_url : ''
+  end
 end

@@ -1170,4 +1170,16 @@ module SampleData
     rr.save!
     rr.reload
   end
+
+  def create_check_data_export(options = {})
+    options[:team] = create_team unless options.has_key?(:team)
+    options[:user] = create_user unless options.has_key?(:user)
+    de = CheckDataExport.new
+    options.each do |k, v|
+      de.send("#{k}=", v) if de.respond_to?("#{k}=")
+    end
+    de.skip_check_ability = true
+    de.save!
+    de.reload
+  end
 end
