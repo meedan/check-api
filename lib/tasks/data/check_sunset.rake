@@ -48,6 +48,19 @@ namespace :check do
       end
     end
 
+    def save_download_url(team_id, user_id, download_url)
+      current_time = Time.now.utc
+      de = CheckDataExport.where(team_id: team_id).first
+      de ||= CheckDataExport.new
+      de.user_id = user_id
+      de.team_id = team_id
+      de.download_url = download_url
+      de.generated_at = current_time
+      de.expired_at = current_time + 7.days
+      de.skip_check_ability = true
+      de.save!
+    end
+
     # bundle exec rails check:sunset:notify_workspace_admins[team-slug, high:low]
     task :notify_workspace_admins, [:slug, :priority] => :environment do |_t, args|
       slug = args[:slug].to_s
@@ -442,6 +455,8 @@ namespace :check do
             s3_url = CheckS3.write_presigned("#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name, 'private')
             key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
             download_url = CheckConfig.get('short_url_host') + '/' + key
+            # Save Download URL
+            save_download_url(team.id, user.id, download_url)
             puts "Download link (valid for 7 days): #{download_url}"
           rescue StandardError => e
             puts "Failed to upload exported data #{e.message}"

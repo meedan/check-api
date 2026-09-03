@@ -115,6 +115,7 @@ en:
       platform_allowed_values_error: 'cannot be of type %{type}, allowed types: %{allowed_types}'
       restrict_registration_to_invited_users_only: 'Looks like you don’t have an invitation yet. Please request one from your workspace.'
       article_character_limit_reached: Character Limit Reached.
+      check_export_data_user_must_be_admin_member: Sorry, the user must be an admin member of the workspace.
   activerecord:
     models:
       link: Link

@@ -1,26 +1,24 @@
 We're writing to let you know about some housekeeping we're doing across <%= CheckConfig.get('app_name') %>.
+To keep the platform running smoothly and securely for everyone, we're reviewing workspace activity across Check and closing out workspaces that have gone unused for the past 6 months. This helps us to keep our infrastructure lean and focused on active workspaces. Based on our records, the workspace <%= link_to(@info[:workspace], @info[:workspace_url], :class => 'link', :style => "color: #0d6cf7 !important; text-decoration: none;") %>, for which you are an admin, has seen no recent activity and thus falls into this group.
 
-To keep the platform running smoothly and securely for everyone, we're reviewing workspace activity across Check and closing out accounts that have gone unused for an extended period. This helps keep our systems lean and focus our infrastructure on active workspaces. Based on our records, the workspace <%= link_to(@info[:workspace], @info[:workspace_url]) %>, which you&rsquo;re an admin of, hasn't seen recent activity and falls into this group.
+What this means for you:
+The Check workspace mentioned above will be unavailable starting on <%= @info[:low_usage_end_date].strftime("%B %-d") %>. After this date, admins will retain limited access only to download workspace data, as described below.
 
-What this means
+Your data:
+If you'd like to keep your workspace data, you'll need to download it before we discontinue your workspace. On <%= @info[:low_usage_download_link_date].strftime("%B %-d") %>, an email will be sent notifying you that the data is available for download. After authentication, all workspace data can be downloaded directly from the workspace by admins only. Data will include:
+- Workspace information &mdash; name, URL, creation date, activity, users, and integrations
+- Users and access &mdash; names, emails, roles, join dates, and access details
+- Articles &mdash; titles, summaries, URLs, languages, and report status
+- Claims, links, and media &mdash; titles, descriptions, dates, tags, status, sources, and media info
+- Tipline requests &mdash; submitted text, language, platform, date, and associated items
+- Tasks and claim assessments &mdash; tasks and answers for each item
 
-	Your Check workspace will be unavailable starting on <%= @info[:low_usage_end_date].strftime("%B %-d") %>. After this date, you'll no longer be able to access the platform with this account.
+Newsletter and annotation data
 
-Your data
-
-	If you'd like to keep a copy of your workspace data, you'll need to download it before it's removed. On 
-	<%= @info[:low_usage_download_link_date].strftime("%B %-d") %>, we'll send workspace admins a link to download a ZIP export containing:
-	
-	- Workspace information &mdash; name, URL, creation date, activity, users, and integrations
-	- Users and access &mdash; names, emails, roles, join dates, and access details
-	- Articles &mdash; titles, summaries, URLs, languages, and report status
-	- Claims, links, and media &mdash; titles, descriptions, dates, tags, status, sources, and media info
-	- Tipline requests &mdash; submitted text, language, platform, date, and associated items
-	- Tasks and claim assessments &mdash; tasks and answers for each item
-	- Newsletter and Annotation data
 Please note:
-	- The download link will expire <%= @info[:download_expire_days] %> days after it's sent, so download and store the file securely before then.
-	- Your data will remain available for an extra <%= @info[:download_expire_extended_days] %> days after the link expires. After that, the data will be permanently deleted and cannot be recovered.
-	
+The download option will be available for <%= @info[:download_expire_days] %> days. Please download and store the file securely during that time.
+Your data will remain available for an extra <%= @info[:download_expire_extended_days] %> days after this period. After that, the data will be permanently deleted and cannot be recovered.
+
 Still using Check?
-	If your workspace is active and you believe you're receiving this message in error, please reach out to us at <%= CheckConfig.get('support_email') %> as soon as possible so we can look into it.
+
+If your workspace is active and you believe you're receiving this message in error, please reach out to us at <%= CheckConfig.get('support_email') %> as soon as possible, and we will respond accordingly.

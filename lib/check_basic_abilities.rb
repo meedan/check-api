@@ -39,6 +39,11 @@ module CheckBasicAbilities
       tmp.archived = CheckArchivedFlags::FlagCodes::NONE
       can?(:update, tmp)
     end
+
+    can :read, CheckDataExport do |obj|
+      is_admin_member = TeamUser.where(user_id: @user.id, team_id: obj.team_id, role: 'admin', status: 'member').exists?
+      obj.user_id == @user.id && is_admin_member
+    end
   end
 
   # Extra permissions for all users
