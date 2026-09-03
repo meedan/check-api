@@ -66,9 +66,6 @@ class Ability
     can :destroy, [Dynamic, DynamicAnnotation::Field] do |obj|
       obj.team.present? && obj.team == @context_team
     end
-    can :read, CheckDataExport do |obj|
-      obj.team_id == @context_team.id && obj.user_id == @user.id
-    end
   end
 
   def editor_perms

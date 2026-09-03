@@ -171,4 +171,14 @@ class MeType < DefaultObject
     FeedInvitation.where(email: object.email)
   end
 
+  field :workspaces_download_url, JsonStringType, null: true
+
+  def workspaces_download_url
+    ability = context[:ability] || Ability.new
+    ret = {}
+    object.check_data_exports.includes(:team).find_each do |de|
+      ret[de.team.name] = de.download_url if ability.can?(:read, de)
+    end
+    ret
+  end
 end

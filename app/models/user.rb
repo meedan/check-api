@@ -29,6 +29,7 @@ class User < ApplicationRecord
   has_many :tipline_requests
   has_many :api_keys
   has_many :explainers
+  has_many :check_data_exports
 
   devise :recoverable, :rememberable, :trackable, :validatable, :confirmable,
          :omniauthable, omniauth_providers: [:facebook, :google_oauth2]

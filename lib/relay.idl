@@ -8675,6 +8675,7 @@ type Me implements Node {
   updated_at: String
   user_teams: String
   uuid: String
+  workspaces_download_url: JsonStringType
 }
 
 """
