@@ -174,10 +174,12 @@ class MeType < DefaultObject
   field :workspaces_download_url, JsonStringType, null: true
 
   def workspaces_download_url
-    ability = context[:ability] || Ability.new
     ret = {}
+    ability = context[:ability] || Ability.new
+    expire_days = CheckConfig.get('check_sunset_download_expire_days', 15, :integer)
     object.check_data_exports.includes(:team).find_each do |de|
-      ret[de.team.name] = de.download_url if ability.can?(:read, de)
+      expired = Time.current > de.generated_at + expire_days.days
+      ret[de.team.name] = de.download_url if !expired && ability.can?(:read, de)
     end
     ret
   end
