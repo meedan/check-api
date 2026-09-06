@@ -1174,6 +1174,7 @@ module SampleData
   def create_check_data_export(options = {})
     options[:team] = create_team unless options.has_key?(:team)
     options[:user] = create_user unless options.has_key?(:user)
+    options[:download_url] = random_url unless options.has_key?(:download_url)
     de = CheckDataExport.new
     options.each do |k, v|
       de.send("#{k}=", v) if de.respond_to?("#{k}=")

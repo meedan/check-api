@@ -48,4 +48,40 @@ class CheckDataExportTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "should regenerate download url" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    s3_url = random_url
+    short_url = Shortener::ShortenedUrl.generate!(s3_url)
+    download_url = CheckConfig.get('short_url_host') + '/' + short_url.unique_key
+    stub_configs({ 'check_sunset_download_expire_days' => 15, 'check_sunset_s3_max_expire_days' => 7 }) do
+      Sidekiq::Testing.fake! do
+        Sidekiq::Worker.clear_all
+        assert_equal 0, CheckDataExportWorker.jobs.size
+        current_time = Time.current
+        download_expire_days = CheckConfig.get('check_sunset_download_expire_days', 15, :integer)
+        expired_at = current_time + download_expire_days.days
+        de = create_check_data_export team: t, user: u, download_url: download_url, generated_at: current_time, expired_at: expired_at, auto_extend_url_expiry: true
+        assert_equal 1, CheckDataExportWorker.jobs.size
+        travel_to(current_time + 7.days) do
+          new_url = random_url
+          CheckS3.stubs(:presigned_url).returns(new_url)
+          CheckDataExportWorker.perform_one
+          assert de.reload.auto_extend_url_expiry
+          assert_equal new_url, short_url.reload.url
+          assert_equal 1, CheckDataExportWorker.jobs.size
+        end
+        travel_to(current_time + 14.days) do
+           new_url = random_url
+          CheckS3.stubs(:presigned_url).returns(new_url)
+          CheckDataExportWorker.perform_one
+          assert_not de.reload.auto_extend_url_expiry
+          assert_equal new_url, short_url.reload.url
+          assert_equal 0, CheckDataExportWorker.jobs.size
+        end
+      end
+    end
+  end
 end
