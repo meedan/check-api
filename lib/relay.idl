@@ -12540,7 +12540,6 @@ type Team implements Node {
   check_search_trash: CheckSearch
   check_search_unconfirmed: CheckSearch
   created_at: String
-  data_export_download_url: String
   data_report: JsonStringType
   dbid: Int
   description: String
