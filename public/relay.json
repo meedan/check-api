@@ -46362,7 +46362,7 @@
               "deprecationReason": null
             },
             {
-              "name": "workspaces_download_url",
+              "name": "workspaces_data_export_url",
               "description": null,
               "args": [
 

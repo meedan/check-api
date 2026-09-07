@@ -171,14 +171,14 @@ class MeType < DefaultObject
     FeedInvitation.where(email: object.email)
   end
 
-  field :workspaces_download_url, JsonStringType, null: true
+  field :workspaces_data_export_url, JsonStringType, null: true
 
-  def workspaces_download_url
+  def workspaces_data_export_url
+    # List the CheckDataExport download URL for each workspace based on permissions and expiration date, using the key => value format
     ret = {}
     ability = context[:ability] || Ability.new
-    expire_days = CheckConfig.get('check_sunset_download_expire_days', 15, :integer)
     object.check_data_exports.includes(:team).find_each do |de|
-      expired = Time.current > de.generated_at + expire_days.days
+      expired = Time.current > de.expired_at
       ret[de.team.name] = de.download_url if !expired && ability.can?(:read, de)
     end
     ret

@@ -16,10 +16,9 @@ class CheckDataExport < ApplicationRecord
     shortened_url = Shortener::ShortenedUrl.find_by(unique_key: unique_key)
     unless shortened_url.nil?
       max_s3_allowed_days = CheckConfig.get('check_sunset_s3_max_expire_days', 7, :integer)
-      expired_at = self.expired_at
       current_time = Time.current
-      # Get days diff to determine if we still need to schedule another job to regenerate S3 URL
-      days_diff = (expired_at.to_date - current_time.to_date).to_i
+      # Calculate the days difference to determine whether we need to schedule another job to regenerate the S3 URL.
+      days_diff = (self.expired_at.to_date - current_time.to_date).to_i
       # Regenerate S3 URL
       s3_url = CheckS3.presigned_url(self.s3_key,[max_s3_allowed_days, days_diff].min.days.to_i, CheckConfig.get('check_sunset_s3_bucket'))
       # Update target url in Shortener::ShortenedUrl

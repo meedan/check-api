@@ -1,4 +1,4 @@
-class SunsetMailer < ApplicationMailer
+  class SunsetMailer < ApplicationMailer
   layout nil
 
   def notify(type, user, workspace, workspace_url)

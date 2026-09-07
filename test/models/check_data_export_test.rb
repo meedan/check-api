@@ -68,6 +68,7 @@ class CheckDataExportTest < ActiveSupport::TestCase
         travel_to(current_time + 7.days) do
           new_url = random_url
           CheckS3.stubs(:presigned_url).returns(new_url)
+          # Run existing background job should trigger another job and set auto_extend_url_expiry = true
           CheckDataExportWorker.perform_one
           assert de.reload.auto_extend_url_expiry
           assert_equal new_url, short_url.reload.url
@@ -76,6 +77,7 @@ class CheckDataExportTest < ActiveSupport::TestCase
         travel_to(current_time + 14.days) do
            new_url = random_url
           CheckS3.stubs(:presigned_url).returns(new_url)
+          # Run existing background job should not trigger another job and set auto_extend_url_expiry = false
           CheckDataExportWorker.perform_one
           assert_not de.reload.auto_extend_url_expiry
           assert_equal new_url, short_url.reload.url
