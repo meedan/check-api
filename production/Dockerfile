@@ -21,16 +21,26 @@ RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
 RUN apt-get update -qq && apt-get install -y curl
 
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    build-essential \
-    ffmpegthumbnailer \
-    ffmpeg \
-    git \
-    graphicsmagick \
-    libidn11-dev \
-    libpq-dev \
-    libtag1-dev \
-    lsof
+# Use Debian Snapshot because Bullseye reached EOL on August 31, 2026.
+RUN printf '%s\n' \
+    'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260805T215856Z bullseye main' \
+    'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260805T215856Z bullseye-security main' \
+    > /etc/apt/sources.list \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && apt-get update
+
+RUN apt-get install --no-install-recommends -y \
+        build-essential \
+        ffmpegthumbnailer \
+        ffmpeg \
+        git \
+        graphicsmagick \
+        libidn11-dev \
+        libpq-dev \
+        libtag1-dev \
+        lsof \
+    && rm -rf /var/lib/apt/lists/*
 
 # CMD and helper scripts
 COPY --chown=root:root production/bin /opt/bin
