@@ -48,6 +48,23 @@ namespace :check do
       end
     end
 
+    def save_download_url(team_id, user_id, s3_key, download_url)
+      current_time = Time.current
+      download_expire_days = CheckConfig.get('check_sunset_download_expire_days', 15, :integer)
+      max_s3_allowed_days = CheckConfig.get('check_sunset_s3_max_expire_days', 7, :integer)
+      de = CheckDataExport.where(team_id: team_id).first
+      de ||= CheckDataExport.new
+      de.user_id = user_id
+      de.team_id = team_id
+      de.s3_key = s3_key
+      de.download_url = download_url
+      de.generated_at = current_time
+      de.expired_at = current_time + download_expire_days.days
+      de.auto_extend_url_expiry = download_expire_days > max_s3_allowed_days
+      de.skip_check_ability = true
+      de.save!
+    end
+
     # bundle exec rails check:sunset:notify_workspace_admins[team-slug, high:low]
     task :notify_workspace_admins, [:slug, :priority] => :environment do |_t, args|
       slug = args[:slug].to_s
@@ -439,10 +456,14 @@ namespace :check do
           bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
           begin
             zip_content = File.binread(zip_path)
-            s3_url = CheckS3.write_presigned("#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip", 'application/zip', zip_content, 7.days.to_i, bucket_name, 'private')
+            s3_key = "#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip"
+            expire_days = [CheckConfig.get('check_sunset_s3_max_expire_days', 7, :integer), CheckConfig.get('check_sunset_download_expire_days', 15, :integer)].min
+            s3_url = CheckS3.write_presigned(s3_key, 'application/zip', zip_content, expire_days.days.to_i, bucket_name, 'private')
             key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
             download_url = CheckConfig.get('short_url_host') + '/' + key
-            puts "Download link (valid for 7 days): #{download_url}"
+            # Save Download URL
+            save_download_url(team.id, user.id, s3_key, download_url)
+            puts "Download link (valid for #{expire_days} days): #{download_url}"
           rescue StandardError => e
             puts "Failed to upload exported data #{e.message}"
           ensure
