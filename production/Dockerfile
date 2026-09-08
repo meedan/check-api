@@ -19,8 +19,6 @@ ENV LANGUAGE=C.UTF-8
 #
 RUN useradd ${DEPLOYUSER} -s /bin/bash -m
 
-RUN apt-get update -qq && apt-get install -y curl
-
 # Use Debian Snapshot because Bullseye reached EOL on August 31, 2026.
 RUN printf '%s\n' \
     'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260805T215856Z bullseye main' \
@@ -31,6 +29,7 @@ RUN printf '%s\n' \
     && apt-get update
 
 RUN apt-get install --no-install-recommends -y \
+        curl \
         build-essential \
         ffmpegthumbnailer \
         ffmpeg \
