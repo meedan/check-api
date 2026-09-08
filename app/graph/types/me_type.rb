@@ -171,4 +171,15 @@ class MeType < DefaultObject
     FeedInvitation.where(email: object.email)
   end
 
+  field :workspaces_data_export_url, JsonStringType, null: true
+
+  def workspaces_data_export_url
+    # List the CheckDataExport download URL for each workspace based on permissions and expiration date, using the key => value format
+    ret = {}
+    ability = context[:ability] || Ability.new
+    object.check_data_exports.includes(:team).find_each do |de|
+      ret[de.team.name] = de.download_url if ability.can?(:read, de)
+    end
+    ret
+  end
 end
