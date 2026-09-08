@@ -49,6 +49,32 @@ class CheckDataExportTest < ActiveSupport::TestCase
     end
   end
 
+  test "read ability for CheckDataExport" do
+    u = create_user
+    t = create_team
+    u2 = create_user
+    tu = create_team_user user: u , team: t, role: 'admin'
+    create_team_user user: u2 , team: t, role: 'admin'
+    de = create_check_data_export team: t, user: u, expired_at: Time.current + 7.days
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.can?(:read, de)
+      de.expired_at = Time.current - 7.days
+      de.save!
+      assert ability.cannot?(:read, de)
+    end
+    with_current_user_and_team(u2, t) do
+      ability = Ability.new
+      assert ability.cannot?(:read, de)
+    end
+    tu.role = 'editor'
+    tu.save!
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:read, de)
+    end
+  end
+
   test "should regenerate download url" do
     t = create_team
     u = create_user

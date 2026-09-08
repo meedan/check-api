@@ -42,7 +42,7 @@ module CheckBasicAbilities
 
     can :read, CheckDataExport do |obj|
       is_admin_member = TeamUser.where(user_id: @user.id, team_id: obj.team_id, role: 'admin', status: 'member').exists?
-      obj.user_id == @user.id && is_admin_member
+      obj.user_id == @user.id && is_admin_member && Time.current < obj.expired_at
     end
   end
 

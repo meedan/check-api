@@ -240,15 +240,15 @@ ActiveRecord::Schema.define(version: 2026_09_01_165331) do
 
   create_table "check_data_exports", force: :cascade do |t|
     t.bigint "user_id"
-    t.bigint "team_id"
+    t.bigint "team_id", null: false
     t.string "s3_key"
-    t.string "download_url"
+    t.string "download_url", null: false
     t.datetime "generated_at"
-    t.datetime "expired_at"
+    t.datetime "expired_at", null: false
     t.boolean "auto_extend_url_expiry", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["team_id"], name: "index_check_data_exports_on_team_id"
+    t.index ["team_id"], name: "index_check_data_exports_on_team_id", unique: true
     t.index ["user_id"], name: "index_check_data_exports_on_user_id"
   end
 
