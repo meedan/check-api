@@ -76,7 +76,9 @@ namespace :check do
         mail_type = "notify_#{priority}_usage"
         to_mails = team.team_users.where(status: 'member', role: 'admin').map(&:user).map(&:email).compact
         # Send email
-        User.where(email: to_mails).find_each do |user|
+        User.where(email: to_mails)
+        .where.not("email ILIKE ? OR email ILIKE ?", "%@meedan.com", "%@meedan.org")
+        .find_each do |user|
           puts "Sending email to #{user.email}\n"
           SunsetMailer.delay.notify(mail_type, user, team.name, team.url)
         end
