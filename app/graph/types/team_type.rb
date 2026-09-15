@@ -432,4 +432,10 @@ class TeamType < DefaultObject
     webhook_installations = object.team_users.joins(:user).where('users.type' => 'BotUser', 'users.default' => false).select{ |team_user| team_user.user.events.present? && team_user.user.get_request_url.present? && !team_user.user.get_approved }
     webhook_installations.map(&:user)
   end
+
+  field :check_data_export, CheckDataExportType, null: true
+
+  def check_data_export
+    object.check_data_export
+  end
 end

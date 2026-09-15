@@ -81,7 +81,7 @@ module CheckPermissions
 
   def get_create_permissions
     {
-      'Team' => [Account, TeamUser, User, TagText, ProjectMedia, TiplineNewsletter, Feed, FeedTeam, FeedInvitation, SavedSearch],
+      'Team' => [Account, TeamUser, User, TagText, ProjectMedia, TiplineNewsletter, Feed, FeedTeam, FeedInvitation, SavedSearch, CheckDataExport],
       'Account' => [Media, Link, Claim],
       'Media' => [ProjectMedia, Tag, Dynamic, Task],
       'Link' => [ProjectMedia, Tag, Dynamic, Task],
