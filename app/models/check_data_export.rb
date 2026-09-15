@@ -1,13 +1,20 @@
 class CheckDataExport < ApplicationRecord
+  EXPORT_STATUS = { 'requested' => 0, 'generated' => 1, 'expired' => 2 }
+
   belongs_to :team
   belongs_to :user
 
-  validates_presence_of :team_id, :user_id, :download_url
+  before_validation :set_team_and_user, on: :create
+
+  validates_presence_of :team_id, :user_id
   validates_uniqueness_of :team_id
+
+  validates :status, inclusion: { in: EXPORT_STATUS.keys }
+  enum status: EXPORT_STATUS
 
   validate :user_is_admin_member
 
-  after_save :enqueue_regenerate_download_url, if: proc { |de| de.auto_extend_url_expiry && de.saved_change_to_generated_at? }
+  after_save :enqueue_regenerate_download_url, if: proc { |de| de.status == 'generated' && de.auto_extend_url_expiry && de.saved_change_to_generated_at? }
 
   def regenerate_download_url
     # 1. Extract the unique key from the download URL string
@@ -31,6 +38,11 @@ class CheckDataExport < ApplicationRecord
   end
 
   private
+
+  def set_team_and_user
+    self.user ||= User.current
+    self.team ||= Team.current
+  end
 
   def user_is_admin_member
     if self.team && self.user

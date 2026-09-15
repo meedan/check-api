@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_09_01_165331) do
+ActiveRecord::Schema.define(version: 2026_09_15_075134) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -242,12 +242,14 @@ ActiveRecord::Schema.define(version: 2026_09_01_165331) do
     t.bigint "user_id"
     t.bigint "team_id", null: false
     t.string "s3_key"
-    t.string "download_url", null: false
+    t.string "download_url"
     t.datetime "generated_at"
-    t.datetime "expired_at", null: false
+    t.datetime "expired_at"
     t.boolean "auto_extend_url_expiry", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "status", default: 0, null: false
+    t.index ["status"], name: "index_check_data_exports_on_status"
     t.index ["team_id"], name: "index_check_data_exports_on_team_id", unique: true
     t.index ["user_id"], name: "index_check_data_exports_on_user_id"
   end

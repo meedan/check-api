@@ -10,7 +10,7 @@ class CheckDataExportTest < ActiveSupport::TestCase
     end
   end
 
-  test "Should set team and CheckDataExport" do
+  test "Should set team and user" do
     t = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
@@ -24,6 +24,29 @@ class CheckDataExportTest < ActiveSupport::TestCase
         create_check_data_export user: nil
       end
     end
+    with_current_user_and_team(u, t) do
+      de = nil
+      assert_difference 'CheckDataExport.count' do
+        de = create_check_data_export team: t, user: u
+      end
+      assert_equal u.id, de.user_id
+      assert_equal t.id, de.team_id
+    end
+  end
+
+  test "should validate status" do
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    de = create_check_data_export user: u, team: t
+    assert_equal 'requested', de.status
+    assert_raises(ArgumentError) do
+      de.status = 'unknown'
+      de.save!
+    end
+    de.status = 'generated'
+    de.save!
+    assert_equal 'generated', de.reload.status
   end
 
   test "should not duplicate team" do
@@ -89,7 +112,7 @@ class CheckDataExportTest < ActiveSupport::TestCase
         current_time = Time.current
         download_expire_days = CheckConfig.get('check_sunset_download_expire_days', 15, :integer)
         expired_at = current_time + download_expire_days.days
-        de = create_check_data_export team: t, user: u, download_url: download_url, generated_at: current_time, expired_at: expired_at, auto_extend_url_expiry: true
+        de = create_check_data_export team: t, user: u, download_url: download_url, generated_at: current_time, expired_at: expired_at, status: 'generated', auto_extend_url_expiry: true
         assert_equal 1, CheckDataExportWorker.jobs.size
         travel_to(current_time + 7.days) do
           new_url = random_url
