@@ -692,6 +692,7 @@ type CheckDataExport implements Node {
   id: ID!
   permissions: String
   status: String
+  team: Team
   updated_at: String
   user: User
 }
