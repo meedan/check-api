@@ -245,7 +245,6 @@ ActiveRecord::Schema.define(version: 2026_09_15_075134) do
     t.string "download_url"
     t.datetime "generated_at"
     t.datetime "expired_at"
-    t.boolean "auto_extend_url_expiry", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "status", default: 0, null: false
