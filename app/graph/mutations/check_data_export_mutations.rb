@@ -3,6 +3,5 @@ module CheckDataExportMutations
   PARENTS = [].freeze
 
   class Create < Mutations::CreateMutation
-    argument :status, GraphQL::Types::String, required: false
   end
 end

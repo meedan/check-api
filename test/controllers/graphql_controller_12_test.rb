@@ -1092,9 +1092,7 @@ class GraphqlController12Test < ActionController::TestCase
     authenticate_with_user(@u)
     query = <<-GRAPHQL
       mutation {
-        createCheckDataExport(input: {
-          status: "requested"
-        }) {
+        createCheckDataExport(input: {}) {
           check_data_export {
             dbid
             status

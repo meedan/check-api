@@ -436,6 +436,11 @@ class TeamType < DefaultObject
   field :check_data_export, CheckDataExportType, null: true
 
   def check_data_export
-    object.check_data_export
+    data_export = object.check_data_export
+    unless data_export.nil?
+      ability = context[:ability] || Ability.new
+      data_export = nil if ability.cannot?(:read, data_export)
+    end
+    data_export
   end
 end
