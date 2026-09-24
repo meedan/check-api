@@ -48,19 +48,14 @@ namespace :check do
       end
     end
 
-    def save_download_url(team_id, user_id, s3_key, download_url)
+    def save_download_url(de, s3_key, download_url)
       current_time = Time.current
       download_expire_days = CheckConfig.get('check_sunset_download_expire_days', 15, :integer)
-      max_s3_allowed_days = CheckConfig.get('check_sunset_s3_max_expire_days', 7, :integer)
-      de = CheckDataExport.where(team_id: team_id).first
-      de ||= CheckDataExport.new
-      de.user_id = user_id
-      de.team_id = team_id
       de.s3_key = s3_key
       de.download_url = download_url
       de.generated_at = current_time
       de.expired_at = current_time + download_expire_days.days
-      de.auto_extend_url_expiry = download_expire_days > max_s3_allowed_days
+      de.status = 'generated'
       de.skip_check_ability = true
       de.save!
     end
@@ -80,7 +75,7 @@ namespace :check do
         .where.not("email ILIKE ? OR email ILIKE ?", "%@meedan.com", "%@meedan.org")
         .find_each do |user|
           puts "Sending email to #{user.email}\n"
-          SunsetMailer.delay.notify(mail_type, user, team.name, team.url)
+          SunsetMailer.delay.notify(mail_type, user.id, team.id)
         end
       end
     end
@@ -429,16 +424,15 @@ namespace :check do
       end
     end
 
-    # bundle exec rails check:sunset:export_upload_and_send_workspace_data[team-slug, email] EXPORT_OUTPUT_BUCKET=XXXXX
-    task :export_upload_and_send_workspace_data,[:slug, :email] => :environment do |_t, args|
+    # bundle exec rails check:sunset:export_upload_and_send_workspace_data[team-slug] EXPORT_OUTPUT_BUCKET=XXXXX
+    task :export_upload_and_send_workspace_data,[:slug] => :environment do |_t, args|
       started = Time.now.to_i
       slug = args[:slug].to_s
       team = Team.find_by_slug slug
       unless team.nil?
-        email = args[:email].to_s
-        puts "email:: #{email}"
-        user = User.where(email: email).first
-        if user && team.team_users.where(user_id: user.id, role: 'admin', status: 'member').exists?
+        de = team.check_data_export
+        unless de.nil?
+          user = de.user
           # Call all exported tasks
           Rake::Task['check:sunset:export_workspace_init_readme'].invoke(args[:slug])
           Rake::Task['check:sunset:export_workspace_data'].invoke(args[:slug])
@@ -461,11 +455,9 @@ namespace :check do
             s3_key = "#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip"
             expire_days = [CheckConfig.get('check_sunset_s3_max_expire_days', 7, :integer), CheckConfig.get('check_sunset_download_expire_days', 15, :integer)].min
             s3_url = CheckS3.write_presigned(s3_key, 'application/zip', zip_content, expire_days.days.to_i, bucket_name, 'private')
-            key = Shortener::ShortenedUrl.generate!(s3_url).unique_key
-            download_url = CheckConfig.get('short_url_host') + '/' + key
             # Save Download URL
-            save_download_url(team.id, user.id, s3_key, download_url)
-            puts "Download link (valid for #{expire_days} days): #{download_url}"
+            save_download_url(de, s3_key, s3_url)
+            puts "Download link (valid for #{expire_days} days): #{s3_url}"
           rescue StandardError => e
             puts "Failed to upload exported data #{e.message}"
           ensure

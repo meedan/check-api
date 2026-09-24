@@ -1087,4 +1087,23 @@ class GraphqlController12Test < ActionController::TestCase
     post :create, params: { query: query, team: t.slug }
     assert_response :success
   end
+
+  test "should create check_data_export via GraphQL mutation" do
+    authenticate_with_user(@u)
+    query = <<-GRAPHQL
+      mutation {
+        createCheckDataExport(input: {}) {
+          check_data_export {
+            dbid
+            status
+          }
+        }
+      }
+    GRAPHQL
+    post :create, params: { query: query, team: @t.slug }
+    assert_response :success, @response.body
+    result = JSON.parse(@response.body)['data']['createCheckDataExport']['check_data_export']
+    assert_equal 'requested', result['status']
+    assert_not_nil result['dbid']
+  end
 end
