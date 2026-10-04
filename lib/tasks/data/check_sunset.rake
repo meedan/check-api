@@ -56,6 +56,7 @@ namespace :check do
       de.generated_at = current_time
       de.expired_at = current_time + download_expire_days.days
       de.status = 'generated'
+      de.token = SecureRandom.hex(16)
       de.skip_check_ability = true
       de.save!
     end
