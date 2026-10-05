@@ -32,7 +32,7 @@ Rails.application.routes.draw do
       match '/admin/smooch_bot/:id/authorize/instagram' => 'admin#save_instagram_credentials_for_smooch_bot', via: [:get]
       match '/project_medias/:id/oembed' => 'project_medias#oembed', via: [:get], defaults: { format: :json }
       match '/webhooks/:name' => 'webhooks#index', via: [:post, :get], defaults: { format: :json }
-      match '/workspace/:token/data_download' => 'data_exports#download_exported_data', via: [:post, :get], defaults: { format: :json }
+      match '/workspace/:token/:uid/data_download' => 'data_exports#download_exported_data', via: [:get], defaults: { format: :json }
       devise_for :users, controllers: { invitations: 'api/v1/invitations', sessions: 'api/v1/sessions', omniauth_callbacks: 'api/v1/omniauth_callbacks', confirmations: 'api/v1/confirmations' }
       devise_scope :api_user do
         get '/users/logout', to: 'omniauth_callbacks#logout'
