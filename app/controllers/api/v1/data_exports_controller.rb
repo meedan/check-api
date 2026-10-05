@@ -12,7 +12,7 @@ module Api
           user = User.find_by_id params[:uid]
           ability = Ability.new(user, data_export.team)
           if ability.can?(:read, data_export)
-            s3_url = CheckS3.presigned_url(data_export.s3_key, 30.minutes.to_i, CheckConfig.get('check_sunset_s3_bucket'))
+            s3_url = CheckS3.presigned_url(data_export.s3_key, CheckConfig.get('regenerate_download_expire_value', 30, :integer).minutes.to_i, CheckConfig.get('check_sunset_s3_bucket'))
             data_export.download_url = s3_url
             data_export.use_count = data_export.use_count + 1
             data_export.skip_check_ability = true

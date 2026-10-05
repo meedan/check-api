@@ -454,11 +454,11 @@ namespace :check do
           begin
             zip_content = File.binread(zip_path)
             s3_key = "#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip"
-            expire_days = [CheckConfig.get('check_sunset_s3_max_expire_days', 7, :integer), CheckConfig.get('check_sunset_download_expire_days', 15, :integer)].min
-            s3_url = CheckS3.write_presigned(s3_key, 'application/zip', zip_content, expire_days.days.to_i, bucket_name, 'private')
+            expire_value = CheckConfig.get('regenerate_download_expire_value', 30, :integer)
+            s3_url = CheckS3.write_presigned(s3_key, 'application/zip', zip_content, expire_value.minutes.to_i, bucket_name, 'private')
             # Save Download URL
             save_download_url(de, s3_key, s3_url)
-            puts "Download link (valid for #{expire_days} days): #{s3_url}"
+            puts "Download link (valid for #{expire_value} minutes): #{s3_url}"
           rescue StandardError => e
             puts "Failed to upload exported data #{e.message}"
           ensure
