@@ -2,6 +2,7 @@ module Api
   module V1
     class DataExportsController < BaseApiController
       skip_before_action :authenticate_from_token!
+      before_action :authenticate_user!
 
       def download_exported_data
         token = params[:token]

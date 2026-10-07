@@ -424,7 +424,7 @@ namespace :check do
       end
     end
 
-    # bundle exec rails check:sunset:export_upload_and_send_workspace_data[team-slug] EXPORT_OUTPUT_BUCKET=XXXXX
+    # bundle exec rails check:sunset:export_upload_and_send_workspace_data[team-slug]
     task :export_upload_and_send_workspace_data,[:slug] => :environment do |_t, args|
       started = Time.now.to_i
       slug = args[:slug].to_s
@@ -450,7 +450,7 @@ namespace :check do
           compress_folder(folder_path, zip_path)
           begin
             # Save to S3
-            bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
+            bucket_name = CheckConfig.get('check_sunset_s3_bucket')
             zip_content = File.binread(zip_path)
             s3_key = "#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip"
             CheckS3.write(s3_key, 'application/zip', zip_content, bucket_name, 'private')

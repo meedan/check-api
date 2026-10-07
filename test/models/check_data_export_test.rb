@@ -78,7 +78,7 @@ class CheckDataExportTest < ActiveSupport::TestCase
     u2 = create_user
     tu = create_team_user user: u , team: t, role: 'admin'
     create_team_user user: u2 , team: t, role: 'admin'
-    de = create_check_data_export team: t, user: u, expired_at: Time.current + 7.days
+    de = create_check_data_export team: t, user: u, status: 'generated', expired_at: Time.current + 7.days
     with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.can?(:read, de)
