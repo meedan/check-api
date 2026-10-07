@@ -242,7 +242,6 @@ ActiveRecord::Schema.define(version: 2026_10_04_201545) do
     t.bigint "user_id"
     t.bigint "team_id", null: false
     t.string "s3_key"
-    t.string "download_url"
     t.datetime "generated_at"
     t.datetime "expired_at"
     t.datetime "created_at", precision: 6, null: false

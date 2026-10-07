@@ -48,11 +48,10 @@ namespace :check do
       end
     end
 
-    def save_download_url(de, s3_key, download_url)
+    def update_data_export(de, s3_key)
       current_time = Time.current
       download_expire_days = CheckConfig.get('check_sunset_download_expire_days', 15, :integer)
       de.s3_key = s3_key
-      de.download_url = download_url
       de.generated_at = current_time
       de.expired_at = current_time + download_expire_days.days
       de.status = 'generated'
@@ -449,16 +448,15 @@ namespace :check do
           zip_path = Rails.root.join('tmp', 'sunset', "#{team.slug}.zip")
           puts "Compressing #{folder_path} -> #{zip_path}"
           compress_folder(folder_path, zip_path)
-          # Save to S3
-          bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
           begin
+            # Save to S3
+            bucket_name = ENV.fetch('EXPORT_OUTPUT_BUCKET')
             zip_content = File.binread(zip_path)
             s3_key = "#{team.slug}/#{SecureRandom.hex(16)}/#{team.slug}.zip"
-            expire_value = CheckConfig.get('regenerate_download_expire_value', 30, :integer)
-            s3_url = CheckS3.write_presigned(s3_key, 'application/zip', zip_content, expire_value.minutes.to_i, bucket_name, 'private')
-            # Save Download URL
-            save_download_url(de, s3_key, s3_url)
-            puts "Download link (valid for #{expire_value} minutes): #{s3_url}"
+            CheckS3.write(s3_key, 'application/zip', zip_content, bucket_name, 'private')
+            # Update data export record
+            update_data_export(de, s3_key)
+            puts "Uploaded data export to #{bucket_name}"
           rescue StandardError => e
             puts "Failed to upload exported data #{e.message}"
           ensure
