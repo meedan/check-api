@@ -656,7 +656,7 @@ class AbilityTest < ActiveSupport::TestCase
       "create Account", "create TeamUser", "create User", "create ProjectMedia", "invite Members", "activate Team",
       "not_spam ProjectMedia", "restore ProjectMedia", "confirm ProjectMedia", "update ProjectMedia", "duplicate Team", "create Feed",
       "manage TagText", "manage TeamTask", "update Relationship", "destroy Relationship", "create TiplineNewsletter",
-      "create FeedInvitation", "create FeedTeam", "destroy FeedInvitation", "destroy FeedTeam", "create SavedSearch"
+      "create FeedInvitation", "create FeedTeam", "destroy FeedInvitation", "destroy FeedTeam", "create SavedSearch", "create CheckDataExport"
     ]
     
     with_current_user_and_team(u, t) do
