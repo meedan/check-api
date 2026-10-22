@@ -1089,6 +1089,8 @@ class GraphqlController12Test < ActionController::TestCase
   end
 
   test "should create check_data_export via GraphQL mutation" do
+    @u.is_admin = true
+    @u.save!
     authenticate_with_user(@u)
     query = <<-GRAPHQL
       mutation {
