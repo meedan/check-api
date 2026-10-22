@@ -178,7 +178,7 @@ class MeType < DefaultObject
     ret = {}
     ability = context[:ability] || Ability.new
     object.check_data_exports.includes(:team).find_each do |de|
-      ret[de.team.name] = de.download_url if ability.can?(:read, de)
+      ret[de.team.name] = de.token if ability.can?(:read, de)
     end
     ret
   end

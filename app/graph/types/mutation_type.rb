@@ -151,4 +151,6 @@ class MutationType < BaseObject
   field :destroyWebhook, mutation: WebhookMutations::Destroy
   field :createWebhook, mutation: WebhookMutations::Create
   field :updateWebhook, mutation: WebhookMutations::Update
+
+  field :createCheckDataExport, mutation: CheckDataExportMutations::Create
 end
