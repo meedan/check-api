@@ -284,6 +284,33 @@ class ProjectMedia3Test < ActiveSupport::TestCase
     ProjectMedia.unstub(:clear_caches)
   end
 
+  test "should run bulk-update status based on team" do
+    setup_elasticsearch
+    t = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    t2 = create_team
+    create_team_user team: t2, user: u, role: 'admin'
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
+    assert_equal 'undetermined', pm.last_status
+    assert_equal 'undetermined', pm2.last_status
+    with_current_user_and_team(u, t2) do
+      ids = [pm.id, pm2.id]
+      updates = { action: 'update_status', params: { status: 'verified' }.to_json }
+      ProjectMedia.bulk_update(ids, updates, t2)
+      assert_equal 'undetermined', pm.reload.last_status
+      assert_equal 'undetermined', pm2.last_status
+    end
+    with_current_user_and_team(u, t) do
+      ids = [pm.id, pm2.id]
+      updates = { action: 'update_status', params: { status: 'verified' }.to_json }
+      ProjectMedia.bulk_update(ids, updates, t)
+      assert_equal 'verified', pm.reload.last_status
+      assert_equal 'verified', pm2.last_status
+    end
+  end
+
   test "should cache picture and creator name" do
     RequestStore.store[:skip_cached_field_update] = false
     Sidekiq::Testing.inline! do

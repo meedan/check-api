@@ -5,6 +5,7 @@ module ProjectMediaBulk
 
   module ClassMethods
     def bulk_update(ids, updates, team)
+      ids = ProjectMedia.where(team_id: team&.id, id: ids).map(&:id)
       params = begin JSON.parse(updates[:params]).with_indifferent_access rescue {} end
       case updates[:action]
       when 'archived'
