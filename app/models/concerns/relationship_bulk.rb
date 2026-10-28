@@ -7,51 +7,55 @@ module RelationshipBulk
     def bulk_update(ids, updates, team)
       if updates[:action] == 'accept'
         source_id = updates[:source_id]
-        pm_source = ProjectMedia.find_by_id(source_id)
-        # SQL bulk-update
-        updated_at = Time.now
-        update_columns = {
-          relationship_type: Relationship.confirmed_type,
-          updated_at: updated_at,
-        }
-        if User.current
-          update_columns[:confirmed_at] = updated_at
-          update_columns[:confirmed_by] = User.current&.id
+        pm_source = ProjectMedia.where(id: source_id, team_id: team&.id).first
+        if pm_source
+          # SQL bulk-update
+          updated_at = Time.now
+          update_columns = {
+            relationship_type: Relationship.confirmed_type,
+            updated_at: updated_at,
+          }
+          if User.current
+            update_columns[:confirmed_at] = updated_at
+            update_columns[:confirmed_by] = User.current&.id
+          end
+          relationships = Relationship.where(id: ids, source_id: pm_source.id)
+          relationships.update_all(update_columns)
+          # Run callbacks in background
+          extra_options = {
+            team_id: team&.id,
+            user_id: User.current&.id,
+            source_id: source_id,
+            action: updates[:action]
+          }
+          self.delay.run_update_callbacks(ids.to_json, extra_options.to_json)
+          delete_cached_fields(pm_source.id, relationships.map(&:target_id))
+          # Call the cached field sources_count to update its value, as the field is not called from the UI.
+          ids = [pm_source.id, relationships.map(&:target_id)].flatten
+          ProjectMedia.where(id: ids).each{ |pm| pm.sources_count(true) }
         end
-        relationships = Relationship.where(id: ids, source_id: source_id)
-        relationships.update_all(update_columns)
-        # Run callbacks in background
-        extra_options = {
-          team_id: team&.id,
-          user_id: User.current&.id,
-          source_id: source_id,
-          action: updates[:action]
-        }
-        self.delay.run_update_callbacks(ids.to_json, extra_options.to_json)
-        delete_cached_fields(pm_source.id, relationships.map(&:target_id))
-        # Call the cached field sources_count to update its value, as the field is not called from the UI.
-        ids = [pm_source.id, relationships.map(&:target_id)].flatten
-        ProjectMedia.where(id: ids).each{ |pm| pm.sources_count(true) }
         { source_project_media: pm_source }
       end
     end
 
     def bulk_destroy(ids, updates, team)
       source_id = updates[:source_id]
-      pm_source = ProjectMedia.find_by_id(source_id)
-      relationships = Relationship.where(id: ids, source_id: source_id)
-      relationship_target = {}
-      relationships.find_each{ |r| relationship_target[r.id] = r.target_id}
-      relationships.delete_all
-      target_ids = relationship_target.values
-      delete_cached_fields(pm_source.id, target_ids)
-      # Run callbacks in background
-      extra_options = {
-        team_id: team&.id,
-        user_id: User.current&.id,
-        source_id: source_id,
-      }
-      self.delay.run_destroy_callbacks(relationship_target.to_json, extra_options.to_json)
+      pm_source = ProjectMedia.where(id: source_id, team_id: team&.id).first
+      if pm_source
+        relationships = Relationship.where(id: ids, source_id: source_id)
+        relationship_target = {}
+        relationships.find_each{ |r| relationship_target[r.id] = r.target_id}
+        relationships.delete_all
+        target_ids = relationship_target.values
+        delete_cached_fields(pm_source.id, target_ids)
+        # Run callbacks in background
+        extra_options = {
+          team_id: team&.id,
+          user_id: User.current&.id,
+          source_id: source_id,
+        }
+        self.delay.run_destroy_callbacks(relationship_target.to_json, extra_options.to_json)
+      end
       { source_project_media: pm_source }
     end
 
