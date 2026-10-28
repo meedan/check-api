@@ -8,6 +8,7 @@ module RelationshipBulk
       if updates[:action] == 'accept'
         source_id = updates[:source_id]
         pm_source = ProjectMedia.where(id: source_id, team_id: team&.id).first
+        result = { source_project_media: pm_source, updated_ids: [] }
         if pm_source
           # SQL bulk-update
           updated_at = Time.now
@@ -20,6 +21,7 @@ module RelationshipBulk
             update_columns[:confirmed_by] = User.current&.id
           end
           relationships = Relationship.where(id: ids, source_id: pm_source.id)
+          result[:updated_ids] = relationships.map(&:id)
           relationships.update_all(update_columns)
           # Run callbacks in background
           extra_options = {
@@ -34,15 +36,17 @@ module RelationshipBulk
           ids = [pm_source.id, relationships.map(&:target_id)].flatten
           ProjectMedia.where(id: ids).each{ |pm| pm.sources_count(true) }
         end
-        { source_project_media: pm_source }
+        result
       end
     end
 
     def bulk_destroy(ids, updates, team)
       source_id = updates[:source_id]
       pm_source = ProjectMedia.where(id: source_id, team_id: team&.id).first
+      result = { source_project_media: pm_source, updated_ids: [] }
       if pm_source
         relationships = Relationship.where(id: ids, source_id: source_id)
+        result[:updated_ids] = relationships.map(&:id)
         relationship_target = {}
         relationships.find_each{ |r| relationship_target[r.id] = r.target_id}
         relationships.delete_all
@@ -56,7 +60,7 @@ module RelationshipBulk
         }
         self.delay.run_destroy_callbacks(relationship_target.to_json, extra_options.to_json)
       end
-      { source_project_media: pm_source }
+      result
     end
 
     def delete_cached_fields(source_id, target_ids)
