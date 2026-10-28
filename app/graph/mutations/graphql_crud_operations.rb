@@ -179,16 +179,13 @@ class GraphqlCrudOperations
       raise I18n.t(:bulk_operation_limit_error, limit: 10_000)
     end
 
-    sql_ids = []
-    processed_ids = []
+    input_ids = {}
     inputs[:ids].to_a.each do |graphql_id|
       type, id = CheckGraphql.decode_id(graphql_id)
       if type == klass.name
-        sql_ids << id
-        processed_ids << graphql_id
+        input_ids[id] = graphql_id
       end
     end
-
     ability = ctx[:ability] || Ability.new
     obj_ability = klass.new
     obj_ability.team = Team.current if obj_ability.respond_to?(:team=)
@@ -204,11 +201,11 @@ class GraphqlCrudOperations
           .with_indifferent_access
       method_mapping = { update: :bulk_update, destroy: :bulk_destroy, mark_read: :bulk_mark_read }
       method = method_mapping[update_or_destroy.to_sym]
-      result = klass.send(method, sql_ids, filtered_inputs, Team.current)
+      result = klass.send(method, input_ids.keys, filtered_inputs, Team.current)
       if update_or_destroy.to_s != "destroy"
-        result.merge!({ updated_objects: klass.where(id: sql_ids) })
+        result.merge!({ updated_objects: klass.where(id: result[:updated_ids]) })
       end
-      { ids: processed_ids }.merge(result)
+      { ids: input_ids.slice(*result[:updated_ids].map(&:to_s)).values }.merge(result)
     else
       raise CheckPermissions::AccessDenied, I18n.t(:permission_error)
     end
