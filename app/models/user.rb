@@ -65,7 +65,7 @@ class User < ApplicationRecord
 
   def role(team = nil)
     context_team = team || Team.current || self.current_team
-    return nil if context_team.nil? || context_team.new_record?
+    return nil if context_team.nil? || context_team.new_record? || context_team.inactive
     @roles ||= {}
     if @roles[context_team.id].nil?
       tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last
