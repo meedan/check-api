@@ -15,7 +15,7 @@ on:
 jobs:
   brakeman-scan:
     name: Brakeman Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       actions: read
       contents: read
@@ -30,6 +30,7 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '2.7.7'
+        bundler-cache: false
 
     - name: Setup Brakeman
       env:
