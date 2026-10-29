@@ -615,7 +615,7 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media team: t1, media: m
     pmb = create_project_media team: t2, media: m
-    with_current_user_and_team(u, tu) do
+    with_current_user_and_team(u, t2) do
       ability = Ability.new
       assert ability.can?(:read, t1)
       assert ability.can?(:read, t2)
