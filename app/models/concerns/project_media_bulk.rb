@@ -5,17 +5,20 @@ module ProjectMediaBulk
 
   module ClassMethods
     def bulk_update(ids, updates, team)
+      ids = ProjectMedia.where(team_id: team&.id, id: ids).map(&:id)
       params = begin JSON.parse(updates[:params]).with_indifferent_access rescue {} end
+      result = {}
       case updates[:action]
       when 'archived'
-        self.bulk_archive(ids, params[:archived], team)
+        result = self.bulk_archive(ids, params[:archived], team)
       when 'assigned_to_ids'
-        self.bulk_assign(ids, params[:assigned_to_ids], params[:assignment_message], team)
+        result = self.bulk_assign(ids, params[:assigned_to_ids], params[:assignment_message], team)
       when 'update_status'
-        self.bulk_update_status(ids, params[:status], team)
+        result = self.bulk_update_status(ids, params[:status], team)
       when 'remove_tags'
-        self.bulk_remove_tags(ids, params[:tags_text], team)
+        result = self.bulk_remove_tags(ids, params[:tags_text], team)
       end
+      result.merge({ updated_ids: ids })
     end
 
     def bulk_archive(ids, archived, team)
@@ -248,7 +251,7 @@ module ProjectMediaBulk
 
     def bulk_mark_read(ids, read, team)
       read_value = read.with_indifferent_access[:read]
-      pm_ids = ProjectMedia.where(id: ids).where.not(read: read_value).map(&:id)
+      pm_ids = ProjectMedia.where(team_id: team&.id, id: ids).where.not(read: read_value).map(&:id)
       # SQL bulk-update
       updated_at = Time.now
       update_columns = { read: read_value, updated_at: updated_at }
@@ -258,7 +261,7 @@ module ProjectMediaBulk
       self.bulk_reindex(pm_ids.to_json, script)
       # Run callbacks in background
       self.delay.run_bulk_mark_read_callbacks(pm_ids.to_json)
-      { team: team }
+      { team: team, updated_ids: pm_ids}
     end
 
     def run_bulk_mark_read_callbacks(ids_json)

@@ -424,4 +424,30 @@ class RelationshipTest < ActiveSupport::TestCase
     end
     assert_equal CheckMediaClusterOrigins::OriginCodes::USER_MATCHED, pm2.media_cluster_origin
   end
+
+  test "should run relationship bulk-update based on team" do
+    t = create_team
+    u = create_user
+    t2 = create_team
+    create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: t2, user: u, role: 'admin'
+    pm_s = create_project_media team: t
+    pm_t1 = create_project_media team: t
+    pm_t2 = create_project_media team: t
+    r1 = create_relationship source_id: pm_s.id, target_id: pm_t1.id, relationship_type: Relationship.suggested_type
+    r2 = create_relationship source_id: pm_s.id, target_id: pm_t2.id, relationship_type: Relationship.suggested_type
+    relations = [r1, r2]
+    ids = relations.map(&:id)
+    updates = { action: "accept", source_id: pm_s.id }
+    with_current_user_and_team(u, t2) do
+      Relationship.bulk_update(ids, updates, t2)
+    end
+    assert_equal Relationship.suggested_type, r1.reload.relationship_type
+    assert_equal Relationship.suggested_type, r2.reload.relationship_type
+    with_current_user_and_team(u, t) do
+      Relationship.bulk_update(ids, updates, t)
+    end
+    assert_equal Relationship.confirmed_type, r1.reload.relationship_type
+    assert_equal Relationship.confirmed_type, r2.reload.relationship_type
+  end
 end
