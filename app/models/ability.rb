@@ -7,7 +7,6 @@ class Ability
     @api_key = ApiKey.current
     Team.current ||= (@user.current_team || Team.new)
     @context_team = team || Team.current
-    # @context_team = nil if @context_team && @context_team.inactive
     # Define User abilities
     if @user.is_admin?
       global_admin_perms
@@ -25,7 +24,7 @@ class Ability
       if @user.role?(:admin, @context_team)
         admin_perms
       end
-      unless @api_key.nil? || @api_key.team_id.nil? || @api_key.team.inactive
+      unless @api_key.nil? || @api_key.team_id.nil?
         api_key_perms
       end
       Workflow::Workflow.workflows.each do |w|
@@ -38,16 +37,23 @@ class Ability
   private
 
   def api_key_perms
-    cannot [:create, :destroy], Team
-    cannot :cud, User
-    cannot :cud, TeamUser
-    can :read, [FactCheck, ClaimDescription] do |obj|
-      obj.team.present? && obj.team == @api_key.team
+    cannot [:create, :destroy], Team do |obj|
+      !@api_key.team.inactive
     end
-    can :update, User, :id => @user.id
-    can :update, BotUser, :id => @user.id
+    cannot :cud, User do |obj|
+      !@api_key.team.inactive
+    end
+    cannot :cud, TeamUser do |obj|
+      !@api_key.team.inactive
+    end
+    can :read, [FactCheck, ClaimDescription] do |obj|
+      obj.team.present? && obj.team == @api_key.team && !@api_key.team.inactive
+    end
+    can :update, [User, BotUser] do |obj|
+      obj.id == @user.id && !@api_key.team.inactive
+    end
     can :update, [Dynamic, DynamicAnnotation::Field], ['annotation_type = ?', 'smooch_user'] do |obj|
-      obj.team.present? && obj.team == @api_key.team
+      obj.team.present? && obj.team == @api_key.team && !@api_key.team.inactive
     end
   end
 
