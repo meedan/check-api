@@ -768,7 +768,6 @@ class AbilityTest < ActiveSupport::TestCase
     t2 = create_team
     a = create_api_key team: t
     u = a.bot_user
-    # u = create_bot_user api_key_id: a.id
     tu = create_team_user team: t, user: u, role: 'admin'
     u = User.find(u.id)
     ApiKey.current = a
@@ -783,6 +782,10 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:create, TeamUser)
     assert ability.cannot?(:update, tu)
     assert ability.cannot?(:destroy, tu)
+    # Verify for inactive team
+    t.inactive = true
+    t.save!
+    assert ability.cannot?(:update, t)
     ApiKey.current = nil
     User.current = nil
   end

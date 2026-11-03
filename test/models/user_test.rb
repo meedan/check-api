@@ -298,6 +298,9 @@ class UserTest < ActiveSupport::TestCase
     u.current_team_id = t.id
     u.save!
     assert_equal t, u.current_team
+    t.inactive = true
+    t.save!
+    assert_nil u.current_team
   end
 
   test "should get user teams" do
