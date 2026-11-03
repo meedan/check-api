@@ -7,7 +7,7 @@ class Ability
     @api_key = ApiKey.current
     Team.current ||= (@user.current_team || Team.new)
     @context_team = team || Team.current
-    @context_team = nil if @context_team && @context_team.inactive
+    # @context_team = nil if @context_team && @context_team.inactive
     # Define User abilities
     if @user.is_admin?
       global_admin_perms
@@ -25,7 +25,7 @@ class Ability
       if @user.role?(:admin, @context_team)
         admin_perms
       end
-      unless @api_key.nil? || @api_key.team_id.nil?
+      unless @api_key.nil? || @api_key.team_id.nil? || @api_key.team.inactive
         api_key_perms
       end
       Workflow::Workflow.workflows.each do |w|
