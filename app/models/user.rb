@@ -74,6 +74,10 @@ class User < ApplicationRecord
     @roles[context_team.id]
   end
 
+  def cached_teams
+    Team.where(id: self[:cached_teams], inactive: false).pluck(:id)
+  end
+
   def number_of_teams
     self.cached_teams.size
   end

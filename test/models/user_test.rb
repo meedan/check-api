@@ -574,10 +574,16 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should have number of teams" do
+    t1 = create_team
+    t2 = create_team
     u = create_user
-    create_team_user user: u
-    create_team_user user: u
+    create_team_user user: u, team: t1
+    create_team_user user: u, team: t2
+    assert_equal [t1.id, t2.id], u.reload.cached_teams.sort
     assert_equal 2, u.reload.number_of_teams
+    t1.inactive = true
+    t1.save!
+    assert_equal 1, u.reload.number_of_teams
   end
 
   test "should update account url when update Facebook id" do
