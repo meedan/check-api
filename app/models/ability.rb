@@ -37,16 +37,19 @@ class Ability
   private
 
   def api_key_perms
-    cannot [:create, :destroy], Team
-    cannot :cud, User
-    cannot :cud, TeamUser
-    can :read, [FactCheck, ClaimDescription] do |obj|
-      obj.team.present? && obj.team == @api_key.team
-    end
-    can :update, User, :id => @user.id
-    can :update, BotUser, :id => @user.id
-    can :update, [Dynamic, DynamicAnnotation::Field], ['annotation_type = ?', 'smooch_user'] do |obj|
-      obj.team.present? && obj.team == @api_key.team
+    inactive = Team.where(id: @api_key.team_id).pluck(:inactive).first
+    if inactive
+      cannot :manage, :all
+    else
+      cannot [:create, :destroy], Team
+      cannot :cud, [User, TeamUser]
+      can :read, [FactCheck, ClaimDescription] do |obj|
+        obj.team.present? && obj.team == @api_key.team
+      end
+      can :update, [User, BotUser], :id => @user.id
+      can :update, [Dynamic, DynamicAnnotation::Field], ['annotation_type = ?', 'smooch_user'] do |obj|
+        obj.team.present? && obj.team == @api_key.team
+      end
     end
   end
 

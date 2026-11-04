@@ -223,6 +223,9 @@ class TeamUserTest < ActiveSupport::TestCase
     tu.status = 'member'
     tu.save!
     assert_equal [t.id], u.reload.cached_teams
+    t2 = create_team inactive: true
+    create_team_user team: t2, user: u
+    assert_equal [t.id], u.reload.cached_teams
     tu.status = 'banned'
     tu.save!
     assert_equal [], u.reload.cached_teams

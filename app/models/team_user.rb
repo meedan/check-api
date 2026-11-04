@@ -66,7 +66,7 @@ class TeamUser < ApplicationRecord
     return if user.nil?
     teams = user.cached_teams.clone
     if action == :add
-      teams << self.team_id
+      teams << self.team_id unless self.team.inactive
     elsif action == :remove
       teams -= [self.team_id]
     end
