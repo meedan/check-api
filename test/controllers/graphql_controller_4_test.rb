@@ -249,6 +249,19 @@ class GraphqlController4Test < ActionController::TestCase
     assert_error_message 'maximum'
   end
 
+  test "verify bulk-operation for inactive team" do
+    u = create_user
+    t = create_team inactive: true
+    create_team_user team: t, user: u, role: 'admin'
+    u.current_team_id = t.id
+    u.save!
+    authenticate_with_user(u)
+    query = 'mutation { bulkProjectMediaMarkRead(input: { clientMutationId: "1", ids: ' + @ids + ', read: true }) { updated_objects { id, is_read, dbid }, ids, team { dbid } } }'
+    post :create, params: { query: query, team: t.slug }
+    assert_response :success
+    assert_error_message 'not allowed'
+  end
+
   protected
 
   def assert_error_message(expected)

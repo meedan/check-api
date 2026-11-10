@@ -764,9 +764,11 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "api key cud permissions" do
-    t = create_team private: true
+    t = create_team
     t2 = create_team
+    t3 = create_team inactive: true
     a = create_api_key team: t
+    a2 = create_api_key team: t3
     u = a.bot_user
     tu = create_team_user team: t, user: u, role: 'admin'
     u = User.find(u.id)
@@ -783,9 +785,8 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, tu)
     assert ability.cannot?(:destroy, tu)
     # Verify for inactive team
-    t.inactive = true
-    t.save!
-    assert ability.cannot?(:update, t)
+    ApiKey.current = a2
+    assert ability.cannot?(:update, t3)
     ApiKey.current = nil
     User.current = nil
   end

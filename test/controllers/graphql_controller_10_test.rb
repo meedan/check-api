@@ -643,6 +643,21 @@ class GraphqlController10Test < ActionController::TestCase
     assert_response :success
   end
 
+  test "should not create project_media for inactive team" do
+    t = create_team inactive: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    u.current_team_id = t.id
+    u.save!
+    authenticate_with_user(u)
+    query = 'mutation create { createProjectMedia(input: { quote: "Testing inactive permissions", media_type: "Claim", clientMutationId: "1" }) { project_media { id } } }'
+    assert_no_difference 'ProjectMedia.count' do
+      post :create, params: { query: query, team: t }
+    end
+    assert_response 400
+    assert_match /No permission to create Claim/, @response.body
+  end
+
   test "should return permissions of sibling report" do
     u = create_user
     t = create_team
