@@ -235,4 +235,26 @@ class TeamUserTest < ActiveSupport::TestCase
     tu.destroy
     assert_equal [], u.reload.cached_teams
   end
+
+  test "should restore access for member added while team was inactive after reactivation" do
+    u = create_user
+    t = create_team inactive: true
+    create_team_user team: t, user: u
+    t.inactive = false
+    t.save!
+    assert_includes u.reload.cached_teams, t.id
+  end
+
+  test "should keep inactive team in cached teams when another membership changes" do
+    u = create_user
+    t1 = create_team
+    t2 = create_team
+    create_team_user team: t1, user: u
+    t1.inactive = true
+    t1.save!
+    create_team_user team: t2, user: u
+    t1.inactive = false
+    t1.save!
+    assert_equal [t1.id, t2.id].sort, u.reload.cached_teams.sort
+  end
 end

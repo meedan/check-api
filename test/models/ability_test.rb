@@ -623,6 +623,31 @@ class AbilityTest < ActiveSupport::TestCase
     end
   end
 
+  test "should not read items of public inactive team" do
+    t = create_team private: false, inactive: true
+    t2 = create_team
+    u = create_user
+    create_team_user team: t2, user: u
+    pm = create_project_media team: t
+    with_current_user_and_team(u, t2) do
+      ability = Ability.new
+      assert ability.cannot?(:read, pm)
+      assert ability.cannot?(:read, pm.media)
+    end
+  end
+
+  test "should not read own items in inactive team" do
+    t = create_team private: true
+    u = create_user
+    create_team_user team: t, user: u, role: 'collaborator'
+    pm = create_project_media team: t, user: u
+    t.inactive = true
+    t.save!
+    with_current_user_and_team(u, t) do
+      assert Ability.new.cannot?(:read, pm)
+    end
+  end
+
   test "read ability for user in private team with non member status" do
     u = create_user
     t1 = create_team
@@ -989,6 +1014,21 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, tbi2)
       assert ability.cannot?(:update, tbi2)
       assert ability.cannot?(:destroy, tbi2)
+    end
+  end
+
+  test "admin of inactive team should not manage its bots or bot installations" do
+    t = create_team inactive: true
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    tb = create_team_bot team_author_id: t.id
+    tbi = create_team_bot_installation team_id: t.id
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:update, tb)
+      assert ability.cannot?(:destroy, tb)
+      assert ability.cannot?(:update, tbi)
+      assert ability.cannot?(:destroy, tbi)
     end
   end
 
