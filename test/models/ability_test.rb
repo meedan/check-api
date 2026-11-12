@@ -625,11 +625,9 @@ class AbilityTest < ActiveSupport::TestCase
 
   test "should not read items of public inactive team" do
     t = create_team private: false, inactive: true
-    t2 = create_team
     u = create_user
-    create_team_user team: t2, user: u
     pm = create_project_media team: t
-    with_current_user_and_team(u, t2) do
+    with_current_user_and_team(u, t) do
       ability = Ability.new
       assert ability.cannot?(:read, pm)
       assert ability.cannot?(:read, pm.media)

@@ -11,26 +11,30 @@ class Ability
     if @user.is_admin?
       global_admin_perms
     else
-      extra_perms_for_all_users
-      if @user.id
-        authenticated_perms
+      if @context_team.inactive
+        cannot :manage, :all
+      else
+        extra_perms_for_all_users
+        if @user.id
+          authenticated_perms
+        end
+        if @user.role?(:collaborator, @context_team)
+          collaborator_perms
+        end
+        if @user.role?(:editor, @context_team)
+          editor_perms
+        end
+        if @user.role?(:admin, @context_team)
+          admin_perms
+        end
+        unless @api_key.nil? || @api_key.team_id.nil?
+          api_key_perms
+        end
+        Workflow::Workflow.workflows.each do |w|
+          instance_exec(&w.workflow_permissions) if w.respond_to?(:workflow_permissions)
+        end
+        bot_permissions
       end
-      if @user.role?(:collaborator, @context_team)
-        collaborator_perms
-      end
-      if @user.role?(:editor, @context_team)
-        editor_perms
-      end
-      if @user.role?(:admin, @context_team)
-        admin_perms
-      end
-      unless @api_key.nil? || @api_key.team_id.nil?
-        api_key_perms
-      end
-      Workflow::Workflow.workflows.each do |w|
-        instance_exec(&w.workflow_permissions) if w.respond_to?(:workflow_permissions)
-      end
-      bot_permissions
     end
   end
 

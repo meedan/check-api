@@ -250,11 +250,16 @@ class TeamUserTest < ActiveSupport::TestCase
     t1 = create_team
     t2 = create_team
     create_team_user team: t1, user: u
+    assert_equal [t1.id], u.reload.cached_teams
     t1.inactive = true
     t1.save!
+    assert_empty u.reload.cached_teams
+    assert_equal [t1.id], u.reload[:cached_teams]
     create_team_user team: t2, user: u
+    assert_equal [t2.id], u.reload.cached_teams.sort
+    assert_equal [t1.id, t2.id], u.reload[:cached_teams]
     t1.inactive = false
     t1.save!
-    assert_equal [t1.id, t2.id].sort, u.reload.cached_teams.sort
+    assert_equal [t1.id, t2.id], u.reload.cached_teams.sort
   end
 end
