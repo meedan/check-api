@@ -615,11 +615,34 @@ class AbilityTest < ActiveSupport::TestCase
     m = create_valid_media
     pma = create_project_media team: t1, media: m
     pmb = create_project_media team: t2, media: m
-    with_current_user_and_team(u, tu) do
+    with_current_user_and_team(u, t2) do
       ability = Ability.new
       assert ability.can?(:read, t1)
       assert ability.can?(:read, t2)
       assert ability.can?(:read, m)
+    end
+  end
+
+  test "should not read items of public inactive team" do
+    t = create_team private: false, inactive: true
+    u = create_user
+    pm = create_project_media team: t
+    with_current_user_and_team(u, t) do
+      ability = Ability.new
+      assert ability.cannot?(:read, pm)
+      assert ability.cannot?(:read, pm.media)
+    end
+  end
+
+  test "should not read own items in inactive team" do
+    t = create_team private: true
+    u = create_user
+    create_team_user team: t, user: u, role: 'collaborator'
+    pm = create_project_media team: t, user: u
+    t.inactive = true
+    t.save!
+    with_current_user_and_team(u, t) do
+      assert Ability.new.cannot?(:read, pm)
     end
   end
 
@@ -764,11 +787,12 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "api key cud permissions" do
-    t = create_team private: true
+    t = create_team
     t2 = create_team
+    t3 = create_team inactive: true
     a = create_api_key team: t
+    a2 = create_api_key team: t3
     u = a.bot_user
-    # u = create_bot_user api_key_id: a.id
     tu = create_team_user team: t, user: u, role: 'admin'
     u = User.find(u.id)
     ApiKey.current = a
@@ -783,6 +807,9 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:create, TeamUser)
     assert ability.cannot?(:update, tu)
     assert ability.cannot?(:destroy, tu)
+    # Verify for inactive team
+    ApiKey.current = a2
+    assert ability.cannot?(:update, t3)
     ApiKey.current = nil
     User.current = nil
   end
@@ -985,6 +1012,29 @@ class AbilityTest < ActiveSupport::TestCase
       assert ability.cannot?(:create, tbi2)
       assert ability.cannot?(:update, tbi2)
       assert ability.cannot?(:destroy, tbi2)
+    end
+  end
+
+  test "admin of inactive team should not manage its bots or bot installations" do
+    t = create_team
+    t2 = create_team
+    u = create_user
+    create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: t2, user: u, role: 'collaborator'
+    tb = create_team_bot team_author_id: t.id
+    tbi = create_team_bot_installation team_id: t.id
+    ak = tb.reload.api_key
+    # Active, then inactive, then reactivated; bot permissions don't depend on the context team
+    [false, true, false].each do |inactive|
+      t.update!(inactive: inactive)
+      [t, t2, nil].each do |context_team|
+        with_current_user_and_team(u, context_team) do
+          ability = Ability.new
+          [[:update, tb], [:destroy, tb], [:update, tbi], [:destroy, tbi], [:destroy, ak]].each do |action, obj|
+            assert_equal !inactive, ability.can?(action, obj), "inactive: #{inactive}, context: #{context_team&.id}, #{action} #{obj.class}"
+          end
+        end
+      end
     end
   end
 

@@ -253,7 +253,7 @@ class GraphqlController10Test < ActionController::TestCase
       v = create_version
       t = Team.last
       id = Base64.encode64("Version/#{v.id}")
-      q = assert_queries 10, '<=' do
+      q = assert_queries 14, '<=' do
         post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
       end
       assert !q.include?('SELECT "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
@@ -641,6 +641,35 @@ class GraphqlController10Test < ActionController::TestCase
       post :create, params: { query: query, team: t }
     end
     assert_response :success
+  end
+
+  test "should not create project_media for inactive team" do
+    t = create_team inactive: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    u.current_team_id = t.id
+    u.save!
+    authenticate_with_user(u)
+    query = 'mutation create { createProjectMedia(input: { quote: "Testing inactive permissions", media_type: "Claim", clientMutationId: "1" }) { project_media { id } } }'
+    assert_no_difference 'ProjectMedia.count' do
+      post :create, params: { query: query, team: t }
+    end
+    assert_response 400
+    assert_match /No permission to create Claim/, @response.body
+  end
+
+  test "should not uninstall bot of inactive team" do
+    t = create_team inactive: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    tb = create_team_bot set_approved: true
+    tbi = create_team_bot_installation team_id: t.id, user_id: tb.id
+    authenticate_with_user(u)
+    query = 'mutation delete { destroyTeamBotInstallation(input: { clientMutationId: "1", id: "' + tbi.graphql_id + '" }) { deletedId } }'
+    assert_no_difference 'TeamBotInstallation.count' do
+      post :create, params: { query: query }
+    end
+    assert_match /No permission to delete TeamBotInstallation/, @response.body
   end
 
   test "should return permissions of sibling report" do
