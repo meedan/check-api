@@ -658,6 +658,20 @@ class GraphqlController10Test < ActionController::TestCase
     assert_match /No permission to create Claim/, @response.body
   end
 
+  test "should not uninstall bot of inactive team" do
+    t = create_team inactive: true
+    u = create_user
+    create_team_user user: u, team: t, role: 'admin'
+    tb = create_team_bot set_approved: true
+    tbi = create_team_bot_installation team_id: t.id, user_id: tb.id
+    authenticate_with_user(u)
+    query = 'mutation delete { destroyTeamBotInstallation(input: { clientMutationId: "1", id: "' + tbi.graphql_id + '" }) { deletedId } }'
+    assert_no_difference 'TeamBotInstallation.count' do
+      post :create, params: { query: query }
+    end
+    assert_match /No permission to delete TeamBotInstallation/, @response.body
+  end
+
   test "should return permissions of sibling report" do
     u = create_user
     t = create_team

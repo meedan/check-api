@@ -1016,17 +1016,25 @@ class AbilityTest < ActiveSupport::TestCase
   end
 
   test "admin of inactive team should not manage its bots or bot installations" do
-    t = create_team inactive: true
+    t = create_team
+    t2 = create_team
     u = create_user
     create_team_user team: t, user: u, role: 'admin'
+    create_team_user team: t2, user: u, role: 'collaborator'
     tb = create_team_bot team_author_id: t.id
     tbi = create_team_bot_installation team_id: t.id
-    with_current_user_and_team(u, t) do
-      ability = Ability.new
-      assert ability.cannot?(:update, tb)
-      assert ability.cannot?(:destroy, tb)
-      assert ability.cannot?(:update, tbi)
-      assert ability.cannot?(:destroy, tbi)
+    ak = tb.reload.api_key
+    # Active, then inactive, then reactivated; bot permissions don't depend on the context team
+    [false, true, false].each do |inactive|
+      t.update!(inactive: inactive)
+      [t, t2, nil].each do |context_team|
+        with_current_user_and_team(u, context_team) do
+          ability = Ability.new
+          [[:update, tb], [:destroy, tb], [:update, tbi], [:destroy, tbi], [:destroy, ak]].each do |action, obj|
+            assert_equal !inactive, ability.can?(action, obj), "inactive: #{inactive}, context: #{context_team&.id}, #{action} #{obj.class}"
+          end
+        end
+      end
     end
   end
 
