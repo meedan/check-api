@@ -196,6 +196,6 @@ class Ability
 
   def is_owner_of_bot_team(team_id)
     return false if team_id.blank?
-    !TeamUser.where(user_id: @user.id, team_id: team_id, role: 'admin').last.nil?
+    !TeamUser.joins(:team).where(user_id: @user.id, team_id: team_id, role: 'admin', teams: { inactive: false }).last.nil?
   end
 end
