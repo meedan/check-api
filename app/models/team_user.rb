@@ -64,13 +64,13 @@ class TeamUser < ApplicationRecord
   def update_user_cached_teams(action) # action: :add or :remove
     user = self.user
     return if user.nil?
-    teams = user.cached_teams.clone
+    teams = user[:cached_teams].clone
     if action == :add
       teams << self.team_id
     elsif action == :remove
       teams -= [self.team_id]
     end
-    user.cached_teams = teams.uniq
+    user[:cached_teams] = teams.uniq
     user.skip_check_ability = true
     user.save(validate: false)
   end

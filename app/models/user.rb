@@ -65,13 +65,17 @@ class User < ApplicationRecord
 
   def role(team = nil)
     context_team = team || Team.current || self.current_team
-    return nil if context_team.nil? || context_team.new_record?
+    return nil if context_team.nil? || context_team.new_record? || context_team.inactive
     @roles ||= {}
     if @roles[context_team.id].nil?
       tu = TeamUser.where(team_id: context_team.id, user_id: self.id, status: 'member').last
       @roles[context_team.id] = tu.nil? ? nil : tu.role.to_s
     end
     @roles[context_team.id]
+  end
+
+  def cached_teams
+    Team.where(id: self[:cached_teams], inactive: false).pluck(:id)
   end
 
   def number_of_teams
@@ -154,12 +158,14 @@ class User < ApplicationRecord
   end
 
   def current_team
+    team = nil
     if self.current_team_id.blank?
       tu = TeamUser.where(user_id: self.id, status: 'member').last
-      tu.team unless tu.nil?
+      team = tu.team unless tu.nil?
     else
-      Team.where(id: self.current_team_id).last
+      team = Team.where(id: self.current_team_id).last
     end
+    (team && !team.inactive) ? team : nil
   end
 
   def user_teams

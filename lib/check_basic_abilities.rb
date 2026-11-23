@@ -4,7 +4,7 @@ module CheckBasicAbilities
   def can_list(klasses, new_params)
     klasses = [klasses].flatten
     RequestStore.store[:graphql_connection_params] ||= {}
-    key = "#{@user.id}:#{@context_team.id}"
+    key = "#{@user.id}:#{@context_team&.id}"
     RequestStore.store[:graphql_connection_params][key] ||= {}
     all_params = RequestStore.store[:graphql_connection_params][key]
     klasses.each do |klass|
@@ -20,7 +20,7 @@ module CheckBasicAbilities
 
   def authenticated_perms
     # Permissions for registration and login
-    can :read, Source, team_id: @context_team.id
+    can :read, Source, team_id: @context_team&.id
     can :create, Source, :user_id => @user.id, team_id: nil
     can :update, Source, :id => @user.source_id, team_id: nil
     can :read, AccountSource, source: { user_id: @user.id }
