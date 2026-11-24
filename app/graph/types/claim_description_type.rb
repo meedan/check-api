@@ -9,6 +9,13 @@ class ClaimDescriptionType < DefaultObject
   field :user, UserType, null: true
   field :project_media, ProjectMediaType, null: true
   field :project_media_was, ProjectMediaType, null: true
+
+  def project_media
+    ability = context[:ability] || Ability.new
+    pm = object.project_media
+    (pm && ability.can?(:read, pm)) ? pm : nil
+  end
+
   field :fact_check, FactCheckType, null: true do
     argument :report_status, GraphQL::Types::String, required: false, camelize: false
   end

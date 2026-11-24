@@ -15,7 +15,7 @@ class ClaimDescription < ApplicationRecord
   before_validation :set_team, on: :create
   validates_presence_of :team
   validates_uniqueness_of :project_media_id, allow_nil: true
-  validate :cant_apply_article_to_item_if_article_is_in_the_trash
+  validate :cant_apply_article_to_item_if_article_is_in_the_trash, :project_media_belongs_to_same_team
   after_commit :update_fact_check, on: [:update]
   after_update :update_report
   after_update :reset_item_rating_if_removed
@@ -129,6 +129,10 @@ class ClaimDescription < ApplicationRecord
   def log_relevant_article_results
     fc = self.fact_check
     self.project_media.delay.log_relevant_results(fc.class.name, fc.id, User.current&.id, self.class.actor_session_id) unless fc.nil?
+  end
+
+  def project_media_belongs_to_same_team
+    errors.add(:base, I18n.t(:claim_and_item_must_be_from_the_same_team)) if self.project_media && self.team_id && self.project_media.team_id != self.team_id
   end
 
   def cant_apply_article_to_item_if_article_is_in_the_trash

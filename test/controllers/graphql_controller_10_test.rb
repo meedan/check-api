@@ -122,7 +122,7 @@ class GraphqlController10Test < ActionController::TestCase
     t = create_task annotated: pm
     t.assign_user(u.id)
     query = "query GetById { project_media(ids: \"#{pm.id}\") { user { id } } }"
-    post :create, params: { query: query, team: t.slug }
+    post :create, params: { query: query, team: pm.team.slug }
     assert_response :success
     assert_not_nil JSON.parse(@response.body)['data']['project_media']['user']
   end
@@ -248,10 +248,13 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should get version from global id" do
-    authenticate_with_user
+    u = create_user
+    authenticate_with_user(u)
     with_versioning do
       v = create_version
       t = Team.last
+      create_team_user team: t, user: u, role: 'admin'
+      u.update_column(:current_team_id, t.id)
       id = Base64.encode64("Version/#{v.id}")
       q = assert_queries 14, '<=' do
         post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
@@ -433,17 +436,17 @@ class GraphqlController10Test < ActionController::TestCase
       sleep 2
 
       query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"]}") { id,medias(first:20){edges{node{dbid}}}}}'
-      post :create, params: { query: query, team: 'team' }
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
       assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
 
       query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"or\"}") { id,medias(first:20){edges{node{dbid}}}}}'
-      post :create, params: { query: query, team: 'team' }
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
       assert_equal 3, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
 
       query = 'query CheckSearch { search(query: "{\"tags\":[\"test tag 1\",\"test tag 2\"],\"tags_operator\":\"and\"}") { id,medias(first:20){edges{node{dbid}}}}}'
-      post :create, params: { query: query, team: 'team' }
+      post :create, params: { query: query, team: t.slug }
       assert_response :success
       assert_equal [pm3.id], JSON.parse(@response.body)['data']['search']['medias']['edges'].collect{ |e| e['node']['dbid'] }
     end
@@ -558,8 +561,10 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should get team with arabic slug" do
-    authenticate_with_user
+    u = create_user
     t = create_team slug: 'المصالحة', name: 'Arabic Team'
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
     post :create, params: { query: 'query Query { about { name, version } }', team: '%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D9%84%D8%AD%D8%A9' }
     assert_response :success
     assert_equal t, assigns(:context_team)
@@ -638,7 +643,7 @@ class GraphqlController10Test < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation create { createProjectMedia(input: { url: "", quote: "X", media_type: "Claim", clientMutationId: "1", related_to_id: ' + pm.id.to_s + ' }) { check_search_team { number_of_results }, project_media { id } } }'
     assert_difference 'Relationship.count' do
-      post :create, params: { query: query, team: t }
+      post :create, params: { query: query, team: t.slug }
     end
     assert_response :success
   end
@@ -654,8 +659,7 @@ class GraphqlController10Test < ActionController::TestCase
     assert_no_difference 'ProjectMedia.count' do
       post :create, params: { query: query, team: t }
     end
-    assert_response 400
-    assert_match /No permission to create Claim/, @response.body
+    assert_response :not_found
   end
 
   test "should not uninstall bot of inactive team" do
@@ -700,7 +704,7 @@ class GraphqlController10Test < ActionController::TestCase
     query = 'mutation create { createDynamicAnnotationMetadata(input: { annotated_id: "' + pm.id.to_s + '", clientMutationId: "1", annotated_type: "ProjectMedia", set_fields: "{\"metadata_value\":\"test\"}" }) { dynamic { id, annotation_type } } }'
 
     assert_difference 'Dynamic.count' do
-      post :create, params: { query: query, team: t }
+      post :create, params: { query: query, team: t.slug }
     end
     assert_equal 'metadata', JSON.parse(@response.body)['data']['createDynamicAnnotationMetadata']['dynamic']['annotation_type']
     assert_response :success
@@ -763,8 +767,7 @@ class GraphqlController10Test < ActionController::TestCase
     query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{tr.id} }) { success } }"
     post :create, params: { query: query, team: t.slug }
 
-    assert_response :success
-    assert !JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+    assert_response :not_found
   end
 
   test "should add NLU keyword to tipline menu option" do
@@ -809,6 +812,7 @@ class GraphqlController10Test < ActionController::TestCase
     t = create_team
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
     b.install_to!(t)
+    create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
 
     query = "mutation { addNluKeywordToTiplineMenu(input: { language: \"en\", menu: \"main\", menuOptionIndex: 0, keyword: \"Foo bar\" }) { success } }"

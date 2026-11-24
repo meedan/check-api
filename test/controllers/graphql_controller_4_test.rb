@@ -32,13 +32,18 @@ class GraphqlController4Test < ActionController::TestCase
 
   test "should not bulk-send project medias to trash if not allowed" do
     u = create_user
+    own_team = create_team
+    create_team_user team: own_team, user: u, role: 'admin'
+    own_pm = create_project_media team: own_team
     authenticate_with_user(u)
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
+    ids = (@pms + [own_pm]).map(&:graphql_id).to_json
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids + ', action: "archived", params: "{\"archived\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_error_message 'allowed'
+    assert_response :not_found
+    assert_error_message 'Not Found'
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
+    assert_equal CheckArchivedFlags::FlagCodes::NONE, own_pm.reload.archived
   end
 
   test "should bulk-send project medias to trash" do
@@ -60,14 +65,19 @@ class GraphqlController4Test < ActionController::TestCase
 
   test "should not bulk-restore project medias from trash if not allowed" do
     u = create_user
+    own_team = create_team
+    create_team_user team: own_team, user: u, role: 'admin'
+    own_pm = create_project_media team: own_team, archived: CheckArchivedFlags::FlagCodes::TRASHED
     authenticate_with_user(u)
     @pms.each { |pm| pm.archived = CheckArchivedFlags::FlagCodes::TRASHED ; pm.save! }
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
-    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 0}" }) { ids, team { dbid } } }'
+    ids = (@pms + [own_pm]).map(&:graphql_id).to_json
+    query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + ids + ', action: "archived", params: "{\"archived\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
-    assert_response :success
-    assert_error_message 'allowed'
+    assert_response :not_found
+    assert_error_message 'Not Found'
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
+    assert_equal CheckArchivedFlags::FlagCodes::TRASHED, own_pm.reload.archived
   end
 
   test "should not bulk-restore project medias from trash if there are more than 10.000 ids" do
@@ -258,8 +268,8 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation { bulkProjectMediaMarkRead(input: { clientMutationId: "1", ids: ' + @ids + ', read: true }) { updated_objects { id, is_read, dbid }, ids, team { dbid } } }'
     post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_error_message 'not allowed'
+    assert_response :not_found
+    assert_error_message 'Not Found'
   end
 
   protected

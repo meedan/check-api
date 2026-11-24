@@ -8,6 +8,8 @@ class ResendCancelInvitationMutation < Mutations::BaseMutation
   field :team, TeamType, null: true
 
   def resolve(email:, action:)
+    ability = context[:ability] || Ability.new
+    raise CheckPermissions::AccessDenied, I18n.t(:permission_error) if Team.current.nil? || ability.cannot?(:invite_members, Team.current)
     user = User.find_user_by_email(email)
     if user.nil?
       raise ActiveRecord::RecordNotFound

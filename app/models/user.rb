@@ -159,11 +159,12 @@ class User < ApplicationRecord
 
   def current_team
     team = nil
-    if self.current_team_id.blank?
+    unless self.current_team_id.blank?
+      team = Team.joins(:team_users).where(id: self.current_team_id, team_users: { user_id: self.id, status: 'member' }).last
+    end
+    if team.nil?
       tu = TeamUser.where(user_id: self.id, status: 'member').last
       team = tu.team unless tu.nil?
-    else
-      team = Team.where(id: self.current_team_id).last
     end
     (team && !team.inactive) ? team : nil
   end

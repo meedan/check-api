@@ -205,6 +205,8 @@ class ProjectMediaType < DefaultObject
   end
 
   def requests(include_children: false)
+    ability = context[:ability] || Ability.new
+    return TiplineRequest.none unless ability.can?(:read, object)
     object.get_requests(include_children)
   end
 

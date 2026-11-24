@@ -15,4 +15,10 @@ class TiplineResourceType < DefaultObject
   field :number_of_articles, GraphQL::Types::Int, null: true
   field :language, GraphQL::Types::String, null: true
   field :team, TeamType, null: true
+
+  def team
+    team = object.team
+    ability = context[:ability] || Ability.new
+    team if team && ability.can?(:read, team)
+  end
 end

@@ -244,6 +244,7 @@ class GraphqlController12Test < ActionController::TestCase
     pm2 = create_project_media team: t2, quote: 'Test 2', disable_es_callbacks: false
     sleep 2 # Wait for content to be indexed
 
+    create_team_user team: t1, user: @u, role: 'admin'
     authenticate_with_user(@u)
 
     # ElasticSearch
@@ -433,7 +434,7 @@ class GraphqlController12Test < ActionController::TestCase
     query = 'mutation create { createApiKey(input: { title: "test-api-key", description: "This is a test api key" }) { api_key { id title description } } }'
 
     assert_difference 'ApiKey.count' do
-      post :create, params: { query: query, team: t }
+      post :create, params: { query: query, team: t.slug }
     end
   end
 
@@ -447,7 +448,7 @@ class GraphqlController12Test < ActionController::TestCase
     api_key_2 = create_api_key(team: t)
 
     query = 'query read { team { api_keys { edges { node { dbid, title, description } } } } }'
-    post :create, params: { query: query, team: t }
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     edges = JSON.parse(@response.body)['data']['team']['api_keys']['edges']
     assert_equal [api_key_1.title, api_key_2.title].sort, edges.collect{ |e| e['node']['title'] }.sort
@@ -1082,6 +1083,7 @@ class GraphqlController12Test < ActionController::TestCase
     query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
     post :create, params: { query: query, team: t.slug }
     assert_response 401
+    create_team_user team: t, user: @u, role: 'admin'
     authenticate_with_user(@u)
     query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
     post :create, params: { query: query, team: t.slug }

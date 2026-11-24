@@ -50,7 +50,7 @@ class GraphqlController9Test < ActionController::TestCase
     tt = create_team_task team_id: t.id
     query = 'mutation { moveTeamTaskUp(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: t.slug }
-    assert_response :success
+    assert_response :not_found
     assert_error_message "Not Found"
   end
 
@@ -59,7 +59,7 @@ class GraphqlController9Test < ActionController::TestCase
     tt = create_team_task team_id: t.id
     query = 'mutation { moveTeamTaskDown(input: { clientMutationId: "1", id: "' + tt.graphql_id + '" }) { team_task { order }, team { team_tasks(fieldset: "tasks", first: 10) { edges { node { dbid, order } } } } } }'
     post :create, params: { query: query, team: t.slug }
-    assert_response :success
+    assert_response :not_found
     assert_error_message "Not Found"
   end
 
@@ -166,7 +166,7 @@ class GraphqlController9Test < ActionController::TestCase
     output = "Foo\nhttp://foo\n\nBar\nhttp://bar"
     query = 'query { node(id: "' + tbi.graphql_id + '") { ... on TeamBotInstallation { smooch_bot_preview_rss_feed(rss_feed_url: "' + url + '", number_of_articles: 3) } } }'
     post :create, params: { query: query, team: t.slug }
-    assert_match /Sorry/, @response.body
+    assert_response :not_found
   end
 
   test "should change role of bot" do

@@ -111,8 +111,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create project media" do
-    m = create_valid_media
-    assert_graphql_create('project_media', { media_id: m.id })
+    assert_graphql_create('project_media', { media_type: 'Claim', quote: random_string })
   end
 
   test "should read project media flag and source" do
@@ -274,7 +273,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     t.inactive = true; t.save
     post :create, params: { query: 'query Team { team { name } }', team: 'team-to-be-deleted' }
-    assert_response :success
+    assert_response :not_found
   end
 
   test "should not get project medias from teams marked as deleted" do
