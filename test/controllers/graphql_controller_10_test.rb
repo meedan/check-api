@@ -254,6 +254,7 @@ class GraphqlController10Test < ActionController::TestCase
       v = create_version
       t = Team.last
       create_team_user team: t, user: u, role: 'admin'
+      u.update_column(:current_team_id, t.id)
       id = Base64.encode64("Version/#{v.id}")
       q = assert_queries 14, '<=' do
         post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
