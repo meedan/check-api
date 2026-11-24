@@ -271,7 +271,15 @@ class Bot::Smooch < BotUser
 
   def self.webhook(request)
     # FIXME This should be packaged as an event "invoke_webhook" + data payload
-    Bot::Smooch.run(request.body.read)
+    body = request.body.read
+    return false unless self.payload_matches_authenticated_installation?(body)
+    Bot::Smooch.run(body)
+  end
+
+  def self.payload_matches_authenticated_installation?(body)
+    return true unless RequestStore.store[:smooch_bot_provider] == 'ZENDESK'
+    app_id = begin JSON.parse(body).dig('app', '_id') rescue nil end
+    !app_id.blank? && app_id == self.config.to_h.with_indifferent_access['smooch_app_id']
   end
 
   def self.run(body)

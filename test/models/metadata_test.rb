@@ -20,14 +20,10 @@ class MetadataTest < ActiveSupport::TestCase
     s2 = create_project_media
     assert_equal [], s2.annotations
 
-    em1a = create_metadata annotated: nil
-    assert_nil em1a.annotated
-    em1b = create_metadata annotated: nil
-    assert_nil em1b.annotated
-    em2a = create_metadata annotated: nil
-    assert_nil em2a.annotated
-    em2b = create_metadata annotated: nil
-    assert_nil em2b.annotated
+    em1a = create_metadata annotated: create_project_media(team: s1.team)
+    em1b = create_metadata annotated: create_project_media(team: s1.team)
+    em2a = create_metadata annotated: create_project_media(team: s2.team)
+    em2b = create_metadata annotated: create_project_media(team: s2.team)
 
     s1.add_annotation em1a
     em1b.annotated = s1

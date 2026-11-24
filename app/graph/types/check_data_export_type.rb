@@ -8,6 +8,12 @@ class CheckDataExportType < DefaultObject
   field :user, UserType, null: true
   field :team, TeamType, null: true
 
+  def team
+    team = object.team
+    ability = context[:ability] || Ability.new
+    team if team && ability.can?(:read, team)
+  end
+
   field :created_at, GraphQL::Types::String, null: true, camelize: false
 
   def created_at

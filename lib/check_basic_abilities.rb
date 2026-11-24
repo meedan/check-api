@@ -24,7 +24,7 @@ module CheckBasicAbilities
     can :create, Source, :user_id => @user.id, team_id: nil
     can :update, Source, :id => @user.source_id, team_id: nil
     can :read, AccountSource, source: { user_id: @user.id }
-    can :destroy, AccountSource, source: { team_id: nil, id: @user.source_id}
+    can [:create, :destroy], AccountSource, source: { team_id: nil, id: @user.source_id}
     can [:update, :destroy], User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
     can [:destroy, :create], [Dynamic, Annotation], :annotation_type => 'metadata', :annotated_type => 'Account', :annotated_id => @user.account_ids
@@ -52,7 +52,7 @@ module CheckBasicAbilities
 
   # Extra permissions for all users
   def extra_perms_for_all_users
-    can :create, [User, AccountSource]
+    can :create, User
     can :create, Version
     can :read, Team, :private => false
     can :read, Team, :private => true,  id: @user.cached_teams
@@ -77,7 +77,7 @@ module CheckBasicAbilities
     # 1) it's a source related to him/her or not related to any user
     # 2) it's related to at least one public team
     # 3) it's related to a private team which the @user has access to
-    can :read, [Account, ProjectMedia, Source], user_id: [@user.id, nil]
+    can :read, [Account, Source], user_id: [@user.id, nil], team_id: nil
     can :read, [Media, Link, Claim], project_medias: { team: { private: false } }
     can :read, [Media, Link, Claim], project_medias: { team_id: @user.cached_teams }
 
@@ -92,7 +92,7 @@ module CheckBasicAbilities
     end
 
     can [:read, :create, :update, :destroy], ProjectMediaUser do |obj|
-      obj.user_id == @user.id
+      obj.user_id == @user.id && @user.cached_teams.include?(obj.project_media&.team_id)
     end
 
     can [:read, :create], TiplineMessage do |obj|

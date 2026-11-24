@@ -36,6 +36,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should find similar items to media item" do
     t = create_team
+    create_team_user team: t, user: @u, role: 'admin'
     pm = create_project_media team: t, media: create_uploaded_audio(file: 'rails.mp3')
     pm2 = create_project_media team: t
     Bot::Alegre.stubs(:get_items_with_similar_media_v2).returns({ pm2.id => 0.9, pm.id => 0.8 })
@@ -50,6 +51,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should find similar items to text item" do
     t = create_team
+    create_team_user team: t, user: @u, role: 'admin'
     m = create_claim_media quote: 'This is a test'
     m2 = create_claim_media quote: 'Foo bar'
     pm = create_project_media team: t, media: m
@@ -94,6 +96,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should return number of tasks related to a team task" do
     t = create_team
+    create_team_user team: t, user: @u, role: 'admin'
     tt = create_team_task team_id: t.id
     pm = create_project_media team: t
     pm2 = create_project_media team: t
@@ -356,6 +359,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should get relevant articles for ProjectMedia item" do
     t = create_team
+    create_team_user team: t, user: @u, role: 'admin'
     pm = create_project_media quote: 'Foo Bar', team: t
     ex = create_explainer language: 'en', team: t, title: 'Foo Bar'
     pm.explainers << ex

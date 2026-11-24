@@ -222,7 +222,7 @@ module ProjectMediaCreators
 
   def create_relationship(type = Relationship.confirmed_type)
     unless self.related_to_id.nil?
-      related = ProjectMedia.where(id: self.related_to_id).last
+      related = ProjectMedia.where(id: self.related_to_id, team_id: self.team_id).last
       unless related.nil?
         Relationship.create_unless_exists(related.id, self.id, type)
       else

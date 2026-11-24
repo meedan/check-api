@@ -136,7 +136,10 @@ class Ability
     can :create, Source, :team_id => @context_team.id
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
-    can [:create, :update], [Dynamic, Annotation], { annotation_type: 'metadata' }
+    can [:create, :update], [Dynamic, Annotation], ['annotation_type = ?', 'metadata'] do |obj|
+      team_id = obj.annotated_team_id
+      obj.annotation_type == 'metadata' && (team_id.nil? || team_id == @context_team.id)
+    end
     %w(annotation dynamic task tag).each do |annotation_type|
       can [:cud], annotation_type.classify.constantize do |obj|
         obj.team&.id == @context_team.id && !obj.annotated_is_trashed?

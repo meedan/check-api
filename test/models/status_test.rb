@@ -37,10 +37,10 @@ class StatusTest < ActiveSupport::TestCase
     remove_default_status(s2)
     assert_equal [], s2.annotations
 
-    t1a = create_status
-    t1b = create_status
-    t2a = create_status
-    t2b = create_status
+    t1a = create_status team: s1.team
+    t1b = create_status team: s1.team
+    t2a = create_status team: s2.team
+    t2b = create_status team: s2.team
 
     s1.add_annotation t1a
     t1b.annotated = s1

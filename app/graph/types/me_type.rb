@@ -105,7 +105,7 @@ class MeType < DefaultObject
 
   def teams
     return Team.none unless object == User.current
-    object.teams
+    object.teams.where('team_users.status' => 'member')
   end
 
   field :team_users, TeamUserType.connection_type, null: true do

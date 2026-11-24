@@ -43,10 +43,10 @@ class TagTest < ActiveSupport::TestCase
     s2 = create_project_media
     assert_equal [], s2.annotations
 
-    t1a = create_tag
-    t1b = create_tag
-    t2a = create_tag
-    t2b = create_tag
+    t1a = create_tag annotated: create_project_media(team: s1.team)
+    t1b = create_tag annotated: create_project_media(team: s1.team)
+    t2a = create_tag annotated: create_project_media(team: s2.team)
+    t2b = create_tag annotated: create_project_media(team: s2.team)
 
     s1.add_annotation t1a
     t1b.annotated = s1

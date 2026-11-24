@@ -63,9 +63,9 @@ class SourceTest < ActiveSupport::TestCase
   end
 
   test "should have annotations" do
-    s = create_source
-    t1 = create_tag
-    t2 = create_tag
+    s = create_source team: create_team
+    t1 = create_tag annotated: create_project_media(team: s.team)
+    t2 = create_tag annotated: create_project_media(team: s.team)
     t3 = create_tag
     s.add_annotation(t1)
     s.add_annotation(t2)

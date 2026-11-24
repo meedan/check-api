@@ -83,6 +83,7 @@ module AnnotationBase
     custom_optimistic_locking if: proc { |a| a.annotation_type == 'metadata' && a.annotated_type == 'Source' }
 
     validate :annotated_is_not_archived, unless: proc { |a| a.is_being_copied }, if: proc { |_a| !User.current.nil? && User.current.type != 'BotUser' }
+    validate :annotated_stays_in_the_same_team, on: :update
 
     def annotations
       Annotation.where(annotated_type: ['Task', 'Annotation', 'Dynamic', 'Tag'], annotated_id: self.id)
@@ -118,6 +119,13 @@ module AnnotationBase
       if annotated && annotated.respond_to?(:archived) && annotated.archived == CheckArchivedFlags::FlagCodes::TRASHED && self.annotator_type != 'BotUser' && !self.skip_trashed_validation
         errors.add(:base, I18n.t(:error_annotated_archived))
       end
+    end
+
+    def annotated_stays_in_the_same_team
+      return unless self.will_save_change_to_annotated_id? || self.will_save_change_to_annotated_type?
+      previous = begin self.annotated_type_in_database.constantize.find_by_id(self.annotated_id_in_database) rescue nil end
+      team_id = self.annotated_team_id
+      errors.add(:base, I18n.t(:annotation_must_stay_in_the_same_team)) if team_id.nil? || team_id != self.annotated_team_id(previous)
     end
 
     def propagate_assignment_to(user)
@@ -240,6 +248,13 @@ module AnnotationBase
     str = "#{type.capitalize}/#{self.id}"
     str += "/#{self.version.id}" unless self.version.nil?
     Base64.encode64(str)
+  end
+
+  def annotated_team_id(annotated = self.annotated)
+    annotated = annotated.annotated if annotated.is_a?(Annotation)
+    return nil if annotated.nil?
+    return annotated.id if annotated.is_a?(Team)
+    annotated.respond_to?(:team_id) ? annotated.team_id : nil
   end
 
   def team

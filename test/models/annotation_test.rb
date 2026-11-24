@@ -33,9 +33,9 @@ class AnnotationTest < ActiveSupport::TestCase
   end
 
   test "should get annotations by type" do
-    d = create_dynamic_annotation annotated: nil
-    t = create_tag
     s = create_project_media
+    d = create_dynamic_annotation annotated: create_project_media(team: s.team)
+    t = create_tag annotated: create_project_media(team: s.team)
     s.add_annotation d
     s.add_annotation t
     assert_equal [d], s.annotations('dynamic')
@@ -52,7 +52,7 @@ class AnnotationTest < ActiveSupport::TestCase
   test "should get annotation team" do
     t = create_team
     m = create_valid_media
-    m1 = create_metadata annotated: nil
+    m1 = create_metadata annotated: create_project_media(team: t)
     pm = create_project_media team: t, media: m
     pm.add_annotation m1
     assert_equal m1.team, t
@@ -77,7 +77,7 @@ class AnnotationTest < ActiveSupport::TestCase
     t = create_team
     create_team_user user: u, team: t
     pm = create_project_media team: t
-    task = create_task
+    task = create_task team: t
     pm.add_annotation task
     with_current_user_and_team(u, t) do
       assert_equal ['read Task', 'update Task', 'destroy Task'], JSON.parse(task.permissions).keys
