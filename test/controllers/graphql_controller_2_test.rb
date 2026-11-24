@@ -328,8 +328,8 @@ class GraphqlController2Test < ActionController::TestCase
 
     query = "query GetById { team(id: \"#{t2.id}\") { team_task(dbid: #{tt.id}) { dbid } } }"
     post :create, params: { query: query, team: t2.slug }
-    assert_response :success
-    assert_nil JSON.parse(@response.body)['data']['team']['team_task']
+    assert_response :not_found
+    assert_nil JSON.parse(@response.body)['data']
   end
 
   test "should return suggested similar items count" do
