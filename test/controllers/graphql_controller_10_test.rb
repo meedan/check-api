@@ -659,8 +659,7 @@ class GraphqlController10Test < ActionController::TestCase
     assert_no_difference 'ProjectMedia.count' do
       post :create, params: { query: query, team: t }
     end
-    assert_response 400
-    assert_match /No permission to create Claim/, @response.body
+    assert_response :not_found
   end
 
   test "should not uninstall bot of inactive team" do

@@ -148,8 +148,11 @@ module Api
       private
 
       def authenticate_graphql_user
-        operation_def = get_operation_def(params[:query])
-        safe_operation?(operation_def) ? authenticate_user : authenticate_user!
+        safe_request? ? authenticate_user : authenticate_user!
+      end
+
+      def safe_request?
+        action_name == 'create' && safe_operation?(get_operation_def(params[:query]))
       end
 
       def get_operation_def(query_string)
@@ -188,7 +191,7 @@ module Api
         team = Team.where(slug: slug, inactive: false).first unless slug.blank?
         @context_team = team if team && context_team_accessible?(team)
         Team.current = @context_team
-        render_context_team_not_found if !slug.blank? && @context_team.nil? && !safe_operation?(get_operation_def(params[:query]))
+        render_context_team_not_found if !slug.blank? && @context_team.nil? && !safe_request?
       end
 
       def render_context_team_not_found

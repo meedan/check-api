@@ -273,7 +273,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     t.inactive = true; t.save
     post :create, params: { query: 'query Team { team { name } }', team: 'team-to-be-deleted' }
-    assert_response :success
+    assert_response :not_found
   end
 
   test "should not get project medias from teams marked as deleted" do

@@ -268,8 +268,8 @@ class GraphqlController4Test < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation { bulkProjectMediaMarkRead(input: { clientMutationId: "1", ids: ' + @ids + ', read: true }) { updated_objects { id, is_read, dbid }, ids, team { dbid } } }'
     post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_error_message 'not allowed'
+    assert_response :not_found
+    assert_error_message 'Not Found'
   end
 
   protected

@@ -152,6 +152,7 @@ class GraphqlCrudOperations
   def self.destroy(inputs, ctx, parents_mapping = {})
     obj = self.object_from_id(inputs[:id])
     return unless inputs[:id] || obj
+    raise ActiveRecord::RecordNotFound if obj.is_a?(Version)
 
     self.destroy_from_single_id(inputs[:id] || obj.graphql_id, obj, inputs, ctx, parents_mapping.keys)
   end
