@@ -1083,6 +1083,7 @@ class GraphqlController12Test < ActionController::TestCase
     query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
     post :create, params: { query: query, team: t.slug }
     assert_response 401
+    create_team_user team: t, user: @u, role: 'admin'
     authenticate_with_user(@u)
     query = 'query { getRecentUpdates(query: "{\"keyword\":\"Test\",\"operator\":\"or\"}") { number_of_results } }'
     post :create, params: { query: query, team: t.slug }

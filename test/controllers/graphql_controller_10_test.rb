@@ -768,8 +768,7 @@ class GraphqlController10Test < ActionController::TestCase
     query = "mutation { sendTiplineMessage(input: { clientMutationId: \"1\", message: \"Hello\", inReplyToId: #{tr.id} }) { success } }"
     post :create, params: { query: query, team: t.slug }
 
-    assert_response :success
-    assert !JSON.parse(@response.body)['data']['sendTiplineMessage']['success']
+    assert_response :not_found
   end
 
   test "should add NLU keyword to tipline menu option" do
@@ -814,6 +813,7 @@ class GraphqlController10Test < ActionController::TestCase
     t = create_team
     b = create_team_bot name: 'Smooch', login: 'smooch', set_approved: true
     b.install_to!(t)
+    create_team_user team: t, user: u, role: 'admin'
     authenticate_with_user(u)
 
     query = "mutation { addNluKeywordToTiplineMenu(input: { language: \"en\", menu: \"main\", menuOptionIndex: 0, keyword: \"Foo bar\" }) { success } }"

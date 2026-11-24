@@ -361,8 +361,8 @@ class GraphqlController7Test < ActionController::TestCase
     query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
     post :create, params: { query: query, team: 'team' }
-    assert_response :success
-    assert_equal 0, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_response :not_found
+    assert_nil JSON.parse(@response.body)['data']
   end
 
   test "should read attribution" do

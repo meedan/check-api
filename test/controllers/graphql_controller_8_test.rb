@@ -883,8 +883,10 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should get public team by slug" do
-    authenticate_with_user
+    u = create_user
     t1 = create_team slug: 'team1', name: 'Team 1'
+    create_team_user user: u, team: t1
+    authenticate_with_user(u)
     t2 = create_team slug: 'team2', name: 'Team 2'
     post :create, params: { query: 'query PublicTeam { public_team(slug: "team2") { name } }', team: 'team1' }
     assert_response :success
@@ -895,7 +897,7 @@ class GraphqlController8Test < ActionController::TestCase
     authenticate_with_user
     Team.delete_all
     post :create, params: { query: 'query Team { team { name } }', team: 'test' }
-    assert_response :success
+    assert_response :not_found
   end
 
   test "should update current team based on context team" do
@@ -931,13 +933,13 @@ class GraphqlController8Test < ActionController::TestCase
     authenticate_with_user
     Team.delete_all
     post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'foo' }
-    assert_response :success
+    assert_response :not_found
   end
 
   test "should return null if public team is not found" do
     authenticate_with_user
     Team.delete_all
-    post :create, params: { query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }', team: 'foo' }
+    post :create, params: { query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }' }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['find_public_team']
   end

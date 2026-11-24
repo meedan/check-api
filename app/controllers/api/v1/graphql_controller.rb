@@ -188,6 +188,11 @@ module Api
         team = Team.where(slug: slug, inactive: false).first unless slug.blank?
         @context_team = team if team && context_team_accessible?(team)
         Team.current = @context_team
+        render_context_team_not_found if !slug.blank? && @context_team.nil? && !safe_operation?(get_operation_def(params[:query]))
+      end
+
+      def render_context_team_not_found
+        render json: { errors: [{ message: 'Not Found', code: ::LapisConstants::ErrorCodes::ID_NOT_FOUND, data: {} }] }, status: 404
       end
 
       def context_team_accessible?(team)
