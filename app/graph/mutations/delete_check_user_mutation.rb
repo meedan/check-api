@@ -6,11 +6,12 @@ class DeleteCheckUserMutation < Mutations::BaseMutation
   field :success, GraphQL::Types::Boolean, null: true
 
   def resolve(id:)
+    raise ActiveRecord::RecordNotFound if User.current.nil?
     user = User.where(id: id).last
     if user.nil?
       raise ActiveRecord::RecordNotFound
     else
-      ability = Ability.new(user)
+      ability = Ability.new
       raise I18n.t('permission_error', "Sorry, you are not allowed to perform this operation") if ability.cannot?(:destroy, user)
       User.delete_check_user(user)
       { success: true }

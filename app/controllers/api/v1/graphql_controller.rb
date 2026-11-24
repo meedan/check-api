@@ -159,14 +159,16 @@ module Api
 
       def safe_operation?(operation_def)
         return false if operation_def.nil?
-        operation_type  = operation_def.operation_type.to_s    # "query" or "mutation"
-        root_field_name = operation_def.selections.first.name  # first field, e.g. "me" or "resetPassword"
-        case operation_type
+        selections = operation_def.selections
+        return false if selections.blank?
+        return false unless selections.all? { |s| s.is_a?(GraphQL::Language::Nodes::Field) }
+        root_field_names = selections.map(&:name)
+        case operation_def.operation_type.to_s # "query" or "mutation"
         when 'mutation'
           safe_mutations = %w(resetPassword changePassword resendConfirmation userDisconnectLoginAccount)
-          safe_mutations.include?(root_field_name)
+          (root_field_names - safe_mutations).empty?
         when 'query'
-          root_field_name == 'me'
+          (root_field_names - ['me']).empty?
         else
           false
         end
@@ -183,8 +185,15 @@ module Api
       def load_context_team
         slug = request.params['team'] || request.headers['X-Check-Team']
         slug = CGI::unescape(slug) unless slug.blank?
-        @context_team = Team.where(slug: slug, inactive: false).first unless slug.blank?
+        team = Team.where(slug: slug, inactive: false).first unless slug.blank?
+        @context_team = team if team && context_team_accessible?(team)
         Team.current = @context_team
+      end
+
+      def context_team_accessible?(team)
+        return true if User.current&.is_admin?
+        return true if !ApiKey.current.nil? && ApiKey.current.team_id == team.id
+        !User.current.nil? && User.current.is_member_of?(team)
       end
 
       def set_current_team
