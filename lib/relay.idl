@@ -2544,7 +2544,6 @@ input CreateProjectMediaInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
-  media_id: Int
   media_type: String
   project_id: Int @deprecated(reason: "Deprecate folder feature.")
   quote: String
@@ -13203,7 +13202,7 @@ type TeamUser implements Node {
   permissions: String
   role: String
   status: String
-  team: Team
+  team: PublicTeam
   team_id: Int
   updated_at: String
   user: User
@@ -15148,7 +15147,6 @@ input UpdateProjectMediaInput {
   clientMutationId: String
   custom_title: String
   id: ID
-  media_id: Int
   project_id: Int @deprecated(reason: "Deprecate folder feature.")
   read: Boolean
   refresh_media: Int
