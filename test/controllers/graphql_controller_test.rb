@@ -111,8 +111,7 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should create project media" do
-    m = create_valid_media
-    assert_graphql_create('project_media', { media_id: m.id })
+    assert_graphql_create('project_media', { media_type: 'Claim', quote: random_string })
   end
 
   test "should read project media flag and source" do

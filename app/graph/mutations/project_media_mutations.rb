@@ -13,7 +13,6 @@ module ProjectMediaMutations
     extend ActiveSupport::Concern
 
     included do
-      argument :media_id, GraphQL::Types::Int, required: false, camelize: false
       argument :related_to_id, GraphQL::Types::Int, required: false, camelize: false
       argument :project_id, GraphQL::Types::Int, required: false, camelize: false, deprecation_reason: "Deprecate folder feature."
 
@@ -27,7 +26,6 @@ module ProjectMediaMutations
     argument :url, GraphQL::Types::String, required: false
     argument :quote, GraphQL::Types::String, required: false
     argument :quote_attributions, GraphQL::Types::String, required: false, camelize: false
-    argument :media_id, GraphQL::Types::Int, required: false, camelize: false
     argument :team_id, GraphQL::Types::Int, required: false, camelize: false
     argument :channel, JsonStringType, required: false
     argument :media_type, GraphQL::Types::String, required: false, camelize: false

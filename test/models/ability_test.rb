@@ -1208,7 +1208,9 @@ class AbilityTest < ActiveSupport::TestCase
     t = create_team
     u1 = create_user
     u2 = create_user
-    pm = create_project_media
+    create_team_user user: u1, team: t
+    create_team_user user: u2, team: t
+    pm = create_project_media team: t
     pmu1 = ProjectMediaUser.create! project_media: pm, user: u1, read: true
     pmu2 = ProjectMediaUser.create! project_media: pm, user: u2, read: true
     with_current_user_and_team(u1, t) do

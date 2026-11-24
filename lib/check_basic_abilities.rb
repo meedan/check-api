@@ -92,7 +92,7 @@ module CheckBasicAbilities
     end
 
     can [:read, :create, :update, :destroy], ProjectMediaUser do |obj|
-      obj.user_id == @user.id
+      obj.user_id == @user.id && @user.cached_teams.include?(obj.project_media&.team_id)
     end
 
     can [:read, :create], TiplineMessage do |obj|
