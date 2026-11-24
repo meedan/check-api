@@ -91,13 +91,19 @@ class GraphqlControllerTest < ActionController::TestCase
   # Test CRUD operations for each model
 
   test "should create account source" do
-    a = create_valid_account
-    s = create_source
-    assert_graphql_create('account_source', { account_id: a.id, source_id: s.id })
+    u = create_user
+    t = create_team
+    create_team_user user: u, team: t, role: 'admin'
+    s = create_source team: t
     url = random_url
     pender_url = CheckConfig.get('pender_url_private') + '/api/medias'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: '{"type":"media","data":{"url":"' + url + '","type":"profile"}}')
-    assert_graphql_create('account_source', { source_id: s.id, url: url })
+    authenticate_with_user(u)
+    query = 'mutation create { createAccountSource(input: { clientMutationId: "1", source_id: ' + s.id.to_s + ', url: "' + url + '" }) { account_source { id } } }'
+    assert_difference 'AccountSource.count' do
+      post :create, params: { query: query, team: t.slug }
+      assert_response :success
+    end
   end
 
   test "should create media" do

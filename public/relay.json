@@ -5157,18 +5157,6 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "account_id",
-              "description": null,
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              },
-              "defaultValue": null,
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "source_id",
               "description": null,
               "type": {

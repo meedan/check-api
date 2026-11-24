@@ -24,7 +24,7 @@ module CheckBasicAbilities
     can :create, Source, :user_id => @user.id, team_id: nil
     can :update, Source, :id => @user.source_id, team_id: nil
     can :read, AccountSource, source: { user_id: @user.id }
-    can :destroy, AccountSource, source: { team_id: nil, id: @user.source_id}
+    can [:create, :destroy], AccountSource, source: { team_id: nil, id: @user.source_id}
     can [:update, :destroy], User, :id => @user.id
     can [:create, :update], Account, :user_id => @user.id
     can [:destroy, :create], [Dynamic, Annotation], :annotation_type => 'metadata', :annotated_type => 'Account', :annotated_id => @user.account_ids
@@ -52,7 +52,7 @@ module CheckBasicAbilities
 
   # Extra permissions for all users
   def extra_perms_for_all_users
-    can :create, [User, AccountSource]
+    can :create, User
     can :create, Version
     can :read, Team, :private => false
     can :read, Team, :private => true,  id: @user.cached_teams

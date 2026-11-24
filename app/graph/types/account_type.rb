@@ -12,6 +12,19 @@ class AccountType < DefaultObject
   field :permissions, GraphQL::Types::String, null: true
   field :image, GraphQL::Types::String, null: true
   field :user, UserType, null: true
+
+  def user
+    user = object.user
+    ability = context[:ability] || Ability.new
+    user if user && ability.can?(:read, user)
+  end
+
   field :medias, MediaType.connection_type, null: true
+
+  def medias
+    return object.medias if User.current&.is_admin?
+    object.medias.where(id: ProjectMedia.where(team_id: User.current&.cached_teams.to_a).select(:media_id))
+  end
+
   field :metadata, JsonStringType, null: true
 end
