@@ -114,7 +114,7 @@ class ProjectMedia < ApplicationRecord
   end
 
   def related_to
-    ProjectMedia.where(id: self.related_to_id).last unless self.related_to_id.nil?
+    ProjectMedia.where(id: self.related_to_id, team_id: self.team_id).last unless self.related_to_id.nil?
   end
 
   def related_items_ids

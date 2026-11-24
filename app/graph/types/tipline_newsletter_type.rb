@@ -31,6 +31,13 @@ class TiplineNewsletterType < DefaultObject
   field :language, GraphQL::Types::String, null: true
   field :enabled, GraphQL::Types::Boolean, null: true
   field :team, TeamType, null: true
+
+  def team
+    team = object.team
+    ability = context[:ability] || Ability.new
+    team if team && ability.can?(:read, team)
+  end
+
   field :last_scheduled_at, GraphQL::Types::Int, null: true
   field :last_scheduled_by, UserType, null: true
   field :last_sent_at, GraphQL::Types::Int, null: true

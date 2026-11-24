@@ -13,5 +13,12 @@ class ApiKeyType < DefaultObject
   field :expire_at, GraphQL::Types::String, null: true
 
   field :team, TeamType, null: true
+
+  def team
+    team = object.team
+    ability = context[:ability] || Ability.new
+    team if team && ability.can?(:read, team)
+  end
+
   field :user, UserType, null: true
 end

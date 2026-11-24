@@ -20,7 +20,13 @@ class TeamBotInstallationType < DefaultObject
   field :team, TeamType, null: true
 
   def team
-    RecordLoader.for(Team).load(object.team_id)
+    RecordLoader
+      .for(Team)
+      .load(object.team_id)
+      .then do |team|
+        ability = context[:ability] || Ability.new
+        team if team && ability.can?(:read, team)
+      end
   end
 
   field :alegre_settings, JsonStringType, null: true

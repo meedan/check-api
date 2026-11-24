@@ -14,6 +14,13 @@ class TiplineMessageType < DefaultObject
   field :team_id, GraphQL::Types::Int, null: true
   field :state, GraphQL::Types::String, null: true
   field :team, TeamType, null: true
+
+  def team
+    team = object.team
+    ability = context[:ability] || Ability.new
+    team if team && ability.can?(:read, team)
+  end
+
   field :sent_at, GraphQL::Types::String, null: true, camelize: false
   field :media_url, GraphQL::Types::String, null: true
   field :cursor, GraphQL::Types::String, null: true

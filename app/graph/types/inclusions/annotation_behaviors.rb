@@ -65,6 +65,12 @@ module Types::Inclusions
 
       field :team, ::TeamType, null: true
 
+      def team
+        team = object.team
+        ability = context[:ability] || ::Ability.new
+        team if team && ability.can?(:read, team)
+      end
+
       field :file_data, ::JsonStringType, null: true, camelize: false
 
       field :data, ::JsonStringType, null: true

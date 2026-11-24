@@ -191,8 +191,9 @@ class ProjectMedia6Test < ActiveSupport::TestCase
   end
 
   test "should return related" do
-    pm = create_project_media
-    pm2 = create_project_media
+    t = create_team
+    pm = create_project_media team: t
+    pm2 = create_project_media team: t
     assert_nil pm.related_to
     pm.related_to_id = pm2.id
     assert_equal pm2, pm.related_to
