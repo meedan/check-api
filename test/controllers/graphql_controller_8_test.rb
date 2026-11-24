@@ -853,23 +853,29 @@ class GraphqlController8Test < ActionController::TestCase
   end
 
   test "should set context team" do
-    authenticate_with_user
+    u = create_user
     t = create_team slug: 'context'
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
     post :create, params: { query: 'query Query { about { name, version } }', team: 'context' }
     assert_equal t, assigns(:context_team)
   end
 
   test "should get team by context" do
-    authenticate_with_user
+    u = create_user
     t = create_team slug: 'context', name: 'Context Team'
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
     post :create, params: { query: 'query Team { team { name } }', team: 'context' }
     assert_response :success
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
   end
 
   test "should get public team by context" do
-    authenticate_with_user
+    u = create_user
     t1 = create_team slug: 'team1', name: 'Team 1'
+    create_team_user user: u, team: t1
+    authenticate_with_user(u)
     t2 = create_team slug: 'team2', name: 'Team 2'
     post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'team1' }
     assert_response :success

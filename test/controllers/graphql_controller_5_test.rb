@@ -94,6 +94,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should return number of tasks related to a team task" do
     t = create_team
+    create_team_user team: t, user: @u, role: 'admin'
     tt = create_team_task team_id: t.id
     pm = create_project_media team: t
     pm2 = create_project_media team: t
@@ -356,6 +357,7 @@ class GraphqlController5Test < ActionController::TestCase
 
   test "should get relevant articles for ProjectMedia item" do
     t = create_team
+    create_team_user team: t, user: @u, role: 'admin'
     pm = create_project_media quote: 'Foo Bar', team: t
     ex = create_explainer language: 'en', team: t, title: 'Foo Bar'
     pm.explainers << ex

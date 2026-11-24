@@ -49,7 +49,7 @@ class TeamBotInstallationType < DefaultObject
   def smooch_bot_preview_rss_feed(rss_feed_url:, number_of_articles:)
     return nil unless object.bot_user.login == "smooch"
     ability = context[:ability] || Ability.new
-    team = Team.current
+    team = object.team
     if ability.can?(:preview_rss_feed, team)
       rss_feed = RssFeed.new(rss_feed_url)
       content = rss_feed.get_articles(number_of_articles).join("\n\n")

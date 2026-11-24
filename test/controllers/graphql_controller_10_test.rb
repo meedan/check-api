@@ -248,10 +248,12 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should get version from global id" do
-    authenticate_with_user
+    u = create_user
+    authenticate_with_user(u)
     with_versioning do
       v = create_version
       t = Team.last
+      create_team_user team: t, user: u, role: 'admin'
       id = Base64.encode64("Version/#{v.id}")
       q = assert_queries 14, '<=' do
         post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
@@ -558,8 +560,10 @@ class GraphqlController10Test < ActionController::TestCase
   end
 
   test "should get team with arabic slug" do
-    authenticate_with_user
+    u = create_user
     t = create_team slug: 'المصالحة', name: 'Arabic Team'
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
     post :create, params: { query: 'query Query { about { name, version } }', team: '%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D9%84%D8%AD%D8%A9' }
     assert_response :success
     assert_equal t, assigns(:context_team)

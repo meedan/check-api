@@ -342,14 +342,16 @@ class GraphqlController7Test < ActionController::TestCase
   end
 
   test "should have a different id for public team" do
-    authenticate_with_user
+    u = create_user
     t = create_team slug: 'team', name: 'Team'
+    create_team_user user: u, team: t
+    authenticate_with_user(u)
     post :create, params: { query: 'query PublicTeam { public_team { id, trash_count } }', team: 'team' }
     assert_response :success
     assert_equal Base64.encode64("PublicTeam/#{t.id}"), JSON.parse(@response.body)['data']['public_team']['id']
   end
 
-  test "should search as anonymous user" do
+  test "should not search as anonymous user" do
     t = create_team slug: 'team', private: false
     2.times do
       pm = create_project_media team: t, disable_es_callbacks: false
@@ -360,7 +362,7 @@ class GraphqlController7Test < ActionController::TestCase
 
     post :create, params: { query: query, team: 'team' }
     assert_response :success
-    assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
+    assert_equal 0, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
   end
 
   test "should read attribution" do

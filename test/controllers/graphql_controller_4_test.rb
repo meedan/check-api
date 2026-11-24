@@ -37,7 +37,7 @@ class GraphqlController4Test < ActionController::TestCase
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 1}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    assert_error_message 'allowed'
+    assert_equal [], JSON.parse(@response.body).dig('data', 'updateProjectMedias', 'ids')
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::NONE, pm.reload.archived }
   end
 
@@ -66,7 +66,7 @@ class GraphqlController4Test < ActionController::TestCase
     query = 'mutation { updateProjectMedias(input: { clientMutationId: "1", ids: ' + @ids + ', action: "archived", params: "{\"archived:\": 0}" }) { ids, team { dbid } } }'
     post :create, params: { query: query, team: @t.slug }
     assert_response :success
-    assert_error_message 'allowed'
+    assert_equal [], JSON.parse(@response.body).dig('data', 'updateProjectMedias', 'ids')
     @pms.each { |pm| assert_equal CheckArchivedFlags::FlagCodes::TRASHED, pm.reload.archived }
   end
 

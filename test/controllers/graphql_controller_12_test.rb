@@ -244,6 +244,7 @@ class GraphqlController12Test < ActionController::TestCase
     pm2 = create_project_media team: t2, quote: 'Test 2', disable_es_callbacks: false
     sleep 2 # Wait for content to be indexed
 
+    create_team_user team: t1, user: @u, role: 'admin'
     authenticate_with_user(@u)
 
     # ElasticSearch
