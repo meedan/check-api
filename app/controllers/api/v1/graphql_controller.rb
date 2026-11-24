@@ -189,7 +189,7 @@ module Api
         slug = request.params['team'] || request.headers['X-Check-Team']
         slug = CGI::unescape(slug) unless slug.blank?
         team = Team.where(slug: slug, inactive: false).first unless slug.blank?
-        @context_team = team if team && context_team_accessible?(team)
+        @context_team = (team && context_team_accessible?(team)) ? team : nil
         Team.current = @context_team
         render_context_team_not_found if !slug.blank? && @context_team.nil? && !safe_request?
       end

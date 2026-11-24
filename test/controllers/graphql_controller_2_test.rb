@@ -184,7 +184,7 @@ class GraphqlController2Test < ActionController::TestCase
     GRAPHQL
 
     assert_difference 'BotUser.count' do
-      post :create, params: { query: query, team: t }
+      post :create, params: { query: query, team: t.slug }
     end
     response = JSON.parse(@response.body).dig('data', 'createWebhook')
 
@@ -233,7 +233,7 @@ class GraphqlController2Test < ActionController::TestCase
       }
     GRAPHQL
 
-    post :create, params: { query: query, team: t }
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     response = JSON.parse(@response.body).dig('data', 'updateWebhook')
 

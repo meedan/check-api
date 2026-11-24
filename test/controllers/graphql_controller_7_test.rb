@@ -319,7 +319,7 @@ class GraphqlController7Test < ActionController::TestCase
     create_team_user user: u, team: t, role: 'admin'
     authenticate_with_user(u)
     query = 'mutation create { createSource(input: { name: "new source", slogan: "new source", clientMutationId: "1", add_to_project_media_id: ' + pm.id.to_s + ' }) { source { dbid } } }'
-    post :create, params: { query: query, team: t }
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     source = JSON.parse(@response.body)['data']['createSource']['source']
     assert_equal pm.reload.source_id, source['dbid']
@@ -485,7 +485,7 @@ class GraphqlController7Test < ActionController::TestCase
     f = Rack::Test::UploadedFile.new(File.join(Rails.root, 'test', 'data', 'rails.png'), 'image/png')
     authenticate_with_user(u)
     query = 'mutation { updateTask(input: { clientMutationId: "1", id: "' + t.graphql_id + '" }) { task { id } } }' # It could be any other mutation, not only updateTask
-    post :create, params: { query: query, team: t.slug, file: { '0' => f } }
+    post :create, params: { query: query, team: t.team.slug, file: { '0' => f } }
     assert_response :success
   end
 

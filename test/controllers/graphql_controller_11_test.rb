@@ -390,8 +390,7 @@ class GraphqlController11Test < ActionController::TestCase
     GRAPHQL
 
     post :create, params: { query: query, team: t.slug }
-    assert_response :success
-    assert_match /ActiveRecord::RecordNotFound/, @response.body
+    assert_response :not_found
   end
 
   test "should query tipline requests that never received articles and send explainers" do
